@@ -21,6 +21,11 @@ export const metadata: Metadata = {
     "early access AI marketing tool",
     "SME automation software",
   ],
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     title: "Brancr – AI Marketing Assistant for African SMEs",
     description: "Automate your social media replies, content creation, and customer engagement with Brancr. Join the waitlist today for 50% off early access.",
