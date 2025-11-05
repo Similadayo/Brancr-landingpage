@@ -88,7 +88,7 @@ export default function WaitlistPage() {
                   </svg>
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  You're on the list!
+                  You&apos;re on the list!
                 </h2>
                 <p className="text-gray-600 mb-6">{message}</p>
                 <Link
@@ -161,7 +161,7 @@ export default function WaitlistPage() {
                 </button>
 
                 <p className="text-xs text-gray-500 text-center">
-                  No credit card required • We'll notify you when Brancr is
+                  No credit card required • We&apos;ll notify you when Brancr is
                   ready
                 </p>
               </form>

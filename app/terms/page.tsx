@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Terms of Service – Brancr",
-  description: "Brancr's Terms of Service govern your use of our AI-powered marketing assistant platform.",
+  description: "Brancr&apos;s Terms of Service govern your use of our AI-powered marketing assistant platform.",
 };
 
 export default function TermsPage() {
@@ -45,8 +45,8 @@ export default function TermsPage() {
                   1. Agreement to Terms
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  By accessing or using Brancr ("we," "our," "us"), you agree to
-                  these Terms of Service ("Terms"). If you disagree, do not use the
+                  By accessing or using Brancr (&quot;we,&quot; &quot;our,&quot; &quot;us&quot;), you agree to
+                  these Terms of Service (&quot;Terms&quot;). If you disagree, do not use the
                   site or join the waitlist.
                 </p>
               </section>
@@ -116,7 +116,7 @@ export default function TermsPage() {
                   6. Intellectual Property
                 </h2>
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  All content, designs, logos (including "Brancr"), trademarks, and
+                  All content, designs, logos (including &quot;Brancr&quot;), trademarks, and
                   software are the exclusive property of Brancr Technologies.
                 </p>
                 <p className="text-gray-700 leading-relaxed">
@@ -130,7 +130,7 @@ export default function TermsPage() {
                   7. Beta Access & Feedback
                 </h2>
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  If you participate in Brancr's beta or early access program, you may
+                  If you participate in Brancr&apos;s beta or early access program, you may
                   share feedback voluntarily. By doing so, you grant us a
                   non-exclusive, royalty-free right to use that feedback to improve
                   Brancr.
@@ -144,7 +144,7 @@ export default function TermsPage() {
               <section className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Disclaimers</h2>
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  Brancr is provided "as is" and "as available." We do not guarantee
+                  Brancr is provided &quot;as is&quot; and &quot;as available.&quot; We do not guarantee
                   uninterrupted or error-free operation. You use the platform at your
                   own risk.
                 </p>
@@ -159,7 +159,7 @@ export default function TermsPage() {
                   9. Limitation of Liability
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  To the fullest extent permitted by law, Brancr's liability is
+                  To the fullest extent permitted by law, Brancr&apos;s liability is
                   limited to the amount (if any) you paid us during the 12 months
                   preceding any claim.
                 </p>

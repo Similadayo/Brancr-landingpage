@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Privacy Policy – Brancr",
-  description: "Brancr's Privacy Policy explains how we collect, use, and protect your information.",
+  description: "Brancr&apos;s Privacy Policy explains how we collect, use, and protect your information.",
 };
 
 export default function PrivacyPage() {
@@ -43,7 +43,7 @@ export default function PrivacyPage() {
               <section className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Introduction</h2>
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  Welcome to Brancr ("we," "our," "us").
+                  Welcome to Brancr (&quot;we,&quot; &quot;our,&quot; &quot;us&quot;).
                 </p>
                 <p className="text-gray-700 leading-relaxed mb-4">
                   Brancr is an AI-powered marketing assistant designed to help small
@@ -118,7 +118,7 @@ export default function PrivacyPage() {
                   <li>Comply with legal obligations</li>
                 </ul>
                 <p className="text-gray-700 leading-relaxed">
-                  If you join our waitlist, we'll only use your email to contact you
+                  If you join our waitlist, we&apos;ll only use your email to contact you
                   about Brancr updates — no spam, ever.
                 </p>
               </section>
@@ -208,7 +208,7 @@ export default function PrivacyPage() {
                   9. Updates to This Policy
                 </h2>
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  We may update this Privacy Policy periodically. The "Last Updated"
+                  We may update this Privacy Policy periodically. The &quot;Last Updated&quot;
                   date will always reflect the current version.
                 </p>
                 <p className="text-gray-700 leading-relaxed">
