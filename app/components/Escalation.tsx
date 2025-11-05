@@ -17,11 +17,11 @@ export default function Escalation() {
               AI That Knows Its Limits
             </h2>
             <p className="text-lg text-gray-600 leading-relaxed mb-6">
-              Brancr isn't a faceless bot; it's a smart assistant that handles
+              Brancr isn&apos;t a faceless bot; it&apos;s a smart assistant that handles
               the repetitive, not the risky.
             </p>
             <p className="text-lg font-semibold text-gray-900 mb-4">
-              You're instantly alerted in chat whenever:
+              You&apos;re instantly alerted in chat whenever:
             </p>
             <ul className="space-y-3 text-gray-600 mb-8">
               <li className="flex items-start gap-2">
@@ -58,13 +58,13 @@ export default function Escalation() {
                   </div>
                   <div className="flex-1 bg-gray-50 rounded-lg p-4">
                     <p className="text-sm text-gray-700">
-                      "What are your opening hours?"
+                      &quot;What are your opening hours?&quot;
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4 justify-end">
                   <div className="flex-1 bg-accent text-white rounded-lg p-4 text-sm">
-                    We're open Monday to Friday, 9 AM - 6 PM. How can I help you
+                    We&apos;re open Monday to Friday, 9 AM - 6 PM. How can I help you
                     today?
                   </div>
                 </div>

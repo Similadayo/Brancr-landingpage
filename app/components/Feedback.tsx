@@ -69,7 +69,7 @@ export default function Feedback() {
                 ))}
               </div>
               <p className="text-gray-700 mb-6 leading-relaxed">
-                "{feedback.quote}"
+                &quot;{feedback.quote}&quot;
               </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-accent-light flex items-center justify-center text-white font-semibold text-sm">

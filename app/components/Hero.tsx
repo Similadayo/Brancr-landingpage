@@ -86,7 +86,7 @@ export default function Hero() {
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent-light"></div>
                       <div className="flex-1 bg-white rounded-lg p-3 shadow-sm">
                         <p className="text-sm text-gray-700">
-                          "Do you have this in stock?"
+                          &quot;Do you have this in stock?&quot;
                         </p>
                       </div>
                     </div>
