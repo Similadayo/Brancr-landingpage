@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import StructuredData from "./components/StructuredData";
+import GoogleAnalytics from "./components/GoogleAnalytics";
 
 export const metadata: Metadata = {
-  title: "Brancr – AI Marketing Assistant for African SMEs",
-  description: "Automate your social media replies, content creation, and customer engagement with Brancr. Join the waitlist today for 50% off early access.",
+  title: {
+    default: "Brancr – AI Marketing Assistant for African SMEs | Automate Social Media",
+    template: "%s | Brancr",
+  },
+  description: "Brancr is an AI-powered marketing assistant that helps African SMEs automate social media replies, create content, and manage customer chats from one simple chat interface. Join the waitlist for 50% off early access.",
   keywords: [
     "AI marketing assistant for SMEs",
     "automate social media responses",
@@ -20,18 +25,65 @@ export const metadata: Metadata = {
     "AI beta program Africa",
     "early access AI marketing tool",
     "SME automation software",
+    "social media automation Nigeria",
+    "AI marketing Ghana",
+    "automate WhatsApp business",
+    "AI Instagram management",
+    "Facebook marketing automation",
+    "TikTok content creation AI",
+    "social media management Africa",
   ],
+  authors: [{ name: "Brancr" }],
+  creator: "Brancr",
+  publisher: "Brancr",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: "/icon.svg",
     shortcut: "/icon.svg",
     apple: "/icon.svg",
   },
+  metadataBase: new URL('https://brancr.com'),
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: "Brancr – AI Marketing Assistant for African SMEs",
-    description: "Automate your social media replies, content creation, and customer engagement with Brancr. Join the waitlist today for 50% off early access.",
+    type: "website",
+    locale: "en_US",
     url: "https://brancr.com",
     siteName: "Brancr",
-    type: "website",
+    title: "Brancr – AI Marketing Assistant for African SMEs",
+    description: "Automate your social media replies, content creation, and customer engagement with Brancr. Join the waitlist today for 50% off early access.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Brancr - AI Marketing Assistant for African SMEs",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Brancr – AI Marketing Assistant for African SMEs",
+    description: "Automate your social media replies, content creation, and customer engagement with Brancr. Join the waitlist today for 50% off early access.",
+    images: ["/og-image.png"],
+    creator: "@brancr",
+  },
+  verification: {
+    // Add your verification codes here when available
+    // google: 'your-google-verification-code',
+    // yandex: 'your-yandex-verification-code',
+    // bing: 'your-bing-verification-code',
   },
 };
 
@@ -42,7 +94,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <GoogleAnalytics />
+        <StructuredData />
+        {children}
+      </body>
     </html>
   );
 }

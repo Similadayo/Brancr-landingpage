@@ -1,0 +1,52 @@
+OG IMAGE PLACEHOLDER INSTRUCTIONS
+==================================
+
+This file is a placeholder. You need to create an actual OG image.
+
+FILE TO CREATE: /public/og-image.png
+
+REQUIREMENTS:
+- Dimensions: 1200px width × 630px height
+- Format: PNG or JPG
+- File size: Under 1MB (optimize for web)
+
+DESIGN SUGGESTIONS:
+- Background: Use your brand gradient (purple/blue)
+- Include: Brancr logo (top left)
+- Headline: "Brancr: AI Marketing Assistant for African SMEs"
+- Subheadline: "Automate your social media, grow your business"
+- Visual: Add a simple illustration or screenshot of the product
+- Colors: Match your brand (primary navy #1B1A55, accent #635BFF)
+
+QUICK CREATION OPTIONS:
+
+1. CANVA (Recommended - Easiest):
+   - Go to https://canva.com
+   - Search "Open Graph" template
+   - Customize with your brand colors and logo
+   - Export as PNG (1200×630px)
+
+2. FIGMA:
+   - Create 1200×630px frame
+   - Design with your brand elements
+   - Export as PNG
+
+3. ONLINE TOOLS:
+   - https://www.opengraph.xyz/ (preview tool)
+   - https://www.canva.com/templates/EAFGkX3hJ0U-open-graph-image/
+
+4. AI GENERATION:
+   - Use DALL-E, Midjourney, or Stable Diffusion
+   - Prompt: "Professional SaaS product banner for AI marketing tool, 
+             purple and blue gradient, modern, clean design, 1200x630px"
+
+AFTER CREATION:
+1. Save the file as: og-image.png
+2. Place it in: /public/og-image.png
+3. The site will automatically use it for social sharing
+
+TEST YOUR IMAGE:
+- Use https://www.opengraph.xyz/ to preview how it looks when shared
+- Test on Facebook: https://developers.facebook.com/tools/debug/
+- Test on Twitter: https://cards-dev.twitter.com/validator
+

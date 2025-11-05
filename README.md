@@ -111,10 +111,53 @@ brancr/
 
 Create a `.env.local` file for local development:
 ```env
-# Add your API keys here
+# Database Integration (Optional)
 SUPABASE_URL=
 SUPABASE_KEY=
+# or
+AIRTABLE_API_KEY=
+AIRTABLE_BASE_ID=
+
+# Google Analytics (Optional)
+NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 ```
+
+## 🔍 SEO Setup
+
+This site includes comprehensive SEO optimization. **See `SEO_CHECKLIST.md` for complete setup instructions.**
+
+### Quick SEO Setup:
+
+1. **Create OG Image** (Required for social sharing):
+   - Create a 1200×630px image
+   - Save as `/public/og-image.png`
+   - See `public/og-image-placeholder.txt` for instructions
+
+2. **Google Search Console**:
+   - Verify site ownership
+   - Submit sitemap: `https://brancr.com/sitemap.xml`
+
+3. **Add Analytics** (Optional):
+   - Get Google Analytics 4 Measurement ID
+   - Add to `.env.local` as `NEXT_PUBLIC_GA_ID`
+   - Analytics will automatically start tracking
+
+4. **Update Social Links**:
+   - Edit `app/components/StructuredData.tsx`
+   - Update social media URLs in `sameAs` array
+
+5. **Verify with Search Engines**:
+   - Add verification codes to `app/layout.tsx`
+   - Uncomment verification object and add codes
+
+**All SEO features are already implemented:**
+- ✅ Structured data (JSON-LD)
+- ✅ Sitemap.xml (auto-generated)
+- ✅ Robots.txt
+- ✅ Open Graph tags
+- ✅ Twitter Cards
+- ✅ Enhanced metadata
+- ✅ Canonical URLs
 
 ## 📝 License
 
