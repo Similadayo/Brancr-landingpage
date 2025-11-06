@@ -6,6 +6,7 @@ import HowItWorks from "./components/HowItWorks";
 import Feedback from "./components/Feedback";
 import EarlyAccess from "./components/EarlyAccess";
 import CTA from "./components/CTA";
+import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import { Metadata } from "next";
 
@@ -30,6 +31,7 @@ export default function Home() {
       <Feedback />
       <EarlyAccess />
       <CTA />
+      <Contact />
       <Footer />
     </main>
   );
