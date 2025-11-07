@@ -50,7 +50,7 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/privacy" className="hover:text-white transition-colors">
+                <Link href="/privacy-policy" className="hover:text-white transition-colors">
                   Privacy Policy
                 </Link>
               </li>
@@ -134,7 +134,7 @@ export default function Footer() {
               © 2025 Brancr. All rights reserved.
             </p>
             <div className="flex space-x-6">
-              <Link href="/privacy" className="text-sm text-gray-400 hover:text-white transition-colors">
+              <Link href="/privacy-policy" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Privacy Policy
               </Link>
               <Link href="/terms" className="text-sm text-gray-400 hover:text-white transition-colors">
