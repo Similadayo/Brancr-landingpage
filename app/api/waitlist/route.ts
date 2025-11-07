@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
+import { notifyWaitlistSignup } from "@/lib/waitlistNotifications";
+import { getWaitlistEntries, saveWaitlistEntry } from "@/lib/waitlistStorage";
 
-// This is a placeholder implementation
-// In production, replace this with Supabase or Airtable integration
-// Example for Supabase:
-// import { createClient } from '@supabase/supabase-js'
-// const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_KEY!)
+export async function GET() {
+  try {
+    const entries = await getWaitlistEntries();
+    return NextResponse.json({ entries });
+  } catch (error) {
+    console.error("Failed to read waitlist entries:", error);
+    return NextResponse.json({ error: "Unable to read waitlist entries" }, { status: 500 });
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { name, email } = body;
 
-    // Validation
     if (!name || !email) {
       return NextResponse.json(
         { error: "Name and email are required" },
@@ -19,7 +24,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
@@ -28,32 +32,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Replace with actual database integration
-    // Example for Supabase:
-    // const { error } = await supabase
-    //   .from('waitlist')
-    //   .insert([{ name, email, created_at: new Date().toISOString() }])
-    
-    // Example for Airtable:
-    // const response = await fetch(`https://api.airtable.com/v0/${BASE_ID}/Waitlist`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     fields: { Name: name, Email: email }
-    //   })
-    // });
+    const normalizedEmail = email.trim().toLowerCase();
+    const existingEntries = await getWaitlistEntries();
 
-    // For now, just log and return success
-    console.log("Waitlist submission:", { name, email, timestamp: new Date() });
+    if (existingEntries.some((entry) => entry.email.toLowerCase() === normalizedEmail)) {
+      return NextResponse.json(
+        { message: "You are already on the waitlist." },
+        { status: 200 }
+      );
+    }
 
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    const record = await saveWaitlistEntry({ name: name.trim(), email: normalizedEmail });
+
+    await notifyWaitlistSignup(record);
 
     return NextResponse.json(
-      { message: "Successfully joined waitlist", name, email },
+      { message: "Successfully joined waitlist", entry: record },
       { status: 200 }
     );
   } catch (error) {

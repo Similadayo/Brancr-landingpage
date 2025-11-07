@@ -32,8 +32,10 @@ export default function WaitlistPage() {
 
       if (response.ok) {
         setStatus("success");
-        setMessage("Thank you! We'll be in touch soon.");
-        setFormData({ name: "", email: "" });
+        setMessage(data.message || "Thank you! We'll be in touch soon.");
+        if (data.entry) {
+          setFormData({ name: "", email: "" });
+        }
       } else {
         setStatus("error");
         setMessage(data.error || "Something went wrong. Please try again.");

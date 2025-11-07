@@ -20,7 +20,7 @@ export default function Contact() {
             Contact Us
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Have questions or want to learn more? We'd love to hear from you.
+            Have questions or want to learn more? We&apos;d love to hear from you.
           </p>
         </motion.div>
 
