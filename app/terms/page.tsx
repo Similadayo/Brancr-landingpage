@@ -35,205 +35,164 @@ export default function TermsPage() {
 
           <div className="bg-white rounded-2xl p-8 md:p-12 shadow-xl border border-gray-100">
             <header className="border-b border-gray-100 pb-8 mb-10">
-              <p className="text-sm font-semibold text-primary uppercase tracking-[0.3em] mb-3">
+              <p className="text-sm font-semibold text-primary uppercase tracking-[0.28em] mb-3">
                 Terms of Service
               </p>
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                Brancr AI Technologies
+                ⚖️ Brancr Terms of Service
               </h1>
-              <p className="text-sm text-gray-600">
-                Effective Date: November 2025
-              </p>
+              <p className="text-sm text-gray-600">Effective Date: November 2025</p>
             </header>
 
             <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,260px)]">
               <div className="prose prose-lg max-w-none">
-                <p className="text-gray-700 leading-relaxed mb-6">
-                  These Terms of Service (&quot;Terms&quot;) govern your access to and use of Brancr&apos;s
-                  website, applications, and related services (&quot;Services&quot;). By creating an
-                  account or using our platform, you agree to these Terms.
-                </p>
+                <section id="acceptance" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Acceptance of Terms</h2>
+                  <p className="text-gray-700 leading-relaxed">
+                    By accessing or using Brancr’s services, you agree to these Terms of Service and our Privacy Policy. If
+                    you disagree with any part of the terms, you may not use our platform.
+                  </p>
+                </section>
 
                 <section id="service-description" className="mb-10 scroll-mt-32">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Service Description</h2>
-                  <p className="text-gray-700 leading-relaxed">
-                    Brancr provides an online AI automation platform that enables verified businesses
-                    to connect their social-media and messaging accounts (including Facebook,
-                    Instagram, and WhatsApp) for post scheduling, audience engagement, and analytics.
-                  </p>
-                </section>
-
-                <section id="eligibility" className="mb-10 scroll-mt-32">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">2. Eligibility</h2>
-                  <p className="text-gray-700 leading-relaxed">
-                    You must be at least 18 years old and have the authority to represent your business.
-                    By using Brancr, you confirm that you are authorized to connect and manage your
-                    organization&apos;s Meta assets.
-                  </p>
-                </section>
-
-                <section id="account-registration" className="mb-10 scroll-mt-32">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">3. Account Registration</h2>
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">2. Description of Service</h2>
                   <p className="text-gray-700 leading-relaxed mb-4">
-                    You agree to:
+                    Brancr provides an AI-driven automation platform for social media management, enabling users (“tenants”)
+                    to:
                   </p>
-                  <ul className="list-disc pl-6 space-y-3 text-gray-700">
-                    <li>Provide accurate registration information.</li>
-                    <li>Maintain the security of your credentials.</li>
-                    <li>Promptly notify us of unauthorized use.</li>
-                  </ul>
-                </section>
-
-                <section id="connected-accounts" className="mb-10 scroll-mt-32">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                    4. Use of Connected Accounts
-                  </h2>
-                  <p className="text-gray-700 leading-relaxed mb-4">
-                    By connecting a Facebook Page, Instagram Business Account, or WhatsApp Business
-                    Account, you grant Brancr permission to access and manage that account&apos;s data
-                    strictly through authorized Meta APIs.
-                  </p>
-                  <p className="text-gray-700 leading-relaxed">
-                    You remain responsible for complying with all Meta Platform Terms, including the
-                    Meta Developer Policies.
-                  </p>
-                </section>
-
-                <section id="subscriptions" className="mb-10 scroll-mt-32">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                    5. Subscriptions and Payments
-                  </h2>
-                  <p className="text-gray-700 leading-relaxed">
-                    Certain features require a paid subscription. Fees are billed according to your
-                    selected plan and processed through secure third-party payment providers. All fees
-                    are non-refundable except as required by law.
-                  </p>
-                </section>
-
-                <section id="acceptable-use" className="mb-10 scroll-mt-32">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">6. Acceptable Use</h2>
-                  <p className="text-gray-700 leading-relaxed mb-4">You agree not to:</p>
-                  <ul className="list-disc pl-6 space-y-3 text-gray-700">
-                    <li>Use Brancr for spam, deceptive content, or unlawful activity.</li>
-                    <li>Misuse automation to violate Meta or local laws.</li>
-                    <li>Reverse engineer or disrupt our Services.</li>
+                  <ul className="list-disc pl-6 space-y-2 text-gray-700">
+                    <li>Connect social media accounts via official APIs (Meta, YouTube, TikTok).</li>
+                    <li>Schedule and publish posts across multiple platforms.</li>
+                    <li>Use AI tools to generate content, captions, and automated replies.</li>
+                    <li>Monitor engagement analytics and trends.</li>
                   </ul>
                   <p className="text-gray-700 leading-relaxed mt-4">
-                    We may suspend or terminate accounts violating these terms.
+                    Each connected account remains the property of its owner. Brancr acts only as a technical service
+                    provider.
                   </p>
                 </section>
 
-                <section id="data-ownership" className="mb-10 scroll-mt-32">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">7. Data Ownership</h2>
-                  <p className="text-gray-700 leading-relaxed">
-                    You retain ownership of all data and content you submit or generate through Brancr.
-                    By using our Services, you grant Brancr a limited license to process and transmit
-                    data solely to provide the Services.
+                <section id="responsibilities" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">3. User Responsibilities</h2>
+                  <p className="text-gray-700 leading-relaxed mb-4">You agree to:</p>
+                  <ul className="list-disc pl-6 space-y-2 text-gray-700">
+                    <li>Provide accurate business and contact information.</li>
+                    <li>Use Brancr only for lawful purposes.</li>
+                    <li>Not misuse or attempt to exploit social platform APIs beyond their intended use.</li>
+                    <li>Maintain confidentiality of your access tokens and account credentials.</li>
+                  </ul>
+                  <p className="text-gray-700 leading-relaxed mt-4">
+                    You are solely responsible for the content you publish using Brancr.
                   </p>
                 </section>
 
-                <section id="intellectual-property" className="mb-10 scroll-mt-32">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                    8. Intellectual Property
-                  </h2>
+                <section id="api-compliance" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">4. API and Platform Compliance</h2>
                   <p className="text-gray-700 leading-relaxed">
-                    All Brancr software, trademarks, and branding remain our exclusive property. You may
-                    not copy or redistribute Brancr&apos;s software components without written consent.
-                  </p>
-                </section>
-
-                <section id="liability" className="mb-10 scroll-mt-32">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                    9. Limitation of Liability
-                  </h2>
-                  <p className="text-gray-700 leading-relaxed">
-                    To the maximum extent permitted by law, Brancr is not liable for any indirect,
-                    incidental, or consequential damages arising from use of our Services.
+                    By using Brancr, you agree to comply with all platform-specific terms, including but not limited to the
+                    Meta Platform Terms and Developer Policies, Instagram Graph API Terms, Facebook Pages API Terms,
+                    WhatsApp Business Platform Terms, Google APIs Terms of Service (YouTube), and TikTok for Developers API
+                    Policy. Brancr operates only through official, secure APIs. We never bypass or scrape data from any
+                    third-party platform.
                   </p>
                 </section>
 
                 <section id="termination" className="mb-10 scroll-mt-32">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">10. Termination</h2>
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">5. Termination</h2>
                   <p className="text-gray-700 leading-relaxed">
-                    You may terminate your account at any time. We may suspend or terminate access for
-                    violation of these Terms or applicable law.
+                    We reserve the right to suspend or terminate accounts that violate these Terms or applicable laws.
+                  </p>
+                </section>
+
+                <section id="liability" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">6. Limitation of Liability</h2>
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    Brancr is provided “as is.” We do not guarantee uninterrupted availability or error-free operation.
+                  </p>
+                  <p className="text-gray-700 leading-relaxed">
+                    We are not liable for losses resulting from third-party API outages, revoked tokens, or unauthorized user
+                    actions.
+                  </p>
+                </section>
+
+                <section id="indemnification" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">7. Indemnification</h2>
+                  <p className="text-gray-700 leading-relaxed">
+                    You agree to indemnify and hold Brancr harmless from claims arising from your use of the platform or
+                    violation of these Terms.
+                  </p>
+                </section>
+
+                <section id="modifications" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">8. Modifications</h2>
+                  <p className="text-gray-700 leading-relaxed">
+                    We may update these Terms as needed. Continued use of the platform constitutes acceptance of updated
+                    terms.
                   </p>
                 </section>
 
                 <section id="governing-law" className="mb-10 scroll-mt-32">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">11. Governing Law</h2>
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">9. Governing Law</h2>
                   <p className="text-gray-700 leading-relaxed">
-                    These Terms are governed by the laws of the Federal Republic of Nigeria, without
-                    regard to conflict-of-law principles.
+                    These Terms are governed by the laws of the Federal Republic of Nigeria. Disputes will be resolved in the
+                    courts of Lagos State.
                   </p>
                 </section>
 
                 <section id="contact" className="scroll-mt-32">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">12. Contact</h2>
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">10. Contact</h2>
+                  <p className="text-gray-700 leading-relaxed mb-2">For legal inquiries:</p>
                   <address className="not-italic text-gray-700 leading-relaxed space-y-1">
-                    <p>Brancr AI Technologies</p>
-                    <p>Lagos, Nigeria</p>
                     <p>
                       Email:{" "}
-                      <a
-                        href="mailto:support@brancr.com"
-                        className="text-accent hover:underline"
-                      >
-                        support@brancr.com
+                      <a href="mailto:contact@brancr.com" className="text-accent hover:underline">
+                        contact@brancr.com
                       </a>
                     </p>
+                    <p>Address: Lagos, Nigeria</p>
                   </address>
                 </section>
               </div>
 
               <aside className="border border-gray-100 rounded-xl bg-gray-50/60 p-6 h-fit">
-                <h2 className="text-sm font-semibold uppercase tracking-[0.25em] text-gray-500 mb-4">
+                <h2 className="text-sm font-semibold uppercase tracking-[0.24em] text-gray-500 mb-4">
                   Quick Reference
                 </h2>
                 <p className="text-sm text-gray-600 leading-6 mb-6">
-                  Use these links to navigate key clauses. Reading the full agreement is recommended
-                  before using Brancr services.
+                  Jump to a specific clause or scan the entire agreement before connecting your organisation’s accounts.
                 </p>
                 <nav className="space-y-3 text-sm">
+                  <a href="#acceptance" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Acceptance of Terms
+                  </a>
                   <a href="#service-description" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
                     <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    Service Description
+                    Description of Service
                   </a>
-                  <a href="#eligibility" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                  <a href="#responsibilities" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
                     <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    Eligibility
+                    User Responsibilities
                   </a>
-                  <a href="#account-registration" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                  <a href="#api-compliance" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
                     <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    Account Registration
-                  </a>
-                  <a href="#connected-accounts" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    Connected Accounts
-                  </a>
-                  <a href="#subscriptions" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    Subscriptions &amp; Payments
-                  </a>
-                  <a href="#acceptable-use" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    Acceptable Use
-                  </a>
-                  <a href="#data-ownership" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    Data Ownership
-                  </a>
-                  <a href="#intellectual-property" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    Intellectual Property
-                  </a>
-                  <a href="#liability" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    Liability
+                    API Compliance
                   </a>
                   <a href="#termination" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
                     <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                     Termination
+                  </a>
+                  <a href="#liability" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Limitation of Liability
+                  </a>
+                  <a href="#indemnification" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Indemnification
+                  </a>
+                  <a href="#modifications" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Modifications
                   </a>
                   <a href="#governing-law" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
                     <span className="h-1.5 w-1.5 rounded-full bg-primary" />
