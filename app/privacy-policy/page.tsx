@@ -34,204 +34,267 @@ export default function PrivacyPage() {
           </Link>
 
           <div className="bg-white rounded-2xl p-8 md:p-12 shadow-xl border border-gray-100">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Brancr Privacy Policy
-            </h1>
-            <p className="text-gray-600 mb-12">Last Updated: November 2025</p>
+            <header className="border-b border-gray-100 pb-8 mb-10">
+              <p className="text-sm font-semibold text-primary uppercase tracking-[0.3em] mb-3">
+                Privacy Policy
+              </p>
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                Brancr AI Technologies
+              </h1>
+              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                <span className="inline-flex items-center gap-2">
+                  <span className="inline-block h-2 w-2 rounded-full bg-primary" />
+                  Effective Date: November 2025
+                </span>
+                <span>Last Updated: November 2025</span>
+              </div>
+            </header>
 
-            <div className="prose prose-lg max-w-none">
-              <section className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Introduction</h2>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  Welcome to Brancr (&quot;we,&quot; &quot;our,&quot; &quot;us&quot;).
+            <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,260px)]">
+              <div className="prose prose-lg max-w-none">
+                <p className="text-gray-700 leading-relaxed mb-6">
+                  Brancr AI Technologies (&quot;Brancr,&quot; &quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) provides
+                  an AI-powered automation platform that enables small and medium-sized
+                  businesses to manage and automate their social-media and messaging
+                  activities across Meta platforms (Facebook, Instagram, and WhatsApp).
+                  This Privacy Policy explains how we collect, use, store, and protect
+                  your information when you visit our website www.brancr.com or use our
+                  software and connected services.
                 </p>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  Brancr is an AI-powered marketing assistant designed to help small
-                  and growing businesses manage content, automate social media
-                  engagement, and communicate with customers efficiently.
-                </p>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  This Privacy Policy explains how we collect, use, and protect your
-                  information when you visit our website (brancr.com), join our
-                  waitlist, or interact with our pre-launch platform.
-                </p>
-                <p className="text-gray-700 leading-relaxed">
-                  By using Brancr, you agree to this policy. If you do not agree,
-                  please do not use our services.
-                </p>
-              </section>
 
-              <section className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  2. Information We Collect
+                <section id="information-we-collect" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                    1. Information We Collect
+                  </h2>
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    We collect the following categories of data:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-3 text-gray-700">
+                    <li>
+                      <strong>Account &amp; Contact Information:</strong> name, business name,
+                      email address, phone number, and password (where applicable).
+                    </li>
+                    <li>
+                      <strong>Connected-Platform Data:</strong> when you connect a Facebook Page,
+                      Instagram Business Account, or WhatsApp Business Account, we receive
+                      data permitted by Meta&apos;s Graph API, such as page ID, page name, profile
+                      picture, message content, message metadata, post insights, and
+                      phone-number ID.
+                    </li>
+                    <li>
+                      <strong>Usage &amp; Technical Data:</strong> IP address, device identifiers,
+                      browser type, timestamps, and in-app actions for analytics and
+                      performance optimization.
+                    </li>
+                    <li>
+                      <strong>Payment &amp; Subscription Data:</strong> billing contact details and
+                      transaction metadata (processed by our PCI-compliant payment partners; we
+                      do not store card numbers).
+                    </li>
+                  </ul>
+                </section>
+
+                <section id="how-we-use-information" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                    2. How We Use the Information
+                  </h2>
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    We use collected data to:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-3 text-gray-700">
+                    <li>Authenticate and manage tenant accounts.</li>
+                    <li>Provide, operate, and improve our AI automation services.</li>
+                    <li>
+                      Schedule, analyze, and publish social-media content on behalf of
+                      connected tenants.
+                    </li>
+                    <li>
+                      Enable messaging, template management, and campaign tracking through
+                      the Meta WhatsApp Business Platform.
+                    </li>
+                    <li>Communicate with users about updates, billing, and support.</li>
+                    <li>Ensure security, fraud prevention, and compliance with platform policies.</li>
+                  </ul>
+                  <p className="text-gray-700 leading-relaxed mt-4">
+                    We never sell your personal data.
+                  </p>
+                </section>
+
+                <section id="sharing-and-disclosure" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                    3. Sharing and Disclosure
+                  </h2>
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    We share information only with:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-3 text-gray-700">
+                    <li>
+                      <strong>Service Providers:</strong> infrastructure, storage, AI-model, and
+                      analytics partners who process data on our behalf under confidentiality
+                      agreements.
+                    </li>
+                    <li>
+                      <strong>Meta Platforms, Inc.:</strong> through authorized API integrations as
+                      required to deliver Brancr&apos;s features.
+                    </li>
+                    <li>
+                      <strong>Legal Requirements:</strong> if required by law, regulation, or
+                      government request.
+                    </li>
+                  </ul>
+                  <p className="text-gray-700 leading-relaxed mt-4">
+                    All data sharing complies with applicable privacy laws (NDPR, GDPR, and
+                    Meta&apos;s Developer Terms).
+                  </p>
+                </section>
+
+                <section id="storage-security-retention" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                    4. Data Storage, Security, and Retention
+                  </h2>
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    Data is stored securely in encrypted databases within reputable cloud
+                    environments. We retain data only as long as necessary to provide services
+                    or meet legal obligations.
+                  </p>
+                  <p className="text-gray-700 leading-relaxed">
+                    When a tenant disconnects a social-media account or closes their Brancr
+                    account, associated data is deleted or anonymized within 30 days.
+                  </p>
+                </section>
+
+                <section id="your-rights" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">5. Your Rights</h2>
+                  <p className="text-gray-700 leading-relaxed mb-4">You may:</p>
+                  <ul className="list-disc pl-6 space-y-3 text-gray-700">
+                    <li>Access or correct your information.</li>
+                    <li>Request deletion of stored data.</li>
+                    <li>Withdraw consent to future processing.</li>
+                    <li>Contact us for any privacy inquiry.</li>
+                  </ul>
+                  <p className="text-gray-700 leading-relaxed mt-4">
+                    Email:{" "}
+                    <a
+                      href="mailto:privacy@brancr.com"
+                      className="text-accent hover:underline"
+                    >
+                      privacy@brancr.com
+                    </a>
+                  </p>
+                </section>
+
+                <section id="cookies" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                    6. Cookies and Tracking
+                  </h2>
+                  <p className="text-gray-700 leading-relaxed">
+                    We use essential and analytics cookies to operate the site and improve user
+                    experience. You can adjust cookie preferences in your browser settings.
+                  </p>
+                </section>
+
+                <section id="cross-border" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                    7. Cross-Border Data Transfers
+                  </h2>
+                  <p className="text-gray-700 leading-relaxed">
+                    Data may be processed in jurisdictions outside your country of residence
+                    (including the European Union, United States, and Nigeria). We ensure
+                    adequate safeguards through data-processing agreements and standard
+                    contractual clauses.
+                  </p>
+                </section>
+
+                <section id="ai-transparency" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                    8. AI and Automation Transparency
+                  </h2>
+                  <p className="text-gray-700 leading-relaxed">
+                    Brancr uses AI algorithms to assist users with content generation, captioning,
+                    and automated message responses. Decisions made by AI are subject to human
+                    oversight, and users can disable automation features at any time.
+                  </p>
+                </section>
+
+                <section id="policy-changes" className="mb-10 scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                    9. Changes to This Policy
+                  </h2>
+                  <p className="text-gray-700 leading-relaxed">
+                    We may update this Privacy Policy periodically. Updates take effect once
+                    posted on this page with a revised effective date.
+                  </p>
+                </section>
+
+                <section id="contact" className="scroll-mt-32">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">10. Contact</h2>
+                  <address className="not-italic text-gray-700 leading-relaxed space-y-1">
+                    <p>Brancr AI Technologies</p>
+                    <p>Lagos, Nigeria</p>
+                    <p>
+                      Email:{" "}
+                      <a
+                        href="mailto:contact@brancr.com"
+                        className="text-accent hover:underline"
+                      >
+                        contact@brancr.com
+                      </a>
+                    </p>
+                  </address>
+                </section>
+              </div>
+
+              <aside className="border border-gray-100 rounded-xl bg-gray-50/60 p-6 h-fit">
+                <h2 className="text-sm font-semibold uppercase tracking-[0.25em] text-gray-500 mb-4">
+                  Summary
                 </h2>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                  a. Information You Provide
-                </h3>
-                <p className="text-gray-700 leading-relaxed mb-4">We may collect:</p>
-                <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-700">
-                  <li>
-                    Contact information (e.g., name, email address) when you join our
-                    waitlist, contact us, or subscribe to updates.
-                  </li>
-                  <li>
-                    Business information (optional) such as your company name, social
-                    media links, or preferred platform.
-                  </li>
-                  <li>
-                    Feedback or responses you provide during surveys or beta testing.
-                  </li>
-                </ul>
-
-                <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">
-                  b. Automatically Collected Information
-                </h3>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  When you visit our website, we may collect:
+                <p className="text-sm text-gray-600 leading-6 mb-6">
+                  This summary highlights key points. Please review the full policy to
+                  understand how Brancr handles your data.
                 </p>
-                <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-700">
-                  <li>Device and browser information</li>
-                  <li>IP address and approximate location</li>
-                  <li>Pages visited, time spent, and referring URLs</li>
-                  <li>
-                    Cookies or similar tracking technologies to improve your browsing
-                    experience
-                  </li>
-                </ul>
-                <p className="text-gray-700 leading-relaxed">
-                  We do not collect or store passwords, payment details, or personal
-                  messages from your social media accounts during pre-launch.
-                </p>
-              </section>
-
-              <section className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  3. How We Use Your Information
-                </h2>
-                <p className="text-gray-700 leading-relaxed mb-4">We use your data to:</p>
-                <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-700">
-                  <li>
-                    Communicate with you about early access or product updates
-                  </li>
-                  <li>Improve our AI models and marketing tools</li>
-                  <li>Analyze user engagement for better experience</li>
-                  <li>Comply with legal obligations</li>
-                </ul>
-                <p className="text-gray-700 leading-relaxed">
-                  If you join our waitlist, we&apos;ll only use your email to contact you
-                  about Brancr updates — no spam, ever.
-                </p>
-              </section>
-
-              <section className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  4. How We Share Your Information
-                </h2>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  We do not sell your personal data.
-                </p>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  We may share limited information with:
-                </p>
-                <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-700">
-                  <li>
-                    Service providers (e.g., hosting, analytics, email delivery
-                    services like Resend or Supabase)
-                  </li>
-                  <li>Legal authorities if required by law</li>
-                </ul>
-                <p className="text-gray-700 leading-relaxed">
-                  All partners are required to maintain strong data protection
-                  standards.
-                </p>
-              </section>
-
-              <section className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  5. Data Retention and Security
-                </h2>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  We keep your information only as long as necessary for the purpose
-                  collected.
-                </p>
-                <p className="text-gray-700 leading-relaxed">
-                  We implement administrative, technical, and physical safeguards to
-                  protect your data against unauthorized access or misuse. However, no
-                  online service is 100% secure, so please use Brancr responsibly.
-                </p>
-              </section>
-
-              <section className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Your Rights</h2>
-                <p className="text-gray-700 leading-relaxed mb-4">You may:</p>
-                <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-700">
-                  <li>Request a copy of your stored data</li>
-                  <li>Request deletion of your information</li>
-                  <li>Unsubscribe from all communications</li>
-                </ul>
-                <p className="text-gray-700 leading-relaxed">
-                  To make a request, contact us at{" "}
-                  <a
-                    href="mailto:privacy@brancr.com"
-                    className="text-accent hover:underline"
-                  >
-                    privacy@brancr.com
+                <nav className="space-y-3 text-sm">
+                  <a href="#information-we-collect" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Information We Collect
                   </a>
-                  .
-                </p>
-              </section>
-
-              <section className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  7. Third-Party Links
-                </h2>
-                <p className="text-gray-700 leading-relaxed">
-                  Brancr may contain links to third-party sites (e.g., Meta, TikTok,
-                  X). We are not responsible for their privacy practices — please
-                  review their policies separately.
-                </p>
-              </section>
-
-              <section className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  8. International Users
-                </h2>
-                <p className="text-gray-700 leading-relaxed">
-                  Brancr operates primarily in Nigeria and Sub-Saharan Africa, but our
-                  infrastructure may process data internationally. By using Brancr, you
-                  consent to this transfer.
-                </p>
-              </section>
-
-              <section className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  9. Updates to This Policy
-                </h2>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  We may update this Privacy Policy periodically. The &quot;Last Updated&quot;
-                  date will always reflect the current version.
-                </p>
-                <p className="text-gray-700 leading-relaxed">
-                  Significant changes will be communicated via email or site banner.
-                </p>
-              </section>
-
-              <section className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Contact Us</h2>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  If you have any questions or concerns about this Privacy Policy,
-                  contact us at:
-                </p>
-                <p className="text-gray-700 leading-relaxed">
-                  📧{" "}
-                  <a
-                    href="mailto:privacy@brancr.com"
-                    className="text-accent hover:underline"
-                  >
-                    privacy@brancr.com
+                  <a href="#how-we-use-information" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    How We Use Data
                   </a>
-                </p>
-              </section>
+                  <a href="#sharing-and-disclosure" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Sharing &amp; Disclosure
+                  </a>
+                  <a href="#storage-security-retention" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Storage &amp; Security
+                  </a>
+                  <a href="#your-rights" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Your Rights
+                  </a>
+                  <a href="#cookies" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Cookies
+                  </a>
+                  <a href="#cross-border" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Cross-Border Transfers
+                  </a>
+                  <a href="#ai-transparency" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    AI Transparency
+                  </a>
+                  <a href="#policy-changes" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Policy Updates
+                  </a>
+                  <a href="#contact" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    Contact
+                  </a>
+                </nav>
+              </aside>
             </div>
           </div>
         </div>
