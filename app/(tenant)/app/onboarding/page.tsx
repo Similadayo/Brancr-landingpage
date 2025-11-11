@@ -1,45 +1,38 @@
 import Link from "next/link";
+import { mockOnboardingStatus, mockScheduledPosts, mockChannels } from "../../data/mockData";
 
-const STEPS = [
+const onboardingSteps = [
   {
     id: "01",
     title: "Connect your channels",
     description:
       "Link WhatsApp, Instagram, Facebook, or Telegram so Brancr can centralise customer conversations and automation events.",
-    action: {
-      label: "Open integrations",
-      href: "/app/integrations",
-    },
+    action: { label: "Open integrations", href: "/app/integrations" },
+    done: mockChannels.some((channel) => channel.status === "connected"),
   },
   {
     id: "02",
     title: "Invite your teammates",
     description:
       "Give your customer or marketing team access so they can respond faster, assign conversations, and collaborate on campaigns.",
-    action: {
-      label: "Manage team",
-      href: "/app/settings/team",
-    },
+    action: { label: "Manage team", href: "/app/settings/team" },
+    done: mockOnboardingStatus.teammateInvited,
   },
   {
     id: "03",
-    title: "Automate your workflows",
+    title: "Schedule your first post",
     description:
-      "Create broadcasts, drip flows, and quick replies to scale engagement. Pull in AI templates or build your own journeys.",
-    action: {
-      label: "Build a campaign",
-      href: "/app/campaigns/new",
-    },
+      "Create a broadcast or post so Brancr can automate delivery at the right time across your channels.",
+    action: { label: "Create post", href: "/app/campaigns/new" },
+    done: mockOnboardingStatus.firstPostScheduled || mockScheduledPosts.length > 0,
   },
   {
     id: "04",
-    title: "Set up notifications & webhooks",
+    title: "Configure notifications & webhooks",
     description:
       "Stay in the loop with channel alerts, escalation rules, and developer webhooks to keep your stack in sync.",
-    action: {
-      label: "Configure settings",
-      href: "/app/settings",
-    },
+    action: { label: "Configure settings", href: "/app/settings/api" },
+    done: mockOnboardingStatus.notificationsConfigured,
   },
 ];
 
@@ -72,7 +65,7 @@ export default function OnboardingPage() {
       </header>
 
       <section className="grid gap-6 lg:grid-cols-2">
-        {STEPS.map((step) => (
+        {onboardingSteps.map((step) => (
           <article
             key={step.id}
             className="group relative overflow-hidden rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
@@ -82,7 +75,7 @@ export default function OnboardingPage() {
                 {step.id}
               </span>
               <span className="rounded-full border border-gray-100 bg-gray-50 px-3 py-1 text-xs uppercase tracking-[0.3em] text-gray-400">
-                Step
+                {step.done ? "Completed" : "Pending"}
               </span>
             </div>
             <h2 className="mt-5 text-lg font-semibold text-gray-900">{step.title}</h2>
@@ -93,6 +86,11 @@ export default function OnboardingPage() {
             >
               {step.action.label} <span aria-hidden>↗</span>
             </Link>
+            {step.done ? (
+              <span className="absolute right-6 top-6 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold text-emerald-700">
+                ✓ Completed
+              </span>
+            ) : null}
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 transition group-hover:opacity-100" />
           </article>
         ))}

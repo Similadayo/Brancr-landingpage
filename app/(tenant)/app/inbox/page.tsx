@@ -1,21 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
-import { toast } from "react-hot-toast";
+import Link from "next/link";
 import { useTenant } from "../../providers/TenantProvider";
-import {
-  ConversationSummary,
-  useAssignConversation,
-  useConversation,
-  useConversations,
-  useSendReply,
-  useUpdateConversationStatus,
-} from "../../hooks/useConversations";
+import { mockConversations } from "../../data/mockData";
 
 const FILTERS = ["All", "Open", "Pending", "Closed"];
 
-const CHANNEL_COLORS: Record<ConversationSummary["channel"], string> = {
+const CHANNEL_COLORS: Record<string, string> = {
   whatsapp: "bg-emerald-100 text-emerald-700",
   instagram: "bg-fuchsia-100 text-fuchsia-700",
   facebook: "bg-blue-100 text-blue-700",
@@ -26,55 +19,23 @@ const CHANNEL_COLORS: Record<ConversationSummary["channel"], string> = {
 
 export default function InboxPage() {
   const { tenant } = useTenant();
-  const conversationsQuery = useConversations();
   const [activeFilter, setActiveFilter] = useState<string>("All");
-  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
-  const [replyBody, setReplyBody] = useState("");
+  const [selectedConversationId, setSelectedConversationId] = useState<string>(mockConversations[0]?.id ?? "");
+  const [note, setNote] = useState("");
 
   const filteredConversations = useMemo(() => {
-    if (!conversationsQuery.data) return [];
-    if (activeFilter === "All") return conversationsQuery.data;
-    return conversationsQuery.data.filter(
+    if (activeFilter === "All") return mockConversations;
+    return mockConversations.filter(
       (conversation) => conversation.status.toLowerCase() === activeFilter.toLowerCase()
     );
-  }, [conversationsQuery.data, activeFilter]);
+  }, [activeFilter]);
 
-  useEffect(() => {
-    if (!selectedConversation && conversationsQuery.data?.length) {
-      setSelectedConversation(conversationsQuery.data[0].id);
-    }
-  }, [selectedConversation, conversationsQuery.data]);
+  const activeConversation = useMemo(
+    () => mockConversations.find((conversation) => conversation.id === selectedConversationId),
+    [selectedConversationId]
+  );
 
-  const conversationQuery = useConversation(selectedConversation);
-  const sendReplyMutation = useSendReply(selectedConversation);
-  const closeConversationMutation = useUpdateConversationStatus(selectedConversation);
-  const assignConversationMutation = useAssignConversation(selectedConversation);
-
-  const messages = conversationQuery.data?.messages ?? [];
-  const activeConversation = conversationQuery.data?.conversation;
-
-  const handleSendReply = () => {
-    if (!replyBody.trim()) {
-      toast.error("Write a message before sending.");
-      return;
-    }
-
-    sendReplyMutation.mutate(
-      { body: replyBody.trim() },
-      {
-        onSuccess: () => setReplyBody(""),
-      }
-    );
-  };
-
-  const handleCloseConversation = () => {
-    closeConversationMutation.mutate({ status: "closed" });
-  };
-
-  const handleAssignToMe = () => {
-    if (!tenant?.tenant_id) return;
-    assignConversationMutation.mutate({ assignee_id: String(tenant.tenant_id) });
-  };
+  const messages = activeConversation?.messages ?? [];
 
   return (
     <div className="space-y-8">
@@ -124,95 +85,73 @@ export default function InboxPage() {
             </div>
           </div>
           <div className="mt-4 space-y-2 overflow-y-auto px-1 pb-2 pt-1" style={{ maxHeight: "calc(100vh - 240px)" }}>
-            {conversationsQuery.isLoading
-              ? Array.from({ length: 5 }).map((_, index) => (
-                  <div key={index} className="animate-pulse rounded-2xl border border-gray-100 bg-gray-50 p-4">
-                    <div className="h-3 w-32 rounded-full bg-gray-200" />
-                    <div className="mt-2 h-3 w-48 rounded-full bg-gray-200" />
-                  </div>
-                ))
-              : filteredConversations.length === 0
-              ? (
-                  <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
-                    No conversations yet.
-                  </div>
-                )
-              : filteredConversations.map((conversation) => {
-                  const isActive = selectedConversation === conversation.id;
-                  const unread = conversation.unreadCount > 0;
-                  return (
-                    <button
-                      key={conversation.id}
-                      onClick={() => setSelectedConversation(conversation.id)}
-                      className={`w-full rounded-2xl border px-4 py-3 text-left transition ${
-                        isActive
-                          ? "border-primary/40 bg-primary/10 shadow-sm shadow-primary/20"
-                          : "border-transparent hover:border-gray-200 hover:bg-gray-50"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold text-gray-900">{conversation.contactName}</span>
-                            <span
-                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
-                                CHANNEL_COLORS[conversation.channel] ?? "bg-gray-100 text-gray-600"
-                              }`}
-                            >
-                              {conversation.channel}
-                            </span>
-                          </div>
-                          <p className="mt-1 line-clamp-2 text-xs text-gray-500">{conversation.preview}</p>
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {conversation.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-gray-600"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
+            {filteredConversations.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
+                No conversations yet.
+              </div>
+            ) : (
+              filteredConversations.map((conversation) => {
+                const isActive = selectedConversationId === conversation.id;
+                const unread = conversation.unreadCount > 0;
+                return (
+                  <button
+                    key={conversation.id}
+                    onClick={() => setSelectedConversationId(conversation.id)}
+                    className={`w-full rounded-2xl border px-4 py-3 text-left transition ${
+                      isActive
+                        ? "border-primary/40 bg-primary/10 shadow-sm shadow-primary/20"
+                        : "border-transparent hover:border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-gray-900">{conversation.contactName}</span>
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
+                              CHANNEL_COLORS[conversation.channel] ?? "bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            {conversation.channel}
+                          </span>
                         </div>
-                        <div className="text-right">
-                          <p className="text-[10px] uppercase tracking-widest text-gray-400">
-                            {conversation.updatedAt
-                              ? new Date(conversation.updatedAt).toLocaleTimeString([], {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })
-                              : "--"}
-                          </p>
-                          {unread ? (
-                            <span className="mt-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
-                              {conversation.unreadCount}
+                        <p className="mt-1 line-clamp-2 text-xs text-gray-500">{conversation.lastMessage}</p>
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {conversation.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-gray-600"
+                            >
+                              {tag}
                             </span>
-                          ) : null}
+                          ))}
                         </div>
                       </div>
-                    </button>
-                  );
-                })}
+                      <div className="text-right">
+                        <p className="text-[10px] uppercase tracking-widest text-gray-400">
+                          {conversation.updatedAt
+                            ? new Date(conversation.updatedAt).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : "--"}
+                        </p>
+                        {unread ? (
+                          <span className="mt-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
+                            {conversation.unreadCount}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })
+            )}
           </div>
         </section>
 
         <section className="flex min-h-[70vh] flex-col gap-6 rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-lg shadow-primary/5">
-          {conversationQuery.isLoading ? (
-            <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center text-gray-500">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
-              <p className="text-sm">Loading conversation…</p>
-            </div>
-          ) : conversationQuery.isError ? (
-            <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center text-gray-500">
-              <p className="text-sm">We couldn’t load this conversation.</p>
-              <button
-                onClick={() => conversationQuery.refetch()}
-                className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
-              >
-                Retry
-              </button>
-            </div>
-          ) : activeConversation ? (
+          {activeConversation ? (
             <>
               <header className="flex flex-col gap-4 border-b border-gray-200 pb-4 md:flex-row md:items-center md:justify-between">
                 <div className="flex flex-wrap items-center gap-4">
@@ -223,25 +162,19 @@ export default function InboxPage() {
                     <h2 className="text-lg font-semibold text-gray-900">{activeConversation.contactName}</h2>
                     <p className="text-sm text-gray-500">
                       via {activeConversation.channel.toUpperCase()} · Assigned to{" "}
-                      <span className="font-medium text-gray-700">{activeConversation.assignee ?? "Unassigned"}</span>
+                      <span className="font-medium text-gray-700">{tenant?.name ?? "You"}</span>
                     </p>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    onClick={handleAssignToMe}
-                    disabled={assignConversationMutation.isPending}
-                    className="rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                  <Link
+                    href="https://t.me/brancrbot"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
                   >
-                    {assignConversationMutation.isPending ? "Assigning…" : "Assign to me"}
-                  </button>
-                  <button
-                    onClick={handleCloseConversation}
-                    disabled={closeConversationMutation.isPending}
-                    className="rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/50"
-                  >
-                    {closeConversationMutation.isPending ? "Closing…" : "Close conversation"}
-                  </button>
+                    Open in Telegram
+                  </Link>
                   <span className="rounded-full border border-gray-200 px-3 py-1 text-xs uppercase tracking-[0.3em] text-gray-500">
                     {activeConversation.status}
                   </span>
@@ -278,26 +211,21 @@ export default function InboxPage() {
                     <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Reply</p>
                     <div className="mt-3 space-y-3">
                       <textarea
-                        value={replyBody}
-                        onChange={(event) => setReplyBody(event.target.value)}
+                        value="Messaging will be available once the Brancr API is live. Use Telegram for now."
+                        readOnly
                         className="min-h-[140px] w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm text-gray-700 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                        placeholder="Write a reply or use an AI suggestion…"
                       />
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2 text-xs text-gray-500">
-                          <button className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2 py-1 transition hover:border-primary hover:text-primary">
-                            <span aria-hidden>+</span> Attachment
-                          </button>
-                          <button className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2 py-1 transition hover:border-primary hover:text-primary">
-                            AI Suggest
-                          </button>
+                          <span className="rounded-lg border border-gray-200 bg-gray-50 px-2 py-1">
+                            Attachments supported via Telegram
+                          </span>
                         </div>
                         <button
-                          onClick={handleSendReply}
-                          disabled={sendReplyMutation.isPending}
-                          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/50"
+                          disabled
+                          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white opacity-50 shadow-md shadow-primary/20"
                         >
-                          {sendReplyMutation.isPending ? "Sending…" : "Send reply"}
+                          Reply via API coming soon
                         </button>
                       </div>
                     </div>
@@ -340,13 +268,18 @@ export default function InboxPage() {
                     <div>
                       <p className="uppercase tracking-[0.3em] text-gray-400">Notes</p>
                       <div className="mt-2 rounded-xl border border-gray-200 bg-white p-3 text-sm text-gray-600">
-                        <p>Coordinate delivery with logistics team. Customer prefers morning drops.</p>
-                        <button
-                          onClick={() => toast.success("Notes coming soon")}
-                          className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80"
-                        >
-                          Add note <span aria-hidden>+</span>
-                        </button>
+                        <p>
+                          {note || "Coordinate delivery with logistics team. Customer prefers morning drops. Add more notes once the API is ready."}
+                        </p>
+                        <textarea
+                          value={note}
+                          onChange={(event) => setNote(event.target.value)}
+                          placeholder="Leave a reminder for your team…"
+                          className="mt-3 w-full rounded-lg border border-gray-200 px-3 py-2 text-xs text-gray-600 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
+                        />
+                        <p className="mt-2 text-[11px] text-gray-400">
+                          Notes sync coming soon. Stick with Telegram for official log updates.
+                        </p>
                       </div>
                     </div>
                   </div>

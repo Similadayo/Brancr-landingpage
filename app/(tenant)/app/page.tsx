@@ -1,88 +1,63 @@
 'use client';
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { tenantApi } from "@/lib/api";
+import { useMemo } from "react";
 import { useTenant } from "../providers/TenantProvider";
+import {
+  mockAnalyticsSummary,
+  mockChannels,
+  mockOnboardingStatus,
+  mockScheduledPosts,
+} from "../data/mockData";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-type OverviewData = {
-  conversations: number;
-  scheduledPosts: number;
-};
-
-function OverviewSkeleton() {
-  return (
-    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <div key={index} className="rounded-2xl border border-gray-200 bg-white/60 p-6 shadow-sm backdrop-blur">
-          <div className="h-3 w-20 rounded-full bg-gray-200" />
-          <div className="mt-4 h-9 w-32 rounded-full bg-gray-200" />
-          <div className="mt-4 h-3 w-40 rounded-full bg-gray-200" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export default function TenantOverviewPage() {
   const { tenant } = useTenant();
-  const [data, setData] = useState<OverviewData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadOverview() {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await tenantApi.overview();
-        if (!isMounted) return;
-        setData(result);
-      } catch (err) {
-        if (err instanceof Error && isMounted) {
-          setError(err.message);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadOverview();
-
-    return () => {
-      isMounted = false;
+  const stats = useMemo(() => {
+    const upcomingPosts = mockScheduledPosts.filter((post) => post.status === "scheduled");
+    const connectedChannels = mockChannels.filter((channel) => channel.status === "connected");
+    return {
+      scheduledPosts: upcomingPosts.length,
+      connectedChannels: connectedChannels.length,
+      aiOptimizations: mockAnalyticsSummary.aiCaptionsGenerated,
+      reminders: [
+        upcomingPosts.length > 0
+          ? `You have ${upcomingPosts.length} scheduled ${upcomingPosts.length > 1 ? "posts" : "post"} queued this week.`
+          : "Create a scheduled post to keep your channels active.",
+        connectedChannels.length < mockChannels.length
+          ? "Connect your remaining channels to unlock automation across every platform."
+          : "All supported channels are connected and syncing.",
+        mockOnboardingStatus.notificationsConfigured
+          ? "Webhook notifications are active and ready to receive events."
+          : "Configure notifications & webhooks so your team stays updated in real time.",
+      ],
     };
   }, []);
 
-  const metrics = useMemo(
-    () => [
-      {
-        label: "Conversations",
-        value: data?.conversations ?? 0,
-        description: "Active threads across all channels. Stay close to engaged customers.",
-      },
-      {
-        label: "Scheduled posts",
-        value: data?.scheduledPosts ?? 0,
-        description: "Content queued to keep your audience engaged all week.",
-      },
-      {
-        label: "Workflow health",
-        value: tenant?.status === "trial" ? "Trial" : tenant?.status ?? "Active",
-        description: "Workspace status for automation and live channel monitoring.",
-        accent: true,
-      },
-    ],
-    [data?.conversations, data?.scheduledPosts, tenant?.status]
-  );
+  const todayFocus = useMemo(() => {
+    const soon = mockScheduledPosts
+      .filter((post) => post.status === "scheduled")
+      .sort((a, b) => new Date(a.scheduledFor).getTime() - new Date(b.scheduledFor).getTime())
+      .slice(0, 2)
+      .map((post) => ({
+        id: post.id,
+        text: `Confirm assets for ${post.name} (${post.channel}) scheduled ${new Date(
+          post.scheduledFor
+        ).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}.`,
+      }));
+
+    if (!mockOnboardingStatus.notificationsConfigured) {
+      soon.push({
+        id: "notify",
+        text: "Finish webhook callback setup so WhatsApp and Instagram events stream into Brancr.",
+      });
+    }
+
+    return soon;
+  }, []);
 
   return (
     <div className="space-y-10">
@@ -117,18 +92,18 @@ export default function TenantOverviewPage() {
           <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary/5 via-white to-primary/10 p-6 shadow-inner">
             <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Today’s focus</p>
             <ul className="mt-6 space-y-4 text-sm text-gray-600">
-              <li className="flex items-start gap-3">
-                <span className="mt-1 h-2.5 w-2.5 rounded-full bg-primary" aria-hidden />
-                Respond to any waiting WhatsApp leads under five minutes to keep conversions high.
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1 h-2.5 w-2.5 rounded-full bg-emerald-500" aria-hidden />
-                Schedule the weekend broadcast to stay top of mind with loyal buyers.
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1 h-2.5 w-2.5 rounded-full bg-sky-500" aria-hidden />
-                Invite teammates so you can assign conversations and collaborate in real time.
-              </li>
+              {todayFocus.map((item, index) => (
+                <li key={item.id} className="flex items-start gap-3">
+                  <span
+                    className={cn(
+                      "mt-1 h-2.5 w-2.5 rounded-full",
+                      index === 0 ? "bg-primary" : index === 1 ? "bg-emerald-500" : "bg-sky-500"
+                    )}
+                    aria-hidden
+                  />
+                  {item.text}
+                </li>
+              ))}
             </ul>
             <div className="mt-8 rounded-2xl border border-white/60 bg-white/70 p-4 shadow-sm backdrop-blur">
               <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Status</p>
@@ -139,40 +114,26 @@ export default function TenantOverviewPage() {
         </div>
       </section>
 
-      {error ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 shadow-sm">
-          {error || "We couldn’t load your overview. Please refresh and try again."}
+      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+          <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Scheduled posts</p>
+          <p className="mt-4 text-4xl font-semibold text-gray-900">{stats.scheduledPosts}</p>
+          <p className="mt-3 text-sm text-gray-500">Content queued to keep your audience engaged this week.</p>
         </div>
-      ) : null}
-
-      {loading ? (
-        <OverviewSkeleton />
-      ) : (
-        <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {metrics.map((metric) => (
-            <div
-              key={metric.label}
-              className={cn(
-                "rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg",
-                metric.accent && "border-primary/30 bg-primary/5"
-              )}
-            >
-              <p
-                className={cn(
-                  "text-xs uppercase tracking-[0.3em]",
-                  metric.accent ? "text-primary" : "text-gray-400"
-                )}
-              >
-                {metric.label}
-              </p>
-              <p className="mt-4 text-4xl font-semibold text-gray-900">
-                {typeof metric.value === "number" ? metric.value : metric.value}
-              </p>
-              <p className="mt-3 text-sm text-gray-500">{metric.description}</p>
-            </div>
-          ))}
-        </section>
-      )}
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+          <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Connected channels</p>
+          <p className="mt-4 text-4xl font-semibold text-gray-900">{stats.connectedChannels}</p>
+          <p className="mt-3 text-sm text-gray-500">Platforms actively syncing conversations with Brancr.</p>
+        </div>
+        <div className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+          <p className="text-xs uppercase tracking-[0.3em] text-primary">AI optimization</p>
+          <p className="mt-4 text-lg font-semibold text-gray-900">Coming soon</p>
+          <p className="mt-3 text-sm text-gray-500">
+            Stay tuned for AI performance summaries once analytics is live. In the meantime, use the Telegram assistant for
+            caption suggestions.
+          </p>
+        </div>
+      </section>
 
       <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-md shadow-primary/5">

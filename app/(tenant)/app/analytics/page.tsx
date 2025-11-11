@@ -1,18 +1,21 @@
 'use client';
 
 import { useState } from "react";
-import { useAnalytics } from "../../hooks/useAnalytics";
+import Link from "next/link";
+import { mockAnalyticsSummary, mockResponseDistribution, mockScheduledPosts, mockChannels } from "../../data/mockData";
 
 const DATE_FILTERS = ["Last 7 days", "Last 30 days", "Quarter to date", "Custom"];
 const CHANNEL_FILTERS = ["All channels", "WhatsApp", "Instagram", "Facebook", "TikTok"];
 
+const placeholderCampaigns = [
+  { name: "Welcome Flow", open: 74, click: 28 },
+  { name: "VIP Restock Alert", open: 68, click: 34 },
+  { name: "Instagram Giveaway", open: 56, click: 22 },
+];
+
 export default function AnalyticsPage() {
   const [dateFilter, setDateFilter] = useState(DATE_FILTERS[1]);
   const [channelFilter, setChannelFilter] = useState(CHANNEL_FILTERS[0]);
-  const analyticsQuery = useAnalytics({
-    range: dateFilter.toLowerCase().replace(/\s+/g, "-"),
-    channel: channelFilter === "All channels" ? "" : channelFilter.toLowerCase(),
-  });
 
   return (
     <div className="space-y-10">
@@ -56,52 +59,65 @@ export default function AnalyticsPage() {
       </header>
 
       <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        {analyticsQuery.isLoading
-          ? Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="animate-pulse rounded-2xl border border-gray-100 bg-gray-50 p-6 shadow-sm">
-                <div className="h-3 w-24 rounded-full bg-gray-200" />
-                <div className="mt-4 h-6 w-32 rounded-full bg-gray-200" />
-              </div>
-            ))
-          : analyticsQuery.data?.kpis.map((metric) => (
-              <div key={metric.label} className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
-                <p className="text-xs uppercase tracking-[0.3em] text-gray-400">{metric.label}</p>
-                <p className="mt-4 text-4xl font-semibold text-gray-900">{metric.value}</p>
-                <p className="mt-3 text-xs font-semibold text-emerald-600">{metric.delta}</p>
-              </div>
-            ))}
+        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
+          <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Scheduled posts</p>
+          <p className="mt-4 text-4xl font-semibold text-gray-900">{mockAnalyticsSummary.scheduledPosts}</p>
+          <p className="mt-3 text-xs text-gray-500">Content queued across WhatsApp and Instagram.</p>
+        </div>
+        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
+          <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Connected channels</p>
+          <p className="mt-4 text-4xl font-semibold text-gray-900">{mockAnalyticsSummary.connectedChannels}</p>
+          <p className="mt-3 text-xs text-gray-500">Platforms actively syncing conversations.</p>
+        </div>
+        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
+          <p className="text-xs uppercase tracking-[0.3em] text-gray-400">AI captions</p>
+          <p className="mt-4 text-4xl font-semibold text-gray-900">{mockAnalyticsSummary.aiCaptionsGenerated}</p>
+          <p className="mt-3 text-xs text-gray-500">Generated via Telegram assistant this month.</p>
+        </div>
+        <div className="rounded-3xl border border-dashed border-primary/30 bg-primary/5 p-6 shadow-sm">
+          <p className="text-xs uppercase tracking-[0.3em] text-primary">Coming soon</p>
+          <p className="mt-4 text-lg font-semibold text-gray-900">Full analytics dashboard</p>
+          <p className="mt-3 text-xs text-gray-500">
+            We’re building deeper insights for AI adoption, response time and campaign CTR. For now, check the Telegram daily
+            digest for performance highlights.
+          </p>
+        </div>
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900">Volume by channel</h2>
           <p className="mt-2 text-xs text-gray-500">
-            Percentage distribution of incoming conversations across connected platforms.
+            Percentage distribution of connected channels. Additional data will populate once analytics is live.
           </p>
           <div className="mt-6 space-y-4">
-            {analyticsQuery.data?.channelVolume.map((item) => (
-              <div key={item.channel} className="space-y-2">
+            {mockChannels.map((channel) => (
+              <div key={channel.id} className="space-y-2">
                 <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span className="font-semibold text-gray-900">{item.channel}</span>
-                  <span>{item.value}%</span>
+                  <span className="font-semibold text-gray-900">{channel.name}</span>
+                  <span>{channel.status === "connected" ? "Active" : channel.status === "pending" ? "Pending" : "Awaiting"}</span>
                 </div>
                 <div className="h-2 rounded-full bg-gray-100">
-                  <div className="h-2 rounded-full bg-primary" style={{ width: `${item.value}%` }} aria-hidden />
+                  <div
+                    className={`h-2 rounded-full ${
+                      channel.status === "connected" ? "bg-primary" : channel.status === "pending" ? "bg-amber-400" : "bg-gray-300"
+                    }`}
+                    style={{ width: channel.status === "connected" ? "100%" : channel.status === "pending" ? "45%" : "20%" }}
+                    aria-hidden
+                  />
                 </div>
               </div>
-            )) ?? (
-              <p className="text-xs text-gray-500">No data yet for this range.</p>
-            )}
+            ))}
           </div>
         </div>
 
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900">Campaign performance</h2>
           <p className="mt-2 text-xs text-gray-500">
-            Compare open and click rates for recent broadcasts and automations.
+            Sample benchmarks from recent broadcasts. Real metrics will appear once analytics aggregation ships.
           </p>
           <div className="mt-6 space-y-4">
-            {analyticsQuery.data?.campaignPerformance.map((campaign) => (
+            {placeholderCampaigns.map((campaign) => (
               <div key={campaign.name} className="space-y-2">
                 <div className="flex items-center justify-between text-xs text-gray-500">
                   <span className="font-semibold text-gray-900">{campaign.name}</span>
@@ -116,9 +132,7 @@ export default function AnalyticsPage() {
                   />
                 </div>
               </div>
-            )) ?? (
-              <p className="text-xs text-gray-500">No campaign performance yet.</p>
-            )}
+            ))}
           </div>
         </div>
       </section>
@@ -127,10 +141,10 @@ export default function AnalyticsPage() {
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900">Response time distribution</h2>
           <p className="mt-2 text-xs text-gray-500">
-            Brancr tracks the time between inbound messages and first reply to help your team stay responsive.
+            Brancr will track the time between inbound messages and first reply to help your team stay responsive.
           </p>
           <div className="mt-6 grid gap-3 text-xs text-gray-600">
-            {analyticsQuery.data?.responseDistribution.map((bucket) => (
+            {mockResponseDistribution.map((bucket) => (
               <div
                 key={bucket.label}
                 className="flex items-center justify-between rounded-xl border border-gray-200 bg-neutral-bg px-4 py-3"
@@ -138,24 +152,17 @@ export default function AnalyticsPage() {
                 <span>{bucket.label}</span>
                 <span className="font-semibold text-gray-900">{bucket.value}%</span>
               </div>
-            )) ?? (
-              <p className="text-xs text-gray-500">No response time data yet.</p>
-            )}
+            ))}
           </div>
         </div>
 
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900">Team leaderboard</h2>
-          <p className="mt-2 text-xs text-gray-500">See which agents are handling the most conversations and maintaining quality.</p>
-          <div className="mt-6 space-y-3 text-xs text-gray-600">
-            {analyticsQuery.data?.teamLeaderboard.map((member) => (
-              <div key={member.name} className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3">
-                <span className="font-semibold text-gray-900">{member.name}</span>
-                <span>{member.summary}</span>
-              </div>
-            )) ?? (
-              <p className="text-xs text-gray-500">Team metrics will appear once agents engage in conversations.</p>
-            )}
+          <p className="mt-2 text-xs text-gray-500">Team metrics will surface once multiple agents begin engaging via Brancr.</p>
+          <div className="mt-6 flex flex-col items-start gap-3 text-xs text-gray-600">
+            <p className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-center text-xs text-gray-500">
+              Invite teammates in <Link href="/app/settings/team" className="font-semibold text-primary">Settings → Team</Link> to unlock leaderboards.
+            </p>
           </div>
         </div>
       </section>

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { authApi } from "@/lib/api";
 import { useTenant } from "../providers/TenantProvider";
+import { useEffect, useRef } from "react";
 
 type NavItem = {
   label: string;
@@ -34,6 +35,8 @@ export function TenantShell({ children }: { children: ReactNode }) {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const currentNav = useMemo(() => {
     const matched = NAV_ITEMS.reduce<NavItem | undefined>((best, item) => {
@@ -63,6 +66,17 @@ export function TenantShell({ children }: { children: ReactNode }) {
       setIsSigningOut(false);
     }
   }
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   if (loading) {
     return (
@@ -322,21 +336,71 @@ function renderNavItems(compact: boolean) {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-              <div className="hidden rounded-full border border-gray-200 bg-white px-4 py-2 text-xs text-gray-600 shadow-sm lg:flex">
-                  Status:
+                <div className="hidden items-center gap-3 lg:flex">
                   <span
                     className={cn(
-                      "ml-2 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold capitalize",
+                      "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold",
                       tenant.status === "active"
-                        ? "bg-emerald-100 text-emerald-700"
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                         : tenant.status === "trial"
-                        ? "bg-primary/10 text-primary"
-                        : "bg-amber-100 text-amber-700"
+                        ? "border-primary/30 bg-primary/10 text-primary"
+                        : "border-amber-200 bg-amber-50 text-amber-700"
                     )}
                   >
-                    <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-                    {tenant.status}
+                    <span className="h-2 w-2 rounded-full bg-current" aria-hidden />
+                    {tenant.status ?? "active"}
                   </span>
+                  <Link
+                    href="/docs"
+                    className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
+                  >
+                    Docs
+                  </Link>
+                  <Link
+                    href="mailto:contact@brancr.com"
+                    className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
+                  >
+                    Support
+                  </Link>
+                </div>
+                <div className="relative" ref={profileMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                    className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-primary hover:text-primary"
+                  >
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
+                      {tenant.name.charAt(0).toUpperCase()}
+                    </span>
+                    <span className="hidden text-left leading-tight lg:block">
+                      <span className="block text-xs text-gray-500">Tenant</span>
+                      <span>{tenant.name}</span>
+                    </span>
+                    <span className="text-gray-400" aria-hidden>
+                      {isProfileMenuOpen ? "▲" : "▼"}
+                    </span>
+                  </button>
+                  {isProfileMenuOpen ? (
+                    <div className="absolute right-0 z-30 mt-2 w-48 rounded-2xl border border-gray-200 bg-white p-2 shadow-lg">
+                      <Link
+                        href="/app/settings/profile"
+                        className="block rounded-xl px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                      >
+                        View profile
+                      </Link>
+                      <button
+                        type="button"
+                        className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-red-500 hover:bg-red-50"
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          void handleSignOut();
+                        }}
+                      >
+                        Sign out
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>
