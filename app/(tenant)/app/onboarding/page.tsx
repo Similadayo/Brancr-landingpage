@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { mockOnboardingStatus, mockScheduledPosts, mockChannels } from "../../data/mockData";
+import { mockOnboardingStatus, mockScheduledPosts, mockChannels } from "@/lib/mockData";
 
 const onboardingSteps = [
   {

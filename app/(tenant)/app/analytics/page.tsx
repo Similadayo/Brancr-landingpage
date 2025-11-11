@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { mockAnalyticsSummary, mockResponseDistribution, mockScheduledPosts, mockChannels } from "../../data/mockData";
+import { mockAnalyticsSummary, mockResponseDistribution, mockScheduledPosts, mockChannels } from "@/lib/mockData";
 
 const DATE_FILTERS = ["Last 7 days", "Last 30 days", "Quarter to date", "Custom"];
 const CHANNEL_FILTERS = ["All channels", "WhatsApp", "Instagram", "Facebook", "TikTok"];

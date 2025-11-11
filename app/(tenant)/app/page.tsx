@@ -8,7 +8,7 @@ import {
   mockChannels,
   mockOnboardingStatus,
   mockScheduledPosts,
-} from "../data/mockData";
+} from "@/lib/mockData";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");

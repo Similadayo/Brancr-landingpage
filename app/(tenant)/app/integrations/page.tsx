@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { mockChannels } from "../../data/mockData";
+import { mockChannels } from "@/lib/mockData";
 
 const STATUS_MAP: Record<
   "connected" | "pending" | "action_required" | "not_connected",

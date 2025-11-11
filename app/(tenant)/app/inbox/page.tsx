@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTenant } from "../../providers/TenantProvider";
-import { mockConversations } from "../../data/mockData";
+import { mockConversations } from "@/lib/mockData";
 
 const FILTERS = ["All", "Open", "Pending", "Closed"];
 

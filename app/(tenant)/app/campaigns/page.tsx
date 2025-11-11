@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { mockScheduledPosts } from "../../data/mockData";
+import { mockScheduledPosts } from "@/lib/mockData";
 
 const STATUS_FILTERS = ["All", "Draft", "Scheduled"];
 
