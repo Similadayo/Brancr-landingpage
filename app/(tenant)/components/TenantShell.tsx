@@ -10,15 +10,16 @@ import { useTenant } from "../providers/TenantProvider";
 type NavItem = {
   label: string;
   href: string;
+  icon: ReactNode;
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Overview", href: "/app" },
-  { label: "Inbox", href: "/app/inbox" },
-  { label: "Campaigns", href: "/app/campaigns" },
-  { label: "Integrations", href: "/app/integrations" },
-  { label: "Analytics", href: "/app/analytics" },
-  { label: "Settings", href: "/app/settings" },
+  { label: "Overview", href: "/app", icon: "🏠" },
+  { label: "Inbox", href: "/app/inbox", icon: "💬" },
+  { label: "Campaigns", href: "/app/campaigns", icon: "🚀" },
+  { label: "Integrations", href: "/app/integrations", icon: "🔗" },
+  { label: "Analytics", href: "/app/analytics", icon: "📊" },
+  { label: "Settings", href: "/app/settings", icon: "⚙️" },
 ];
 
 function cn(...classes: Array<string | false | null | undefined>) {
@@ -80,40 +81,42 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
   const sidebarDesktopWidth = isSidebarCollapsed ? 92 : 276;
 
-  function renderNavItems(compact: boolean) {
+function renderNavItems(compact: boolean) {
     return (
       <nav className="mt-4 space-y-1">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
-          const label = compact ? item.label.charAt(0) : item.label;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setIsMobileNavOpen(false)}
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={() => setIsMobileNavOpen(false)}
+            className={cn(
+              "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+              isActive
+                ? "bg-primary/10 text-primary shadow-sm shadow-primary/10"
+                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            )}
+          >
+            <span
               className={cn(
-                "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-                isActive
-                  ? "bg-primary/10 text-primary shadow-sm shadow-primary/10"
-                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-base transition group-hover:bg-primary/10 group-hover:text-primary",
+                isActive && "bg-primary text-white group-hover:bg-primary"
               )}
+              aria-hidden
             >
-              <span
-                className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold uppercase text-gray-600 transition group-hover:bg-primary/10 group-hover:text-primary",
-                  isActive && "bg-primary text-white group-hover:bg-primary"
-                )}
-              >
-                {item.label.slice(0, 2)}
-              </span>
-              {!compact ? <span className="flex-1">{label}</span> : null}
-              {!compact ? (
+              {item.icon}
+            </span>
+            {!compact ? (
+              <>
+                <span className="flex-1">{item.label}</span>
                 <span className="text-xs text-gray-400 group-hover:text-primary" aria-hidden>
                   {isActive ? "•" : "→"}
                 </span>
-              ) : null}
-            </Link>
-          );
+              </>
+            ) : null}
+          </Link>
+        );
         })}
       </nav>
     );
@@ -148,25 +151,25 @@ export function TenantShell({ children }: { children: ReactNode }) {
             ✕
           </button>
         </div>
-        <div className="mt-10 space-y-6">
+          <div className="mt-10 space-y-6">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Navigate</p>
             {renderNavItems(false)}
           </div>
-          <div className="rounded-2xl border border-dashed border-gray-200 bg-gradient-to-br from-primary/10 to-transparent px-5 py-4 text-sm text-gray-600">
-            <p className="text-xs uppercase tracking-[0.3em] text-primary">Plan</p>
-            <p className="mt-2 text-base font-semibold text-gray-900">{tenant.plan ?? "trial"}</p>
+          <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-sky-100 px-5 py-4 text-sm text-gray-600">
+            <p className="text-xs uppercase tracking-[0.3em] text-sky-600">Plan</p>
+            <p className="mt-2 text-base font-semibold text-gray-900 capitalize">{tenant.plan ?? "trial"}</p>
             <p className="mt-2 text-xs text-gray-500">
               Track usage, upgrade your plan, and manage billing from settings.
             </p>
             <Link
               href="/app/settings/billing"
-              className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-primary hover:text-primary/80"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2 text-xs font-semibold text-sky-700 shadow-sm hover:bg-white"
             >
               Manage plan <span aria-hidden>↗</span>
             </Link>
           </div>
-          <div className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4">
+          <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm">
             <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Account</p>
             <div className="mt-3 flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
@@ -181,7 +184,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
               type="button"
               onClick={handleSignOut}
               disabled={isSigningOut}
-              className="mt-4 w-full rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-4 w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSigningOut ? "Signing out…" : "Sign out"}
             </button>
@@ -189,7 +192,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl gap-0 px-0 lg:px-6">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1350px] px-3 lg:px-8">
         {/* Desktop sidebar */}
         <aside
           className={cn(
@@ -212,35 +215,33 @@ export function TenantShell({ children }: { children: ReactNode }) {
             </div>
             <div
               className={cn(
-                "rounded-2xl border border-dashed border-gray-200 bg-gradient-to-br from-primary/10 to-transparent px-4 py-4 text-sm text-gray-600 transition",
+                "rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-sky-100 px-4 py-4 text-sm text-gray-600 transition",
                 isSidebarCollapsed && "px-3 text-center"
               )}
             >
-              <p className="text-xs uppercase tracking-[0.3em] text-primary">
-                {isSidebarCollapsed ? "Plan" : "Plan"}
-              </p>
+              <p className="text-xs uppercase tracking-[0.3em] text-sky-600">Plan</p>
               {!isSidebarCollapsed ? (
                 <>
-                  <p className="mt-2 text-base font-semibold text-gray-900 capitalize">{tenant.plan ?? "trial"}</p>
+                  <p className="mt-3 text-base font-semibold text-gray-900 capitalize">{tenant.plan ?? "trial"}</p>
                   <p className="mt-2 text-xs text-gray-500">
                     Track usage, upgrade your plan, and manage billing from settings.
                   </p>
                   <Link
                     href="/app/settings/billing"
-                    className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-primary hover:text-primary/80"
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2 text-xs font-semibold text-sky-700 shadow-sm hover:bg-white"
                   >
                     Manage plan <span aria-hidden>↗</span>
                   </Link>
                 </>
               ) : (
-                <span className="mt-2 block text-xs font-semibold capitalize text-gray-900">
+                <span className="mt-3 block text-xs font-semibold capitalize text-gray-900">
                   {tenant.plan ?? "trial"}
                 </span>
               )}
             </div>
             <div
               className={cn(
-                "rounded-2xl border border-gray-200 bg-gray-50/80 p-4",
+                "rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm",
                 isSidebarCollapsed && "px-2 text-center"
               )}
             >
@@ -269,7 +270,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                 type="button"
                 onClick={handleSignOut}
                 disabled={isSigningOut}
-                className="mt-4 w-full rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-4 w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSigningOut ? "Signing out…" : "Sign out"}
               </button>
@@ -278,10 +279,10 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => setIsSidebarCollapsed((prev) => !prev)}
-            className="mt-auto flex items-center justify-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-500 transition hover:border-primary hover:text-primary"
+            className="mt-auto flex items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-500 transition hover:border-primary hover:text-primary"
             aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            {isSidebarCollapsed ? "Expand" : "Collapse"}
+            {isSidebarCollapsed ? "⟩" : "⟨"}
           </button>
         </aside>
 
@@ -302,7 +303,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="hidden rounded-full border border-gray-200 bg-white px-4 py-2 text-xs text-gray-600 shadow-sm lg:flex">
+              <div className="hidden rounded-full border border-gray-200 bg-white px-4 py-2 text-xs text-gray-600 shadow-sm lg:flex">
                   Status:
                   <span
                     className={cn(
@@ -321,7 +322,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
               </div>
             </div>
           </header>
-          <main className="flex-1 px-4 pb-16 pt-10 lg:px-12">{children}</main>
+          <main className="flex-1 px-4 pb-16 pt-10 lg:px-10">{children}</main>
         </div>
       </div>
     </div>
