@@ -398,20 +398,24 @@ export default function SettingsPage() {
   ]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold text-gray-900">Workspace settings</h1>
-        <p className="text-sm text-gray-600">Manage your profile, channels, billing, and developer integrations in one place.</p>
+        <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Workspace settings</h1>
+        <p className="text-sm text-gray-600">
+          Manage your profile, channels, billing, notifications, and developer integrations in one place.
+        </p>
       </header>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="rounded-3xl border border-gray-200 bg-white/80 p-4 shadow-sm">
         <div className="flex flex-wrap gap-2">
           {TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
-                activeTab === tab.key ? "bg-primary text-white shadow shadow-primary/20" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+                activeTab === tab.key
+                  ? "border-primary bg-primary text-white shadow shadow-primary/20"
+                  : "border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary"
               }`}
             >
               {tab.label}
@@ -420,7 +424,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">{renderTabContent}</section>
+      <section className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">{renderTabContent}</section>
     </div>
   );
 }

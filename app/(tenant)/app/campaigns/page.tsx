@@ -31,11 +31,11 @@ export default function CampaignsPage() {
   }, [data, filter]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-900">Automation & Campaigns</h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Automation & Campaigns</h1>
+          <p className="mt-2 max-w-2xl text-sm text-gray-600">
             Orchestrate broadcasts, drip flows, and templates that keep your community engaged across channels.
           </p>
         </div>
@@ -48,14 +48,14 @@ export default function CampaignsPage() {
           </Link>
           <Link
             href="/app/campaigns/new"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary/90"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary/90"
           >
             + Build campaign
           </Link>
         </div>
       </header>
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <section className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-lg shadow-primary/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Campaigns</p>
@@ -66,8 +66,10 @@ export default function CampaignsPage() {
               <button
                 key={item}
                 onClick={() => setFilter(item)}
-                className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
-                  filter === item ? "bg-primary text-white shadow shadow-primary/20" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                  filter === item
+                    ? "border-primary bg-primary text-white shadow shadow-primary/20"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary"
                 }`}
               >
                 {item}
@@ -76,7 +78,7 @@ export default function CampaignsPage() {
           </div>
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200">
+        <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white">
           {isLoading ? (
             <div className="space-y-3 p-6">
               {Array.from({ length: 4 }).map((_, index) => (
@@ -170,7 +172,7 @@ export default function CampaignsPage() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
           <h3 className="text-sm font-semibold text-gray-900">Upcoming calendar</h3>
           <p className="mt-2 text-xs text-gray-500">
             View campaign timing and platform delivery slots. Switch to calendar view for drag-drop scheduling.
@@ -190,7 +192,7 @@ export default function CampaignsPage() {
             </div>
           </div>
         </div>
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm lg:col-span-2">
+        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm lg:col-span-2">
           <h3 className="text-sm font-semibold text-gray-900">Template library</h3>
           <p className="mt-1 text-xs text-gray-500">
             Store brand-approved copy, call-to-actions, and voice settings for consistent messaging.
@@ -220,6 +222,19 @@ export default function CampaignsPage() {
                 One-click answers for shipping, payment, and support questions in the inbox.
               </p>
             </div>
+          </div>
+        </div>
+        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm lg:col-span-3 lg:flex lg:items-center lg:justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900">Ideas board</h3>
+            <p className="mt-2 text-xs text-gray-500">
+              Keep a backlog of campaigns you’d love to test. Drag them into the planner when ready.
+            </p>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-3 text-xs text-gray-600 lg:mt-0">
+            <span className="rounded-xl border border-gray-200 px-4 py-2">Festive upsell flow</span>
+            <span className="rounded-xl border border-gray-200 px-4 py-2">Referral reactivation</span>
+            <span className="rounded-xl border border-gray-200 px-4 py-2">VIP loyalty nurture</span>
           </div>
         </div>
       </section>

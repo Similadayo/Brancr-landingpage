@@ -15,16 +15,16 @@ export default function AnalyticsPage() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-900">Analytics & Insights</h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Analytics & Insights</h1>
+          <p className="mt-2 max-w-2xl text-sm text-gray-600">
             Monitor messaging efficiency, campaign performance, and channel health to optimise your automation strategy.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs text-gray-600">
+          <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs text-gray-600 shadow-sm">
             <span>Date range</span>
             <select
               value={dateFilter}
@@ -38,7 +38,7 @@ export default function AnalyticsPage() {
               ))}
             </select>
           </div>
-          <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs text-gray-600">
+          <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs text-gray-600 shadow-sm">
             <span>Channel</span>
             <select
               value={channelFilter}
@@ -64,7 +64,7 @@ export default function AnalyticsPage() {
               </div>
             ))
           : analyticsQuery.data?.kpis.map((metric) => (
-              <div key={metric.label} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div key={metric.label} className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
                 <p className="text-xs uppercase tracking-[0.3em] text-gray-400">{metric.label}</p>
                 <p className="mt-4 text-4xl font-semibold text-gray-900">{metric.value}</p>
                 <p className="mt-3 text-xs font-semibold text-emerald-600">{metric.delta}</p>
@@ -73,7 +73,7 @@ export default function AnalyticsPage() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900">Volume by channel</h2>
           <p className="mt-2 text-xs text-gray-500">
             Percentage distribution of incoming conversations across connected platforms.
@@ -95,7 +95,7 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900">Campaign performance</h2>
           <p className="mt-2 text-xs text-gray-500">
             Compare open and click rates for recent broadcasts and automations.
@@ -124,7 +124,7 @@ export default function AnalyticsPage() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900">Response time distribution</h2>
           <p className="mt-2 text-xs text-gray-500">
             Brancr tracks the time between inbound messages and first reply to help your team stay responsive.
@@ -144,7 +144,7 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900">Team leaderboard</h2>
           <p className="mt-2 text-xs text-gray-500">See which agents are handling the most conversations and maintaining quality.</p>
           <div className="mt-6 space-y-3 text-xs text-gray-600">
