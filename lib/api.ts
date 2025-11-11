@@ -32,7 +32,7 @@ function buildUrl(path: string) {
 function buildHeaders(initHeaders?: HeadersInit, body?: BodyInit | null) {
   const defaultHeaders: HeadersInit = {};
 
-  if (body && typeof Body !== "undefined" && body instanceof FormData) {
+  if (body instanceof FormData) {
     // Let the browser set the multipart/form-data headers
     return initHeaders ?? defaultHeaders;
   }
