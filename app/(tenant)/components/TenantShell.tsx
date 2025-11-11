@@ -193,7 +193,7 @@ function renderNavItems(compact: boolean) {
         </div>
       </aside>
 
-      <div className="mx-auto flex min-h-screen w-full max-w-[1350px] px-3 lg:px-8">
+      <div className="flex min-h-screen w-full px-3 lg:px-8">
         {/* Desktop sidebar */}
         <aside
           className={cn(
@@ -323,7 +323,7 @@ function renderNavItems(compact: boolean) {
               </div>
             </div>
           </header>
-          <main className="flex-1 px-4 pb-16 pt-10 lg:px-10">{children}</main>
+          <main className="flex-1 px-4 pb-16 pt-10 lg:px-8">{children}</main>
         </div>
       </div>
     </div>
