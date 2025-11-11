@@ -17,6 +17,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Overview", href: "/app", icon: "🏠" },
   { label: "Inbox", href: "/app/inbox", icon: "💬" },
   { label: "Campaigns", href: "/app/campaigns", icon: "🚀" },
+  { label: "Onboarding", href: "/app/onboarding", icon: "🎯" },
   { label: "Integrations", href: "/app/integrations", icon: "🔗" },
   { label: "Analytics", href: "/app/analytics", icon: "📊" },
   { label: "Settings", href: "/app/settings", icon: "⚙️" },
