@@ -35,10 +35,23 @@ export function TenantShell({ children }: { children: ReactNode }) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  const currentNav = useMemo(
-    () => NAV_ITEMS.find((item) => pathname === item.href || pathname?.startsWith(`${item.href}/`)),
-    [pathname]
-  );
+  const currentNav = useMemo(() => {
+    const matched = NAV_ITEMS.reduce<NavItem | undefined>((best, item) => {
+      const overviewMatch = item.href === "/app" && (pathname === "/app" || pathname === "/app/");
+      const specificMatch =
+        item.href !== "/app" &&
+        (pathname === item.href || `${pathname ?? ""}/`.startsWith(`${item.href}/`));
+
+      if (overviewMatch || specificMatch) {
+        if (!best || item.href.length > best.href.length) {
+          return item;
+        }
+      }
+      return best;
+    }, undefined);
+
+    return matched ?? NAV_ITEMS[0];
+  }, [pathname]);
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -152,8 +165,8 @@ function renderNavItems(compact: boolean) {
             ✕
           </button>
         </div>
-          <div className="mt-10 space-y-6">
-          <div>
+        <div className="mt-10 flex h-[calc(100vh-8rem)] flex-col space-y-6 overflow-y-auto pr-1">
+          <div className="shrink-0">
             <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Navigate</p>
             {renderNavItems(false)}
           </div>
@@ -207,8 +220,13 @@ function renderNavItems(compact: boolean) {
               {!isSidebarCollapsed ? <span>Brancr</span> : null}
             </Link>
           </div>
-          <div className={cn("mt-10 space-y-6", isSidebarCollapsed && "items-center")}>
-            <div>
+          <div
+            className={cn(
+              "mt-10 flex h-[calc(100vh-11rem)] flex-col space-y-6 overflow-y-auto pr-1",
+              isSidebarCollapsed && "items-center"
+            )}
+          >
+            <div className="shrink-0">
               {!isSidebarCollapsed ? (
                 <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Navigate</p>
               ) : null}
