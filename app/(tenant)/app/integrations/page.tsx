@@ -1,7 +1,35 @@
 'use client';
 
 import Link from "next/link";
+import { useCallback, useEffect } from "react";
 import { mockChannels } from "@/lib/mockData";
+
+declare global {
+  interface Window {
+    FB?: {
+      init: (options: {
+        appId: string;
+        autoLogAppEvents: boolean;
+        xfbml: boolean;
+        version: string;
+      }) => void;
+      login: (
+        callback: (response: {
+          authResponse?: {
+            code?: string;
+          };
+        }) => void,
+        options: {
+          config_id: string;
+          response_type: string;
+          override_default_response_type: boolean;
+          extras: Record<string, unknown>;
+        },
+      ) => void;
+    };
+    fbAsyncInit?: () => void;
+  }
+}
 
 const STATUS_MAP: Record<
   "connected" | "pending" | "action_required" | "not_connected",
@@ -46,6 +74,84 @@ const connectionHistory = [
 ];
 
 export default function IntegrationsPage() {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const existingScript = document.querySelector<HTMLScriptElement>(
+      'script[src="https://connect.facebook.net/en_US/sdk.js"]',
+    );
+    if (existingScript) return;
+
+    const script = document.createElement("script");
+    script.src = "https://connect.facebook.net/en_US/sdk.js";
+    script.async = true;
+    script.defer = true;
+    script.crossOrigin = "anonymous";
+    script.onload = () => {
+      window.fbAsyncInit = () => {
+        window.FB.init({
+          appId: process.env.NEXT_PUBLIC_META_APP_ID!,
+          autoLogAppEvents: true,
+          xfbml: true,
+          version: "v24.0",
+        });
+      };
+    };
+
+    document.body.appendChild(script);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handler = (event: MessageEvent) => {
+      if (typeof event.origin !== "string" || !event.origin.endsWith("facebook.com")) return;
+
+      try {
+        const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        if (data?.type === "WA_EMBEDDED_SIGNUP") {
+          void fetch("/api/internal/meta/whatsapp/session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+        }
+      } catch (err) {
+        console.warn("embedded signup message parse failed", err, event.data);
+      }
+    };
+
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
+
+  const launchWhatsAppSignup = useCallback(() => {
+    if (typeof window === "undefined" || !window.FB) {
+      alert("Initializing WhatsApp signup…");
+      return;
+    }
+
+    window.FB.login(
+      (response) => {
+        if (response.authResponse?.code) {
+          void fetch("/api/internal/meta/whatsapp/code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: response.authResponse.code }),
+          });
+        } else {
+          console.warn("WhatsApp signup cancelled", response);
+        }
+      },
+      {
+        config_id: process.env.NEXT_PUBLIC_WHATSAPP_CONFIG_ID!,
+        response_type: "code",
+        override_default_response_type: true,
+        extras: { setup: {} },
+      },
+    );
+  }, []);
+
   return (
     <div className="space-y-10">
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -106,8 +212,11 @@ export default function IntegrationsPage() {
                   {card.status === "connected" ? "Repair connection" : "Connect"}
                 </Link>
                 {card.id === "whatsapp" ? (
-                  <button className="inline-flex items-center rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20">
-                    Launch embedded signup
+                  <button
+                    onClick={launchWhatsAppSignup}
+                    className="inline-flex items-center rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"
+                  >
+                    Connect WhatsApp
                   </button>
                 ) : null}
                 {card.id === "telegram" ? (
