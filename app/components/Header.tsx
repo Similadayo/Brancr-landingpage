@@ -48,12 +48,6 @@ export default function Header() {
 
           <div className="flex items-center gap-4">
             <Link
-              href="/login"
-              className="text-sm font-medium text-gray-700 transition-colors hover:text-primary"
-            >
-              Login
-            </Link>
-            <Link
               href="/waitlist"
               className="bg-primary text-white px-6 py-2.5 rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors shadow-sm"
             >
