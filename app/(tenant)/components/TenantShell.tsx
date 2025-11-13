@@ -113,7 +113,10 @@ function renderNavItems(compact: boolean) {
     return (
       <nav className="mt-4 space-y-1">
         {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+          // Special handling for Overview (exact match only)
+          const isActive = item.href === "/app"
+            ? pathname === "/app" || pathname === "/app/"
+            : pathname === item.href || pathname?.startsWith(`${item.href}/`);
         return (
           <Link
             key={item.href}
