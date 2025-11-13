@@ -1,7 +1,8 @@
 'use client';
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { MetaSdkLoader, waitForMetaSdk } from "@/app/components/meta/MetaSdkLoader";
 import { mockChannels } from "@/lib/mockData";
 
 declare global {
@@ -75,60 +76,17 @@ const connectionHistory = [
 
 export default function IntegrationsPage() {
   const [isFBReady, setIsFBReady] = useState(false);
-  const fbReadyPromiseRef = useRef<Promise<void> | null>(null);
-  const fbReadyResolveRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    if (!fbReadyPromiseRef.current) {
-      fbReadyPromiseRef.current = new Promise<void>((resolve) => {
-        fbReadyResolveRef.current = resolve;
+    waitForMetaSdk()
+      .then(() => {
+        setIsFBReady(true);
+      })
+      .catch((error) => {
+        console.error("Meta SDK failed to initialize", error);
       });
-    }
-
-    const initFacebook = () => {
-      if (!window.FB) return;
-
-      window.FB.init({
-        appId: process.env.NEXT_PUBLIC_META_APP_ID!,
-        autoLogAppEvents: true,
-        xfbml: true,
-        version: "v24.0",
-      });
-      setIsFBReady(true);
-      fbReadyResolveRef.current?.();
-    };
-
-    window.fbAsyncInit = initFacebook;
-
-    const existingScript =
-      document.getElementById("facebook-jssdk") ??
-      document.querySelector<HTMLScriptElement>('script[src="https://connect.facebook.net/en_US/sdk.js"]');
-    if (existingScript) {
-      if (window.FB) {
-        initFacebook();
-        return () => undefined;
-      }
-
-      existingScript.addEventListener("load", initFacebook, { once: true });
-      return () => {
-        existingScript.removeEventListener("load", initFacebook);
-      };
-    }
-
-    const script = document.createElement("script");
-    script.id = "facebook-jssdk";
-    script.src = "https://connect.facebook.net/en_US/sdk.js";
-    script.async = true;
-    script.defer = true;
-    script.crossOrigin = "anonymous";
-    script.addEventListener("load", initFacebook, { once: true });
-    document.body.appendChild(script);
-
-    return () => {
-      script.removeEventListener("load", initFacebook);
-    };
   }, []);
 
   useEffect(() => {
@@ -160,41 +118,42 @@ export default function IntegrationsPage() {
       return;
     }
 
-    if (!fbReadyPromiseRef.current) {
-      alert("Initializing WhatsApp signup…");
-      return;
-    }
+    waitForMetaSdk()
+      .then(() => {
+        if (!window.FB) {
+          alert("Meta SDK failed to load. Please refresh and try again.");
+          return;
+        }
 
-    void fbReadyPromiseRef.current.then(() => {
-      if (!window.FB) {
-        alert("Meta SDK failed to load. Please refresh and try again.");
-        return;
-      }
-
-      window.FB.login(
-        (response) => {
-          if (response.authResponse?.code) {
-            void fetch("/api/internal/meta/whatsapp/code", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ code: response.authResponse.code }),
-            });
-          } else {
-            console.warn("WhatsApp signup cancelled", response);
-          }
-        },
-        {
-          config_id: process.env.NEXT_PUBLIC_WHATSAPP_CONFIG_ID!,
-          response_type: "code",
-          override_default_response_type: true,
-          extras: { setup: {} },
-        },
-      );
-    });
+        window.FB.login(
+          (response) => {
+            if (response.authResponse?.code) {
+              void fetch("/api/internal/meta/whatsapp/code", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code: response.authResponse.code }),
+              });
+            } else {
+              console.warn("WhatsApp signup cancelled", response);
+            }
+          },
+          {
+            config_id: process.env.NEXT_PUBLIC_WHATSAPP_CONFIG_ID!,
+            response_type: "code",
+            override_default_response_type: true,
+            extras: { setup: {} },
+          },
+        );
+      })
+      .catch((error) => {
+        console.error("Failed to launch WhatsApp signup", error);
+        alert("Meta SDK failed to initialize. Please refresh and try again.");
+      });
   }, []);
 
   return (
     <div className="space-y-10">
+      <MetaSdkLoader />
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Social & Messaging Connections</h1>
