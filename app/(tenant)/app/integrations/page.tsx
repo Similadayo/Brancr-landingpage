@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { mockChannels } from "@/lib/mockData";
 
 declare global {
@@ -75,9 +75,17 @@ const connectionHistory = [
 
 export default function IntegrationsPage() {
   const [isFBReady, setIsFBReady] = useState(false);
+  const fbReadyPromiseRef = useRef<Promise<void> | null>(null);
+  const fbReadyResolveRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    if (!fbReadyPromiseRef.current) {
+      fbReadyPromiseRef.current = new Promise<void>((resolve) => {
+        fbReadyResolveRef.current = resolve;
+      });
+    }
 
     const initFacebook = () => {
       if (!window.FB) return;
@@ -89,6 +97,7 @@ export default function IntegrationsPage() {
         version: "v24.0",
       });
       setIsFBReady(true);
+      fbReadyResolveRef.current?.();
     };
 
     window.fbAsyncInit = initFacebook;
@@ -99,7 +108,7 @@ export default function IntegrationsPage() {
     if (existingScript) {
       if (window.FB) {
         initFacebook();
-        return;
+        return () => undefined;
       }
 
       existingScript.addEventListener("load", initFacebook, { once: true });
@@ -151,32 +160,38 @@ export default function IntegrationsPage() {
       return;
     }
 
-    if (!isFBReady || !window.FB) {
+    if (!fbReadyPromiseRef.current) {
       alert("Initializing WhatsApp signup…");
-      window.fbAsyncInit?.();
       return;
     }
 
-    window.FB.login(
-      (response) => {
-        if (response.authResponse?.code) {
-          void fetch("/api/internal/meta/whatsapp/code", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code: response.authResponse.code }),
-          });
-        } else {
-          console.warn("WhatsApp signup cancelled", response);
-        }
-      },
-      {
-        config_id: process.env.NEXT_PUBLIC_WHATSAPP_CONFIG_ID!,
-        response_type: "code",
-        override_default_response_type: true,
-        extras: { setup: {} },
-      },
-    );
-  }, [isFBReady]);
+    void fbReadyPromiseRef.current.then(() => {
+      if (!window.FB) {
+        alert("Meta SDK failed to load. Please refresh and try again.");
+        return;
+      }
+
+      window.FB.login(
+        (response) => {
+          if (response.authResponse?.code) {
+            void fetch("/api/internal/meta/whatsapp/code", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ code: response.authResponse.code }),
+            });
+          } else {
+            console.warn("WhatsApp signup cancelled", response);
+          }
+        },
+        {
+          config_id: process.env.NEXT_PUBLIC_WHATSAPP_CONFIG_ID!,
+          response_type: "code",
+          override_default_response_type: true,
+          extras: { setup: {} },
+        },
+      );
+    });
+  }, []);
 
   return (
     <div className="space-y-10">
@@ -240,7 +255,8 @@ export default function IntegrationsPage() {
                 {card.id === "whatsapp" ? (
                   <button
                     onClick={launchWhatsAppSignup}
-                    className="inline-flex items-center rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"
+                    disabled={!isFBReady}
+                    className="inline-flex items-center rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:border-primary/10 disabled:bg-primary/5 disabled:text-primary/40"
                   >
                     Connect WhatsApp
                   </button>
