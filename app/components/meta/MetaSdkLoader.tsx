@@ -35,12 +35,21 @@ export function MetaSdkLoader({ version = DEFAULT_VERSION }: MetaSdkLoaderProps)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    // Initialize promise if needed
+    if (!initPromise) {
+      initPromise = new Promise<void>((resolve) => {
+        initResolve = resolve;
+      });
+    }
+
     // Define fbAsyncInit BEFORE the script loads (as per Meta docs)
     window.fbAsyncInit = function () {
       if (!window.FB) {
         console.error("FB object not available in fbAsyncInit");
         return;
       }
+
+      console.log("Calling FB.init with app ID:", process.env.NEXT_PUBLIC_META_APP_ID);
 
       window.FB.init({
         appId: process.env.NEXT_PUBLIC_META_APP_ID!,
@@ -49,17 +58,21 @@ export function MetaSdkLoader({ version = DEFAULT_VERSION }: MetaSdkLoaderProps)
         version,
       });
 
-      console.log("Meta SDK initialized successfully");
+      console.log("FB.init() called successfully, SDK ready");
       isInitialized = true;
 
-      if (initResolve) {
-        initResolve();
-        initResolve = null;
-      }
+      // Small delay to ensure init completes
+      setTimeout(() => {
+        if (initResolve) {
+          initResolve();
+          initResolve = null;
+        }
+      }, 100);
     };
 
     // If FB already exists (hot reload scenario), initialize immediately
     if (window.FB && !isInitialized) {
+      console.log("FB already loaded, calling fbAsyncInit immediately");
       window.fbAsyncInit();
     }
   }, [version]);

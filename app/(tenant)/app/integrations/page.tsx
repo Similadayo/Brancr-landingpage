@@ -80,13 +80,25 @@ export default function IntegrationsPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    waitForMetaSdk()
-      .then(() => {
-        setIsFBReady(true);
-      })
-      .catch((error) => {
-        console.error("Meta SDK failed to initialize", error);
-      });
+    // Poll until FB.init has actually been called
+    const checkFBReady = () => {
+      waitForMetaSdk()
+        .then(() => {
+          // Extra verification: check that FB.getAccessToken exists (only available after init)
+          if (window.FB && typeof window.FB.getLoginStatus === 'function') {
+            console.log("FB SDK confirmed ready");
+            setIsFBReady(true);
+          } else {
+            console.log("FB object exists but not fully initialized, retrying...");
+            setTimeout(checkFBReady, 100);
+          }
+        })
+        .catch((error) => {
+          console.error("Meta SDK failed to initialize", error);
+        });
+    };
+
+    checkFBReady();
   }, []);
 
   useEffect(() => {
