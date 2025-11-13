@@ -154,6 +154,7 @@ export default function IntegrationsPage() {
     }
 
     console.log("🔥 Calling FB.login with config_id:", META_CONFIG.whatsappConfigId);
+    console.log("🔗 Using redirect_uri:", META_CONFIG.embeddedSignupRedirectUri);
 
     window.FB.login(
       (response) => {
@@ -182,6 +183,7 @@ export default function IntegrationsPage() {
         config_id: META_CONFIG.whatsappConfigId,
         response_type: "code",
         override_default_response_type: true,
+        redirect_uri: META_CONFIG.embeddedSignupRedirectUri, // Must match code exchange
         extras: { setup: {} },
       },
     );
