@@ -99,8 +99,13 @@ export default function IntegrationsPage() {
     if (existingScript) {
       if (window.FB) {
         initFacebook();
+        return;
       }
-      return;
+
+      existingScript.addEventListener("load", initFacebook, { once: true });
+      return () => {
+        existingScript.removeEventListener("load", initFacebook);
+      };
     }
 
     const script = document.createElement("script");
@@ -109,7 +114,12 @@ export default function IntegrationsPage() {
     script.async = true;
     script.defer = true;
     script.crossOrigin = "anonymous";
+    script.addEventListener("load", initFacebook, { once: true });
     document.body.appendChild(script);
+
+    return () => {
+      script.removeEventListener("load", initFacebook);
+    };
   }, []);
 
   useEffect(() => {
