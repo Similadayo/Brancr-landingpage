@@ -114,42 +114,38 @@ export default function IntegrationsPage() {
   }, []);
 
   const launchWhatsAppSignup = useCallback(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined" || !isFBReady) {
+      alert("Please wait, Meta SDK is still loading…");
       return;
     }
 
-    waitForMetaSdk()
-      .then(() => {
-        if (!window.FB) {
-          alert("Meta SDK failed to load. Please refresh and try again.");
-          return;
-        }
+    if (!window.FB) {
+      alert("Meta SDK failed to load. Please refresh and try again.");
+      return;
+    }
 
-        window.FB.login(
-          (response) => {
-            if (response.authResponse?.code) {
-              void fetch("/api/internal/meta/whatsapp/code", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ code: response.authResponse.code }),
-              });
-            } else {
-              console.warn("WhatsApp signup cancelled", response);
-            }
-          },
-          {
-            config_id: process.env.NEXT_PUBLIC_WHATSAPP_CONFIG_ID!,
-            response_type: "code",
-            override_default_response_type: true,
-            extras: { setup: {} },
-          },
-        );
-      })
-      .catch((error) => {
-        console.error("Failed to launch WhatsApp signup", error);
-        alert("Meta SDK failed to initialize. Please refresh and try again.");
-      });
-  }, []);
+    console.log("Launching WhatsApp signup with FB ready:", window.FB);
+
+    window.FB.login(
+      (response) => {
+        if (response.authResponse?.code) {
+          void fetch("/api/internal/meta/whatsapp/code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: response.authResponse.code }),
+          });
+        } else {
+          console.warn("WhatsApp signup cancelled", response);
+        }
+      },
+      {
+        config_id: process.env.NEXT_PUBLIC_WHATSAPP_CONFIG_ID!,
+        response_type: "code",
+        override_default_response_type: true,
+        extras: { setup: {} },
+      },
+    );
+  }, [isFBReady]);
 
   return (
     <div className="space-y-10">

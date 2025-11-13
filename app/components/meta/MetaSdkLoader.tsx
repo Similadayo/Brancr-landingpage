@@ -101,6 +101,8 @@ async function loadMetaSdk(version: string): Promise<void> {
         return;
       }
 
+      console.log("Initializing Meta SDK with app ID:", process.env.NEXT_PUBLIC_META_APP_ID);
+
       globalWindow.FB.init({
         appId: process.env.NEXT_PUBLIC_META_APP_ID!,
         autoLogAppEvents: true,
@@ -108,6 +110,7 @@ async function loadMetaSdk(version: string): Promise<void> {
         version,
       });
 
+      console.log("Meta SDK initialized, marking ready");
       markReady();
     };
 
