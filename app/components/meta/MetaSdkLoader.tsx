@@ -94,7 +94,8 @@ async function loadMetaSdk(version: string): Promise<void> {
       resolve();
     };
 
-    const initFacebook = () => {
+    // Set fbAsyncInit FIRST before script loads
+    globalWindow.fbAsyncInit = () => {
       if (!globalWindow.FB) {
         reject(new Error("Meta SDK is not available on window"));
         return;
@@ -110,13 +111,13 @@ async function loadMetaSdk(version: string): Promise<void> {
       markReady();
     };
 
-    globalWindow.fbAsyncInit = initFacebook;
-
+    // If FB is already loaded, call init immediately
     if (globalWindow.FB) {
-      initFacebook();
+      globalWindow.fbAsyncInit();
       return;
     }
 
+    // Check if script already exists
     let script = document.getElementById("facebook-jssdk") as HTMLScriptElement | null;
 
     if (!script) {
@@ -126,19 +127,15 @@ async function loadMetaSdk(version: string): Promise<void> {
       script.async = true;
       script.defer = true;
       script.crossOrigin = "anonymous";
-      document.body.appendChild(script);
-    }
 
-    script.addEventListener("load", initFacebook, { once: true });
-    script.addEventListener(
-      "error",
-      () => {
+      script.onerror = () => {
         isLoading = false;
         loadPromise = null;
         loadResolve = null;
         reject(new Error("Failed to load Meta SDK script"));
-      },
-      { once: true },
-    );
+      };
+
+      document.body.appendChild(script);
+    }
   });
 }
