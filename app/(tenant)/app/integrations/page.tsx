@@ -105,6 +105,7 @@ export default function IntegrationsPage() {
           void fetch(`${META_CONFIG.backendUrl}/api/internal/meta/whatsapp/session`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: "include", // Send tenant session cookie
             body: JSON.stringify(asJson),
           }).then(res => {
             if (res.ok) {
@@ -161,6 +162,7 @@ export default function IntegrationsPage() {
           void fetch(`${META_CONFIG.backendUrl}/api/internal/meta/whatsapp/code`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: "include", // Send tenant session cookie
             body: JSON.stringify({ code: response.authResponse.code }),
           }).then(res => {
             if (res.ok) {
