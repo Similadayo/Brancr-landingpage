@@ -23,9 +23,6 @@ export default function PrelaunchPage() {
           <Link href="/home" className="transition hover:text-primary">
             Explore product
           </Link>
-          <Link href="/login" className="transition hover:text-primary">
-            Login
-          </Link>
           <Link
             href="/waitlist"
             className="rounded-full bg-primary px-4 py-2 font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary/90"
@@ -50,12 +47,6 @@ export default function PrelaunchPage() {
             className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary/90"
           >
             Explore the product preview
-          </Link>
-          <Link
-            href="/login"
-            className="rounded-full border border-gray-200 px-6 py-3 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
-          >
-            Existing tenant login
           </Link>
         </div>
       </section>
