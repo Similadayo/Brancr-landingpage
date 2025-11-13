@@ -89,7 +89,7 @@ export default function IntegrationsPage() {
     script.crossOrigin = "anonymous";
     script.onload = () => {
       window.fbAsyncInit = () => {
-        window.FB.init({
+        window.FB?.init({
           appId: process.env.NEXT_PUBLIC_META_APP_ID!,
           autoLogAppEvents: true,
           xfbml: true,
