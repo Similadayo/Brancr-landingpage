@@ -80,25 +80,14 @@ export default function IntegrationsPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Poll until FB.init has actually been called
-    const checkFBReady = () => {
-      waitForMetaSdk()
-        .then(() => {
-          // Extra verification: check that FB.getAccessToken exists (only available after init)
-          if (window.FB && typeof window.FB.getLoginStatus === 'function') {
-            console.log("FB SDK confirmed ready");
-            setIsFBReady(true);
-          } else {
-            console.log("FB object exists but not fully initialized, retrying...");
-            setTimeout(checkFBReady, 100);
-          }
-        })
-        .catch((error) => {
-          console.error("Meta SDK failed to initialize", error);
-        });
-    };
-
-    checkFBReady();
+    waitForMetaSdk()
+      .then(() => {
+        console.log("✅ Meta SDK confirmed ready for integrations page");
+        setIsFBReady(true);
+      })
+      .catch((error) => {
+        console.error("Meta SDK failed to initialize", error);
+      });
   }, []);
 
   useEffect(() => {
@@ -125,10 +114,15 @@ export default function IntegrationsPage() {
     return () => window.removeEventListener("message", handler);
   }, []);
 
-  const launchWhatsAppSignup = useCallback(() => {
-    if (typeof window === "undefined" || !isFBReady) {
-      alert("Please wait, Meta SDK is still loading…");
+  const launchWhatsAppSignup = useCallback(async () => {
+    if (typeof window === "undefined") {
       return;
+    }
+
+    // Wait for SDK to be ready
+    if (!window.__fbReady) {
+      console.log("⏳ Waiting for FB SDK...");
+      await waitForMetaSdk();
     }
 
     if (!window.FB) {
@@ -136,10 +130,11 @@ export default function IntegrationsPage() {
       return;
     }
 
-    console.log("Launching WhatsApp signup with FB ready:", window.FB);
+    console.log("🔥 Calling FB.login with config_id:", process.env.NEXT_PUBLIC_WHATSAPP_CONFIG_ID);
 
     window.FB.login(
       (response) => {
+        console.log("FB.login response:", response);
         if (response.authResponse?.code) {
           void fetch("/api/internal/meta/whatsapp/code", {
             method: "POST",
@@ -147,7 +142,7 @@ export default function IntegrationsPage() {
             body: JSON.stringify({ code: response.authResponse.code }),
           });
         } else {
-          console.warn("WhatsApp signup cancelled", response);
+          console.warn("WhatsApp signup cancelled or failed", response);
         }
       },
       {
@@ -157,7 +152,7 @@ export default function IntegrationsPage() {
         extras: { setup: {} },
       },
     );
-  }, [isFBReady]);
+  }, []);
 
   return (
     <div className="space-y-10">
