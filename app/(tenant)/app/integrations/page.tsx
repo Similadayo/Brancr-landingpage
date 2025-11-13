@@ -159,14 +159,13 @@ export default function IntegrationsPage() {
       (response) => {
         console.log("FB.login response:", response);
         if (response.authResponse?.code) {
-          const redirectUri = window.location.origin + window.location.pathname;
           void fetch(`${META_CONFIG.backendUrl}/api/internal/meta/whatsapp/code`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include", // Send tenant session cookie
             body: JSON.stringify({ 
               code: response.authResponse.code,
-              redirect_uri: redirectUri,
+              redirect_uri: window.location.href, // Exact URL where FB.login was called
             }),
           }).then(res => {
             if (res.ok) {
