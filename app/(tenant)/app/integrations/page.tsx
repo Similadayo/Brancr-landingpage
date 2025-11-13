@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { mockChannels } from "@/lib/mockData";
 
 declare global {
@@ -74,30 +74,41 @@ const connectionHistory = [
 ];
 
 export default function IntegrationsPage() {
+  const [isFBReady, setIsFBReady] = useState(false);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const existingScript = document.querySelector<HTMLScriptElement>(
-      'script[src="https://connect.facebook.net/en_US/sdk.js"]',
-    );
-    if (existingScript) return;
+    const initFacebook = () => {
+      if (!window.FB) return;
+
+      window.FB.init({
+        appId: process.env.NEXT_PUBLIC_META_APP_ID!,
+        autoLogAppEvents: true,
+        xfbml: true,
+        version: "v24.0",
+      });
+      setIsFBReady(true);
+    };
+
+    window.fbAsyncInit = initFacebook;
+
+    const existingScript =
+      document.getElementById("facebook-jssdk") ??
+      document.querySelector<HTMLScriptElement>('script[src="https://connect.facebook.net/en_US/sdk.js"]');
+    if (existingScript) {
+      if (window.FB) {
+        initFacebook();
+      }
+      return;
+    }
 
     const script = document.createElement("script");
+    script.id = "facebook-jssdk";
     script.src = "https://connect.facebook.net/en_US/sdk.js";
     script.async = true;
     script.defer = true;
     script.crossOrigin = "anonymous";
-    script.onload = () => {
-      window.fbAsyncInit = () => {
-        window.FB?.init({
-          appId: process.env.NEXT_PUBLIC_META_APP_ID!,
-          autoLogAppEvents: true,
-          xfbml: true,
-          version: "v24.0",
-        });
-      };
-    };
-
     document.body.appendChild(script);
   }, []);
 
@@ -126,8 +137,13 @@ export default function IntegrationsPage() {
   }, []);
 
   const launchWhatsAppSignup = useCallback(() => {
-    if (typeof window === "undefined" || !window.FB) {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (!isFBReady || !window.FB) {
       alert("Initializing WhatsApp signup…");
+      window.fbAsyncInit?.();
       return;
     }
 
@@ -150,7 +166,7 @@ export default function IntegrationsPage() {
         extras: { setup: {} },
       },
     );
-  }, []);
+  }, [isFBReady]);
 
   return (
     <div className="space-y-10">
