@@ -102,13 +102,13 @@ export default function IntegrationsPage() {
         const asJson = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
         if (asJson?.type === "WA_EMBEDDED_SIGNUP") {
           console.log("📨 WA_EMBEDDED_SIGNUP message received:", asJson);
-          void fetch("/api/internal/meta/whatsapp/session", {
+          void fetch(`${META_CONFIG.backendUrl}/api/internal/meta/whatsapp/session`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(asJson),
           }).then(res => {
             if (res.ok) {
-              console.log("✅ Session payload sent successfully");
+              console.log("✅ Session payload sent successfully to backend");
             } else {
               console.error("❌ Failed to send session payload:", res.status);
             }
@@ -158,10 +158,16 @@ export default function IntegrationsPage() {
       (response) => {
         console.log("FB.login response:", response);
         if (response.authResponse?.code) {
-          void fetch("/api/internal/meta/whatsapp/code", {
+          void fetch(`${META_CONFIG.backendUrl}/api/internal/meta/whatsapp/code`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code: response.authResponse.code }),
+          }).then(res => {
+            if (res.ok) {
+              console.log("✅ Code sent successfully to backend");
+            } else {
+              console.error("❌ Failed to send code to backend:", res.status);
+            }
           });
         } else {
           console.warn("WhatsApp signup cancelled or failed", response);

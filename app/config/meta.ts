@@ -9,6 +9,8 @@ export const META_CONFIG = {
   whatsappConfigId: '4206423082947827',
   version: 'v24.0',
   redirectUri: 'https://brancr.onrender.com/api/oauth/meta/callback',
+  // Backend API base URL (Go service on Render)
+  backendUrl: 'https://brancr.onrender.com',
 } as const;
 
 // Server-side only - keep in environment variables
