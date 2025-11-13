@@ -165,7 +165,7 @@ export default function IntegrationsPage() {
             credentials: "include", // Send tenant session cookie
             body: JSON.stringify({ 
               code: response.authResponse.code,
-              redirect_uri: window.location.href, // Exact URL where FB.login was called
+              redirect_uri: META_CONFIG.embeddedSignupRedirectUri,
             }),
           }).then(res => {
             if (res.ok) {
