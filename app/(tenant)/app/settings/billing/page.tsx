@@ -47,7 +47,7 @@ export default function BillingPage() {
         <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-6">
           <h3 className="text-sm font-semibold text-amber-900">Coming Soon</h3>
           <p className="mt-2 text-sm text-amber-700">
-            Billing management features are currently in development. You'll be able to upgrade your plan, manage
+            Billing management features are currently in development. You&apos;ll be able to upgrade your plan, manage
             payment methods, and view invoices here soon.
           </p>
           <Link
