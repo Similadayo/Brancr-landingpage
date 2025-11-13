@@ -25,11 +25,13 @@ declare global {
           config_id: string;
           response_type: string;
           override_default_response_type: boolean;
+          redirect_uri?: string;
           extras: Record<string, unknown>;
         },
       ) => void;
     };
     fbAsyncInit?: () => void;
+    __fbReady?: boolean;
   }
 }
 
