@@ -97,18 +97,39 @@ export default function IntegrationsPage() {
     const handler = (event: MessageEvent) => {
       if (typeof event.origin !== "string" || !event.origin.endsWith("facebook.com")) return;
 
+      // Try parsing as JSON first
       try {
-        const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
-        if (data?.type === "WA_EMBEDDED_SIGNUP") {
+        const asJson = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        if (asJson?.type === "WA_EMBEDDED_SIGNUP") {
+          console.log("📨 WA_EMBEDDED_SIGNUP message received:", asJson);
           void fetch("/api/internal/meta/whatsapp/session", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
+            body: JSON.stringify(asJson),
+          }).then(res => {
+            if (res.ok) {
+              console.log("✅ Session payload sent successfully");
+            } else {
+              console.error("❌ Failed to send session payload:", res.status);
+            }
           });
+          return;
         }
-      } catch (err) {
-        console.warn("embedded signup message parse failed", err, event.data);
+      } catch {
+        // Not JSON, try URLSearchParams for query-string format
+        try {
+          const params = new URLSearchParams(event.data);
+          if (params.get("domain")) {
+            // Meta domain check message - useful for debugging but not the final payload
+            console.log("📡 Meta domain check message:", event.data);
+            return;
+          }
+        } catch {
+          // Ignore if not URLSearchParams either
+        }
       }
+
+      console.warn("⚠️ Unhandled embedded signup message:", event.data);
     };
 
     window.addEventListener("message", handler);

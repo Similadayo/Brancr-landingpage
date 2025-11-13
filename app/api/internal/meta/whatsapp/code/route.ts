@@ -8,6 +8,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const code: string | undefined = body?.code;
 
+    console.log("📥 Received code exchange request, code present:", !!code);
+
     if (!code) {
       return NextResponse.json({ error: "Missing authorization code" }, { status: 400 });
     }
@@ -16,7 +18,14 @@ export async function POST(request: NextRequest) {
     const clientSecret = getMetaSecret();
     const redirectUri = META_CONFIG.redirectUri;
 
+    console.log("🔑 Using credentials:", {
+      clientId,
+      redirectUri,
+      hasSecret: !!clientSecret,
+    });
+
     if (!clientId || !clientSecret || !redirectUri) {
+      console.error("❌ Missing Meta credentials");
       return NextResponse.json(
         {
           error: "Meta credentials are not fully configured",
@@ -32,10 +41,14 @@ export async function POST(request: NextRequest) {
       code,
     });
 
+    console.log("🌐 Calling Meta token endpoint:", META_TOKEN_ENDPOINT);
+
     const tokenResponse = await fetch(`${META_TOKEN_ENDPOINT}?${params.toString()}`, {
       method: "GET",
     });
     const tokenPayload = await tokenResponse.json();
+
+    console.log("📨 Meta response status:", tokenResponse.status);
 
     if (!tokenResponse.ok) {
       const message =
@@ -43,15 +56,23 @@ export async function POST(request: NextRequest) {
           ? tokenPayload.error.message
           : "Meta token exchange failed";
 
-      return NextResponse.json({ error: message }, { status: tokenResponse.status });
+      console.error("❌ Token exchange failed:", tokenPayload);
+      return NextResponse.json({ error: message, details: tokenPayload }, { status: tokenResponse.status });
     }
 
+    console.log("✅ Token exchange successful");
     // TODO: persist the decrypted business token temporarily or enqueue a job
     // For now we simply acknowledge the exchange.
     return NextResponse.json({ success: true, data: tokenPayload });
   } catch (error) {
-    console.error("Failed to exchange Meta authorization code", error);
-    return NextResponse.json({ error: "Unexpected error exchanging code" }, { status: 500 });
+    console.error("💥 Exception in code exchange:", error);
+    return NextResponse.json(
+      { 
+        error: "Unexpected error exchanging code", 
+        details: error instanceof Error ? error.message : String(error) 
+      }, 
+      { status: 500 }
+    );
   }
 }
 
