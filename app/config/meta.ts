@@ -11,7 +11,7 @@ export const META_CONFIG = {
   // OAuth callback for Meta's server-side redirect
   oauthCallbackUri: 'https://brancr.onrender.com/api/oauth/meta/callback',
   // Embedded signup redirect URI (frontend page where FB.login is called)
-  embeddedSignupRedirectUri: 'https://www.brancr.com/app/integrations',
+  embeddedSignupRedirectUri: 'https://www.brancr.com/',
   // Backend API base URL (Go service - using api.brancr.com so cookies are sent)
   backendUrl: 'https://api.brancr.com',
 } as const;
