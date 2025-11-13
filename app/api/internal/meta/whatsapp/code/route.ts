@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { META_CONFIG, getMetaSecret } from "@/app/config/meta";
 
 const META_TOKEN_ENDPOINT = "https://graph.facebook.com/v24.0/oauth/access_token";
 
@@ -11,9 +12,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing authorization code" }, { status: 400 });
     }
 
-    const clientId = process.env.NEXT_PUBLIC_META_APP_ID;
-    const clientSecret = process.env.META_APP_SECRET;
-    const redirectUri = process.env.META_WHATSAPP_REDIRECT_URI;
+    const clientId = META_CONFIG.appId;
+    const clientSecret = getMetaSecret();
+    const redirectUri = META_CONFIG.redirectUri;
 
     if (!clientId || !clientSecret || !redirectUri) {
       return NextResponse.json(

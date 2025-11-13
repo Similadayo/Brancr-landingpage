@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Script from "next/script";
+import { META_CONFIG } from "@/app/config/meta";
 
 declare global {
   interface Window {
@@ -43,10 +44,10 @@ export function MetaSdkLoader() {
       }
 
       window.FB.init({
-        appId: process.env.NEXT_PUBLIC_META_APP_ID!,
+        appId: META_CONFIG.appId,
         autoLogAppEvents: true,
         xfbml: false,
-        version: "v24.0",
+        version: META_CONFIG.version,
       });
 
       console.log("✅ FB.init complete");

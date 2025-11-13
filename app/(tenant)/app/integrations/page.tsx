@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MetaSdkLoader, waitForMetaSdk } from "@/app/components/meta/MetaSdkLoader";
+import { META_CONFIG } from "@/app/config/meta";
 import { mockChannels } from "@/lib/mockData";
 
 declare global {
@@ -130,7 +131,7 @@ export default function IntegrationsPage() {
       return;
     }
 
-    console.log("🔥 Calling FB.login with config_id:", process.env.NEXT_PUBLIC_WHATSAPP_CONFIG_ID);
+    console.log("🔥 Calling FB.login with config_id:", META_CONFIG.whatsappConfigId);
 
     window.FB.login(
       (response) => {
@@ -146,7 +147,7 @@ export default function IntegrationsPage() {
         }
       },
       {
-        config_id: process.env.NEXT_PUBLIC_WHATSAPP_CONFIG_ID!,
+        config_id: META_CONFIG.whatsappConfigId,
         response_type: "code",
         override_default_response_type: true,
         extras: { setup: {} },
