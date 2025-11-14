@@ -31,7 +31,7 @@ const STATUS_MAP: Record<
     label: "Not connected",
     badge: "bg-gray-100 text-gray-500",
     description: "Connect to unlock automations and analytics.",
-    helper: "Start from Telegram or our upcoming OAuth flow.",
+    helper: "Start from Telegram or connect your channels.",
   },
 };
 
@@ -45,12 +45,6 @@ const PLATFORM_NAMES: Record<string, string> = {
 
 // Define all supported platforms (even if not connected)
 const ALL_PLATFORMS = ["whatsapp", "instagram", "facebook", "telegram", "tiktok"];
-
-const metaChecklist = [
-  { id: "whatsapp", label: "Select WhatsApp Business number", done: true },
-  { id: "instagram", label: "Approve Instagram messaging permission", done: true },
-  { id: "webhook", label: "Confirm Meta webhook callback URL", done: false },
-];
 
 const connectionHistory = [
   { id: "log-001", action: "WhatsApp number assigned", at: "Jul 6, 2025 • 09:18" },
@@ -136,19 +130,35 @@ export default function IntegrationsPage() {
             const statusKey = connected ? "connected" : "not_connected";
             const status = STATUS_MAP[statusKey];
             const isDisconnecting = disconnectingPlatform === platform;
+            const isWhatsApp = platform === "whatsapp";
 
             return (
               <div key={platform} className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900">{name}</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-semibold text-gray-900">{name}</h2>
+                    {isWhatsApp && connected && (
+                      <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-primary">
+                        Brancr-Managed
+                      </span>
+                    )}
+                  </div>
                   <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-widest ${status.badge}`}>
-                    {status.label}
+                    {isWhatsApp && !connected ? "No Number Assigned" : status.label}
                   </span>
                 </div>
-                {integration?.username && (
+                {isWhatsApp && connected && integration?.external_id ? (
+                  <p className="mt-2 text-xs text-gray-500">Number: {integration.external_id}</p>
+                ) : integration?.username && !isWhatsApp ? (
                   <p className="mt-2 text-xs text-gray-500">@{integration.username}</p>
-                )}
-                <p className="mt-3 text-sm text-gray-600">{status.description}</p>
+                ) : null}
+                <p className="mt-3 text-sm text-gray-600">
+                  {isWhatsApp && connected
+                    ? "Brancr manages your WhatsApp Business Account. All set for messaging automation."
+                    : isWhatsApp && !connected
+                    ? "Select or add your WhatsApp number to start messaging automation."
+                    : status.description}
+                </p>
                 <p className="mt-3 text-xs uppercase tracking-[0.3em] text-gray-400">
                   Last updated{" "}
                   {new Date(updatedAt).toLocaleString([], {
@@ -161,14 +171,14 @@ export default function IntegrationsPage() {
                 <p className="mt-2 text-xs text-gray-500">{status.helper}</p>
 
                 {/* WhatsApp number selector */}
-                {platform === "whatsapp" && (
+                {isWhatsApp && (
                   <div className="mt-4">
                     <WhatsAppNumberSelector />
                   </div>
                 )}
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {connected && platform !== "whatsapp" ? (
+                  {connected && !isWhatsApp ? (
                     <>
                       <button
                         onClick={() => handleVerify(platform)}
@@ -185,6 +195,13 @@ export default function IntegrationsPage() {
                         {isDisconnecting ? "Disconnecting..." : "Disconnect"}
                       </button>
                     </>
+                  ) : isWhatsApp && connected ? (
+                    <Link
+                      href="/app/integrations#whatsapp"
+                      className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
+                    >
+                      Manage Number
+                    </Link>
                   ) : platform === "telegram" ? (
                     <a
                       href="https://t.me/brancrbot"
@@ -194,7 +211,7 @@ export default function IntegrationsPage() {
                     >
                       Open bot deep link
                     </a>
-                  ) : platform !== "whatsapp" ? (
+                  ) : !isWhatsApp ? (
                     <button
                       disabled
                       className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-400 opacity-50 cursor-not-allowed"
@@ -211,22 +228,23 @@ export default function IntegrationsPage() {
 
       <section className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-900">Meta setup checklist</h3>
+          <h3 className="text-sm font-semibold text-gray-900">Provider-Owned WhatsApp</h3>
           <p className="mt-3 text-sm text-gray-600">
-            Follow these steps to keep WhatsApp and Instagram flows synced with Brancr.
+            Brancr manages your WhatsApp Business Account. Select a number from our pool or add your own number for verification.
           </p>
           <div className="mt-4 space-y-3 text-sm text-gray-600">
-            {metaChecklist.map((item) => (
-              <label key={item.id} className="flex items-start gap-3">
-                <input
-                  type="checkbox"
-                  readOnly
-                  checked={item.done}
-                  className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/40"
-                />
-                <span className={item.done ? "text-gray-600" : "text-gray-500"}>{item.label}</span>
-              </label>
-            ))}
+            <div className="flex items-start gap-3">
+              <span className="mt-1 h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
+              <span>Brancr handles WhatsApp Business Account setup and billing</span>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="mt-1 h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
+              <span>Select from available numbers or verify your own number</span>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="mt-1 h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
+              <span>All WhatsApp usage charges appear on your Brancr invoice</span>
+            </div>
           </div>
         </div>
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">

@@ -30,6 +30,7 @@ export default function TenantOverviewPage() {
       (post) => post.status === "scheduled" || post.status === "posting"
     );
     const connectedChannels = integrations.filter((integration) => integration.connected);
+    const whatsappConnected = integrations.some((i) => i.platform === "whatsapp" && i.connected);
     
     // Get stats from API or fallback to computed values
     const scheduledPostsCount = userData?.scheduled_posts?.total ?? upcomingPosts.length;
@@ -41,11 +42,14 @@ export default function TenantOverviewPage() {
       connectedChannels: connectedChannelsCount,
       totalChannels,
       conversations: overviewData?.conversations ?? 0,
+      whatsappConnected,
       reminders: [
         upcomingPosts.length > 0
           ? `You have ${upcomingPosts.length} scheduled ${upcomingPosts.length > 1 ? "posts" : "post"} queued this week.`
           : "Create a scheduled post to keep your channels active.",
-        connectedChannelsCount < totalChannels
+        !whatsappConnected
+          ? "Select or add your WhatsApp number to start messaging automation."
+          : connectedChannelsCount < totalChannels
           ? "Connect your remaining channels to unlock automation across every platform."
           : "All supported channels are connected and syncing.",
         "Monitor your integrations to ensure they stay active and syncing.",
@@ -174,16 +178,29 @@ export default function TenantOverviewPage() {
             </Link>
           </div>
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-4">
-              <p className="text-xs uppercase tracking-[0.3em] text-emerald-600">WhatsApp</p>
+            <div className={`rounded-2xl border p-4 ${stats.whatsappConnected ? 'border-emerald-200 bg-emerald-50/80' : 'border-amber-200 bg-amber-50/80'}`}>
+              <div className="flex items-center justify-between">
+                <p className="text-xs uppercase tracking-[0.3em] text-emerald-600">WhatsApp</p>
+                {stats.whatsappConnected ? (
+                  <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                    Connected
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                    No Number
+                  </span>
+                )}
+              </div>
               <p className="mt-3 text-sm text-gray-600">
-                Keep first response time under five minutes to maintain conversion rates above 40%.
+                {stats.whatsappConnected
+                  ? "Keep first response time under five minutes to maintain conversion rates above 40%."
+                  : "Select or add your WhatsApp number to start messaging automation."}
               </p>
               <Link
-                href="/app/inbox"
+                href={stats.whatsappConnected ? "/app/inbox" : "/app/integrations"}
                 className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-emerald-600 hover:text-emerald-500"
               >
-                View threads <span aria-hidden>↗</span>
+                {stats.whatsappConnected ? "View threads" : "Manage Number"} <span aria-hidden>↗</span>
               </Link>
             </div>
             <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-4">

@@ -6,7 +6,7 @@ const onboardingSteps = [
     id: "01",
     title: "Connect your channels",
     description:
-      "Link WhatsApp, Instagram, Facebook, or Telegram so Brancr can centralise customer conversations and automation events.",
+      "Select or add your WhatsApp number, then link Instagram, Facebook, or Telegram so Brancr can centralise customer conversations and automation events. Brancr manages your WhatsApp Business Account.",
     action: { label: "Open integrations", href: "/app/integrations" },
     done: mockChannels.some((channel) => channel.status === "connected"),
   },

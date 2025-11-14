@@ -391,12 +391,16 @@ export const tenantApi = {
         phone_number_id: string;
         phone_number: string;
         verified_name?: string;
+        status?: "available" | "assigned" | "suspended";
+        quality_rating?: "green" | "yellow" | "red" | "high" | "medium" | "low";
       }>;
       current?: {
         id: string;
         phone_number_id: string;
         phone_number: string;
         verified_name?: string;
+        quality_rating?: "green" | "yellow" | "red" | "high" | "medium" | "low";
+        assigned_at?: string;
       };
     }>("/api/tenant/whatsapp/numbers"),
 
@@ -406,6 +410,8 @@ export const tenantApi = {
       phone_number?: string;
       phone_number_id?: string;
       verified_name?: string;
+      quality_rating?: "green" | "yellow" | "red" | "high" | "medium" | "low";
+      assigned_at?: string;
     }>("/api/tenant/whatsapp/current"),
 
   assignWhatsAppNumber: (phoneNumberId: string) =>
@@ -421,5 +427,8 @@ export const tenantApi = {
 
   verifyWhatsAppNumber: (payload: { phone_number_id: string; verification_code: string }) =>
     post<typeof payload, { success: boolean; message: string }>("/api/tenant/whatsapp/verify-number", payload),
+
+  checkWhatsAppNumber: (payload: { phone_number: string }) =>
+    post<typeof payload, { ready: boolean; message?: string }>("/api/tenant/whatsapp/check-number", payload),
 };
 

@@ -5,10 +5,10 @@ import Link from "next/link";
 const auditLogs = [
   {
     id: "log-001",
-    action: "WhatsApp connected via embedded signup",
+    action: "WhatsApp number assigned",
     timestamp: "Jul 6, 2025 • 09:18 AM",
     status: "success",
-    details: "Successfully linked WhatsApp Business Account",
+    details: "Successfully assigned WhatsApp Business number from Brancr pool",
   },
   {
     id: "log-002",

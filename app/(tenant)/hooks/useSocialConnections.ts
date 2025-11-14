@@ -87,7 +87,7 @@ export function useSocialConnectionHistory() {
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
           return [
-            { id: "1", action: "Meta Embedded Signup initiated for WhatsApp Business", at: "Today • 10:12" },
+            { id: "1", action: "WhatsApp number assigned", at: "Today • 10:12" },
             { id: "2", action: "Instagram Business connected", at: "Jul 3 • 09:45" },
           ];
         }
