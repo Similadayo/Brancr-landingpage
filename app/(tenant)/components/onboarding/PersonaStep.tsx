@@ -73,7 +73,7 @@ export function PersonaStep({
           className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
           placeholder="friendly, professional, casual, witty"
         />
-        <p className="mt-1 text-xs text-gray-500">Describe how your AI should communicate (e.g., "friendly, professional")</p>
+        <p className="mt-1 text-xs text-gray-500">Describe how your AI should communicate (e.g., &quot;friendly, professional&quot;)</p>
       </div>
 
       <div>

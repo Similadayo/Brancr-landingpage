@@ -28,7 +28,7 @@ export default function OnboardingPage() {
     }
   }, [userData?.onboarding?.complete, router]);
 
-  // If there's an auth error, show redirect message (redirect will happen via useEffect)
+  // If there&apos;s an auth error, show redirect message (redirect will happen via useEffect)
   if (error instanceof ApiError && error.status === 401) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
