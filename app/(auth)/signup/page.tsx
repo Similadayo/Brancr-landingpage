@@ -35,6 +35,7 @@ export default function SignupPage() {
         phone: formValues.phone.trim(),
       });
 
+      // After signup, always redirect to onboarding
       router.push("/app/onboarding");
       router.refresh();
     } catch (err) {

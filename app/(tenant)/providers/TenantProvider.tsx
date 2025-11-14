@@ -11,6 +11,10 @@ type TenantProfile = {
   email: string;
   plan: string;
   status: string;
+  onboarding?: {
+    complete: boolean;
+    step?: 'business_profile' | 'persona' | 'business_details' | 'social_connect';
+  };
 };
 
 type TenantContextValue = {

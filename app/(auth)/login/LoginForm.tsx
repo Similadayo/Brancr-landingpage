@@ -22,7 +22,18 @@ export default function LoginForm() {
 
     try {
       await authApi.login({ email: email.trim(), password });
-      router.push(nextUrl);
+      // Check onboarding status after login
+      try {
+        const userData = await authApi.me();
+        if (!userData.onboarding?.complete) {
+          router.push('/app/onboarding');
+        } else {
+          router.push(nextUrl);
+        }
+      } catch {
+        // If me() fails, just go to nextUrl
+        router.push(nextUrl);
+      }
       router.refresh();
     } catch (err) {
       if (err instanceof ApiError) {
