@@ -29,6 +29,7 @@ const TenantContext = createContext<TenantContextValue | undefined>(undefined);
 export function TenantProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const isOnboardingPage = pathname === '/app/onboarding';
 
   const {
     data,
@@ -41,7 +42,8 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
     retry: false,
   });
 
-  if (error instanceof ApiError && error.status === 401) {
+  // Don't redirect on onboarding page - let it handle its own auth
+  if (error instanceof ApiError && error.status === 401 && !isOnboardingPage) {
     router.replace(`/login?next=${encodeURIComponent(pathname || "/app")}`);
   }
 

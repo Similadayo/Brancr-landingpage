@@ -27,7 +27,7 @@ export default function SignupPage() {
     setIsSubmitting(true);
 
     try {
-      await authApi.signup({
+      const result = await authApi.signup({
         name: formValues.name.trim(),
         email: formValues.email.trim(),
         password: formValues.password,
@@ -35,16 +35,27 @@ export default function SignupPage() {
         phone: formValues.phone.trim(),
       });
 
-      // After signup, always redirect to onboarding
-      router.push("/app/onboarding");
-      router.refresh();
+      // Wait a bit for the session to be set up, then verify auth and redirect
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      
+      try {
+        // Verify we're authenticated by checking user data
+        const userData = await authApi.me();
+        // After signup, always redirect to onboarding
+        router.push("/app/onboarding");
+        router.refresh();
+      } catch (authErr) {
+        // If auth check fails, still try to redirect (the page will handle it)
+        console.warn('Auth check after signup failed, redirecting anyway:', authErr);
+        router.push("/app/onboarding");
+        router.refresh();
+      }
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
-        setError("We couldn’t create your account. Please try again.");
+        setError("We couldn't create your account. Please try again.");
       }
-    } finally {
       setIsSubmitting(false);
     }
   }
