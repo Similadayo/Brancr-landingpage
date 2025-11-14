@@ -8,6 +8,13 @@ import { tenantApi, ApiError } from "@/lib/api";
 export function WhatsAppNumberSelector() {
   const queryClient = useQueryClient();
   const [assigningNumberId, setAssigningNumberId] = useState<string | null>(null);
+  
+  // Tenant-provided number flow
+  const [showRequestForm, setShowRequestForm] = useState(false);
+  const [requestPhoneNumber, setRequestPhoneNumber] = useState('');
+  const [phoneNumberID, setPhoneNumberID] = useState<string | null>(null);
+  const [showVerifyForm, setShowVerifyForm] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
 
   // Fetch available numbers and current assignment
   const { data: numbersData, isLoading, error } = useQuery({
@@ -15,7 +22,7 @@ export function WhatsAppNumberSelector() {
     queryFn: () => tenantApi.whatsappNumbers(),
   });
 
-  // Assign number mutation
+  // Assign number mutation (from pool)
   const assignMutation = useMutation({
     mutationFn: (phoneNumberId: string) => tenantApi.assignWhatsAppNumber(phoneNumberId),
     onSuccess: (data) => {
@@ -32,6 +39,55 @@ export function WhatsAppNumberSelector() {
         toast.error("Failed to assign number. Please try again.");
       }
       setAssigningNumberId(null);
+    },
+  });
+
+  // Request number mutation (custom number)
+  const requestMutation = useMutation({
+    mutationFn: (phoneNumber: string) => tenantApi.requestWhatsAppNumber({ phone_number: phoneNumber }),
+    onSuccess: (data) => {
+      setPhoneNumberID(data.phone_number_id);
+      setShowRequestForm(false);
+      setShowVerifyForm(true);
+      toast.success("📨 Verification code requested! Check your phone (SMS) for the code.");
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        if (error.body?.error === 'phone_number_not_found') {
+          toast.error(
+            "📱 This phone number is not yet in our system. Please contact support to add your phone number first, or select an available number from the pool below.",
+            { duration: 8000 }
+          );
+          setShowRequestForm(false);
+        } else {
+          toast.error(error.message || "Failed to request number");
+        }
+      } else {
+        toast.error("Failed to request number. Please try again.");
+      }
+    },
+  });
+
+  // Verify number mutation
+  const verifyMutation = useMutation({
+    mutationFn: (payload: { phone_number_id: string; verification_code: string }) =>
+      tenantApi.verifyWhatsAppNumber(payload),
+    onSuccess: (data) => {
+      toast.success(`✅ ${data.message}`);
+      setShowVerifyForm(false);
+      setVerificationCode('');
+      setRequestPhoneNumber('');
+      setPhoneNumberID(null);
+      void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
+      void queryClient.invalidateQueries({ queryKey: ["whatsapp-current"] });
+      void queryClient.invalidateQueries({ queryKey: ["integrations"] });
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        toast.error(error.message || "Verification failed. Check the code and try again.");
+      } else {
+        toast.error("Verification failed. Please try again.");
+      }
     },
   });
 
@@ -63,6 +119,20 @@ export function WhatsAppNumberSelector() {
       return;
     }
     disconnectMutation.mutate();
+  };
+
+  const handleRequestNumber = (e: React.FormEvent) => {
+    e.preventDefault();
+    requestMutation.mutate(requestPhoneNumber);
+  };
+
+  const handleVerifyNumber = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!phoneNumberID || verificationCode.length !== 6) return;
+    verifyMutation.mutate({
+      phone_number_id: phoneNumberID,
+      verification_code: verificationCode,
+    });
   };
 
   if (isLoading) {
@@ -99,8 +169,9 @@ export function WhatsAppNumberSelector() {
                   ✅ Connected
                 </span>
               </div>
-              <p className="mt-2 text-sm font-semibold text-emerald-900">
-                Number: {currentNumber.phone_number}
+              <h3 className="mt-2 text-sm font-semibold text-emerald-900">Your WhatsApp Number</h3>
+              <p className="mt-1 text-sm font-semibold text-emerald-900">
+                {currentNumber.phone_number}
               </p>
               {currentNumber.verified_name && (
                 <p className="mt-1 text-xs text-emerald-700">
@@ -118,13 +189,16 @@ export function WhatsAppNumberSelector() {
           </div>
         </div>
       ) : (
-        <div className="space-y-3">
-          <p className="text-sm text-gray-600">No number assigned. Select one below:</p>
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-gray-900">No WhatsApp Number Assigned</h3>
 
-          {/* Available numbers list */}
-          {availableNumbers.length > 0 ? (
-            <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-gray-900">Available Numbers</h4>
+          {/* Option 1: Select from Pool */}
+          {availableNumbers.length > 0 && (
+            <div className="space-y-3">
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900">📋 Available Numbers (Instant)</h4>
+                <p className="mt-1 text-xs text-gray-600">Select a number from our pool - instant activation!</p>
+              </div>
               <div className="grid gap-2">
                 {availableNumbers.map((num) => (
                   <div
@@ -132,11 +206,9 @@ export function WhatsAppNumberSelector() {
                     className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-3"
                   >
                     <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-gray-900">{num.phone_number}</p>
-                      </div>
+                      <p className="text-sm font-semibold text-gray-900">{num.phone_number}</p>
                       {num.verified_name && (
-                        <p className="mt-0.5 text-xs text-gray-500">{num.verified_name}</p>
+                        <p className="mt-0.5 text-xs text-gray-500">✓ {num.verified_name}</p>
                       )}
                     </div>
                     <button
@@ -144,18 +216,107 @@ export function WhatsAppNumberSelector() {
                       disabled={assigningNumberId === num.phone_number_id || assignMutation.isPending}
                       className="ml-4 rounded-lg border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
                     >
-                      {assigningNumberId === num.phone_number_id ? "Assigning..." : "Select Number"}
+                      {assigningNumberId === num.phone_number_id ? "Assigning..." : "Select"}
                     </button>
                   </div>
                 ))}
               </div>
             </div>
-          ) : (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-center">
-              <p className="text-sm text-amber-900">No phone numbers available</p>
-              <p className="mt-1 text-xs text-amber-700">
-                Contact support to add WhatsApp Business numbers to your account.
+          )}
+
+          {/* Option 2: Custom Number */}
+          <div className="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900">📱 Use Your Own Number</h4>
+              <p className="mt-1 text-xs text-gray-600">
+                Contact support to add your number first, then verify it here.
               </p>
+            </div>
+
+            {!showRequestForm && !showVerifyForm && (
+              <button
+                onClick={() => setShowRequestForm(true)}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+              >
+                Request Verification Code
+              </button>
+            )}
+
+            {showRequestForm && (
+              <form onSubmit={handleRequestNumber} className="space-y-2">
+                <input
+                  type="tel"
+                  value={requestPhoneNumber}
+                  onChange={(e) => setRequestPhoneNumber(e.target.value)}
+                  placeholder="+1234567890"
+                  required
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={requestMutation.isPending || !requestPhoneNumber}
+                    className="flex-1 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
+                  >
+                    {requestMutation.isPending ? "Requesting..." : "Request Code"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowRequestForm(false);
+                      setRequestPhoneNumber('');
+                    }}
+                    className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-gray-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {showVerifyForm && (
+              <form onSubmit={handleVerifyNumber} className="space-y-2">
+                <p className="text-xs text-gray-600">
+                  Enter the 6-digit verification code sent to {requestPhoneNumber}
+                </p>
+                <input
+                  type="text"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="123456"
+                  maxLength={6}
+                  required
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={verifyMutation.isPending || verificationCode.length !== 6}
+                    className="flex-1 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
+                  >
+                    {verifyMutation.isPending ? "Verifying..." : "Verify"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowVerifyForm(false);
+                      setVerificationCode('');
+                      setPhoneNumberID(null);
+                      setRequestPhoneNumber('');
+                    }}
+                    className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-gray-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+
+          {availableNumbers.length === 0 && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-center">
+              <p className="text-sm text-amber-900">⚠️ No numbers available</p>
+              <p className="mt-1 text-xs text-amber-700">Contact support to add WhatsApp Business numbers.</p>
             </div>
           )}
         </div>
@@ -171,4 +332,3 @@ export function WhatsAppNumberSelector() {
     </div>
   );
 }
-
