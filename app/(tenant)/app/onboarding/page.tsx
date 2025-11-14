@@ -54,17 +54,8 @@ export default function OnboardingPage() {
 
   // Show wizard - this page bypasses TenantShell for full-screen wizard display
   // Default to first step if no step is specified (new users)
-  // Show wizard even if loading or userData is undefined (will show first step)
-  const initialStep = userData?.onboarding?.step || 'business_profile';
-  
-  // Show loading state OR wizard
-  if (isLoading && !userData) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
-      </div>
-    );
-  }
+  // The wizard will load its own status and determine the correct step
+  const initialStep = userData?.onboarding?.step;
   
   return (
     <div className="min-h-screen bg-gray-50">

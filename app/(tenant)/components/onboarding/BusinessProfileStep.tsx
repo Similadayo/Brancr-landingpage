@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 
 const INDUSTRIES = [
   'restaurant',
@@ -27,18 +27,41 @@ type BusinessProfileData = {
 export function BusinessProfileStep({
   onComplete,
   isSubmitting,
+  initialData,
 }: {
   onComplete: (step: 'business_profile', data: BusinessProfileData) => void;
   isSubmitting: boolean;
+  initialData?: {
+    name?: string;
+    industry?: string;
+    description?: string;
+    location?: string;
+    website?: string;
+    operating_hours?: string;
+  };
 }) {
   const [formData, setFormData] = useState<BusinessProfileData>({
-    name: '',
-    industry: '',
-    description: '',
-    location: '',
-    website: '',
-    operating_hours: '',
+    name: initialData?.name || '',
+    industry: initialData?.industry || '',
+    description: initialData?.description || '',
+    location: initialData?.location || '',
+    website: initialData?.website || '',
+    operating_hours: initialData?.operating_hours || '',
   });
+
+  // Update form data when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        name: initialData.name || '',
+        industry: initialData.industry || '',
+        description: initialData.description || '',
+        location: initialData.location || '',
+        website: initialData.website || '',
+        operating_hours: initialData.operating_hours || '',
+      });
+    }
+  }, [initialData]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -51,7 +74,8 @@ export function BusinessProfileStep({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="name" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+          <span className="text-primary">🏢</span>
           Business Name <span className="text-red-500">*</span>
         </label>
         <input
@@ -60,13 +84,14 @@ export function BusinessProfileStep({
           required
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          placeholder="My Awesome Business"
+          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
+          placeholder="Enter your business name"
         />
       </div>
 
       <div>
-        <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="industry" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+          <span className="text-primary">🏭</span>
           Industry <span className="text-red-500">*</span>
         </label>
         <select
@@ -74,7 +99,7 @@ export function BusinessProfileStep({
           required
           value={formData.industry}
           onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-          className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTUgNy41TDEwIDEyLjVMMTUgNy41IiBzdHJva2U9IiM2QjcyODAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo=')] bg-no-repeat bg-right-4 bg-[length:20px] pr-10"
         >
           <option value="">Select an industry</option>
           {INDUSTRIES.map((industry) => (
@@ -86,7 +111,8 @@ export function BusinessProfileStep({
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="description" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+          <span className="text-primary">📝</span>
           Description <span className="text-red-500">*</span>
         </label>
         <textarea
@@ -95,61 +121,83 @@ export function BusinessProfileStep({
           rows={4}
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          placeholder="Tell us about your business..."
+          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300 resize-none"
+          placeholder="Tell us about your business, what you do, and what makes you unique..."
         />
+        <p className="mt-2 text-xs text-gray-500">Help us understand your business better</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label htmlFor="location" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+            <span className="text-primary">📍</span>
+            Location <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="location"
+            type="text"
+            required
+            value={formData.location}
+            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
+            placeholder="City, Country"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="website" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+            <span className="text-primary">🌐</span>
+            Website <span className="text-xs text-gray-500 font-normal">(optional)</span>
+          </label>
+          <input
+            id="website"
+            type="url"
+            value={formData.website}
+            onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+            className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
+            placeholder="https://example.com"
+          />
+        </div>
       </div>
 
       <div>
-        <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-          Location <span className="text-red-500">*</span>
-        </label>
-        <input
-          id="location"
-          type="text"
-          required
-          value={formData.location}
-          onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-          className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          placeholder="City, Country"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-2">
-          Website (optional)
-        </label>
-        <input
-          id="website"
-          type="url"
-          value={formData.website}
-          onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-          className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          placeholder="https://example.com"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="operating_hours" className="block text-sm font-medium text-gray-700 mb-2">
-          Operating Hours (optional)
+        <label htmlFor="operating_hours" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+          <span className="text-primary">🕐</span>
+          Operating Hours <span className="text-xs text-gray-500 font-normal">(optional)</span>
         </label>
         <input
           id="operating_hours"
           type="text"
           value={formData.operating_hours}
           onChange={(e) => setFormData({ ...formData, operating_hours: e.target.value })}
-          className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          placeholder="Mon-Fri 9am-5pm"
+          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
+          placeholder="Mon-Fri 9am-5pm, Sat 10am-2pm"
         />
+        <p className="mt-2 text-xs text-gray-500">Let customers know when you're available</p>
       </div>
 
-      <div className="flex justify-end gap-3 pt-4">
+      <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
         <button
           type="submit"
           disabled={isSubmitting || !formData.name || !formData.industry || !formData.description || !formData.location}
-          className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/50"
+          className="group relative inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/90 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
         >
-          {isSubmitting ? 'Saving...' : 'Continue'}
+          {isSubmitting ? (
+            <>
+              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Saving...
+            </>
+          ) : (
+            <>
+              Continue
+              <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </>
+          )}
         </button>
       </div>
     </form>

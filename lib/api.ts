@@ -436,6 +436,36 @@ export const tenantApi = {
     post<typeof payload, { ready: boolean; message?: string }>("/api/tenant/whatsapp/check-number", payload),
 
   // Onboarding endpoints
+  onboardingStatus: () =>
+    get<{
+      step: "business_profile" | "persona" | "business_details" | "social_connect";
+      complete: boolean;
+      business_profile?: {
+        id: number;
+        name: string;
+        industry: string;
+        description: string;
+        location: string;
+        website?: string;
+        operating_hours?: string;
+      };
+      persona?: {
+        tenant_id: number;
+        bot_name: string;
+        tone: string;
+        language: string;
+        humor?: boolean;
+        style_notes?: string;
+      };
+      business_details?: {
+        menu_items?: Array<{ name: string; category: string; price: string; description: string }>;
+        faqs?: Array<{ question: string; answer: string }>;
+        keywords?: string;
+        knowledge_base?: string;
+      };
+      has_telegram_bot?: boolean;
+    }>("/api/tenant/onboarding/status"),
+
   onboardingBusinessProfile: (payload: {
     name: string;
     industry: string;
@@ -443,7 +473,11 @@ export const tenantApi = {
     location: string;
     website?: string;
     operating_hours?: string;
-  }) => post<typeof payload, { success: boolean; step: string }>("/api/tenant/onboarding/business-profile", payload),
+  }) =>
+    post<typeof payload, { success: boolean; message: string; next_step: string }>(
+      "/api/tenant/onboarding/business-profile",
+      payload
+    ),
 
   onboardingPersona: (payload: {
     bot_name: string;
@@ -451,15 +485,26 @@ export const tenantApi = {
     language: string;
     humor?: boolean;
     style_notes?: string;
-  }) => post<typeof payload, { success: boolean; step: string }>("/api/tenant/onboarding/persona", payload),
+  }) =>
+    post<typeof payload, { success: boolean; message: string; next_step: string }>(
+      "/api/tenant/onboarding/persona",
+      payload
+    ),
 
   onboardingBusinessDetails: (payload: {
     menu_items?: Array<{ name: string; category: string; price: string; description: string }>;
     faqs?: Array<{ question: string; answer: string }>;
     keywords?: string;
     knowledge_base?: string;
-  }) => post<typeof payload, { success: boolean; step: string }>("/api/tenant/onboarding/business-details", payload),
+  }) =>
+    post<typeof payload, { success: boolean; message: string; next_step: string }>(
+      "/api/tenant/onboarding/business-details",
+      payload
+    ),
 
-  onboardingComplete: () => post<undefined, { success: boolean }>("/api/tenant/onboarding/complete"),
+  onboardingComplete: () =>
+    post<undefined, { success: boolean; message: string; redirect_to?: string }>(
+      "/api/tenant/onboarding/complete"
+    ),
 };
 
