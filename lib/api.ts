@@ -137,6 +137,15 @@ export const authApi = {
       email: string;
       plan: string;
       status: string;
+      integrations?: {
+        total: number;
+        connected: number;
+        platforms: string[];
+      };
+      scheduled_posts?: {
+        total: number;
+        posted: number;
+      };
     }>("/api/auth/me"),
 
   requestPasswordReset: (payload: { email: string }) =>
@@ -293,5 +302,85 @@ export const tenantApi = {
       conversations: { used: number; limit: number };
       seats: { used: number; limit: number };
     }>("/api/tenant/usage"),
+
+  // Integrations endpoints
+  integrations: () =>
+    get<{
+      integrations: Array<{
+        id: string;
+        platform: string;
+        connected: boolean;
+        username?: string;
+        external_id?: string;
+        page_id?: string;
+        mode?: string;
+        expires_at?: string;
+        created_at: string;
+        updated_at: string;
+      }>;
+    }>("/api/tenant/integrations"),
+
+  integration: (platform: string) =>
+    get<{
+      integration: {
+        id: string;
+        platform: string;
+        connected: boolean;
+        username?: string;
+        external_id?: string;
+        page_id?: string;
+        mode?: string;
+        expires_at?: string;
+        created_at: string;
+        updated_at: string;
+      };
+    }>(`/api/tenant/integrations/${platform}`),
+
+  verifyIntegration: (platform: string) =>
+    post<undefined, { success: boolean; message?: string }>(`/api/tenant/integrations/${platform}/verify`),
+
+  disconnectIntegration: (platform: string) =>
+    del<{ success: boolean }>(`/api/tenant/integrations/${platform}`),
+
+  repairIntegration: (platform: string) =>
+    post<undefined, { success: boolean; message?: string }>(`/api/tenant/integrations/${platform}/repair`),
+
+  // Scheduled posts endpoints
+  scheduledPosts: () =>
+    get<{
+      posts: Array<{
+        id: string;
+        name: string;
+        caption: string;
+        status: "scheduled" | "posting" | "posted" | "failed" | "cancelled";
+        scheduled_at: string;
+        platforms: string[];
+        media_asset_ids: string[];
+        attempts: number;
+        last_error?: string;
+        created_at: string;
+        posted_at?: string;
+      }>;
+    }>("/api/tenant/scheduled-posts"),
+
+  scheduledPost: (postId: string) =>
+    get<{
+      post: {
+        id: string;
+        name: string;
+        caption: string;
+        status: "scheduled" | "posting" | "posted" | "failed" | "cancelled";
+        scheduled_at: string;
+        platforms: string[];
+        media_asset_ids: string[];
+        attempts: number;
+        last_error?: string;
+        created_at: string;
+        posted_at?: string;
+      };
+    }>(`/api/tenant/scheduled-posts/${postId}`),
+
+  cancelScheduledPost: (postId: string) =>
+    del<{ success: boolean }>(`/api/tenant/scheduled-posts/${postId}`),
 };
 

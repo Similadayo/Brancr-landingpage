@@ -1,10 +1,11 @@
 'use client';
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { MetaSdkLoader, waitForMetaSdk } from "@/app/components/meta/MetaSdkLoader";
 import { META_CONFIG } from "@/app/config/meta";
-import { mockChannels } from "@/lib/mockData";
+import { useIntegrations, useVerifyIntegration, useDisconnectIntegration } from "@/app/(tenant)/hooks/useIntegrations";
 
 declare global {
   interface Window {
@@ -42,13 +43,13 @@ const STATUS_MAP: Record<
   connected: {
     label: "Connected",
     badge: "bg-emerald-100 text-emerald-700",
-    description: "All set. We’re syncing data and events.",
+    description: "All set. We're syncing data and events.",
     helper: "Monitor analytics to keep performance sharp.",
   },
   pending: {
     label: "Pending",
     badge: "bg-amber-100 text-amber-700",
-    description: "Waiting for external approval. We’ll notify you once complete.",
+    description: "Waiting for external approval. We'll notify you once complete.",
     helper: "If this takes longer than 15 minutes, retry the connection.",
   },
   action_required: {
@@ -65,6 +66,17 @@ const STATUS_MAP: Record<
   },
 };
 
+const PLATFORM_NAMES: Record<string, string> = {
+  whatsapp: "WhatsApp Business",
+  instagram: "Instagram DM",
+  facebook: "Facebook Messenger",
+  telegram: "Telegram Bot",
+  tiktok: "TikTok Shop",
+};
+
+// Define all supported platforms (even if not connected)
+const ALL_PLATFORMS = ["whatsapp", "instagram", "facebook", "telegram", "tiktok"];
+
 const metaChecklist = [
   { id: "whatsapp", label: "Verify WhatsApp embedded signup", done: true },
   { id: "instagram", label: "Approve Instagram messaging permission", done: true },
@@ -79,6 +91,11 @@ const connectionHistory = [
 
 export default function IntegrationsPage() {
   const [isFBReady, setIsFBReady] = useState(false);
+  const queryClient = useQueryClient();
+  const { data: integrations = [], isLoading, error } = useIntegrations();
+  const verifyMutation = useVerifyIntegration();
+  const disconnectMutation = useDisconnectIntegration();
+  const [disconnectingPlatform, setDisconnectingPlatform] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -112,6 +129,8 @@ export default function IntegrationsPage() {
           }).then(res => {
             if (res.ok) {
               console.log("✅ Session payload sent successfully to backend");
+              // Refresh integrations list after successful connection
+              void queryClient.invalidateQueries({ queryKey: ["integrations"] });
             } else {
               console.error("❌ Failed to send session payload:", res.status);
             }
@@ -138,6 +157,36 @@ export default function IntegrationsPage() {
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
   }, []);
+
+  const handleVerify = useCallback((platform: string) => {
+    verifyMutation.mutate(platform);
+  }, [verifyMutation]);
+
+  const handleDisconnect = useCallback((platform: string) => {
+    if (confirm(`Are you sure you want to disconnect ${PLATFORM_NAMES[platform] || platform}?`)) {
+      setDisconnectingPlatform(platform);
+      disconnectMutation.mutate(platform, {
+        onSettled: () => {
+          setDisconnectingPlatform(null);
+        },
+      });
+    }
+  }, [disconnectMutation]);
+
+  // Create a map of integrations by platform for quick lookup
+  const integrationsByPlatform = new Map(integrations.map((i) => [i.platform, i]));
+
+  // Merge all platforms with their integration data
+  const platformsWithData = ALL_PLATFORMS.map((platform) => {
+    const integration = integrationsByPlatform.get(platform);
+    return {
+      platform,
+      name: PLATFORM_NAMES[platform] || platform,
+      integration,
+      connected: integration?.connected ?? false,
+      updatedAt: integration?.updated_at ?? new Date().toISOString(),
+    };
+  });
 
   const launchWhatsAppSignup = useCallback(async () => {
     if (typeof window === "undefined") {
@@ -173,6 +222,8 @@ export default function IntegrationsPage() {
           }).then(res => {
             if (res.ok) {
               console.log("✅ Code sent successfully to backend");
+              // Refresh integrations list after successful code exchange
+              void queryClient.invalidateQueries({ queryKey: ["integrations"] });
             } else {
               console.error("❌ Failed to send code to backend:", res.status);
             }
@@ -219,62 +270,98 @@ export default function IntegrationsPage() {
         </div>
       </header>
 
-      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {mockChannels.map((card) => {
-          const status = STATUS_MAP[card.status as keyof typeof STATUS_MAP] ?? STATUS_MAP.not_connected;
-          return (
-            <div key={card.id} className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">{card.name}</h2>
-                <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-widest ${status.badge}`}>
-                  {status.label}
-                </span>
-              </div>
-              <p className="mt-3 text-sm text-gray-600">{status.description}</p>
-              <p className="mt-3 text-xs uppercase tracking-[0.3em] text-gray-400">
-                Last updated{" "}
-                {new Date(card.updatedAt).toLocaleString([], {
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-              <p className="mt-2 text-xs text-gray-500">{status.helper}</p>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+        </div>
+      ) : error ? (
+        <div className="rounded-3xl border border-rose-200 bg-rose-50 p-6 text-center">
+          <p className="text-sm font-semibold text-rose-900">Failed to load integrations</p>
+          <p className="mt-2 text-xs text-rose-700">{error.message}</p>
+        </div>
+      ) : (
+        <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {platformsWithData.map(({ platform, name, connected, updatedAt, integration }) => {
+            const statusKey = connected ? "connected" : "not_connected";
+            const status = STATUS_MAP[statusKey];
+            const isDisconnecting = disconnectingPlatform === platform;
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Link
-                  href="https://t.me/brancrbot"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
-                >
-                  {card.status === "connected" ? "Repair connection" : "Connect"}
-                </Link>
-                {card.id === "whatsapp" ? (
-                  <button
-                    onClick={launchWhatsAppSignup}
-                    disabled={!isFBReady}
-                    className="inline-flex items-center rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:border-primary/10 disabled:bg-primary/5 disabled:text-primary/40"
-                  >
-                    Connect WhatsApp
-                  </button>
-                ) : null}
-                {card.id === "telegram" ? (
-                  <a
-                    href="https://t.me/brancrbot"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
-                  >
-                    Open bot deep link
-                  </a>
-                ) : null}
+            return (
+              <div key={platform} className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-gray-900">{name}</h2>
+                  <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-widest ${status.badge}`}>
+                    {status.label}
+                  </span>
+                </div>
+                {integration?.username && (
+                  <p className="mt-2 text-xs text-gray-500">@{integration.username}</p>
+                )}
+                <p className="mt-3 text-sm text-gray-600">{status.description}</p>
+                <p className="mt-3 text-xs uppercase tracking-[0.3em] text-gray-400">
+                  Last updated{" "}
+                  {new Date(updatedAt).toLocaleString([], {
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+                <p className="mt-2 text-xs text-gray-500">{status.helper}</p>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {connected ? (
+                    <>
+                      <button
+                        onClick={() => handleVerify(platform)}
+                        disabled={verifyMutation.isPending}
+                        className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary disabled:opacity-50"
+                      >
+                        {verifyMutation.isPending ? "Verifying..." : "Verify"}
+                      </button>
+                      <button
+                        onClick={() => handleDisconnect(platform)}
+                        disabled={isDisconnecting || disconnectMutation.isPending}
+                        className="inline-flex items-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
+                      >
+                        {isDisconnecting ? "Disconnecting..." : "Disconnect"}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {platform === "whatsapp" ? (
+                        <button
+                          onClick={launchWhatsAppSignup}
+                          disabled={!isFBReady}
+                          className="inline-flex items-center rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:border-primary/10 disabled:bg-primary/5 disabled:text-primary/40"
+                        >
+                          Connect WhatsApp
+                        </button>
+                      ) : platform === "telegram" ? (
+                        <a
+                          href="https://t.me/brancrbot"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
+                        >
+                          Open bot deep link
+                        </a>
+                      ) : (
+                        <button
+                          disabled
+                          className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-400 opacity-50 cursor-not-allowed"
+                        >
+                          Connect
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </section>
+            );
+          })}
+        </section>
+      )}
 
       <section className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
