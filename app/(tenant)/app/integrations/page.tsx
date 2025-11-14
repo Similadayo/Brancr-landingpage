@@ -22,6 +22,7 @@ declare global {
           authResponse?: {
             code?: string;
           };
+          status?: string;
         }) => void,
         options: {
           config_id: string;
@@ -163,7 +164,7 @@ export default function IntegrationsPage() {
 
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
-  }, []);
+  }, [queryClient]);
 
   const handleVerify = useCallback((platform: string) => {
     verifyMutation.mutate(platform);
@@ -260,7 +261,7 @@ export default function IntegrationsPage() {
         },
       },
     );
-  }, []);
+  }, [queryClient]);
 
   return (
     <div className="space-y-10">
