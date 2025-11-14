@@ -21,7 +21,7 @@ export default function OnboardingPage() {
     }
   }, [error, router]);
 
-  // Redirect to dashboard if onboarding is complete
+  // Redirect to /app if onboarding is complete
   useEffect(() => {
     if (userData?.onboarding?.complete) {
       router.push('/app');
@@ -46,7 +46,7 @@ export default function OnboardingPage() {
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="max-w-md rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-xl">
           <h1 className="text-2xl font-semibold text-gray-900">Onboarding Complete!</h1>
-          <p className="mt-3 text-sm text-gray-600">Redirecting to dashboard...</p>
+          <p className="mt-3 text-sm text-gray-600">Redirecting...</p>
         </div>
       </div>
     );

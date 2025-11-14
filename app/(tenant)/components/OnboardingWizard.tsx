@@ -138,7 +138,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       void queryClient.invalidateQueries({ queryKey: ['tenant', 'profile'] });
       void queryClient.invalidateQueries({ queryKey: ['integrations'] });
       toast.success(result.message || 'Welcome to Brancr! 🎉');
-      // Redirect to dashboard or specified redirect URL
+      // Redirect to /app or specified redirect URL
       const redirectTo = result.redirect_to || '/app';
       router.push(redirectTo);
       router.refresh();
