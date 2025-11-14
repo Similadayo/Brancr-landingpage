@@ -2,22 +2,39 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { mockScheduledPosts } from "@/lib/mockData";
+import { useScheduledPosts, useCancelScheduledPost } from "@/app/(tenant)/hooks/useScheduledPosts";
 
-const STATUS_FILTERS = ["All", "Draft", "Scheduled"];
+const STATUS_FILTERS = ["All", "Scheduled", "Posting", "Posted", "Failed", "Cancelled"];
 
 const STATUS_STYLES: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-600",
-  scheduled: "bg-amber-100 text-amber-700",
+  scheduled: "bg-blue-100 text-blue-700",
+  posting: "bg-amber-100 text-amber-700",
+  posted: "bg-emerald-100 text-emerald-700",
+  failed: "bg-rose-100 text-rose-700",
+  cancelled: "bg-gray-100 text-gray-600",
 };
 
 export default function CampaignsPage() {
   const [filter, setFilter] = useState<string>("All");
+  const { data: scheduledPosts = [], isLoading, error } = useScheduledPosts();
+  const cancelMutation = useCancelScheduledPost();
+  const [cancellingPostId, setCancellingPostId] = useState<string | null>(null);
 
   const campaigns = useMemo(() => {
-    if (filter === "All") return mockScheduledPosts;
-    return mockScheduledPosts.filter((campaign) => campaign.status === filter.toLowerCase());
-  }, [filter]);
+    if (filter === "All") return scheduledPosts;
+    return scheduledPosts.filter((post) => post.status === filter.toLowerCase());
+  }, [filter, scheduledPosts]);
+
+  const handleCancel = (postId: string, postName: string) => {
+    if (confirm(`Are you sure you want to cancel "${postName}"? This cannot be undone.`)) {
+      setCancellingPostId(postId);
+      cancelMutation.mutate(postId, {
+        onSettled: () => {
+          setCancellingPostId(null);
+        },
+      });
+    }
+  };
 
   return (
     <div className="space-y-10">
@@ -68,61 +85,113 @@ export default function CampaignsPage() {
         </div>
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white">
-          {campaigns.length === 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+            </div>
+          ) : error ? (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-900">
+              Failed to load scheduled posts: {error.message}
+            </div>
+          ) : campaigns.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
-              No campaigns yet. Start by building your first automation.
+              No scheduled posts yet. Start by building your first campaign.
             </div>
           ) : (
             <table className="min-w-full divide-y divide-gray-200 text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Campaign</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Channel</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Audience</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Post</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Platforms</th>
                   <th className="px-4 py-3 text-left font-semibold text-gray-600">Scheduled</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Status</th>
                   <th className="px-4 py-3 text-right font-semibold text-gray-600">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
-                {campaigns.map((campaign) => (
-                  <tr key={campaign.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-4 align-top">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-gray-900">{campaign.name}</span>
+                {campaigns.map((post) => {
+                  const canCancel = post.status === "scheduled" || post.status === "posting";
+                  const isCancelling = cancellingPostId === post.id;
+
+                  return (
+                    <tr key={post.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-4 align-top">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-gray-900">{post.name}</span>
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
+                                STATUS_STYLES[post.status] ?? "bg-gray-100 text-gray-600"
+                              }`}
+                            >
+                              {post.status}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 line-clamp-2">{post.caption}</p>
+                          {post.last_error && (
+                            <p className="mt-1 text-xs text-rose-600">Error: {post.last_error}</p>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 align-top">
+                        <div className="flex flex-wrap gap-1">
+                          {post.platforms.map((platform) => (
+                            <span
+                              key={platform}
+                              className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600 capitalize"
+                            >
+                              {platform}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 align-top text-xs text-gray-500">
+                        {new Date(post.scheduled_at).toLocaleString([], {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </td>
+                      <td className="px-4 py-4 align-top">
+                        <div className="flex flex-col gap-1">
                           <span
-                            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
-                              STATUS_STYLES[campaign.status] ?? "bg-gray-100 text-gray-600"
+                            className={`inline-flex w-fit rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
+                              STATUS_STYLES[post.status] ?? "bg-gray-100 text-gray-600"
                             }`}
                           >
-                            {campaign.status}
+                            {post.status}
                           </span>
+                          {post.posted_at && (
+                            <span className="text-xs text-gray-400">
+                              Posted {new Date(post.posted_at).toLocaleDateString()}
+                            </span>
+                          )}
                         </div>
-                        <p className="text-xs text-gray-500">{campaign.id}</p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 align-top">
-                      <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
-                        {campaign.channel}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 align-top text-xs text-gray-600">{campaign.audience}</td>
-                    <td className="px-4 py-4 align-top text-xs text-gray-500">
-                      {campaign.scheduledFor
-                        ? new Date(campaign.scheduledFor).toLocaleString()
-                        : "Draft saved"}
-                    </td>
-                    <td className="px-4 py-4 text-right text-xs font-semibold text-primary">
-                      <div className="inline-flex items-center gap-2">
-                        <Link href={`/app/campaigns/${campaign.id}`} className="hover:text-primary/80">
-                          View
-                        </Link>
-                        <span className="text-gray-300">•</span>
-                        <button className="hover:text-primary/80">Duplicate</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-4 py-4 text-right text-xs font-semibold text-primary">
+                        <div className="inline-flex items-center gap-2">
+                          <Link href={`/app/campaigns/${post.id}`} className="hover:text-primary/80">
+                            View
+                          </Link>
+                          {canCancel && (
+                            <>
+                              <span className="text-gray-300">•</span>
+                              <button
+                                onClick={() => handleCancel(post.id, post.name)}
+                                disabled={isCancelling || cancelMutation.isPending}
+                                className="hover:text-rose-600 disabled:opacity-50"
+                              >
+                                {isCancelling ? "Cancelling..." : "Cancel"}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
@@ -136,20 +205,27 @@ export default function CampaignsPage() {
             View campaign timing and platform delivery slots. Switch to calendar view for drag-drop scheduling.
           </p>
           <div className="mt-4 grid gap-3 text-xs text-gray-600">
-            {mockScheduledPosts.slice(0, 3).map((post) => (
-              <div key={post.id} className="rounded-xl border border-gray-200 p-3">
-                <p className="font-semibold text-gray-900">{post.name}</p>
-                <p className="mt-1 text-gray-500">
-                  {new Date(post.scheduledFor).toLocaleString([], {
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-                <p className="mt-1 text-gray-400">{post.channel}</p>
-              </div>
-            ))}
+            {scheduledPosts
+              .filter((post) => post.status === "scheduled" || post.status === "posting")
+              .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
+              .slice(0, 3)
+              .map((post) => (
+                <div key={post.id} className="rounded-xl border border-gray-200 p-3">
+                  <p className="font-semibold text-gray-900">{post.name}</p>
+                  <p className="mt-1 text-gray-500">
+                    {new Date(post.scheduled_at).toLocaleString([], {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                  <p className="mt-1 text-gray-400">{post.platforms.join(", ")}</p>
+                </div>
+              ))}
+            {scheduledPosts.filter((post) => post.status === "scheduled" || post.status === "posting").length === 0 && (
+              <p className="text-center text-gray-400">No upcoming posts</p>
+            )}
           </div>
         </div>
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm lg:col-span-2">

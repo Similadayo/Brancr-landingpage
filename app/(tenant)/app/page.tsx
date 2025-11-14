@@ -2,13 +2,11 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useTenant } from "../providers/TenantProvider";
-import {
-  mockAnalyticsSummary,
-  mockChannels,
-  mockOnboardingStatus,
-  mockScheduledPosts,
-} from "@/lib/mockData";
+import { authApi, tenantApi, ApiError } from "@/lib/api";
+import { useScheduledPosts } from "@/app/(tenant)/hooks/useScheduledPosts";
+import { useIntegrations } from "@/app/(tenant)/hooks/useIntegrations";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -16,48 +14,67 @@ function cn(...classes: Array<string | false | null | undefined>) {
 
 export default function TenantOverviewPage() {
   const { tenant } = useTenant();
+  const { data: userData } = useQuery({
+    queryKey: ["auth", "me"],
+    queryFn: () => authApi.me(),
+  });
+  const { data: overviewData } = useQuery({
+    queryKey: ["tenant", "overview"],
+    queryFn: () => tenantApi.overview(),
+  });
+  const { data: scheduledPosts = [] } = useScheduledPosts();
+  const { data: integrations = [] } = useIntegrations();
+
   const stats = useMemo(() => {
-    const upcomingPosts = mockScheduledPosts.filter((post) => post.status === "scheduled");
-    const connectedChannels = mockChannels.filter((channel) => channel.status === "connected");
+    const upcomingPosts = scheduledPosts.filter(
+      (post) => post.status === "scheduled" || post.status === "posting"
+    );
+    const connectedChannels = integrations.filter((integration) => integration.connected);
+    
+    // Get stats from API or fallback to computed values
+    const scheduledPostsCount = userData?.scheduled_posts?.total ?? upcomingPosts.length;
+    const connectedChannelsCount = userData?.integrations?.connected ?? connectedChannels.length;
+    const totalChannels = userData?.integrations?.total ?? integrations.length;
+
     return {
-      scheduledPosts: upcomingPosts.length,
-      connectedChannels: connectedChannels.length,
-      aiOptimizations: mockAnalyticsSummary.aiCaptionsGenerated,
+      scheduledPosts: scheduledPostsCount,
+      connectedChannels: connectedChannelsCount,
+      totalChannels,
+      conversations: overviewData?.conversations ?? 0,
       reminders: [
         upcomingPosts.length > 0
           ? `You have ${upcomingPosts.length} scheduled ${upcomingPosts.length > 1 ? "posts" : "post"} queued this week.`
           : "Create a scheduled post to keep your channels active.",
-        connectedChannels.length < mockChannels.length
+        connectedChannelsCount < totalChannels
           ? "Connect your remaining channels to unlock automation across every platform."
           : "All supported channels are connected and syncing.",
-        mockOnboardingStatus.notificationsConfigured
-          ? "Webhook notifications are active and ready to receive events."
-          : "Configure notifications & webhooks so your team stays updated in real time.",
+        "Monitor your integrations to ensure they stay active and syncing.",
       ],
     };
-  }, []);
+  }, [scheduledPosts, integrations, userData, overviewData]);
 
   const todayFocus = useMemo(() => {
-    const soon = mockScheduledPosts
-      .filter((post) => post.status === "scheduled")
-      .sort((a, b) => new Date(a.scheduledFor).getTime() - new Date(b.scheduledFor).getTime())
+    const soon = scheduledPosts
+      .filter((post) => post.status === "scheduled" || post.status === "posting")
+      .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
       .slice(0, 2)
       .map((post) => ({
         id: post.id,
-        text: `Confirm assets for ${post.name} (${post.channel}) scheduled ${new Date(
-          post.scheduledFor
+        text: `Confirm assets for ${post.name} (${post.platforms.join(", ")}) scheduled ${new Date(
+          post.scheduled_at
         ).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}.`,
       }));
 
-    if (!mockOnboardingStatus.notificationsConfigured) {
+    const disconnectedIntegrations = integrations.filter((i) => !i.connected);
+    if (disconnectedIntegrations.length > 0) {
       soon.push({
-        id: "notify",
-        text: "Finish webhook callback setup so WhatsApp and Instagram events stream into Brancr.",
+        id: "connect",
+        text: `Connect ${disconnectedIntegrations[0].platform} to unlock automation.`,
       });
     }
 
     return soon;
-  }, []);
+  }, [scheduledPosts, integrations]);
 
   return (
     <div className="space-y-10">
@@ -114,7 +131,7 @@ export default function TenantOverviewPage() {
         </div>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
           <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Scheduled posts</p>
           <p className="mt-4 text-4xl font-semibold text-gray-900">{stats.scheduledPosts}</p>
@@ -122,8 +139,15 @@ export default function TenantOverviewPage() {
         </div>
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
           <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Connected channels</p>
-          <p className="mt-4 text-4xl font-semibold text-gray-900">{stats.connectedChannels}</p>
+          <p className="mt-4 text-4xl font-semibold text-gray-900">
+            {stats.connectedChannels}{stats.totalChannels > 0 && `/${stats.totalChannels}`}
+          </p>
           <p className="mt-3 text-sm text-gray-500">Platforms actively syncing conversations with Brancr.</p>
+        </div>
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+          <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Conversations</p>
+          <p className="mt-4 text-4xl font-semibold text-gray-900">{stats.conversations}</p>
+          <p className="mt-3 text-sm text-gray-500">Active conversations across all connected channels.</p>
         </div>
         <div className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
           <p className="text-xs uppercase tracking-[0.3em] text-primary">AI optimization</p>
