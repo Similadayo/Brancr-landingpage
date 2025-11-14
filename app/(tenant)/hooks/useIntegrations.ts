@@ -22,8 +22,47 @@ export function useIntegrations() {
     queryKey: ["integrations"],
     queryFn: async () => {
       try {
-        const response = await tenantApi.integrations();
-        return response.integrations;
+        // Fetch integrations and WhatsApp status in parallel
+        const [integrationsResponse, whatsappStatus] = await Promise.allSettled([
+          tenantApi.integrations(),
+          tenantApi.whatsappCurrent().catch(() => ({ assigned: false })),
+        ]);
+
+        let integrations: Integration[] = [];
+
+        // Get integrations from response
+        if (integrationsResponse.status === "fulfilled") {
+          integrations = integrationsResponse.value.integrations;
+        } else if (
+          integrationsResponse.reason instanceof ApiError &&
+          integrationsResponse.reason.status === 404
+        ) {
+          integrations = [];
+        } else {
+          throw integrationsResponse.reason;
+        }
+
+        // Merge WhatsApp status into integrations list
+        if (whatsappStatus.status === "fulfilled") {
+          const whatsappData = whatsappStatus.value;
+          const whatsappIntegration = integrations.find((i) => i.platform === "whatsapp");
+
+          if (whatsappIntegration) {
+            // Update existing WhatsApp integration
+            whatsappIntegration.connected = whatsappData.assigned;
+          } else if (whatsappData.assigned) {
+            // Create WhatsApp integration if it doesn't exist but is assigned
+            integrations.push({
+              id: `whatsapp-${Date.now()}`,
+              platform: "whatsapp",
+              connected: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            });
+          }
+        }
+
+        return integrations;
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
           // Return empty array if endpoint doesn't exist yet

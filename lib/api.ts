@@ -382,5 +382,38 @@ export const tenantApi = {
 
   cancelScheduledPost: (postId: string) =>
     del<{ success: boolean }>(`/api/tenant/scheduled-posts/${postId}`),
+
+  // WhatsApp phone number endpoints
+  whatsappNumbers: () =>
+    get<{
+      available_numbers: Array<{
+        id: string;
+        phone_number_id: string;
+        phone_number: string;
+        verified_name?: string;
+      }>;
+      current?: {
+        id: string;
+        phone_number_id: string;
+        phone_number: string;
+        verified_name?: string;
+      };
+    }>("/api/tenant/whatsapp/numbers"),
+
+  whatsappCurrent: () =>
+    get<{
+      assigned: boolean;
+      phone_number?: string;
+      phone_number_id?: string;
+      verified_name?: string;
+    }>("/api/tenant/whatsapp/current"),
+
+  assignWhatsAppNumber: (phoneNumberId: string) =>
+    post<undefined, { success: boolean; phone_number: string }>(
+      `/api/tenant/whatsapp/numbers/${phoneNumberId}/assign`
+    ),
+
+  disconnectWhatsApp: () =>
+    post<undefined, { success: boolean }>("/api/tenant/whatsapp/disconnect"),
 };
 
