@@ -173,7 +173,7 @@ export function BusinessProfileStep({
           className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
           placeholder="Mon-Fri 9am-5pm, Sat 10am-2pm"
         />
-        <p className="mt-2 text-xs text-gray-500">Let customers know when you're available</p>
+        <p className="mt-2 text-xs text-gray-500">Let customers know when you&apos;re available</p>
       </div>
 
       <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
