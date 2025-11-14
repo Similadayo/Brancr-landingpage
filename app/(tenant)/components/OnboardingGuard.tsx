@@ -9,17 +9,17 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isOnboardingPage = pathname === '/app/onboarding';
 
-  // If we're on the onboarding page, let it handle its own rendering
-  if (isOnboardingPage) {
-    return <>{children}</>;
-  }
-
-  // For all other pages, check onboarding status and block if incomplete
+  // Always call hooks at the top level (React Hooks rules)
   const { data: userData, isLoading, error } = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: () => authApi.me(),
     retry: false,
   });
+
+  // If we're on the onboarding page, let it handle its own rendering
+  if (isOnboardingPage) {
+    return <>{children}</>;
+  }
 
   // Don't block if there's an auth error (TenantProvider will handle it)
   if (error instanceof ApiError && error.status === 401) {
