@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
 import { MetaSdkLoader, waitForMetaSdk } from "@/app/components/meta/MetaSdkLoader";
 import { META_CONFIG } from "@/app/config/meta";
 import { useIntegrations, useVerifyIntegration, useDisconnectIntegration } from "@/app/(tenant)/hooks/useIntegrations";
@@ -129,10 +130,16 @@ export default function IntegrationsPage() {
           }).then(res => {
             if (res.ok) {
               console.log("✅ Session payload sent successfully to backend");
+              // Show success message with billing info
+              toast.success(
+                "WhatsApp connected! Brancr handles all WhatsApp billing for you. You'll see WhatsApp charges on your Brancr invoice.",
+                { duration: 6000 }
+              );
               // Refresh integrations list after successful connection
               void queryClient.invalidateQueries({ queryKey: ["integrations"] });
             } else {
               console.error("❌ Failed to send session payload:", res.status);
+              toast.error("Failed to complete WhatsApp connection. Please try again.");
             }
           });
           return;
@@ -222,14 +229,23 @@ export default function IntegrationsPage() {
           }).then(res => {
             if (res.ok) {
               console.log("✅ Code sent successfully to backend");
+              // Show success message with billing info
+              toast.success(
+                "WhatsApp connected! Brancr handles all WhatsApp billing for you. You'll see WhatsApp charges on your Brancr invoice.",
+                { duration: 6000 }
+              );
               // Refresh integrations list after successful code exchange
               void queryClient.invalidateQueries({ queryKey: ["integrations"] });
             } else {
               console.error("❌ Failed to send code to backend:", res.status);
+              toast.error("Failed to complete WhatsApp connection. Please try again.");
             }
           });
         } else {
           console.warn("WhatsApp signup cancelled or failed", response);
+          if (response.status === "not_authorized") {
+            toast.error("WhatsApp signup was cancelled. Please try again when ready.");
+          }
         }
       },
       {
@@ -237,7 +253,11 @@ export default function IntegrationsPage() {
         response_type: "code",
         override_default_response_type: true,
         redirect_uri: META_CONFIG.embeddedSignupRedirectUri, // Must match code exchange
-        extras: { setup: {} },
+        extras: { 
+          setup: {},
+          // Skip payment method - Brancr handles billing
+          skip_payment_method: true,
+        },
       },
     );
   }, []);
@@ -309,6 +329,15 @@ export default function IntegrationsPage() {
                 </p>
                 <p className="mt-2 text-xs text-gray-500">{status.helper}</p>
 
+                {platform === "whatsapp" && connected && (
+                  <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+                    <p className="text-xs font-semibold text-emerald-900">💳 Billing: Handled by Brancr</p>
+                    <p className="mt-1 text-xs text-emerald-700">
+                      WhatsApp usage charges appear on your Brancr invoice.
+                    </p>
+                  </div>
+                )}
+
                 <div className="mt-4 flex flex-wrap gap-2">
                   {connected ? (
                     <>
@@ -330,13 +359,18 @@ export default function IntegrationsPage() {
                   ) : (
                     <>
                       {platform === "whatsapp" ? (
-                        <button
-                          onClick={launchWhatsAppSignup}
-                          disabled={!isFBReady}
-                          className="inline-flex items-center rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:border-primary/10 disabled:bg-primary/5 disabled:text-primary/40"
-                        >
-                          Connect WhatsApp
-                        </button>
+                        <div className="w-full">
+                          <button
+                            onClick={launchWhatsAppSignup}
+                            disabled={!isFBReady}
+                            className="inline-flex items-center rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:border-primary/10 disabled:bg-primary/5 disabled:text-primary/40"
+                          >
+                            Connect WhatsApp
+                          </button>
+                          <p className="mt-2 text-xs text-gray-500">
+                            💳 Billing handled by Brancr - no payment method needed
+                          </p>
+                        </div>
                       ) : platform === "telegram" ? (
                         <a
                           href="https://t.me/brancrbot"
