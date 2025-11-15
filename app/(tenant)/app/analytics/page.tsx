@@ -192,15 +192,19 @@ export default function AnalyticsPage() {
             Brancr will track the time between inbound messages and first reply to help your team stay responsive.
           </p>
           <div className="mt-6 grid gap-3 text-xs text-gray-600">
-            {mockResponseDistribution.map((bucket) => (
-              <div
-                key={bucket.label}
-                className="flex items-center justify-between rounded-xl border border-gray-200 bg-neutral-bg px-4 py-3"
-              >
-                <span>{bucket.label}</span>
-                <span className="font-semibold text-gray-900">{bucket.value}%</span>
-              </div>
-            ))}
+            {analytics?.responseDistribution && analytics.responseDistribution.length > 0 ? (
+              analytics.responseDistribution.map((bucket) => (
+                <div
+                  key={bucket.label}
+                  className="flex items-center justify-between rounded-xl border border-gray-200 bg-neutral-bg px-4 py-3"
+                >
+                  <span>{bucket.label}</span>
+                  <span className="font-semibold text-gray-900">{bucket.value}%</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-center text-xs text-gray-500">Response time data coming soon</p>
+            )}
           </div>
         </div>
 
@@ -208,9 +212,21 @@ export default function AnalyticsPage() {
           <h2 className="text-sm font-semibold text-gray-900">Team leaderboard</h2>
           <p className="mt-2 text-xs text-gray-500">Team metrics will surface once multiple agents begin engaging via Brancr.</p>
           <div className="mt-6 flex flex-col items-start gap-3 text-xs text-gray-600">
-            <p className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-center text-xs text-gray-500">
-              Invite teammates in <Link href="/app/settings/team" className="font-semibold text-primary">Settings → Team</Link> to unlock leaderboards.
-            </p>
+            {analytics?.teamLeaderboard && analytics.teamLeaderboard.length > 0 ? (
+              analytics.teamLeaderboard.map((member) => (
+                <div
+                  key={member.name}
+                  className="flex w-full items-center justify-between rounded-xl border border-gray-200 bg-neutral-bg px-4 py-3"
+                >
+                  <span className="font-semibold text-gray-900">{member.name}</span>
+                  <span className="text-gray-600">{member.summary}</span>
+                </div>
+              ))
+            ) : (
+              <p className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-center text-xs text-gray-500">
+                Invite teammates in <Link href="/app/settings/team" className="font-semibold text-primary">Settings → Team</Link> to unlock leaderboards.
+              </p>
+            )}
           </div>
         </div>
       </section>
