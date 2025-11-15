@@ -91,7 +91,7 @@ export default function CampaignsPage() {
             </div>
           ) : error ? (
             <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-900">
-              Failed to load scheduled posts: {error.message}
+              Failed to load scheduled posts: {error?.message || "Unknown error occurred"}
             </div>
           ) : campaigns.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">

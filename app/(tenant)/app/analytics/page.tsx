@@ -131,7 +131,7 @@ export default function AnalyticsPage() {
           <div className="mt-6 space-y-4">
             {analytics?.channelVolume && analytics.channelVolume.length > 0 ? (
               analytics.channelVolume.map((channel, index) => {
-                const total = analytics.channelVolume.reduce((sum, c) => sum + c.value, 0);
+                const total = (analytics?.channelVolume || []).reduce((sum, c) => sum + c.value, 0);
                 const percentage = total > 0 ? (channel.value / total) * 100 : 0;
                 return (
                   <div key={channel.channel || index} className="space-y-2">

@@ -24,7 +24,7 @@ export function useScheduledPosts() {
     queryFn: async () => {
       try {
         const response = await tenantApi.scheduledPosts();
-        return response.posts;
+        return response?.posts || [];
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
           return [];

@@ -52,31 +52,31 @@ export function useAnalytics(filters?: { platform?: string; start_date?: string;
         const response = await tenantApi.analytics(filters);
         
         // Transform API response to match AnalyticsSnapshot
-        const platformBreakdown = response.platform_breakdown.map((p) => ({
-          channel: p.platform,
+        const platformBreakdown = (response?.platform_breakdown || []).map((p) => ({
+          channel: p.platform || "Unknown",
           value: p.conversations || 0,
         }));
 
-        // Build KPIs from API response
+        // Build KPIs from API response with safe defaults
         const kpis: AnalyticsSnapshot["kpis"] = [
           {
             label: "Scheduled posts",
-            value: response.scheduled_posts_count.toString(),
+            value: (response?.scheduled_posts_count ?? 0).toString(),
             delta: "",
           },
           {
             label: "Posted",
-            value: response.posted_count.toString(),
+            value: (response?.posted_count ?? 0).toString(),
             delta: "",
           },
           {
             label: "Conversations",
-            value: response.conversations_count.toString(),
+            value: (response?.conversations_count ?? 0).toString(),
             delta: "",
           },
           {
             label: "Interactions",
-            value: response.interactions_count.toString(),
+            value: (response?.interactions_count ?? 0).toString(),
             delta: "",
           },
         ];
