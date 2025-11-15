@@ -1,21 +1,49 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
-import { mockAnalyticsSummary, mockResponseDistribution, mockScheduledPosts, mockChannels } from "@/lib/mockData";
+import { useAnalytics } from "@/app/(tenant)/hooks/useAnalytics";
 
 const DATE_FILTERS = ["Last 7 days", "Last 30 days", "Quarter to date", "Custom"];
 const CHANNEL_FILTERS = ["All channels", "WhatsApp", "Instagram", "Facebook", "TikTok"];
 
-const placeholderCampaigns = [
-  { name: "Welcome Flow", open: 74, click: 28 },
-  { name: "VIP Restock Alert", open: 68, click: 34 },
-  { name: "Instagram Giveaway", open: 56, click: 22 },
-];
-
 export default function AnalyticsPage() {
   const [dateFilter, setDateFilter] = useState(DATE_FILTERS[1]);
   const [channelFilter, setChannelFilter] = useState(CHANNEL_FILTERS[0]);
+
+  // Calculate date range based on filter
+  const dateRange = useMemo(() => {
+    const endDate = new Date();
+    const startDate = new Date();
+    
+    if (dateFilter === "Last 7 days") {
+      startDate.setDate(endDate.getDate() - 7);
+    } else if (dateFilter === "Last 30 days") {
+      startDate.setDate(endDate.getDate() - 30);
+    } else if (dateFilter === "Quarter to date") {
+      const quarterStartMonth = Math.floor(endDate.getMonth() / 3) * 3;
+      startDate.setMonth(quarterStartMonth, 1);
+    }
+    // Custom date handling would go here
+
+    return {
+      start_date: startDate.toISOString().split('T')[0],
+      end_date: endDate.toISOString().split('T')[0],
+    };
+  }, [dateFilter]);
+
+  // Build API filters
+  const apiFilters = useMemo(() => {
+    const filters: { platform?: string; start_date?: string; end_date?: string } = {
+      ...dateRange,
+    };
+    if (channelFilter !== "All channels") {
+      filters.platform = channelFilter.toLowerCase();
+    }
+    return filters;
+  }, [channelFilter, dateRange]);
+
+  const { data: analytics, isLoading, error } = useAnalytics(apiFilters);
 
   return (
     <div className="space-y-10">
@@ -58,31 +86,41 @@ export default function AnalyticsPage() {
         </div>
       </header>
 
-      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
-          <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Scheduled posts</p>
-          <p className="mt-4 text-4xl font-semibold text-gray-900">{mockAnalyticsSummary.scheduledPosts}</p>
-          <p className="mt-3 text-xs text-gray-500">Content queued across WhatsApp and Instagram.</p>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
         </div>
-        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
-          <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Connected channels</p>
-          <p className="mt-4 text-4xl font-semibold text-gray-900">{mockAnalyticsSummary.connectedChannels}</p>
-          <p className="mt-3 text-xs text-gray-500">Platforms actively syncing conversations.</p>
+      ) : error ? (
+        <div className="rounded-3xl border border-rose-200 bg-rose-50 p-6 text-center">
+          <p className="text-sm font-semibold text-rose-900">Failed to load analytics</p>
+          <p className="mt-2 text-xs text-rose-700">{error.message}</p>
         </div>
-        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
-          <p className="text-xs uppercase tracking-[0.3em] text-gray-400">AI captions</p>
-          <p className="mt-4 text-4xl font-semibold text-gray-900">{mockAnalyticsSummary.aiCaptionsGenerated}</p>
-          <p className="mt-3 text-xs text-gray-500">Generated via Telegram assistant this month.</p>
-        </div>
-        <div className="rounded-3xl border border-dashed border-primary/30 bg-primary/5 p-6 shadow-sm">
-          <p className="text-xs uppercase tracking-[0.3em] text-primary">Coming soon</p>
-          <p className="mt-4 text-lg font-semibold text-gray-900">Full analytics dashboard</p>
-          <p className="mt-3 text-xs text-gray-500">
-            We’re building deeper insights for AI adoption, response time and campaign CTR. For now, check the Telegram daily
-            digest for performance highlights.
-          </p>
-        </div>
-      </section>
+      ) : (
+        <>
+          <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
+              <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Scheduled posts</p>
+              <p className="mt-4 text-4xl font-semibold text-gray-900">{analytics?.kpis[0]?.value ?? "0"}</p>
+              <p className="mt-3 text-xs text-gray-500">Content queued across all platforms.</p>
+            </div>
+            <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
+              <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Posted</p>
+              <p className="mt-4 text-4xl font-semibold text-gray-900">{analytics?.kpis[1]?.value ?? "0"}</p>
+              <p className="mt-3 text-xs text-gray-500">Successfully published content.</p>
+            </div>
+            <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
+              <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Conversations</p>
+              <p className="mt-4 text-4xl font-semibold text-gray-900">{analytics?.kpis[2]?.value ?? "0"}</p>
+              <p className="mt-3 text-xs text-gray-500">Active conversations across all channels.</p>
+            </div>
+            <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
+              <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Interactions</p>
+              <p className="mt-4 text-4xl font-semibold text-gray-900">{analytics?.kpis[3]?.value ?? "0"}</p>
+              <p className="mt-3 text-xs text-gray-500">Total interactions and engagements.</p>
+            </div>
+          </section>
+        </>
+      )}
 
       <section className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
@@ -91,48 +129,58 @@ export default function AnalyticsPage() {
             Percentage distribution of connected channels. Additional data will populate once analytics is live.
           </p>
           <div className="mt-6 space-y-4">
-            {mockChannels.map((channel) => (
-              <div key={channel.id} className="space-y-2">
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span className="font-semibold text-gray-900">{channel.name}</span>
-                  <span>{channel.status === "connected" ? "Active" : channel.status === "pending" ? "Pending" : "Awaiting"}</span>
-                </div>
-                <div className="h-2 rounded-full bg-gray-100">
-                  <div
-                    className={`h-2 rounded-full ${
-                      channel.status === "connected" ? "bg-primary" : channel.status === "pending" ? "bg-amber-400" : "bg-gray-300"
-                    }`}
-                    style={{ width: channel.status === "connected" ? "100%" : channel.status === "pending" ? "45%" : "20%" }}
-                    aria-hidden
-                  />
-                </div>
-              </div>
-            ))}
+            {analytics?.channelVolume && analytics.channelVolume.length > 0 ? (
+              analytics.channelVolume.map((channel, index) => {
+                const total = analytics.channelVolume.reduce((sum, c) => sum + c.value, 0);
+                const percentage = total > 0 ? (channel.value / total) * 100 : 0;
+                return (
+                  <div key={channel.channel || index} className="space-y-2">
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span className="font-semibold text-gray-900">{channel.channel}</span>
+                      <span>{channel.value} conversations</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-gray-100">
+                      <div
+                        className="h-2 rounded-full bg-primary"
+                        style={{ width: `${percentage}%` }}
+                        aria-hidden
+                      />
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-center text-xs text-gray-500">No channel data available</p>
+            )}
           </div>
         </div>
 
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900">Campaign performance</h2>
           <p className="mt-2 text-xs text-gray-500">
-            Sample benchmarks from recent broadcasts. Real metrics will appear once analytics aggregation ships.
+            Campaign performance metrics coming soon. Check back for detailed analytics on your broadcasts.
           </p>
           <div className="mt-6 space-y-4">
-            {placeholderCampaigns.map((campaign) => (
-              <div key={campaign.name} className="space-y-2">
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span className="font-semibold text-gray-900">{campaign.name}</span>
-                  <span className="text-gray-500">Open {campaign.open}% • Click {campaign.click}%</span>
+            {analytics?.campaignPerformance && analytics.campaignPerformance.length > 0 ? (
+              analytics.campaignPerformance.map((campaign) => (
+                <div key={campaign.name} className="space-y-2">
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <span className="font-semibold text-gray-900">{campaign.name}</span>
+                    <span className="text-gray-500">Open {campaign.open}% • Click {campaign.click}%</span>
+                  </div>
+                  <div className="relative h-2 rounded-full bg-gray-100">
+                    <div className="absolute inset-y-0 left-0 rounded-full bg-primary" style={{ width: `${campaign.open}%` }} aria-hidden />
+                    <div
+                      className="absolute inset-y-0 left-0 rounded-full bg-emerald-500/70"
+                      style={{ width: `${campaign.click}%` }}
+                      aria-hidden
+                    />
+                  </div>
                 </div>
-                <div className="relative h-2 rounded-full bg-gray-100">
-                  <div className="absolute inset-y-0 left-0 rounded-full bg-primary" style={{ width: `${campaign.open}%` }} aria-hidden />
-                  <div
-                    className="absolute inset-y-0 left-0 rounded-full bg-emerald-500/70"
-                    style={{ width: `${campaign.click}%` }}
-                    aria-hidden
-                  />
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-center text-xs text-gray-500">No campaign data available yet</p>
+            )}
           </div>
         </div>
       </section>

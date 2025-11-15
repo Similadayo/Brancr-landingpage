@@ -1,10 +1,10 @@
 'use client';
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTenant } from "../../providers/TenantProvider";
-import { mockConversations } from "@/lib/mockData";
+import { useConversations, useConversation, useSendReply } from "@/app/(tenant)/hooks/useConversations";
 
 const FILTERS = ["All", "Open", "Pending", "Closed"];
 
@@ -20,22 +20,46 @@ const CHANNEL_COLORS: Record<string, string> = {
 export default function InboxPage() {
   const { tenant } = useTenant();
   const [activeFilter, setActiveFilter] = useState<string>("All");
-  const [selectedConversationId, setSelectedConversationId] = useState<string>(mockConversations[0]?.id ?? "");
-  const [note, setNote] = useState("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedConversationId, setSelectedConversationId] = useState<string>("");
+  const [replyText, setReplyText] = useState("");
 
-  const filteredConversations = useMemo(() => {
-    if (activeFilter === "All") return mockConversations;
-    return mockConversations.filter(
-      (conversation) => conversation.status.toLowerCase() === activeFilter.toLowerCase()
-    );
-  }, [activeFilter]);
+  // Build filters for API
+  const apiFilters = useMemo(() => {
+    const filters: { platform?: string; status?: string; search?: string } = {};
+    if (activeFilter !== "All") {
+      filters.status = activeFilter.toLowerCase();
+    }
+    if (searchQuery.trim()) {
+      filters.search = searchQuery.trim();
+    }
+    return filters;
+  }, [activeFilter, searchQuery]);
 
-  const activeConversation = useMemo(
-    () => mockConversations.find((conversation) => conversation.id === selectedConversationId),
-    [selectedConversationId]
-  );
+  const { data: conversations = [], isLoading, error } = useConversations(apiFilters);
+  const { data: conversationDetail } = useConversation(selectedConversationId);
+  const sendReplyMutation = useSendReply(selectedConversationId);
 
-  const messages = activeConversation?.messages ?? [];
+  // Set first conversation as selected when conversations load
+  useEffect(() => {
+    if (conversations.length > 0 && !selectedConversationId) {
+      setSelectedConversationId(conversations[0].id);
+    }
+  }, [conversations, selectedConversationId]);
+
+  const activeConversation = conversationDetail?.conversation;
+  const messages = conversationDetail?.messages ?? [];
+
+  const handleSendReply = async () => {
+    if (!replyText.trim() || !selectedConversationId) return;
+
+    try {
+      await sendReplyMutation.mutateAsync({ body: replyText.trim() });
+      setReplyText("");
+    } catch (error) {
+      // Error is handled by the hook
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -79,18 +103,28 @@ export default function InboxPage() {
               </span>
               <input
                 type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full rounded-xl border border-gray-200 bg-gray-50 px-10 py-2 text-sm text-gray-700 shadow-sm transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
                 placeholder="Search by name or tag…"
               />
             </div>
           </div>
           <div className="mt-4 space-y-2 overflow-y-auto px-1 pb-2 pt-1" style={{ maxHeight: "calc(100vh - 240px)" }}>
-            {filteredConversations.length === 0 ? (
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+              </div>
+            ) : error ? (
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-900">
+                Failed to load conversations: {error.message}
+              </div>
+            ) : conversations.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
-                No conversations yet.
+                {searchQuery ? "No conversations found." : "No conversations yet."}
               </div>
             ) : (
-              filteredConversations.map((conversation) => {
+              conversations.map((conversation) => {
                 const isActive = selectedConversationId === conversation.id;
                 const unread = conversation.unreadCount > 0;
                 return (
@@ -115,7 +149,7 @@ export default function InboxPage() {
                             {conversation.channel}
                           </span>
                         </div>
-                        <p className="mt-1 line-clamp-2 text-xs text-gray-500">{conversation.lastMessage}</p>
+                        <p className="mt-1 line-clamp-2 text-xs text-gray-500">{conversation.preview}</p>
                         <div className="mt-2 flex flex-wrap gap-1">
                           {conversation.tags.map((tag) => (
                             <span
@@ -211,21 +245,45 @@ export default function InboxPage() {
                     <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Reply</p>
                     <div className="mt-3 space-y-3">
                       <textarea
-                        value="Messaging will be available once the Brancr API is live. Use Telegram for now."
-                        readOnly
-                        className="min-h-[140px] w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm text-gray-700 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                            e.preventDefault();
+                            void handleSendReply();
+                          }
+                        }}
+                        disabled={sendReplyMutation.isPending || !selectedConversationId}
+                        placeholder="Type your reply here... (Cmd/Ctrl + Enter to send)"
+                        className="min-h-[140px] w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm text-gray-700 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50"
                       />
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2 text-xs text-gray-500">
                           <span className="rounded-lg border border-gray-200 bg-gray-50 px-2 py-1">
-                            Attachments supported via Telegram
+                            Supports Instagram, Facebook, and WhatsApp
                           </span>
                         </div>
                         <button
-                          disabled
-                          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white opacity-50 shadow-md shadow-primary/20"
+                          onClick={() => void handleSendReply()}
+                          disabled={sendReplyMutation.isPending || !replyText.trim() || !selectedConversationId}
+                          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          Reply via API coming soon
+                          {sendReplyMutation.isPending ? (
+                            <>
+                              <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Sending...
+                            </>
+                          ) : (
+                            <>
+                              Send Reply
+                              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                              </svg>
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -268,17 +326,8 @@ export default function InboxPage() {
                     <div>
                       <p className="uppercase tracking-[0.3em] text-gray-400">Notes</p>
                       <div className="mt-2 rounded-xl border border-gray-200 bg-white p-3 text-sm text-gray-600">
-                        <p>
-                          {note || "Coordinate delivery with logistics team. Customer prefers morning drops. Add more notes once the API is ready."}
-                        </p>
-                        <textarea
-                          value={note}
-                          onChange={(event) => setNote(event.target.value)}
-                          placeholder="Leave a reminder for your team…"
-                          className="mt-3 w-full rounded-lg border border-gray-200 px-3 py-2 text-xs text-gray-600 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
-                        />
-                        <p className="mt-2 text-[11px] text-gray-400">
-                          Notes sync coming soon. Stick with Telegram for official log updates.
+                        <p className="text-xs text-gray-500">
+                          Notes functionality coming soon. Use replies to add context to conversations.
                         </p>
                       </div>
                     </div>

@@ -44,32 +44,49 @@ const FALLBACK_ANALYTICS: AnalyticsSnapshot = {
   ],
 };
 
-export function useAnalytics(filters?: Record<string, string>) {
+export function useAnalytics(filters?: { platform?: string; start_date?: string; end_date?: string }) {
   return useQuery<AnalyticsSnapshot, Error>({
     queryKey: ["analytics", filters],
     queryFn: async () => {
       try {
         const response = await tenantApi.analytics(filters);
-        const fromApi = response as Record<string, unknown>;
+        
+        // Transform API response to match AnalyticsSnapshot
+        const platformBreakdown = response.platform_breakdown.map((p) => ({
+          channel: p.platform,
+          value: p.conversations || 0,
+        }));
+
+        // Build KPIs from API response
+        const kpis: AnalyticsSnapshot["kpis"] = [
+          {
+            label: "Scheduled posts",
+            value: response.scheduled_posts_count.toString(),
+            delta: "",
+          },
+          {
+            label: "Posted",
+            value: response.posted_count.toString(),
+            delta: "",
+          },
+          {
+            label: "Conversations",
+            value: response.conversations_count.toString(),
+            delta: "",
+          },
+          {
+            label: "Interactions",
+            value: response.interactions_count.toString(),
+            delta: "",
+          },
+        ];
 
         return {
-          kpis: (fromApi.kpis as AnalyticsSnapshot["kpis"]) ?? FALLBACK_ANALYTICS.kpis,
-          channelVolume:
-            (fromApi.channelVolume as AnalyticsSnapshot["channelVolume"]) ??
-            (fromApi.channel_volume as AnalyticsSnapshot["channelVolume"]) ??
-            FALLBACK_ANALYTICS.channelVolume,
-          campaignPerformance:
-            (fromApi.campaignPerformance as AnalyticsSnapshot["campaignPerformance"]) ??
-            (fromApi.campaign_performance as AnalyticsSnapshot["campaignPerformance"]) ??
-            FALLBACK_ANALYTICS.campaignPerformance,
-          responseDistribution:
-            (fromApi.responseDistribution as AnalyticsSnapshot["responseDistribution"]) ??
-            (fromApi.response_distribution as AnalyticsSnapshot["responseDistribution"]) ??
-            FALLBACK_ANALYTICS.responseDistribution,
-          teamLeaderboard:
-            (fromApi.teamLeaderboard as AnalyticsSnapshot["teamLeaderboard"]) ??
-            (fromApi.team_leaderboard as AnalyticsSnapshot["teamLeaderboard"]) ??
-            FALLBACK_ANALYTICS.teamLeaderboard,
+          kpis,
+          channelVolume: platformBreakdown,
+          campaignPerformance: FALLBACK_ANALYTICS.campaignPerformance, // Not in API yet
+          responseDistribution: FALLBACK_ANALYTICS.responseDistribution, // Not in API yet
+          teamLeaderboard: FALLBACK_ANALYTICS.teamLeaderboard, // Not in API yet
         };
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {

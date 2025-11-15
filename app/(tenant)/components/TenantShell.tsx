@@ -335,7 +335,7 @@ function renderNavItems(compact: boolean) {
                 </button>
                 <div>
                   <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Current view</p>
-                  <h1 className="text-xl font-semibold text-gray-900 lg:text-2xl">{currentNav?.label ?? "Dashboard"}</h1>
+                  <h1 className="text-xl font-semibold text-gray-900 lg:text-2xl">{currentNav?.label ?? "Overview"}</h1>
                 </div>
               </div>
               <div className="flex items-center gap-3">

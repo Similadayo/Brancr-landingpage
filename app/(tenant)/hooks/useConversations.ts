@@ -94,12 +94,12 @@ const FALLBACK_DETAILS: Record<string, ConversationDetail> = {
   },
 };
 
-export function useConversations() {
+export function useConversations(filters?: { platform?: string; status?: string; search?: string }) {
   return useQuery<ConversationSummary[], Error>({
-    queryKey: ["conversations"],
+    queryKey: ["conversations", filters],
     queryFn: async () => {
       try {
-        const response = await tenantApi.conversations();
+        const response = await tenantApi.conversations(filters);
         return response.conversations.map((conversation) => ({
           id: conversation.id,
           contactName: conversation.contact_name ?? "Unknown contact",

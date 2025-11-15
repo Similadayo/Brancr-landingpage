@@ -112,6 +112,18 @@ export function patch<TBody = unknown, TResponse = unknown>(
   });
 }
 
+export function put<TBody = unknown, TResponse = unknown>(
+  path: string,
+  body?: TBody,
+  options?: ApiRequestOptions
+) {
+  return apiFetch<TResponse>(path, {
+    method: "PUT",
+    body: body instanceof FormData ? body : JSON.stringify(body ?? {}),
+    ...options,
+  });
+}
+
 export function del<TResponse = unknown>(path: string, options?: ApiRequestOptions) {
   return apiFetch<TResponse>(path, { method: "DELETE", ...options });
 }
@@ -173,8 +185,13 @@ export const tenantApi = {
       entries: Array<{ id: string; action: string; at: string }>;
     }>("/api/tenant/social-accounts/history"),
 
-  conversations: () =>
-    get<{
+  conversations: (params?: { platform?: string; status?: string; search?: string }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== '') as [string, string][]
+        ).toString()}`
+      : "";
+    return get<{
       conversations: Array<{
         id: string;
         contact_name: string;
@@ -186,7 +203,8 @@ export const tenantApi = {
         assignee?: string | null;
         status: string;
       }>;
-    }>("/api/tenant/conversations"),
+    }>(`/api/tenant/conversations${query}`);
+  },
 
   conversation: (conversationId: string) =>
     get<{
@@ -210,7 +228,7 @@ export const tenantApi = {
     }>(`/api/tenant/conversations/${conversationId}`),
 
   sendReply: (conversationId: string, payload: { body: string; attachments?: Array<Record<string, unknown>> }) =>
-    post<typeof payload, { message_id: string }>(`/api/tenant/conversations/${conversationId}/reply`, payload),
+    post<typeof payload, { message_id: string }>(`/api/tenant/conversations/${conversationId}/replies`, payload),
 
   assignConversation: (conversationId: string, payload: { assignee_id: string | null }) =>
     patch<typeof payload, { success: boolean }>(
@@ -243,18 +261,101 @@ export const tenantApi = {
       campaign: Record<string, unknown>;
     }>(`/api/tenant/campaigns/${campaignId}`),
 
-  analytics: (params?: Record<string, string>) => {
+  analytics: (params?: { platform?: string; start_date?: string; end_date?: string }) => {
     const query = params
-      ? `?${new URLSearchParams(params).toString()}`
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== '') as [string, string][]
+        ).toString()}`
       : "";
-    return get<Record<string, unknown>>(`/api/tenant/analytics${query}`);
+    return get<{
+      scheduled_posts_count: number;
+      posted_count: number;
+      conversations_count: number;
+      interactions_count: number;
+      platform_breakdown: Array<{
+        platform: string;
+        scheduled_posts: number;
+        posted: number;
+        conversations: number;
+        interactions: number;
+      }>;
+    }>(`/api/tenant/analytics${query}`);
   },
 
+  // Templates CRUD endpoints
   templates: () =>
     get<{
-      templates: Array<Record<string, unknown>>;
+      templates: Array<{
+        id: string;
+        name: string;
+        category: string;
+        description?: string;
+        body: string;
+        platforms: string[];
+        uses?: number;
+        created_at: string;
+        updated_at: string;
+      }>;
     }>("/api/tenant/templates"),
 
+  template: (templateId: string) =>
+    get<{
+      template: {
+        id: string;
+        name: string;
+        category: string;
+        description?: string;
+        body: string;
+        platforms: string[];
+        uses?: number;
+        created_at: string;
+        updated_at: string;
+      };
+    }>(`/api/tenant/templates/${templateId}`),
+
+  createTemplate: (payload: {
+    name: string;
+    category: string;
+    description?: string;
+    body: string;
+    platforms: string[];
+  }) =>
+    post<typeof payload, {
+      template: {
+        id: string;
+        name: string;
+        category: string;
+        description?: string;
+        body: string;
+        platforms: string[];
+        created_at: string;
+        updated_at: string;
+      };
+    }>("/api/tenant/templates", payload),
+
+  updateTemplate: (templateId: string, payload: {
+    name?: string;
+    category?: string;
+    description?: string;
+    body?: string;
+    platforms?: string[];
+  }) =>
+    put<typeof payload, {
+      template: {
+        id: string;
+        name: string;
+        category: string;
+        description?: string;
+        body: string;
+        platforms: string[];
+        updated_at: string;
+      };
+    }>(`/api/tenant/templates/${templateId}`, payload),
+
+  deleteTemplate: (templateId: string) =>
+    del<{ success: boolean }>(`/api/tenant/templates/${templateId}`),
+
+  // Team management endpoints (some return 501 Not Implemented)
   teamMembers: () =>
     get<{
       members: Array<{
@@ -262,14 +363,37 @@ export const tenantApi = {
         name: string;
         email: string;
         role: string;
+        status?: string;
+        joined_at?: string;
       }>;
-    }>("/api/tenant/team"),
+    }>("/api/tenant/team/members"),
+
+  teamMember: (memberId: string) =>
+    get<{
+      member: {
+        id: string;
+        name: string;
+        email: string;
+        role: string;
+        status?: string;
+        joined_at?: string;
+      };
+    }>(`/api/tenant/team/members/${memberId}`),
 
   inviteTeamMember: (payload: { email: string; role: string }) =>
-    post<typeof payload, { invitation_id: string }>("/api/tenant/team/invite", payload),
+    post<typeof payload, { invitation_id?: string; success?: boolean; message?: string }>(
+      "/api/tenant/team/invite",
+      payload
+    ),
 
-  updateMemberRole: (memberId: string, payload: { role: string }) =>
-    patch<typeof payload, { success: boolean }>(`/api/tenant/team/${memberId}`, payload),
+  updateTeamMember: (memberId: string, payload: { role?: string; status?: string }) =>
+    put<typeof payload, { success?: boolean; message?: string }>(
+      `/api/tenant/team/members/${memberId}`,
+      payload
+    ),
+
+  deleteTeamMember: (memberId: string) =>
+    del<{ success?: boolean; message?: string }>(`/api/tenant/team/members/${memberId}`),
 
   apiKeys: () =>
     get<{

@@ -68,18 +68,14 @@ export default function TeamSettingsPage() {
         </div>
 
         <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-6">
-          <h3 className="text-sm font-semibold text-amber-900">Coming Soon</h3>
+          <h3 className="text-sm font-semibold text-amber-900">Team Management Coming Soon</h3>
           <p className="mt-2 text-sm text-amber-700">
-            Team management features are currently in development. You&apos;ll be able to invite team members, assign
-            roles, and manage permissions here soon.
+            Team management features are currently in development. The API endpoints are available, but the UI for inviting team members, assigning roles, and managing permissions will be available soon.
           </p>
-          <a
-            href="mailto:contact@brancr.com?subject=Team%20Management%20Inquiry"
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-900 transition hover:bg-amber-200"
-          >
-            Contact us about team features
-            <span aria-hidden>→</span>
-          </a>
+          <p className="mt-3 text-xs text-amber-600">
+            Current API endpoints: <code className="rounded bg-amber-100 px-1.5 py-0.5 text-xs">/api/tenant/team/members</code> returns the current tenant owner.
+            Invite and management endpoints return 501 Not Implemented.
+          </p>
         </div>
       </section>
 
