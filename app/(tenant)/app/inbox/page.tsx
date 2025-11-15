@@ -93,7 +93,7 @@ export default function InboxPage() {
           <div className="flex items-center justify-between px-2">
             <h2 className="text-sm font-semibold text-gray-900">Conversations</h2>
             <span className="rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-500">
-              {filteredConversations.length}
+              {conversations.length}
             </span>
           </div>
           <div className="mt-4 px-2">
