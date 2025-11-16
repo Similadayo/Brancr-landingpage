@@ -159,7 +159,7 @@ function renderNavItems(compact: boolean) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
       {/* Mobile overlay */}
       {isMobileNavOpen ? (
         <div
@@ -169,7 +169,7 @@ function renderNavItems(compact: boolean) {
       ) : null}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-gray-200 bg-white px-6 py-8 shadow-2xl transition-transform lg:hidden",
+          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-gray-200 bg-white px-6 py-8 shadow-2xl transition-transform lg:hidden dark:border-slate-800 dark:bg-slate-900",
           isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -232,7 +232,7 @@ function renderNavItems(compact: boolean) {
         {/* Desktop sidebar */}
         <aside
           className={cn(
-            "sticky top-0 hidden h-screen shrink-0 border-r border-gray-200 bg-white/80 px-4 py-8 backdrop-blur-xl transition-all duration-300 lg:flex lg:flex-col"
+          "sticky top-0 hidden h-screen shrink-0 border-r border-gray-200 bg-white/80 px-4 py-8 backdrop-blur-xl transition-all duration-300 lg:flex lg:flex-col dark:border-slate-800 dark:bg-slate-900/80"
           )}
           style={{ width: sidebarDesktopWidth }}
         >
@@ -328,7 +328,7 @@ function renderNavItems(compact: boolean) {
         </aside>
 
         <div className="flex min-h-screen flex-1 flex-col">
-          <header className="sticky top-0 z-20 flex h-20 items-center border-b border-gray-200 bg-white/70 px-4 backdrop-blur lg:px-8">
+          <header className="sticky top-0 z-20 flex h-20 items-center border-b border-gray-200 bg-white/70 px-4 backdrop-blur lg:px-8 dark:border-slate-800 dark:bg-slate-900/70">
             <div className="flex w-full items-center justify-between">
               <div className="flex items-center gap-3">
                 <button

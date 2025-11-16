@@ -96,7 +96,7 @@ export default function RootLayout({
   // dark mode persisted via localStorage (toggle in shell)
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased">
+      <body className="antialiased bg-white dark:bg-slate-950">
         <script
           dangerouslySetInnerHTML={{
             __html:
