@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTenant } from "../../providers/TenantProvider";
-import { useConversations, useConversation, useSendReply } from "@/app/(tenant)/hooks/useConversations";
+import { useConversations, useConversation, useSendReply, useUpdateConversationStatus } from "@/app/(tenant)/hooks/useConversations";
 
 const FILTERS = ["All", "Open", "Pending", "Closed"];
 
@@ -39,6 +39,7 @@ export default function InboxPage() {
   const { data: conversations = [], isLoading, error } = useConversations(apiFilters);
   const { data: conversationDetail } = useConversation(selectedConversationId);
   const sendReplyMutation = useSendReply(selectedConversationId);
+  const updateStatusMutation = useUpdateConversationStatus(selectedConversationId);
 
   // Set first conversation as selected when conversations load
   useEffect(() => {
@@ -215,7 +216,7 @@ export default function InboxPage() {
                 </div>
               </header>
 
-              <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+              <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
                 <div className="flex flex-col gap-4">
                   <div className="flex-1 space-y-4 overflow-y-auto rounded-2xl bg-neutral-bg p-4">
                     {messages.map((message) => (
@@ -291,46 +292,59 @@ export default function InboxPage() {
                 </div>
 
                 <aside className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                  <h3 className="text-sm font-semibold text-gray-900">Conversation details</h3>
-                  <div className="mt-4 space-y-4 text-xs text-gray-600">
+                  <h3 className="text-sm font-semibold text-gray-900">Contact</h3>
+                  <div className="mt-3 flex items-center justify-between">
                     <div>
-                      <p className="uppercase tracking-[0.3em] text-gray-400">Contact</p>
-                      <p className="mt-1 text-sm font-semibold text-gray-900">{activeConversation.contactName}</p>
-                      <p className="text-xs text-gray-500">Channel ID: 234-0101</p>
+                      <p className="text-sm font-semibold text-gray-900">{activeConversation.contactName}</p>
+                      <p className="text-xs text-gray-500 capitalize">{activeConversation.channel}</p>
                     </div>
+                    <span className="rounded-full bg-gray-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-gray-600">
+                      {activeConversation.status}
+                    </span>
+                  </div>
 
-                    <div>
-                      <p className="uppercase tracking-[0.3em] text-gray-400">Tags</p>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {activeConversation.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-gray-600"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                        {activeConversation.tags.length === 0 ? (
-                          <span className="text-xs text-gray-500">No tags yet.</span>
-                        ) : null}
-                      </div>
-                    </div>
+                  <div className="mt-4">
+                    <p className="uppercase tracking-[0.3em] text-gray-400">Status</p>
+                    <select
+                      value={activeConversation.status}
+                      onChange={(e) => updateStatusMutation.mutate({ status: e.target.value })}
+                      className="mt-2 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700"
+                    >
+                      {["open", "pending", "closed"].map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                    <div>
-                      <p className="uppercase tracking-[0.3em] text-gray-400">Latest campaign touch</p>
-                      <p className="mt-1 text-sm text-gray-600">
-                        Added to “Holiday Promo” broadcast on 4 July 2025 • 12:30
-                      </p>
+                  <div className="mt-4">
+                    <p className="uppercase tracking-[0.3em] text-gray-400">Tags</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {activeConversation.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-gray-600"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                      {activeConversation.tags.length === 0 ? (
+                        <span className="text-xs text-gray-500">No tags yet.</span>
+                      ) : null}
                     </div>
+                  </div>
 
-                    <div>
-                      <p className="uppercase tracking-[0.3em] text-gray-400">Notes</p>
-                      <div className="mt-2 rounded-xl border border-gray-200 bg-white p-3 text-sm text-gray-600">
-                        <p className="text-xs text-gray-500">
-                          Notes functionality coming soon. Use replies to add context to conversations.
-                        </p>
-                      </div>
-                    </div>
+                  <div className="mt-4">
+                    <p className="uppercase tracking-[0.3em] text-gray-400">Last updated</p>
+                    <p className="mt-1 text-xs text-gray-600">
+                      {new Date(activeConversation.updatedAt).toLocaleString([], {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
                   </div>
                 </aside>
               </div>

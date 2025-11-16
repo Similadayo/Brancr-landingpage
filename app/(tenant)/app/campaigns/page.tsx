@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useScheduledPosts, useCancelScheduledPost } from "@/app/(tenant)/hooks/useScheduledPosts";
+import { useScheduledPosts, useCancelScheduledPost, useUpdateScheduledPost } from "@/app/(tenant)/hooks/useScheduledPosts";
 
 const STATUS_FILTERS = ["All", "Scheduled", "Posting", "Posted", "Failed", "Cancelled"];
 
@@ -19,6 +19,13 @@ export default function CampaignsPage() {
   const { data: scheduledPosts = [], isLoading, error } = useScheduledPosts();
   const cancelMutation = useCancelScheduledPost();
   const [cancellingPostId, setCancellingPostId] = useState<string | null>(null);
+  const updateMutation = useUpdateScheduledPost();
+
+  // Modal state
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editPostId, setEditPostId] = useState<string | null>(null);
+  const [editCaption, setEditCaption] = useState<string>("");
+  const [editScheduledAt, setEditScheduledAt] = useState<string>("");
 
   const campaigns = useMemo(() => {
     if (filter === "All") return scheduledPosts;
@@ -185,6 +192,26 @@ export default function CampaignsPage() {
                               >
                                 {isCancelling ? "Cancelling..." : "Cancel"}
                               </button>
+                              <span className="text-gray-300">•</span>
+                              <button
+                                onClick={() => {
+                                  setEditPostId(post.id);
+                                  setEditCaption(post.caption || "");
+                                  // Convert to local input datetime value (YYYY-MM-DDTHH:mm)
+                                  const dt = new Date(post.scheduled_at);
+                                  const tzOffset = dt.getTimezoneOffset() * 60000;
+                                  const localISO = new Date(dt.getTime() - tzOffset).toISOString().slice(0, 16);
+                                  setEditScheduledAt(localISO);
+                                  setIsEditOpen(true);
+                                }}
+                                className="hover:text-primary/80"
+                              >
+                                Reschedule / Edit
+                              </button>
+                              <span className="text-gray-300">•</span>
+                              <button disabled title="Duplicate coming soon" className="text-gray-400 cursor-not-allowed">
+                                Duplicate
+                              </button>
                             </>
                           )}
                         </div>
@@ -274,6 +301,89 @@ export default function CampaignsPage() {
           </div>
         </div>
       </section>
+
+      {/* Edit / Reschedule Modal */}
+      {isEditOpen && editPostId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-lg rounded-3xl border border-gray-200 bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Edit scheduled post</h2>
+              <button
+                type="button"
+                onClick={() => setIsEditOpen(false)}
+                className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900">Caption</label>
+                <textarea
+                  value={editCaption}
+                  onChange={(e) => setEditCaption(e.target.value)}
+                  rows={4}
+                  className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="Update the caption..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-900">Scheduled time</label>
+                <input
+                  type="datetime-local"
+                  value={editScheduledAt}
+                  onChange={(e) => setEditScheduledAt(e.target.value)}
+                  className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+                <p className="mt-2 text-xs text-gray-500">Times are saved in your local timezone.</p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsEditOpen(false)}
+                className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  // Convert local datetime to ISO
+                  let iso: string | undefined = undefined;
+                  if (editScheduledAt) {
+                    const local = new Date(editScheduledAt);
+                    iso = new Date(local.getTime() - local.getTimezoneOffset() * 60000).toISOString();
+                  }
+                  updateMutation.mutate(
+                    {
+                      postId: editPostId,
+                      payload: {
+                        caption: editCaption.trim() || undefined,
+                        scheduled_at: iso,
+                      },
+                    },
+                    {
+                      onSuccess: () => {
+                        setIsEditOpen(false);
+                      },
+                    }
+                  );
+                }}
+                disabled={updateMutation.isPending}
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 disabled:opacity-50"
+              >
+                {updateMutation.isPending ? "Saving..." : "Save changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

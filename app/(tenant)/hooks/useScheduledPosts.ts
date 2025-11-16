@@ -72,3 +72,23 @@ export function useCancelScheduledPost() {
   });
 }
 
+export function useUpdateScheduledPost() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (params: { postId: string; payload: { caption?: string; scheduled_at?: string; platforms?: string[] } }) =>
+      tenantApi.updateScheduledPost(params.postId, params.payload),
+    onSuccess: (_, variables) => {
+      toast.success("Post updated");
+      void queryClient.invalidateQueries({ queryKey: ["scheduled-posts"] });
+      void queryClient.invalidateQueries({ queryKey: ["scheduled-post", variables.postId] });
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to update post");
+      }
+    },
+  });
+}
+

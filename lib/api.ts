@@ -508,8 +508,98 @@ export const tenantApi = {
       };
     }>(`/api/tenant/scheduled-posts/${postId}`),
 
+  updateScheduledPost: (
+    postId: string,
+    payload: {
+      caption?: string;
+      scheduled_at?: string;
+      platforms?: string[];
+    }
+  ) =>
+    put<typeof payload, { success: boolean; post: Record<string, unknown> }>(
+      `/api/tenant/scheduled-posts/${postId}`,
+      payload
+    ),
+
   cancelScheduledPost: (postId: string) =>
     del<{ success: boolean }>(`/api/tenant/scheduled-posts/${postId}`),
+
+  // Calendar endpoints (Phase 2)
+  calendar: (params?: { start_date?: string; end_date?: string; platform?: string }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+        ).toString()}`
+      : "";
+    return get<{
+      entries: Array<{
+        id: string;
+        date: string;
+        time?: string | null;
+        name: string;
+        platforms: string[];
+        status: string;
+        media_count?: number;
+      }>;
+    }>(`/api/tenant/calendar${query}`);
+  },
+
+  // Media Library endpoints (Phase 2)
+  mediaList: (params?: { type?: string; tags?: string; campaign?: string; q?: string; page?: string }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+        ).toString()}`
+      : "";
+    return get<{
+      assets: Array<{
+        id: string;
+        type: "image" | "video" | "carousel";
+        url: string;
+        thumbnail_url?: string;
+        tags?: string[];
+        caption?: string;
+        created_at: string;
+      }>;
+    }>(`/api/tenant/media${query}`);
+  },
+
+  mediaUpload: (form: FormData) =>
+    apiFetch<{ success: boolean; assets: Array<Record<string, unknown>> }>(`/api/tenant/media`, {
+      method: "POST",
+      body: form,
+    }),
+
+  mediaDelete: (assetId: string) => del<{ success: boolean }>(`/api/tenant/media/${assetId}`),
+
+  mediaUpdate: (assetId: string, payload: { tags?: string[]; caption?: string; campaign?: string | null }) =>
+    put<typeof payload, { success: boolean }>(`/api/tenant/media/${assetId}`, payload),
+
+  // Post Creation (Phase 2)
+  createPost: (payload: {
+    name: string;
+    caption: string;
+    media_asset_ids: string[];
+    platforms: string[];
+    scheduled_at: string;
+  }) => post<typeof payload, { success: boolean; post_id: string }>(`/api/tenant/posts`, payload),
+
+  publishNow: (postId: string) =>
+    post<undefined, { success: boolean }>(`/api/tenant/posts/${postId}/publish-now`),
+
+  generateCaption: (payload: {
+    media_asset_ids: string[];
+    tone?: string;
+    include_hashtags?: boolean;
+  }) => post<typeof payload, { caption: string }>(`/api/tenant/posts/generate-caption`, payload),
+
+  optimalTimes: (params: { platforms: string[]; date: string }) =>
+    get<{ times: Array<{ at: string; score: number }> }>(
+      `/api/tenant/posts/optimal-times?${new URLSearchParams({
+        date: params.date,
+        platforms: params.platforms.join(","),
+      }).toString()}`
+    ),
 
   // WhatsApp phone number endpoints
   whatsappNumbers: () =>

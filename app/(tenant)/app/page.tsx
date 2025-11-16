@@ -7,6 +7,7 @@ import { useTenant } from "../providers/TenantProvider";
 import { authApi, tenantApi, ApiError } from "@/lib/api";
 import { useScheduledPosts } from "@/app/(tenant)/hooks/useScheduledPosts";
 import { useIntegrations } from "@/app/(tenant)/hooks/useIntegrations";
+import { useConversations } from "@/app/(tenant)/hooks/useConversations";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -24,6 +25,7 @@ export default function TenantOverviewPage() {
   });
   const { data: scheduledPosts = [] } = useScheduledPosts();
   const { data: integrations = [] } = useIntegrations();
+  const { data: conversations = [] } = useConversations();
 
   const stats = useMemo(() => {
     const upcomingPosts = scheduledPosts.filter(
@@ -79,6 +81,19 @@ export default function TenantOverviewPage() {
 
     return soon;
   }, [scheduledPosts, integrations]);
+
+  const upcoming = useMemo(() => {
+    return scheduledPosts
+      .filter((post) => post.status === "scheduled" || post.status === "posting")
+      .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
+      .slice(0, 5);
+  }, [scheduledPosts]);
+
+  const recentConversations = useMemo(() => {
+    return (conversations ?? [])
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      .slice(0, 5);
+  }, [conversations]);
 
   return (
     <div className="space-y-10">
@@ -160,6 +175,76 @@ export default function TenantOverviewPage() {
             Stay tuned for AI performance summaries once analytics is live. In the meantime, use the Telegram assistant for
             caption suggestions.
           </p>
+        </div>
+      </section>
+
+      {/* Upcoming posts + Activity timeline */}
+      <section className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Planner</p>
+              <h2 className="mt-2 text-lg font-semibold text-gray-900">Upcoming posts</h2>
+            </div>
+            <Link href="/app/campaigns" className="text-xs font-semibold text-primary hover:text-primary/80">
+              View all ↗
+            </Link>
+          </div>
+          <div className="mt-4 space-y-3">
+            {upcoming.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
+                No upcoming posts
+              </div>
+            ) : (
+              upcoming.map((post) => (
+                <div key={post.id} className="flex items-center justify-between rounded-xl border border-gray-200 p-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-gray-900">{post.name}</p>
+                    <p className="mt-1 text-xs text-gray-500">{post.platforms.join(", ")}</p>
+                  </div>
+                  <div className="text-right text-xs text-gray-500">
+                    {new Date(post.scheduled_at).toLocaleString([], {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Timeline</p>
+              <h2 className="mt-2 text-lg font-semibold text-gray-900">Recent conversations</h2>
+            </div>
+            <Link href="/app/inbox" className="text-xs font-semibold text-primary hover:text-primary/80">
+              Open inbox ↗
+            </Link>
+          </div>
+          <div className="mt-4 space-y-3">
+            {recentConversations.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
+                No recent conversations
+              </div>
+            ) : (
+              recentConversations.map((c) => (
+                <div key={c.id} className="flex items-center justify-between rounded-xl border border-gray-200 p-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-gray-900">{c.contactName}</p>
+                    <p className="mt-1 line-clamp-1 text-xs text-gray-500">{c.preview || "New message"}</p>
+                  </div>
+                  <span className="rounded-full bg-gray-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-gray-600">
+                    {c.channel}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </section>
 

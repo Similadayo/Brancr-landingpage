@@ -119,6 +119,7 @@ export function useConversations(filters?: { platform?: string; status?: string;
       }
     },
     refetchOnMount: "always",
+    refetchInterval: 10000,
   });
 }
 
@@ -163,6 +164,7 @@ export function useConversation(conversationId: string | null) {
         throw error;
       }
     },
+    refetchInterval: 10000,
   });
 }
 

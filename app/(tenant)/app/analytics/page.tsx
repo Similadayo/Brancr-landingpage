@@ -185,6 +185,76 @@ export default function AnalyticsPage() {
         </div>
       </section>
 
+      {/* Charts section */}
+      <section className="grid gap-6 lg:grid-cols-2">
+        {/* Response distribution pie */}
+        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
+          <h2 className="text-sm font-semibold text-gray-900">Response distribution</h2>
+          <p className="mt-2 text-xs text-gray-500">Breakdown of response types across conversations.</p>
+          <div className="mt-6 flex items-center gap-6">
+            <div className="relative h-40 w-40 shrink-0">
+              {(() => {
+                const total = (analytics?.responseDistribution || []).reduce((s, b) => s + b.value, 0);
+                let acc = 0;
+                const slices = (analytics?.responseDistribution || []).map((b, i) => {
+                  const start = acc / (total || 1);
+                  acc += b.value;
+                  const end = acc / (total || 1);
+                  const colors = ["#635BFF", "#34D399", "#F59E0B", "#EF4444", "#3B82F6"];
+                  return `${colors[i % colors.length]} ${start * 360}deg ${end * 360}deg`;
+                });
+                const bg = `conic-gradient(${slices.join(", ") || "#e5e7eb 0deg 360deg"})`;
+                return <div className="h-full w-full rounded-full" style={{ background: bg }} />;
+              })()}
+              <div className="absolute inset-6 rounded-full bg-white" />
+            </div>
+            <div className="flex-1 space-y-2 text-xs text-gray-600">
+              {(analytics?.responseDistribution || []).map((b, i) => {
+                const colors = ["#635BFF", "#34D399", "#F59E0B", "#EF4444", "#3B82F6"];
+                return (
+                  <div key={b.label} className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <span className="inline-block h-2 w-2 rounded-full" style={{ background: colors[i % colors.length] }} />
+                      {b.label}
+                    </span>
+                    <span className="font-semibold text-gray-900">{b.value}%</span>
+                  </div>
+                );
+              })}
+              {(analytics?.responseDistribution || []).length === 0 ? (
+                <p className="text-center text-gray-400">No response data</p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        {/* Platform comparison bar chart */}
+        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
+          <h2 className="text-sm font-semibold text-gray-900">Platform comparison</h2>
+          <p className="mt-2 text-xs text-gray-500">Conversation volume by platform.</p>
+          <div className="mt-6 space-y-3">
+            {(analytics?.channelVolume || []).map((c) => (
+              <div key={c.channel}>
+                <div className="flex items-center justify-between text-xs text-gray-500">
+                  <span className="font-semibold text-gray-900">{c.channel}</span>
+                  <span>{c.value}</span>
+                </div>
+                <div className="h-2 rounded-full bg-gray-100">
+                  <div
+                    className="h-2 rounded-full bg-primary"
+                    style={{ width: `${Math.min(100, c.value)}%` }}
+                    aria-hidden
+                  />
+                </div>
+              </div>
+            ))}
+            {(analytics?.channelVolume || []).length === 0 ? (
+              <p className="text-center text-xs text-gray-400">No platform data</p>
+            ) : null}
+          </div>
+        </div>
+      </section>
+
       <section className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900">Response time distribution</h2>
