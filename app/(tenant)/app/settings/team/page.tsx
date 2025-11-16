@@ -56,6 +56,9 @@ export default function TeamSettingsPage() {
           <p className="mt-2 max-w-2xl text-sm text-gray-600">
             Manage team members, roles, and permissions.
           </p>
+          <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-xs text-blue-800">
+            ℹ️ Team management features are in development. Some endpoints may return "Not Implemented" until backend is complete.
+          </div>
         </div>
         <button
           type="button"

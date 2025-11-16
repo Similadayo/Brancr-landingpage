@@ -32,6 +32,9 @@ export default function NewBulkUploadPage() {
         <div>
           <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">New Bulk Upload</h1>
           <p className="mt-2 text-sm text-gray-600">Upload many assets and configure how to split and schedule them.</p>
+          <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800">
+            ⚠️ Bulk upload job creation is coming soon. The backend endpoint is currently being implemented.
+          </div>
         </div>
         <Link
           href="/app/bulk-uploads"

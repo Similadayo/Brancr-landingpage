@@ -45,25 +45,6 @@ export default function AnalyticsPage() {
 
   const { data: analytics, isLoading, error } = useAnalytics(apiFilters);
 
-  function exportCsv() {
-    const rows: string[] = [];
-    rows.push("Metric,Value");
-    rows.push(`Scheduled posts,${analytics?.kpis?.[0]?.value ?? 0}`);
-    rows.push(`Posted,${analytics?.kpis?.[1]?.value ?? 0}`);
-    rows.push(`Conversations,${analytics?.kpis?.[2]?.value ?? 0}`);
-    rows.push(`Interactions,${analytics?.kpis?.[3]?.value ?? 0}`);
-    rows.push("");
-    rows.push("Platform,Conversations");
-    (analytics?.channelVolume || []).forEach((c) => rows.push(`${c.channel},${c.value}`));
-    const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "analytics.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
   return (
     <div className="space-y-10">
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -102,12 +83,6 @@ export default function AnalyticsPage() {
               ))}
             </select>
           </div>
-          <button
-            onClick={exportCsv}
-            className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-gray-700 shadow-sm transition hover:border-primary hover:text-primary"
-          >
-            Export CSV
-          </button>
         </div>
       </header>
 

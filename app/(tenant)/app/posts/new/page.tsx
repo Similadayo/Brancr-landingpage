@@ -20,10 +20,16 @@ export default function NewPostPage() {
   const [suggestions, setSuggestions] = useState<Array<{ at: string; score: number }>>([]);
 
   const canNext = useMemo(() => {
-    if (step === "media") return selectedMedia.length > 0;
+    // Media is optional (Facebook supports text-only posts)
+    if (step === "media") return true; // Allow proceeding without media
     if (step === "caption") return caption.trim().length > 0;
     if (step === "platforms") return platforms.length > 0;
     if (step === "schedule") return !!scheduledAt;
+    // Review step: validate that either media is selected OR Facebook is selected
+    if (step === "review") {
+      const hasFacebook = platforms.includes("facebook");
+      return selectedMedia.length > 0 || hasFacebook;
+    }
     return true;
   }, [step, selectedMedia, caption, platforms, scheduledAt]);
 
@@ -94,6 +100,9 @@ export default function NewPostPage() {
       {step === "media" && (
         <section className="space-y-4">
           <h2 className="text-lg font-semibold text-gray-900">Select media</h2>
+          <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-xs text-blue-800">
+            ℹ️ Media is optional. Facebook supports text-only posts, so you can proceed without media if you plan to select Facebook as a platform.
+          </div>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
@@ -141,8 +150,9 @@ export default function NewPostPage() {
               onClick={() => void handleGenerateCaption()}
               disabled={isGenerating || selectedMedia.length === 0}
               className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-primary hover:text-primary disabled:opacity-50"
+              title="Basic placeholder - Full AI integration coming soon"
             >
-              {isGenerating ? "Generating..." : "AI Generate"}
+              {isGenerating ? "Generating..." : "AI Generate (Basic)"}
             </button>
             <span className="text-xs text-gray-500">{caption.length} chars</span>
           </div>

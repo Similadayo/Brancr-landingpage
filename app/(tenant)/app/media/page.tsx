@@ -31,6 +31,11 @@ export default function MediaLibraryPage() {
         <div>
           <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Media Library</h1>
           <p className="mt-2 max-w-2xl text-sm text-gray-600">Manage your images and videos for posts and campaigns.</p>
+          {uploadMutation.isError && (
+            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800">
+              ⚠️ Media upload is currently being implemented. Pre-signed URL generation coming soon.
+            </div>
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <select
