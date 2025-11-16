@@ -246,15 +246,25 @@ export default function IntegrationsPage() {
                     {"webhook_status" in integration ? (
                       <div className="rounded-lg border border-gray-200 bg-white px-3 py-2">
                         <p className="uppercase tracking-[0.3em] text-gray-400">Webhook</p>
-                        <p className="mt-1 font-semibold text-gray-900">{(integration as any).webhook_status ?? "unknown"}</p>
+                        <p className={`mt-1 inline-flex items-center gap-2 font-semibold ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "text-emerald-700" : "text-amber-700"}`}>
+                          <span className={`h-2 w-2 rounded-full ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "bg-emerald-500" : "bg-amber-500"}`} aria-hidden />
+                          {(integration as any).webhook_status ?? "unknown"}
+                        </p>
                       </div>
                     ) : null}
                     {"expires_at" in integration ? (
                       <div className="rounded-lg border border-gray-200 bg-white px-3 py-2">
                         <p className="uppercase tracking-[0.3em] text-gray-400">Token</p>
-                        <p className="mt-1 font-semibold text-gray-900">
-                          {(integration as any).expires_at ? new Date((integration as any).expires_at as string).toLocaleDateString() : "—"}
-                        </p>
+                        <div className="mt-1">
+                          <p className="font-semibold text-gray-900">
+                            {(integration as any).expires_at ? new Date((integration as any).expires_at as string).toLocaleDateString() : "—"}
+                          </p>
+                          {(() => {
+                            const exp = (integration as any).expires_at ? new Date((integration as any).expires_at as string).getTime() : 0;
+                            const soon = exp && exp - Date.now() < 7 * 24 * 3600 * 1000;
+                            return soon ? <p className="mt-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-amber-700">Expiring soon</p> : null;
+                          })()}
+                        </div>
                       </div>
                     ) : null}
                   </div>

@@ -17,6 +17,7 @@ export default function NewPostPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const { data: assets = [], isLoading } = useMedia();
+  const [suggestions, setSuggestions] = useState<Array<{ at: string; score: number }>>([]);
 
   const canNext = useMemo(() => {
     if (step === "media") return selectedMedia.length > 0;
@@ -178,6 +179,47 @@ export default function NewPostPage() {
             className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
           <p className="text-xs text-gray-500">Saved in your local timezone.</p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={async () => {
+                try {
+                  const date =
+                    (scheduledAt && scheduledAt.split("T")[0]) ||
+                    new Date().toISOString().slice(0, 10);
+                  const res = await tenantApi.optimalTimes({ platforms, date });
+                  setSuggestions(res.times || []);
+                } catch {
+                  setSuggestions([]);
+                }
+              }}
+              disabled={platforms.length === 0}
+              className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-primary hover:text-primary disabled:opacity-50"
+            >
+              Suggest optimal times
+            </button>
+            {suggestions.length > 0 ? (
+              <span className="text-xs text-gray-500">{suggestions.length} suggestions</span>
+            ) : null}
+          </div>
+          {suggestions.length > 0 ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {suggestions.slice(0, 6).map((s) => {
+                const d = new Date(s.at);
+                const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+                const val = local.toISOString().slice(0, 16);
+                return (
+                  <button
+                    key={s.at}
+                    onClick={() => setScheduledAt(val)}
+                    title={`Score: ${s.score}`}
+                    className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary hover:bg-primary/20"
+                  >
+                    {local.toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
         </section>
       )}
 

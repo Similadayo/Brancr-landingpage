@@ -128,7 +128,16 @@ export default function TeamSettingsPage() {
                           </button>
                         )}
                         {!isCurrentUser && rolesData?.roles ? (
-                          <select className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700">
+                          <select
+                            className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700"
+                            defaultValue={member.role}
+                            onChange={async (e) => {
+                              try {
+                                await tenantApi.updateTeamMember(member.id, { role: e.target.value });
+                                location.reload();
+                              } catch {}
+                            }}
+                          >
                             {rolesData.roles.map((r) => (
                               <option key={r.id} value={r.name}>
                                 {r.name}

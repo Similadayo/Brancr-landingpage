@@ -54,7 +54,7 @@ export default function CalendarPage() {
         const d = new Date(p.scheduled_at);
         const key = d.toISOString().slice(0, 10);
         const list = map.get(key) || [];
-        list.push({ id: p.id, name: p.name, platforms: p.platforms });
+        list.push({ id: p.id, name: p.name + " • " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), platforms: p.platforms });
         map.set(key, list);
       });
     }
