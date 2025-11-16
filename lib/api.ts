@@ -601,6 +601,45 @@ export const tenantApi = {
       }).toString()}`
     ),
 
+  // Bulk Uploads (Phase 3)
+  bulkUploads: () =>
+    get<{
+      sessions: Array<{
+        id: string;
+        status: "pending" | "processing" | "completed" | "failed" | "cancelled";
+        split_strategy?: string;
+        schedule_strategy?: string;
+        items_count?: number;
+        created_at: string;
+      }>;
+    }>(`/api/tenant/bulk-uploads`),
+
+  bulkUpload: (id: string) =>
+    get<{
+      session: {
+        id: string;
+        status: string;
+        split_strategy?: string;
+        schedule_strategy?: string;
+        items_count?: number;
+        created_at: string;
+      };
+      items: Array<{
+        id: string;
+        media_asset_id: string;
+        caption?: string;
+        status: string;
+      }>;
+    }>(`/api/tenant/bulk-uploads/${id}`),
+
+  createBulkUpload: (form: FormData) =>
+    apiFetch<{ session_id: string }>(`/api/tenant/bulk-uploads`, { method: "POST", body: form }),
+
+  updateBulkUpload: (id: string, payload: { split_strategy?: string; schedule_strategy?: string }) =>
+    put<typeof payload, { success: boolean }>(`/api/tenant/bulk-uploads/${id}`, payload),
+
+  cancelBulkUpload: (id: string) => del<{ success: boolean }>(`/api/tenant/bulk-uploads/${id}`),
+
   // WhatsApp phone number endpoints
   whatsappNumbers: () =>
     get<{

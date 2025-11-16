@@ -21,6 +21,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Calendar", href: "/app/calendar", icon: "🗓️" },
   { label: "Media", href: "/app/media", icon: "🖼️" },
   { label: "Create Post", href: "/app/posts/new", icon: "➕" },
+  { label: "Bulk Uploads", href: "/app/bulk-uploads", icon: "📦" },
   { label: "Onboarding", href: "/app/onboarding", icon: "🎯" },
   { label: "Integrations", href: "/app/integrations", icon: "🔗" },
   { label: "Analytics", href: "/app/analytics", icon: "📊" },
