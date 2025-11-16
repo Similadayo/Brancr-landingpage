@@ -83,8 +83,8 @@ export default function OnboardingSummaryPage() {
           </div>
           <dl className="mt-4 space-y-2 text-sm">
             <Row label="Bot name" value={(persona as any).bot_name} />
-            <Row label="Tone" value={persona.tone} />
-            <Row label="Language" value={persona.language} />
+            <Row label="Tone" value={(persona as any).tone} />
+            <Row label="Language" value={(persona as any).language} />
             <Row label="Include humor" value={(persona as any).humor ? "Yes" : "No"} />
             <Row label="Style notes" value={(persona as any).style_notes} />
           </dl>
