@@ -3,12 +3,12 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { onboardingStatus } from "@/lib/api";
+import { tenantApi } from "@/lib/api";
 
 export default function OnboardingSummaryPage() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["tenant", "onboarding", "status"],
-    queryFn: onboardingStatus,
+    queryFn: tenantApi.onboardingStatus,
     refetchOnWindowFocus: false,
   });
 
@@ -82,11 +82,11 @@ export default function OnboardingSummaryPage() {
             </Link>
           </div>
           <dl className="mt-4 space-y-2 text-sm">
-            <Row label="Bot name" value={persona.name} />
+            <Row label="Bot name" value={(persona as any).bot_name} />
             <Row label="Tone" value={persona.tone} />
             <Row label="Language" value={persona.language} />
-            <Row label="Include humor" value={persona.humor ? "Yes" : "No"} />
-            <Row label="Style notes" value={persona.style_notes} />
+            <Row label="Include humor" value={(persona as any).humor ? "Yes" : "No"} />
+            <Row label="Style notes" value={(persona as any).style_notes} />
           </dl>
         </section>
 
@@ -103,9 +103,9 @@ export default function OnboardingSummaryPage() {
           <div className="mt-4 grid gap-6 md:grid-cols-3">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Menu</p>
-              {Array.isArray(details.menu_items) && details.menu_items.length > 0 ? (
+              {Array.isArray((details as any).menu_items) && (details as any).menu_items.length > 0 ? (
                 <ul className="mt-2 list-disc pl-5 text-sm text-gray-700">
-                  {details.menu_items.map((m: any, i: number) => (
+                  {(details as any).menu_items.map((m: any, i: number) => (
                     <li key={i}>{m?.name ? `${m.name}${m.price ? ` – ${m.price}` : ""}` : "-"}</li>
                   ))}
                 </ul>
@@ -115,10 +115,12 @@ export default function OnboardingSummaryPage() {
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-gray-400">FAQs</p>
-              {Array.isArray(details.faqs) && details.faqs.length > 0 ? (
+              {Array.isArray((details as any).faqs) && (details as any).faqs.length > 0 ? (
                 <ul className="mt-2 list-disc pl-5 text-sm text-gray-700">
-                  {details.faqs.map((f: any, i: number) => (
-                    <li key={i}>{f?.q ? `${f.q}${f.a ? ` – ${f.a}` : ""}` : "-"}</li>
+                  {(details as any).faqs.map((f: any, i: number) => (
+                    <li key={i}>
+                      {f?.question ? `${f.question}${f.answer ? ` – ${f.answer}` : ""}` : "-"}
+                    </li>
                   ))}
                 </ul>
               ) : (
@@ -127,13 +129,9 @@ export default function OnboardingSummaryPage() {
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Keywords</p>
-              {Array.isArray(details.keywords) && details.keywords.length > 0 ? (
-                <p className="mt-2 text-sm text-gray-700">{details.keywords.join(", ")}</p>
-              ) : (
-                <p className="mt-2 text-sm text-gray-500">—</p>
-              )}
+              <p className="mt-2 text-sm text-gray-700">{(details as any).keywords || "—"}</p>
               <p className="mt-4 text-xs uppercase tracking-[0.3em] text-gray-400">Knowledge base</p>
-              <p className="mt-2 text-sm text-gray-700">{details.knowledge_base || "—"}</p>
+              <p className="mt-2 text-sm text-gray-700">{(details as any).knowledge_base || "—"}</p>
             </div>
           </div>
         </section>
