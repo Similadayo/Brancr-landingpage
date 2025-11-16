@@ -100,7 +100,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{document.documentElement.classList.remove('dark');localStorage.removeItem('theme');}catch(e){}})();",
+              "(function(){try{var d=document.documentElement;d.classList.remove('dark');document.body&&document.body.classList&&document.body.classList.remove('dark');localStorage.removeItem('theme');localStorage.removeItem('theme:dark');}catch(e){}})();",
           }}
         />
         <Providers>
