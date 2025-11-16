@@ -239,6 +239,12 @@ export const tenantApi = {
   updateConversationStatus: (conversationId: string, payload: { status: string }) =>
     patch<typeof payload, { success: boolean }>(`/api/tenant/conversations/${conversationId}/status`, payload),
 
+  updateConversation: (conversationId: string, payload: { notes?: string; tags?: string[] }) =>
+    patch<typeof payload, { success: boolean }>(`/api/tenant/conversations/${conversationId}`, payload),
+
+  suggestReplies: (conversationId: string) =>
+    post<undefined, { suggestions: string[] }>(`/api/tenant/conversations/${conversationId}/suggest-reply`),
+
   campaigns: () =>
     get<{
       campaigns: Array<{

@@ -41,12 +41,12 @@ export default function CalendarPage() {
   const { data: scheduledPosts = [] } = useScheduledPosts();
 
   const entriesByDate = useMemo(() => {
-    const map = new Map<string, Array<{ name: string; platforms: string[] }>>();
+    const map = new Map<string, Array<{ id?: string; name: string; platforms: string[] }>>();
     if (calendarData?.entries) {
       calendarData.entries.forEach((e) => {
         const key = e.date;
         const list = map.get(key) || [];
-        list.push({ name: e.name, platforms: e.platforms });
+        list.push({ id: undefined, name: e.name, platforms: e.platforms });
         map.set(key, list);
       });
     } else {
@@ -54,7 +54,7 @@ export default function CalendarPage() {
         const d = new Date(p.scheduled_at);
         const key = d.toISOString().slice(0, 10);
         const list = map.get(key) || [];
-        list.push({ name: p.name, platforms: p.platforms });
+        list.push({ id: p.id, name: p.name, platforms: p.platforms });
         map.set(key, list);
       });
     }
@@ -110,12 +110,42 @@ export default function CalendarPage() {
                   </span>
                 ) : null}
               </div>
-              <div className="mt-2 space-y-1">
-                {items.slice(0, 3).map((it, i) => (
-                  <div key={i} className="truncate rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700">
-                    {it.name}
-                  </div>
-                ))}
+              <div
+                className="mt-2 space-y-1"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={async (e) => {
+                  const postId = e.dataTransfer.getData("text/post-id");
+                  const time = e.dataTransfer.getData("text/scheduled-time") || "09:00:00";
+                  if (postId) {
+                    // Construct ISO at local timezone date + original time
+                    const dt = new Date(`${key}T${time}`);
+                    const iso = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000).toISOString();
+                    try {
+                      const { tenantApi } = await import("@/lib/api");
+                      await tenantApi.updateScheduledPost(postId, { scheduled_at: iso });
+                    } catch {}
+                  }
+                }}
+              >
+                {items.slice(0, 3).map((it, i) => {
+                  const draggable = Boolean(it.id);
+                  return (
+                    <div
+                      key={i}
+                      draggable={draggable}
+                      onDragStart={(e) => {
+                        if (!draggable) return;
+                        e.dataTransfer.setData("text/post-id", it.id as string);
+                        // preserve original time 09:00 default (client-only best effort)
+                        e.dataTransfer.setData("text/scheduled-time", "09:00:00");
+                      }}
+                      className="truncate rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700"
+                      title={draggable ? "Drag to another day to reschedule" : undefined}
+                    >
+                      {it.name}
+                    </div>
+                  );
+                })}
                 {items.length > 3 ? (
                   <div className="text-xs text-gray-400">+{items.length - 3} more</div>
                 ) : null}

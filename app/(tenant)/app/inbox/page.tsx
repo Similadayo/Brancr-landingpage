@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTenant } from "../../providers/TenantProvider";
-import { useConversations, useConversation, useSendReply, useUpdateConversationStatus } from "@/app/(tenant)/hooks/useConversations";
+import { useConversations, useConversation, useSendReply, useUpdateConversationStatus, useUpdateConversation, useSuggestReplies } from "@/app/(tenant)/hooks/useConversations";
 
 const FILTERS = ["All", "Open", "Pending", "Closed"];
 
@@ -40,6 +40,8 @@ export default function InboxPage() {
   const { data: conversationDetail } = useConversation(selectedConversationId);
   const sendReplyMutation = useSendReply(selectedConversationId);
   const updateStatusMutation = useUpdateConversationStatus(selectedConversationId);
+  const updateConversationMutation = useUpdateConversation(selectedConversationId);
+  const suggestRepliesMutation = useSuggestReplies(selectedConversationId);
 
   // Set first conversation as selected when conversations load
   useEffect(() => {
@@ -245,6 +247,29 @@ export default function InboxPage() {
                   <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
                     <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Reply</p>
                     <div className="mt-3 space-y-3">
+                      <div className="flex flex-wrap gap-2">
+                        {["Thanks! We’ll get back to you shortly.", "Could you share more details?", "Noted. I’ll update you soon."].map((q) => (
+                          <button
+                            key={q}
+                            onClick={() => setReplyText((prev) => (prev ? prev + "\n" + q : q))}
+                            className="rounded-full border border-gray-200 px-3 py-1 text-[11px] font-semibold text-gray-600 hover:border-primary hover:text-primary"
+                          >
+                            {q}
+                          </button>
+                        ))}
+                        <button
+                          onClick={async () => {
+                            try {
+                              const res = await suggestRepliesMutation.mutateAsync();
+                              const suggestion = res?.suggestions?.[0];
+                              if (suggestion) setReplyText((prev) => (prev ? prev + "\n" + suggestion : suggestion));
+                            } catch {}
+                          }}
+                          className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary hover:bg-primary/20"
+                        >
+                          AI Suggest
+                        </button>
+                      </div>
                       <textarea
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
@@ -345,6 +370,23 @@ export default function InboxPage() {
                         minute: "2-digit",
                       })}
                     </p>
+                  </div>
+
+                  <div className="mt-4">
+                    <p className="uppercase tracking-[0.3em] text-gray-400">Notes</p>
+                    <textarea
+                      placeholder="Add internal notes..."
+                      className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      onBlur={async (e) => {
+                        const value = e.target.value.trim();
+                        if (value) {
+                          try {
+                            await updateConversationMutation.mutateAsync({ notes: value });
+                          } catch {}
+                        }
+                      }}
+                    />
+                    <p className="mt-2 text-[11px] text-gray-400">Saved on blur.</p>
                   </div>
                 </aside>
               </div>

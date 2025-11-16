@@ -226,8 +226,8 @@ export function useUpdateConversationStatus(conversationId: string | null) {
       }
       return tenantApi.updateConversationStatus(conversationId, payload);
     },
-    onSuccess: (_, variables) => {
-      toast.success(`Conversation marked as ${variables.status}`);
+    onSuccess: () => {
+      toast.success("Conversation marked as updated");
       void queryClient.invalidateQueries({ queryKey: ["conversation", conversationId] });
       void queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
@@ -237,6 +237,33 @@ export function useUpdateConversationStatus(conversationId: string | null) {
       } else {
         toast.error("Unable to update status.");
       }
+    },
+  });
+}
+
+export function useUpdateConversation(conversationId: string | null) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { notes?: string; tags?: string[] }) => {
+      if (!conversationId) throw new Error("No conversation selected");
+      return tenantApi.updateConversation(conversationId, payload);
+    },
+    onSuccess: () => {
+      toast.success("Conversation updated");
+      void queryClient.invalidateQueries({ queryKey: ["conversation", conversationId] });
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) toast.error(error.message);
+      else toast.error("Unable to update conversation.");
+    },
+  });
+}
+
+export function useSuggestReplies(conversationId: string | null) {
+  return useMutation({
+    mutationFn: async () => {
+      if (!conversationId) throw new Error("No conversation selected");
+      return tenantApi.suggestReplies(conversationId);
     },
   });
 }
