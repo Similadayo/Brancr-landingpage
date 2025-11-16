@@ -97,6 +97,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased bg-white">
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{document.documentElement.classList.remove('dark');localStorage.removeItem('theme');}catch(e){}})();",
+          }}
+        />
         <Providers>
           <GoogleAnalytics />
           <StructuredData />
