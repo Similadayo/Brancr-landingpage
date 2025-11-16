@@ -370,20 +370,7 @@ function renderNavItems(compact: boolean) {
                   >
                     Support
                   </Link>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const root = document.documentElement;
-                      const next = !root.classList.contains("dark");
-                      root.classList.toggle("dark", next);
-                      try {
-                        localStorage.setItem("theme", next ? "dark" : "light");
-                      } catch {}
-                    }}
-                    className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
-                  >
-                    Toggle theme
-                  </button>
+                  {/* Dark mode toggle temporarily disabled for design polish */}
                 </div>
                 <div className="relative" ref={profileMenuRef}>
                   <button
