@@ -1,0 +1,1046 @@
+/**
+ * Brancr Admin Dashboard Design System
+ * 
+ * This file contains all CSS variables, styles, and design tokens
+ * to align the Admin Dashboard with the Landing Page design system.
+ * 
+ * Usage: Copy the relevant sections to your admin dashboard's layout.html or main CSS file
+ */
+
+/* ============================================
+   1. FONTS & TYPOGRAPHY
+   ============================================ */
+
+/* Add to <head> in layout.html */
+/*
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+*/
+
+/* ============================================
+   2. CSS VARIABLES (ROOT)
+   ============================================ */
+
+:root {
+  /* Primary Colors */
+  --primary: #1B1A55;
+  --primary-dark: #0A034B;
+  --primary-hover: #0d045f;
+  --primary-light: rgba(27, 26, 85, 0.1);
+  
+  /* Accent Colors (Violet) - CRITICAL: Changed from blue to violet */
+  --accent: #635BFF;
+  --accent-light: #5E5CE6;
+  --accent-hover: #5E5CE6;
+  --accent-dark: #5348E6;
+  --accent-opacity-10: rgba(99, 91, 255, 0.1);
+  --accent-opacity-20: rgba(99, 91, 255, 0.2);
+  --accent-opacity-30: rgba(99, 91, 255, 0.3);
+  
+  /* Background Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  
+  /* Text Colors */
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-quaternary: #d1d5db;
+  
+  /* Border Colors */
+  --border-color: #e5e7eb;
+  --border-color-light: #f3f4f6;
+  --border-color-dark: #d1d5db;
+  
+  /* Status Colors */
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --success-dark: #065f46;
+  
+  --error: #ef4444;
+  --error-light: #fee2e2;
+  --error-dark: #991b1b;
+  
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+  --warning-dark: #92400e;
+  
+  --info: #3b82f6;
+  --info-light: #dbeafe;
+  --info-dark: #1e40af;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-primary: 0 10px 25px rgba(99, 91, 255, 0.3);
+  --shadow-primary-lg: 0 10px 25px rgba(99, 91, 255, 0.4);
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-md: 12px;      /* rounded-xl */
+  --radius-lg: 16px;      /* rounded-2xl */
+  --radius-xl: 24px;      /* rounded-3xl */
+  --radius-full: 9999px;  /* rounded-full */
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 40px;
+  --spacing-3xl: 48px;
+  
+  /* Font Family */
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ============================================
+   3. BASE STYLES
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-inter);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+/* ============================================
+   4. TYPOGRAPHY
+   ============================================ */
+
+h1 {
+  font-size: 32px;        /* text-3xl */
+  font-weight: 600;       /* font-semibold */
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+h2 {
+  font-size: 24px;        /* text-2xl */
+  font-weight: 600;       /* font-semibold */
+  line-height: 1.3;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+h3 {
+  font-size: 18px;        /* text-lg */
+  font-weight: 600;       /* font-semibold */
+  line-height: 1.4;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+h4 {
+  font-size: 16px;        /* text-base */
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+
+p {
+  font-size: 14px;        /* text-sm */
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Small uppercase labels (like landing page) */
+.label-uppercase {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;  /* tracking-[0.3em] */
+  color: var(--text-tertiary);
+}
+
+.text-xs {
+  font-size: 12px;
+}
+
+.text-sm {
+  font-size: 14px;
+}
+
+.text-base {
+  font-size: 16px;
+}
+
+.text-lg {
+  font-size: 18px;
+}
+
+.text-xl {
+  font-size: 20px;
+}
+
+.text-2xl {
+  font-size: 24px;
+}
+
+.text-3xl {
+  font-size: 32px;
+}
+
+.text-4xl {
+  font-size: 36px;
+}
+
+/* ============================================
+   5. BUTTONS
+   ============================================ */
+
+/* Primary Button */
+.btn-primary,
+button.btn-primary,
+.button-primary {
+  background: var(--accent);           /* #635BFF */
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);     /* 12px */
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-primary);   /* accent shadow */
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-inter);
+}
+
+.btn-primary:hover,
+button.btn-primary:hover,
+.button-primary:hover {
+  background: var(--accent-light);     /* #5E5CE6 */
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-primary-lg);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary Button */
+.btn-secondary,
+button.btn-secondary,
+.button-secondary {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-inter);
+}
+
+.btn-secondary:hover,
+button.btn-secondary:hover,
+.button-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Danger Button */
+.btn-danger,
+button.btn-danger,
+.button-danger {
+  background: var(--error);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-danger:hover {
+  background: var(--error-dark);
+  transform: translateY(-1px);
+}
+
+/* ============================================
+   6. CARDS
+   ============================================ */
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);     /* 24px */
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+  margin-bottom: 24px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.card-description {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.card-body {
+  margin-bottom: 24px;
+}
+
+.card-footer {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color-light);
+}
+
+/* Stat Card (for dashboard metrics) */
+.stat-card {
+  border-radius: var(--radius-lg);     /* 16px */
+  padding: 24px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.stat-card-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+
+.stat-card-value {
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.stat-card-description {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 12px;
+}
+
+.stat-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.stat-card-icon.accent {
+  background: var(--accent-opacity-10);
+  color: var(--accent);
+}
+
+/* ============================================
+   7. BADGES
+   ============================================ */
+
+.badge {
+  padding: 4px 12px;
+  border-radius: var(--radius-full);   /* 9999px */
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-success {
+  background: var(--success-light);
+  color: var(--success-dark);
+  border: 1px solid var(--success-light);
+}
+
+.badge-error {
+  background: var(--error-light);
+  color: var(--error-dark);
+  border: 1px solid var(--error-light);
+}
+
+.badge-warning {
+  background: var(--warning-light);
+  color: var(--warning-dark);
+  border: 1px solid var(--warning-light);
+}
+
+.badge-info {
+  background: var(--accent-opacity-10);
+  color: var(--accent);
+  border: 1px solid var(--accent-opacity-20);
+}
+
+.badge-primary {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid var(--primary-light);
+}
+
+/* Status Badge with Dot */
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.badge-dot.success {
+  background: var(--success);
+}
+
+.badge-dot.error {
+  background: var(--error);
+}
+
+.badge-dot.warning {
+  background: var(--warning);
+}
+
+.badge-dot.info {
+  background: var(--info);
+}
+
+.badge-dot.primary {
+  background: var(--primary);
+}
+
+/* ============================================
+   8. FORMS & INPUTS
+   ============================================ */
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.form-label.required::after {
+  content: ' *';
+  color: var(--error);
+}
+
+.form-input,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);     /* 12px */
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: var(--font-inter);
+  transition: all 0.2s ease;
+}
+
+.form-input:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-opacity-10);
+}
+
+.form-input::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-quaternary);
+}
+
+.form-error {
+  color: var(--error);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Custom Select Dropdown */
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper select {
+  appearance: none;
+  padding-right: 40px;
+}
+
+.select-wrapper::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  width: 20px;
+  height: 20px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* ============================================
+   9. NAVIGATION
+   ============================================ */
+
+/* Active Navigation Item */
+nav a.active,
+.nav-link.active {
+  background: var(--accent);            /* #635BFF */
+  color: white;
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+}
+
+/* Navigation Hover */
+nav a:hover:not(.active),
+.nav-link:hover:not(.active) {
+  color: var(--accent);
+  background: var(--accent-opacity-10);
+}
+
+/* ============================================
+   10. LINKS
+   ============================================ */
+
+a {
+  color: var(--accent);                 /* #635BFF */
+  text-decoration: none;
+  transition: color 0.2s ease;
+  font-weight: 500;
+}
+
+a:hover {
+  color: var(--accent-light);           /* #5E5CE6 */
+  text-decoration: underline;
+}
+
+/* ============================================
+   11. TABLES
+   ============================================ */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.table thead {
+  background: var(--bg-tertiary);
+}
+
+.table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.table tbody tr:hover {
+  background: var(--bg-secondary);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ============================================
+   12. ALERTS / NOTIFICATIONS
+   ============================================ */
+
+.alert {
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid;
+  margin-bottom: 16px;
+}
+
+.alert-success {
+  background: var(--success-light);
+  border-color: var(--success);
+  color: var(--success-dark);
+}
+
+.alert-error {
+  background: var(--error-light);
+  border-color: var(--error);
+  color: var(--error-dark);
+}
+
+.alert-warning {
+  background: var(--warning-light);
+  border-color: var(--warning);
+  color: var(--warning-dark);
+}
+
+.alert-info {
+  background: var(--accent-opacity-10);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ============================================
+   13. MODALS / DIALOGS
+   ============================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.modal {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);     /* 24px */
+  padding: 24px;
+  max-width: 512px;
+  width: 100%;
+  box-shadow: var(--shadow-xl);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  padding: 4px;
+  border-radius: var(--radius);
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.modal-body {
+  margin-bottom: 24px;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* ============================================
+   14. PAGE HEADER
+   ============================================ */
+
+.page-header {
+  margin-bottom: 40px;                  /* space-y-10 */
+}
+
+.page-header h1 {
+  font-size: 32px;                      /* text-3xl */
+  font-weight: 600;                     /* font-semibold */
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.page-header p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  max-width: 42rem;                     /* max-w-2xl */
+}
+
+/* ============================================
+   15. GRID LAYOUTS
+   ============================================ */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;                            /* gap-6 */
+  margin-bottom: 40px;                  /* space-y-10 */
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1024px) {
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .grid,
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   16. UTILITIES
+   ============================================ */
+
+/* Spacing Utilities */
+.space-y-10 > * + * {
+  margin-top: 40px;
+}
+
+.gap-6 {
+  gap: 24px;
+}
+
+.gap-4 {
+  gap: 16px;
+}
+
+.gap-3 {
+  gap: 12px;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
+/* Padding Utilities */
+.p-6 {
+  padding: 24px;
+}
+
+.p-8 {
+  padding: 32px;
+}
+
+.p-10 {
+  padding: 40px;
+}
+
+.px-4 {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.py-2 {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.py-3 {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+/* Border Radius Utilities */
+.rounded-xl {
+  border-radius: var(--radius-md);      /* 12px */
+}
+
+.rounded-2xl {
+  border-radius: var(--radius-lg);      /* 16px */
+}
+
+.rounded-3xl {
+  border-radius: var(--radius-xl);      /* 24px */
+}
+
+.rounded-full {
+  border-radius: var(--radius-full);    /* 9999px */
+}
+
+/* Shadow Utilities */
+.shadow {
+  box-shadow: var(--shadow);
+}
+
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+.shadow-primary {
+  box-shadow: var(--shadow-primary);
+}
+
+/* ============================================
+   17. TRANSITIONS & HOVER EFFECTS
+   ============================================ */
+
+.transition {
+  transition: all 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.hover-lift-sm:hover {
+  transform: translateY(-1px);
+}
+
+/* ============================================
+   18. LOADING STATES
+   ============================================ */
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+}
+
+/* ============================================
+   19. RESPONSIVE UTILITIES
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .hidden-lg {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .hidden-md {
+    display: none;
+  }
+  
+  h1 {
+    font-size: 24px;
+  }
+  
+  h2 {
+    font-size: 20px;
+  }
+  
+  .stat-card-value {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hidden-sm {
+    display: none;
+  }
+  
+  .card {
+    padding: 16px;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+}
+
+/* ============================================
+   20. EXAMPLE COMPONENTS
+   ============================================ */
+
+/* Example: Stat Card */
+/*
+<div class="stat-card">
+  <div class="stat-card-header">
+    <div>
+      <div class="stat-card-label">Total Tenants</div>
+      <div class="stat-card-value">1,248</div>
+    </div>
+    <div class="stat-card-icon accent">👥</div>
+  </div>
+  <p class="stat-card-description">Active tenants across all plans</p>
+</div>
+*/
+
+/* Example: Primary Button */
+/*
+<button class="btn-primary">
+  <svg>...</svg>
+  Connect Integration
+</button>
+*/
+
+/* Example: Badge */
+/*
+<span class="badge badge-info">
+  <span class="badge-dot info"></span>
+  Active
+</span>
+*/
+
+/* Example: Card */
+/*
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Dashboard</h3>
+    <p class="card-description">Overview of your system</p>
+  </div>
+  <div class="card-body">
+    Content here
+  </div>
+</div>
+*/
+
+/* ============================================
+   21. QUICK FIX CHECKLIST
+   ============================================ */
+
+/*
+Priority 1 - Critical:
+1. Change --accent from #2563eb to #635BFF
+2. Add Inter font from Google Fonts
+3. Update body font-family to use Inter
+4. Update all button/link colors to use var(--accent)
+
+Priority 2 - Visual:
+1. Update border-radius values (12px → 16px, 24px)
+2. Update shadow system
+3. Update card hover effects
+4. Update navigation active states
+
+Priority 3 - Polish:
+1. Update spacing values
+2. Add transitions
+3. Update typography scale
+4. Add loading states
+*/
+
