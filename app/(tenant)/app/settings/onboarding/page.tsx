@@ -62,12 +62,12 @@ export default function OnboardingSummaryPage() {
             </Link>
           </div>
           <dl className="mt-4 space-y-2 text-sm">
-            <Row label="Name" value={profile.name} />
-            <Row label="Industry" value={profile.industry} />
-            <Row label="Description" value={profile.description} />
-            <Row label="Location" value={profile.location} />
-            <Row label="Website" value={profile.website} />
-            <Row label="Operating hours" value={profile.operating_hours} />
+            <Row label="Name" value={(profile as any).name} />
+            <Row label="Industry" value={(profile as any).industry} />
+            <Row label="Description" value={(profile as any).description} />
+            <Row label="Location" value={(profile as any).location} />
+            <Row label="Website" value={(profile as any).website} />
+            <Row label="Operating hours" value={(profile as any).operating_hours} />
           </dl>
         </section>
 
