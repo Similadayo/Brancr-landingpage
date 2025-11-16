@@ -241,6 +241,24 @@ export default function IntegrationsPage() {
                     ? "Select or add your WhatsApp number to start messaging automation."
                     : status.description}
                 </p>
+                {!isWhatsApp && integration ? (
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-gray-500">
+                    {"webhook_status" in integration ? (
+                      <div className="rounded-lg border border-gray-200 bg-white px-3 py-2">
+                        <p className="uppercase tracking-[0.3em] text-gray-400">Webhook</p>
+                        <p className="mt-1 font-semibold text-gray-900">{(integration as any).webhook_status ?? "unknown"}</p>
+                      </div>
+                    ) : null}
+                    {"expires_at" in integration ? (
+                      <div className="rounded-lg border border-gray-200 bg-white px-3 py-2">
+                        <p className="uppercase tracking-[0.3em] text-gray-400">Token</p>
+                        <p className="mt-1 font-semibold text-gray-900">
+                          {(integration as any).expires_at ? new Date((integration as any).expires_at as string).toLocaleDateString() : "—"}
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
                 <p className="mt-3 text-xs uppercase tracking-[0.3em] text-gray-400">
                   Last updated{" "}
                   {new Date(updatedAt).toLocaleString([], {

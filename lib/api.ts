@@ -401,6 +401,15 @@ export const tenantApi = {
   deleteTeamMember: (memberId: string) =>
     del<{ success?: boolean; message?: string }>(`/api/tenant/team/members/${memberId}`),
 
+  teamRoles: () =>
+    get<{ roles: Array<{ id: string; name: string; description?: string }> }>(`/api/tenant/team/roles`),
+
+  teamInvitations: () =>
+    get<{ invitations: Array<{ id: string; email: string; role: string; sent_at: string }> }>(`/api/tenant/team/invitations`),
+
+  revokeInvitation: (invitationId: string) =>
+    del<{ success?: boolean }>(`/api/tenant/team/invitations/${invitationId}`),
+
   apiKeys: () =>
     get<{
       keys: Array<{

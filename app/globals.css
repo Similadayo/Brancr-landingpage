@@ -24,6 +24,21 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Basic dark theme */
+html.dark body {
+  background-color: #0B0B11;
+  color: #E5E7EB;
+}
+html.dark .bg-white { background-color: #0F1117 !important; }
+html.dark .bg-white\/70 { background-color: rgba(15,17,23,0.7) !important; }
+html.dark .bg-white\/80 { background-color: rgba(15,17,23,0.8) !important; }
+html.dark .text-gray-900 { color: #E5E7EB !important; }
+html.dark .text-gray-700 { color: #D1D5DB !important; }
+html.dark .text-gray-600 { color: #9CA3AF !important; }
+html.dark .border-gray-200 { border-color: #2A2F3A !important; }
+html.dark .bg-gray-50 { background-color: #111318 !important; }
+html.dark .bg-neutral-bg { background-color: #0B0B11 !important; }
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

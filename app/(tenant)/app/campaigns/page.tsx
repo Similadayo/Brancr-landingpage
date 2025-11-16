@@ -65,6 +65,25 @@ export default function CampaignsPage() {
           >
             + Build campaign
           </Link>
+          <button
+            onClick={() => {
+              const rows: string[] = [];
+              rows.push("Name,Status,Platforms,Scheduled,Posted");
+              scheduledPosts.forEach((p) => {
+                rows.push(`"${p.name}",${p.status},"${p.platforms.join(", ")}",${new Date(p.scheduled_at).toISOString()},${p.posted_at ? new Date(p.posted_at).toISOString() : ""}`);
+              });
+              const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = "scheduled-posts.csv";
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-primary hover:text-primary"
+          >
+            Export CSV
+          </button>
         </div>
       </header>
 

@@ -93,8 +93,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // dark mode persisted via localStorage (toggle in shell)
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
         <Providers>
           <GoogleAnalytics />

@@ -2,12 +2,16 @@
 
 import { useState } from "react";
 import { useTenant } from "@/app/(tenant)/providers/TenantProvider";
+import { useQuery } from "@tanstack/react-query";
+import { tenantApi } from "@/lib/api";
 import { useTeamMembers, useInviteTeamMember, useDeleteTeamMember } from "@/app/(tenant)/hooks/useTeam";
 
 const ROLES = ["Owner", "Admin", "Member"];
 
 export default function TeamSettingsPage() {
   const { tenant } = useTenant();
+  const { data: rolesData } = useQuery({ queryKey: ["team", "roles"], queryFn: () => tenantApi.teamRoles(), retry: 0 });
+  const { data: invitationsData } = useQuery({ queryKey: ["team", "invitations"], queryFn: () => tenantApi.teamInvitations(), retry: 0 });
   const { data: teamMembers = [], isLoading, error } = useTeamMembers();
   const inviteMutation = useInviteTeamMember();
   const deleteMutation = useDeleteTeamMember();
@@ -123,6 +127,15 @@ export default function TeamSettingsPage() {
                             Remove
                           </button>
                         )}
+                        {!isCurrentUser && rolesData?.roles ? (
+                          <select className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700">
+                            {rolesData.roles.map((r) => (
+                              <option key={r.id} value={r.name}>
+                                {r.name}
+                              </option>
+                            ))}
+                          </select>
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -142,6 +155,45 @@ export default function TeamSettingsPage() {
         )}
       </section>
 
+      <section className="rounded-3xl border border-gray-200 bg-white/80 p-8 shadow-sm">
+        <h2 className="text-lg font-semibold text-gray-900">Pending invitations</h2>
+        <p className="mt-2 text-sm text-gray-600">Invitations sent but not yet accepted.</p>
+        <div className="mt-4 overflow-hidden rounded-2xl border border-gray-200">
+          <table className="min-w-full divide-y divide-gray-200 text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">Email</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">Role</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">Sent</th>
+                <th className="px-4 py-3 text-right font-semibold text-gray-600">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 bg-white">
+              {(invitationsData?.invitations || []).map((inv) => (
+                <tr key={inv.id}>
+                  <td className="px-4 py-3">{inv.email}</td>
+                  <td className="px-4 py-3">{inv.role}</td>
+                  <td className="px-4 py-3 text-xs text-gray-500">
+                    {new Date(inv.sent_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button className="text-rose-600 hover:text-rose-700" onClick={() => tenantApi.revokeInvitation(inv.id)}>
+                      Revoke
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {(invitationsData?.invitations || []).length === 0 ? (
+                <tr>
+                  <td className="px-4 py-6 text-center text-xs text-gray-500" colSpan={4}>
+                    No pending invitations
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+      </section>
       <section className="rounded-3xl border border-gray-200 bg-white/80 p-8 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900">Roles & Permissions</h2>
         <p className="mt-2 text-sm text-gray-600">

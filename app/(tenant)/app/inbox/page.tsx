@@ -88,6 +88,25 @@ export default function InboxPage() {
               {filter}
             </button>
           ))}
+          <button
+            onClick={() => {
+              const rows: string[] = [];
+              rows.push("Contact,Channel,Status,Updated,Preview");
+              conversations.forEach((c) => {
+                rows.push(`"${c.contactName}",${c.channel},${c.status},${c.updatedAt ? new Date(c.updatedAt).toISOString() : ""},"${(c.preview || "").replace(/"/g, '""')}"`);
+              });
+              const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = "conversations.csv";
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+          >
+            Export CSV
+          </button>
         </div>
       </section>
 
