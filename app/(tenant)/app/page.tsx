@@ -8,6 +8,7 @@ import { authApi, tenantApi, ApiError } from "@/lib/api";
 import { useScheduledPosts } from "@/app/(tenant)/hooks/useScheduledPosts";
 import { useIntegrations } from "@/app/(tenant)/hooks/useIntegrations";
 import { useConversations } from "@/app/(tenant)/hooks/useConversations";
+import { useCalendar } from "@/app/(tenant)/hooks/useCalendar";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -25,7 +26,14 @@ export default function TenantOverviewPage() {
   });
   const { data: scheduledPosts = [] } = useScheduledPosts();
   const { data: integrations = [] } = useIntegrations();
-  const { data: conversations = [] } = useConversations();
+  const { data: conversations = [] } = useConversations({ limit: 5 });
+  
+  // Get calendar entries for upcoming posts (next 30 days)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const startDate = today.toISOString();
+  const endDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  const { data: calendarEntries = [] } = useCalendar({ start_date: startDate, end_date: endDate });
 
   const stats = useMemo(() => {
     const upcomingPosts = scheduledPosts.filter(
@@ -83,16 +91,34 @@ export default function TenantOverviewPage() {
   }, [scheduledPosts, integrations]);
 
   const upcoming = useMemo(() => {
+    // Use calendar entries for upcoming posts, fallback to scheduled posts if calendar is empty
+    if (calendarEntries.length > 0) {
+      return calendarEntries
+        .filter((entry) => entry.status === "scheduled" || entry.status === "posting")
+        .sort((a, b) => {
+          const dateA = new Date(`${a.date}T${a.time || '00:00:00'}`).getTime();
+          const dateB = new Date(`${b.date}T${b.time || '00:00:00'}`).getTime();
+          return dateA - dateB;
+        })
+        .slice(0, 5)
+        .map((entry) => ({
+          id: entry.id,
+          name: entry.name,
+          platforms: entry.platforms,
+          scheduled_at: `${entry.date}T${entry.time || '00:00:00'}`,
+        }));
+    }
+    // Fallback to scheduled posts
     return scheduledPosts
       .filter((post) => post.status === "scheduled" || post.status === "posting")
       .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
       .slice(0, 5);
-  }, [scheduledPosts]);
+  }, [calendarEntries, scheduledPosts]);
 
   const recentConversations = useMemo(() => {
+    // Conversations already limited to 5 by the API call, just sort by most recent
     return (conversations ?? [])
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-      .slice(0, 5);
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
   }, [conversations]);
 
   return (

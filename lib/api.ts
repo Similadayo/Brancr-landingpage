@@ -185,10 +185,10 @@ export const tenantApi = {
       entries: Array<{ id: string; action: string; at: string }>;
     }>("/api/tenant/social-accounts/history"),
 
-  conversations: (params?: { platform?: string; status?: string; search?: string }) => {
+  conversations: (params?: { platform?: string; status?: string; search?: string; limit?: number }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== '') as [string, string][]
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== '').map(([k, v]) => [k, String(v)]) as [string, string][]
         ).toString()}`
       : "";
     return get<{

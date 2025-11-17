@@ -4,7 +4,8 @@ import { ReactNode, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { authApi } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
+import { authApi, tenantApi } from "@/lib/api";
 import { useTenant } from "../providers/TenantProvider";
 import { useEffect, useRef } from "react";
 
@@ -14,13 +15,17 @@ type NavItem = {
   icon: ReactNode;
 };
 
-const NAV_ITEMS: NavItem[] = [
+// Core navigation items (always visible)
+const CORE_NAV_ITEMS: NavItem[] = [
   { label: "Overview", href: "/app", icon: "🏠" },
   { label: "Inbox", href: "/app/inbox", icon: "💬" },
   { label: "Campaigns", href: "/app/campaigns", icon: "🚀" },
   { label: "Calendar", href: "/app/calendar", icon: "🗓️" },
   { label: "Media", href: "/app/media", icon: "🖼️" },
-  { label: "Bulk Uploads", href: "/app/bulk-uploads", icon: "📦" },
+];
+
+// Settings section items (grouped)
+const SETTINGS_NAV_ITEMS: NavItem[] = [
   { label: "Integrations", href: "/app/integrations", icon: "🔗" },
   { label: "Analytics", href: "/app/analytics", icon: "📊" },
   { label: "Settings", href: "/app/settings", icon: "⚙️" },
@@ -38,10 +43,30 @@ export function TenantShell({ children }: { children: ReactNode }) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isSettingsExpanded, setIsSettingsExpanded] = useState(true);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
+  // Check onboarding status
+  const { data: onboardingStatus } = useQuery({
+    queryKey: ["onboarding", "status"],
+    queryFn: () => tenantApi.onboardingStatus(),
+    enabled: !!tenant,
+  });
+
+  const allNavItems = useMemo(() => {
+    const items = [...CORE_NAV_ITEMS];
+    // Add Bulk Uploads as a submenu item under Media (or keep it separate but smaller)
+    items.push({ label: "Bulk Uploads", href: "/app/bulk-uploads", icon: "📦" });
+    // Add Onboarding only if not complete
+    if (onboardingStatus && !onboardingStatus.complete) {
+      items.push({ label: "Onboarding", href: "/app/onboarding", icon: "🎯" });
+    }
+    return items;
+  }, [onboardingStatus]);
+
   const currentNav = useMemo(() => {
-    const matched = NAV_ITEMS.reduce<NavItem | undefined>((best, item) => {
+    const allItems = [...allNavItems, ...SETTINGS_NAV_ITEMS];
+    const matched = allItems.reduce<NavItem | undefined>((best, item) => {
       const overviewMatch = item.href === "/app" && (pathname === "/app" || pathname === "/app/");
       const specificMatch =
         item.href !== "/app" &&
@@ -55,8 +80,8 @@ export function TenantShell({ children }: { children: ReactNode }) {
       return best;
     }, undefined);
 
-    return matched ?? NAV_ITEMS[0];
-  }, [pathname]);
+    return matched ?? CORE_NAV_ITEMS[0];
+  }, [pathname, allNavItems]);
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -111,46 +136,86 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
   const sidebarDesktopWidth = isSidebarCollapsed ? 92 : 276;
 
-function renderNavItems(compact: boolean) {
+  function renderNavItem(item: NavItem, compact: boolean, isActive: boolean) {
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        onClick={() => setIsMobileNavOpen(false)}
+        className={cn(
+          "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+          isActive
+            ? "bg-primary/10 text-primary shadow-sm shadow-primary/10"
+            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+        )}
+      >
+        <span
+          className={cn(
+            "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-base transition group-hover:bg-primary/10 group-hover:text-primary",
+            isActive && "bg-primary text-white group-hover:bg-primary"
+          )}
+          aria-hidden
+        >
+          {item.icon}
+        </span>
+        {!compact ? (
+          <>
+            <span className="flex-1">{item.label}</span>
+            <span className="text-xs text-gray-400 group-hover:text-primary" aria-hidden>
+              {isActive ? "•" : "→"}
+            </span>
+          </>
+        ) : null}
+      </Link>
+    );
+  }
+
+  function renderNavItems(compact: boolean) {
     return (
       <nav className="mt-4 space-y-1">
-        {NAV_ITEMS.map((item) => {
-          // Special handling for Overview (exact match only)
+        {/* Core Navigation */}
+        {allNavItems.map((item) => {
           const isActive = item.href === "/app"
             ? pathname === "/app" || pathname === "/app/"
             : pathname === item.href || pathname?.startsWith(`${item.href}/`);
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={() => setIsMobileNavOpen(false)}
-            className={cn(
-              "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-              isActive
-                ? "bg-primary/10 text-primary shadow-sm shadow-primary/10"
-                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-            )}
-          >
-            <span
-              className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-base transition group-hover:bg-primary/10 group-hover:text-primary",
-                isActive && "bg-primary text-white group-hover:bg-primary"
-              )}
-              aria-hidden
-            >
-              {item.icon}
-            </span>
-            {!compact ? (
-              <>
-                <span className="flex-1">{item.label}</span>
-                <span className="text-xs text-gray-400 group-hover:text-primary" aria-hidden>
-                  {isActive ? "•" : "→"}
-                </span>
-              </>
-            ) : null}
-          </Link>
-        );
+          return renderNavItem(item, compact, isActive);
         })}
+
+        {/* Settings Section (Collapsible) */}
+        {!compact && (
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <button
+              onClick={() => setIsSettingsExpanded(!isSettingsExpanded)}
+              className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition"
+            >
+              <span className="flex items-center gap-2">
+                <span>⚙️</span>
+                <span>Settings</span>
+              </span>
+              <span className="text-xs text-gray-400" aria-hidden>
+                {isSettingsExpanded ? "▼" : "▶"}
+              </span>
+            </button>
+            {isSettingsExpanded && (
+              <div className="mt-2 space-y-1 pl-4">
+                {SETTINGS_NAV_ITEMS.map((item) => {
+                  const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+                  return renderNavItem(item, compact, isActive);
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Settings Section (Compact/Collapsed) */}
+        {compact && (
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            {SETTINGS_NAV_ITEMS.map((item) => {
+              const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              return renderNavItem(item, compact, isActive);
+            })}
+          </div>
+        )}
       </nav>
     );
   }

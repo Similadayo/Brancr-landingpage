@@ -94,7 +94,7 @@ const FALLBACK_DETAILS: Record<string, ConversationDetail> = {
   },
 };
 
-export function useConversations(filters?: { platform?: string; status?: string; search?: string }) {
+export function useConversations(filters?: { platform?: string; status?: string; search?: string; limit?: number }) {
   return useQuery<ConversationSummary[], Error>({
     queryKey: ["conversations", filters],
     queryFn: async () => {
