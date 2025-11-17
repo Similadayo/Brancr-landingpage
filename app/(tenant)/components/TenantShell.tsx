@@ -21,15 +21,19 @@ const CORE_NAV_ITEMS: NavItem[] = [
   { label: "Inbox", href: "/app/inbox", icon: "💬" },
   { label: "Campaigns", href: "/app/campaigns", icon: "🚀" },
   { label: "Calendar", href: "/app/calendar", icon: "🗓️" },
-  { label: "Media", href: "/app/media", icon: "🖼️" },
 ];
 
+// Media with submenu
+const MEDIA_NAV_ITEM: NavItem = { label: "Media", href: "/app/media", icon: "🖼️" };
+const BULK_UPLOADS_NAV_ITEM: NavItem = { label: "Bulk Uploads", href: "/app/bulk-uploads", icon: "📦" };
+
 // Settings section items (grouped)
-const SETTINGS_NAV_ITEMS: NavItem[] = [
+const SETTINGS_NAV_ITEMS_BASE: NavItem[] = [
   { label: "Integrations", href: "/app/integrations", icon: "🔗" },
   { label: "Analytics", href: "/app/analytics", icon: "📊" },
   { label: "Settings", href: "/app/settings", icon: "⚙️" },
 ];
+const ONBOARDING_SUMMARY_ITEM: NavItem = { label: "Onboarding Summary", href: "/app/settings/onboarding", icon: "📋" };
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -44,6 +48,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(true);
+  const [isMediaExpanded, setIsMediaExpanded] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   // Check onboarding status
@@ -53,19 +58,25 @@ export function TenantShell({ children }: { children: ReactNode }) {
     enabled: !!tenant,
   });
 
-  const allNavItems = useMemo(() => {
-    const items = [...CORE_NAV_ITEMS];
-    // Add Bulk Uploads as a submenu item under Media (or keep it separate but smaller)
-    items.push({ label: "Bulk Uploads", href: "/app/bulk-uploads", icon: "📦" });
-    // Add Onboarding only if not complete
-    if (onboardingStatus && !onboardingStatus.complete) {
-      items.push({ label: "Onboarding", href: "/app/onboarding", icon: "🎯" });
+  // Settings items including conditional Onboarding Summary
+  const settingsNavItems = useMemo(() => {
+    const items = [...SETTINGS_NAV_ITEMS_BASE];
+    // Add Onboarding Summary only if onboarding is complete
+    if (onboardingStatus?.complete) {
+      items.push(ONBOARDING_SUMMARY_ITEM);
     }
     return items;
   }, [onboardingStatus]);
 
+  // Auto-expand Media if on bulk-uploads page
+  useEffect(() => {
+    if (pathname?.startsWith("/app/bulk-uploads")) {
+      setIsMediaExpanded(true);
+    }
+  }, [pathname]);
+
   const currentNav = useMemo(() => {
-    const allItems = [...allNavItems, ...SETTINGS_NAV_ITEMS];
+    const allItems = [...CORE_NAV_ITEMS, MEDIA_NAV_ITEM, BULK_UPLOADS_NAV_ITEM, ...settingsNavItems];
     const matched = allItems.reduce<NavItem | undefined>((best, item) => {
       const overviewMatch = item.href === "/app" && (pathname === "/app" || pathname === "/app/");
       const specificMatch =
@@ -81,7 +92,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
     }, undefined);
 
     return matched ?? CORE_NAV_ITEMS[0];
-  }, [pathname, allNavItems]);
+  }, [pathname, settingsNavItems]);
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -174,12 +185,64 @@ export function TenantShell({ children }: { children: ReactNode }) {
     return (
       <nav className="mt-4 space-y-1">
         {/* Core Navigation */}
-        {allNavItems.map((item) => {
+        {CORE_NAV_ITEMS.map((item) => {
           const isActive = item.href === "/app"
             ? pathname === "/app" || pathname === "/app/"
             : pathname === item.href || pathname?.startsWith(`${item.href}/`);
           return renderNavItem(item, compact, isActive);
         })}
+
+        {/* Media with Bulk Uploads Submenu */}
+        {!compact ? (
+          <div className="mt-2">
+            <div className="flex items-center gap-3">
+              <Link
+                href={MEDIA_NAV_ITEM.href}
+                onClick={() => setIsMobileNavOpen(false)}
+                className={cn(
+                  "group flex flex-1 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+                  (pathname === MEDIA_NAV_ITEM.href || pathname?.startsWith(`${MEDIA_NAV_ITEM.href}/`)) && !pathname?.startsWith(`${BULK_UPLOADS_NAV_ITEM.href}/`)
+                    ? "bg-primary/10 text-primary shadow-sm shadow-primary/10"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                )}
+              >
+                <span
+                  className={cn(
+                    "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-base transition group-hover:bg-primary/10 group-hover:text-primary",
+                    (pathname === MEDIA_NAV_ITEM.href || pathname?.startsWith(`${MEDIA_NAV_ITEM.href}/`)) && !pathname?.startsWith(`${BULK_UPLOADS_NAV_ITEM.href}/`) && "bg-primary text-white group-hover:bg-primary"
+                  )}
+                  aria-hidden
+                >
+                  {MEDIA_NAV_ITEM.icon}
+                </span>
+                <span className="flex-1">{MEDIA_NAV_ITEM.label}</span>
+                <span className="text-xs text-gray-400 group-hover:text-primary" aria-hidden>
+                  {(pathname === MEDIA_NAV_ITEM.href || pathname?.startsWith(`${MEDIA_NAV_ITEM.href}/`)) && !pathname?.startsWith(`${BULK_UPLOADS_NAV_ITEM.href}/`) ? "•" : "→"}
+                </span>
+              </Link>
+              <button
+                onClick={() => setIsMediaExpanded(!isMediaExpanded)}
+                className={cn(
+                  "rounded-xl p-2 text-xs text-gray-400 transition hover:bg-gray-100 hover:text-gray-600",
+                  isMediaExpanded && "text-primary"
+                )}
+                aria-label={isMediaExpanded ? "Collapse Media submenu" : "Expand Media submenu"}
+              >
+                {isMediaExpanded ? "▼" : "▶"}
+              </button>
+            </div>
+            {isMediaExpanded && (
+              <div className="mt-1 space-y-1 pl-12">
+                {renderNavItem(BULK_UPLOADS_NAV_ITEM, compact, pathname === BULK_UPLOADS_NAV_ITEM.href || pathname?.startsWith(`${BULK_UPLOADS_NAV_ITEM.href}/`))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            {renderNavItem(MEDIA_NAV_ITEM, compact, pathname === MEDIA_NAV_ITEM.href || pathname?.startsWith(`${MEDIA_NAV_ITEM.href}/`))}
+            {renderNavItem(BULK_UPLOADS_NAV_ITEM, compact, pathname === BULK_UPLOADS_NAV_ITEM.href || pathname?.startsWith(`${BULK_UPLOADS_NAV_ITEM.href}/`))}
+          </>
+        )}
 
         {/* Settings Section (Collapsible) */}
         {!compact && (
@@ -198,7 +261,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
             </button>
             {isSettingsExpanded && (
               <div className="mt-2 space-y-1 pl-4">
-                {SETTINGS_NAV_ITEMS.map((item) => {
+                {settingsNavItems.map((item) => {
                   const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
                   return renderNavItem(item, compact, isActive);
                 })}
@@ -210,7 +273,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
         {/* Settings Section (Compact/Collapsed) */}
         {compact && (
           <div className="mt-6 pt-6 border-t border-gray-200">
-            {SETTINGS_NAV_ITEMS.map((item) => {
+            {settingsNavItems.map((item) => {
               const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
               return renderNavItem(item, compact, isActive);
             })}

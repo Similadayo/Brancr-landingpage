@@ -3,36 +3,26 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import {
-  useApiKeys,
   useBilling,
-  useGenerateApiKey,
-  useRevokeApiKey,
   useTeamMembers,
-  useUpdateWebhook,
   useUsage,
 } from "../../hooks/useSettingsData";
 
-type TabKey = "profile" | "notifications" | "team" | "billing" | "api";
+type TabKey = "profile" | "notifications" | "team" | "billing";
 
 const TABS: Array<{ key: TabKey; label: string }> = [
   { key: "profile", label: "Business profile" },
   { key: "notifications", label: "Notifications" },
   { key: "team", label: "Team" },
   { key: "billing", label: "Billing & plan" },
-  { key: "api", label: "API & webhooks" },
 ];
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("profile");
-  const [webhookUrl, setWebhookUrl] = useState("https://hooks.brancr.com/inbound");
 
   const teamQuery = useTeamMembers();
-  const apiKeysQuery = useApiKeys();
   const billingQuery = useBilling();
   const usageQuery = useUsage();
-  const generateKeyMutation = useGenerateApiKey();
-  const revokeKeyMutation = useRevokeApiKey();
-  const updateWebhookMutation = useUpdateWebhook();
 
   const renderTabContent = useMemo(() => {
     switch (activeTab) {
@@ -272,126 +262,16 @@ export default function SettingsPage() {
             </div>
           </div>
         );
-      case "api":
-        return (
-          <div className="space-y-6">
-            <div className="flex justify-between">
-              <div>
-                <h3 className="text-sm font-semibold text-gray-900">API keys</h3>
-                <p className="mt-1 text-xs text-gray-500">Use Brancr API to trigger automations or sync external data.</p>
-              </div>
-              <button
-                onClick={() => generateKeyMutation.mutate({ name: "New API Key", scope: "full_access" })}
-                disabled={generateKeyMutation.isPending}
-                className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {generateKeyMutation.isPending ? "Generating…" : "Generate key"}
-              </button>
-            </div>
-
-            <div className="overflow-hidden rounded-2xl border border-gray-200">
-              {apiKeysQuery.isLoading ? (
-                <div className="space-y-2 p-6">
-                  {Array.from({ length: 3 }).map((_, index) => (
-                    <div key={index} className="animate-pulse rounded-xl border border-gray-100 bg-gray-50 p-4">
-                      <div className="h-3 w-32 rounded-full bg-gray-200" />
-                      <div className="mt-2 h-3 w-48 rounded-full bg-gray-200" />
-                    </div>
-                  ))}
-                </div>
-              ) : apiKeysQuery.data && apiKeysQuery.data.length > 0 ? (
-                <table className="min-w-full divide-y divide-gray-200 text-sm">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-600">Name</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-600">Scope</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-600">Created</th>
-                      <th className="px-4 py-3 text-right font-semibold text-gray-600">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
-                    {apiKeysQuery.data.map((key) => (
-                      <tr key={key.id}>
-                        <td className="px-4 py-4 text-sm font-semibold text-gray-900">{key.name}</td>
-                        <td className="px-4 py-4 text-xs text-gray-600">{key.scope}</td>
-                        <td className="px-4 py-4 text-xs text-gray-500">{key.createdAt}</td>
-                        <td className="px-4 py-4 text-right text-xs font-semibold text-primary">
-                          <button
-                            className="hover:text-primary/80"
-                            onClick={() => {
-                              if (navigator?.clipboard && "writeText" in navigator.clipboard) {
-                                void navigator.clipboard.writeText(key.id);
-                              }
-                            }}
-                          >
-                            Copy
-                          </button>
-                          <span className="mx-2 text-gray-300">•</span>
-                          <button
-                            onClick={() => revokeKeyMutation.mutate(key.id)}
-                            className="hover:text-primary/80"
-                          >
-                            Revoke
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
-                  No API keys yet. Generate one to start building integrations.
-                </div>
-              )}
-            </div>
-
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900">Webhook callbacks</h3>
-              <p className="mt-2 text-xs text-gray-500">
-                Configure URLs to receive real-time updates for message events, campaign status, and connection changes.
-              </p>
-              <div className="mt-4 space-y-3 text-sm text-gray-600">
-                <div>
-                  <label htmlFor="webhook-url" className="text-sm font-medium text-gray-700">
-                    Callback URL
-                  </label>
-                  <input
-                    id="webhook-url"
-                    type="url"
-                    value={webhookUrl}
-                    onChange={(event) => setWebhookUrl(event.target.value)}
-                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  />
-                </div>
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => updateWebhookMutation.mutate({ url: webhookUrl })}
-                    disabled={updateWebhookMutation.isPending}
-                    className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/50"
-                  >
-                    {updateWebhookMutation.isPending ? "Saving…" : "Save webhook"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
       default:
         return null;
     }
   }, [
     activeTab,
-    apiKeysQuery.data,
-    apiKeysQuery.isLoading,
     billingQuery.data,
     billingQuery.isLoading,
-    generateKeyMutation,
-    revokeKeyMutation,
     teamQuery.data,
     teamQuery.isLoading,
-    updateWebhookMutation,
     usageQuery.data,
-    webhookUrl,
   ]);
 
   return (
