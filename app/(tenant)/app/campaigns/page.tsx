@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useScheduledPosts, useCancelScheduledPost, useUpdateScheduledPost } from "@/app/(tenant)/hooks/useScheduledPosts";
+import { useTemplates } from "@/app/(tenant)/hooks/useTemplates";
 
 const STATUS_FILTERS = ["All", "Scheduled", "Posting", "Posted", "Failed", "Cancelled"];
 
@@ -17,6 +18,7 @@ const STATUS_STYLES: Record<string, string> = {
 export default function CampaignsPage() {
   const [filter, setFilter] = useState<string>("All");
   const { data: scheduledPosts = [], isLoading, error } = useScheduledPosts();
+  const { data: templates = [] } = useTemplates();
   const cancelMutation = useCancelScheduledPost();
   const [cancellingPostId, setCancellingPostId] = useState<string | null>(null);
   const updateMutation = useUpdateScheduledPost();
@@ -60,7 +62,7 @@ export default function CampaignsPage() {
             Manage templates
           </Link>
           <Link
-            href="/app/campaigns/new"
+            href="/app/posts/new"
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary/90"
           >
             + Build campaign
@@ -252,36 +254,44 @@ export default function CampaignsPage() {
           </div>
         </div>
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm lg:col-span-2">
-          <h3 className="text-sm font-semibold text-gray-900">Template library</h3>
-          <p className="mt-1 text-xs text-gray-500">
-            Store brand-approved copy, call-to-actions, and voice settings for consistent messaging.
-          </p>
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <div className="rounded-xl border border-gray-200 p-4">
-              <p className="text-sm font-semibold text-gray-900">AI Reply • Delivery ETA</p>
-              <p className="mt-2 text-xs text-gray-500">
-                Provide estimated delivery times with dynamic tokens for order ID and courier updates.
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900">Template library</h3>
+              <p className="mt-1 text-xs text-gray-500">
+                Store brand-approved copy, call-to-actions, and voice settings for consistent messaging.
               </p>
             </div>
-            <div className="rounded-xl border border-gray-200 p-4">
-              <p className="text-sm font-semibold text-gray-900">Broadcast • Restock Alert</p>
-              <p className="mt-2 text-xs text-gray-500">
-                Triggered when inventory refreshes. Includes CTA buttons per channel.
-              </p>
-            </div>
-            <div className="rounded-xl border border-gray-200 p-4">
-              <p className="text-sm font-semibold text-gray-900">Automation • Abandoned Cart</p>
-              <p className="mt-2 text-xs text-gray-500">
-                Multi-step flow with personalised incentives. Tracks conversions automatically.
-              </p>
-            </div>
-            <div className="rounded-xl border border-gray-200 p-4">
-              <p className="text-sm font-semibold text-gray-900">Quick Reply • FAQ</p>
-              <p className="mt-2 text-xs text-gray-500">
-                One-click answers for shipping, payment, and support questions in the inbox.
-              </p>
-            </div>
+            <Link
+              href="/app/templates"
+              className="text-xs font-semibold text-primary hover:text-primary/80"
+            >
+              View all ↗
+            </Link>
           </div>
+          {templates.length === 0 ? (
+            <div className="mt-4 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-xs text-gray-500">
+              No templates yet. <Link href="/app/templates/new" className="text-primary hover:text-primary/80">Create your first template</Link>
+            </div>
+          ) : (
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {templates.slice(0, 4).map((template) => (
+                <div key={template.id} className="rounded-xl border border-gray-200 p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-900">{template.name}</p>
+                      <p className="mt-1 text-xs text-gray-400 uppercase tracking-widest">{template.category}</p>
+                      <p className="mt-2 text-xs text-gray-500 line-clamp-2">
+                        {template.description || template.body.slice(0, 100)}
+                      </p>
+                    </div>
+                  </div>
+                  {template.uses !== undefined && template.uses > 0 && (
+                    <p className="mt-2 text-xs text-gray-400">Used {template.uses} times</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm lg:col-span-3 lg:flex lg:items-center lg:justify-between">
           <div>

@@ -20,13 +20,10 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Campaigns", href: "/app/campaigns", icon: "🚀" },
   { label: "Calendar", href: "/app/calendar", icon: "🗓️" },
   { label: "Media", href: "/app/media", icon: "🖼️" },
-  { label: "Create Post", href: "/app/posts/new", icon: "➕" },
   { label: "Bulk Uploads", href: "/app/bulk-uploads", icon: "📦" },
-  { label: "Onboarding", href: "/app/onboarding", icon: "🎯" },
   { label: "Integrations", href: "/app/integrations", icon: "🔗" },
   { label: "Analytics", href: "/app/analytics", icon: "📊" },
   { label: "Settings", href: "/app/settings", icon: "⚙️" },
-  { label: "Onboarding Summary", href: "/app/settings/onboarding", icon: "🧭" },
 ];
 
 function cn(...classes: Array<string | false | null | undefined>) {
