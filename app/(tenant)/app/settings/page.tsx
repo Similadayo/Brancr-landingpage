@@ -1,12 +1,15 @@
 'use client';
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import {
   useBilling,
   useTeamMembers,
   useUsage,
 } from "../../hooks/useSettingsData";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { tenantApi, ApiError } from "@/lib/api";
+import { toast } from "react-hot-toast";
 
 type TabKey = "profile" | "notifications" | "team" | "billing";
 
@@ -19,75 +22,177 @@ const TABS: Array<{ key: TabKey; label: string }> = [
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("profile");
+  const queryClient = useQueryClient();
 
   const teamQuery = useTeamMembers();
   const billingQuery = useBilling();
   const usageQuery = useUsage();
+  
+  // Fetch business profile data
+  const { data: onboardingData, isLoading: isLoadingProfile } = useQuery({
+    queryKey: ["onboarding", "status"],
+    queryFn: () => tenantApi.onboardingStatus(),
+  });
+
+  const businessProfile = onboardingData?.business_profile;
+  
+  // Form state for business profile
+  const [profileForm, setProfileForm] = useState({
+    name: "",
+    industry: "",
+    description: "",
+    location: "",
+    website: "",
+    operating_hours: "",
+  });
+
+  // Update form when data loads
+  useEffect(() => {
+    if (businessProfile) {
+      setProfileForm({
+        name: businessProfile.name || "",
+        industry: businessProfile.industry || "",
+        description: businessProfile.description || "",
+        location: businessProfile.location || "",
+        website: businessProfile.website || "",
+        operating_hours: businessProfile.operating_hours || "",
+      });
+    }
+  }, [businessProfile]);
+
+  // Update business profile mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: () => tenantApi.onboardingBusinessProfile({
+      name: profileForm.name,
+      industry: profileForm.industry,
+      description: profileForm.description,
+      location: profileForm.location,
+      website: profileForm.website || undefined,
+      operating_hours: profileForm.operating_hours || undefined,
+    }),
+    onSuccess: () => {
+      toast.success("Business profile updated");
+      void queryClient.invalidateQueries({ queryKey: ["onboarding", "status"] });
+    },
+    onError: (err) => {
+      if (err instanceof ApiError) toast.error(err.message);
+      else toast.error("Failed to update profile");
+    },
+  });
 
   const renderTabContent = useMemo(() => {
     switch (activeTab) {
       case "profile":
         return (
-          <form className="space-y-6">
-            <div>
-              <label className="text-sm font-medium text-gray-700" htmlFor="business-name">
-                Business name
-              </label>
-              <input
-                id="business-name"
-                type="text"
-                defaultValue="Brancr AI Technologies"
-                className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div>
-                <label className="text-sm font-medium text-gray-700" htmlFor="timezone">
-                  Timezone
-                </label>
-                <select
-                  id="timezone"
-                  defaultValue="Africa/Lagos"
-                  className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                >
-                  <option value="Africa/Lagos">GMT+1 — Africa/Lagos</option>
-                  <option value="Africa/Nairobi">GMT+3 — Africa/Nairobi</option>
-                  <option value="Europe/London">GMT — Europe/London</option>
-                </select>
+          <form 
+            className="space-y-6"
+            onSubmit={(e) => {
+              e.preventDefault();
+              updateProfileMutation.mutate();
+            }}
+          >
+            {isLoadingProfile ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
               </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700" htmlFor="industry">
-                  Industry
-                </label>
-                <select
-                  id="industry"
-                  defaultValue="Commerce"
-                  className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                >
-                  <option>Commerce</option>
-                  <option>Services</option>
-                  <option>Hospitality</option>
-                  <option>Agency</option>
-                </select>
-              </div>
-            </div>
+            ) : (
+              <>
+                <div>
+                  <label className="text-sm font-medium text-gray-700" htmlFor="business-name">
+                    Business name
+                  </label>
+                  <input
+                    id="business-name"
+                    type="text"
+                    value={profileForm.name}
+                    onChange={(e) => setProfileForm((prev) => ({ ...prev, name: e.target.value }))}
+                    placeholder="Your company name"
+                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                </div>
 
-            <div>
-              <label className="text-sm font-medium text-gray-700">Brand logo</label>
-              <div className="mt-3 flex items-center gap-4">
-                <Image src="/logo-dark.svg" alt="Brand logo" width={64} height={64} className="rounded-xl border border-gray-200 bg-white p-2" />
-                <button className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:border-primary hover:text-primary">
-                  Upload new
-                </button>
-              </div>
-            </div>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700" htmlFor="industry">
+                      Industry
+                    </label>
+                    <input
+                      id="industry"
+                      type="text"
+                      value={profileForm.industry}
+                      onChange={(e) => setProfileForm((prev) => ({ ...prev, industry: e.target.value }))}
+                      placeholder="Retail, Restaurant, Services..."
+                      className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700" htmlFor="location">
+                      Location
+                    </label>
+                    <input
+                      id="location"
+                      type="text"
+                      value={profileForm.location}
+                      onChange={(e) => setProfileForm((prev) => ({ ...prev, location: e.target.value }))}
+                      placeholder="City, Country"
+                      className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                  </div>
+                </div>
 
-            <div className="flex justify-end">
-              <button className="rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary/90">
-                Save profile
-              </button>
-            </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700" htmlFor="website">
+                    Website
+                  </label>
+                  <input
+                    id="website"
+                    type="url"
+                    value={profileForm.website}
+                    onChange={(e) => setProfileForm((prev) => ({ ...prev, website: e.target.value }))}
+                    placeholder="https://example.com"
+                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700" htmlFor="operating-hours">
+                    Operating hours
+                  </label>
+                  <input
+                    id="operating-hours"
+                    type="text"
+                    value={profileForm.operating_hours}
+                    onChange={(e) => setProfileForm((prev) => ({ ...prev, operating_hours: e.target.value }))}
+                    placeholder="Mon-Fri 9am-5pm, Sat 10am-2pm"
+                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700" htmlFor="description">
+                    Description
+                  </label>
+                  <textarea
+                    id="description"
+                    value={profileForm.description}
+                    onChange={(e) => setProfileForm((prev) => ({ ...prev, description: e.target.value }))}
+                    rows={5}
+                    placeholder="Tell us about your business..."
+                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={updateProfileMutation.isPending}
+                    className="rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {updateProfileMutation.isPending ? "Saving..." : "Save profile"}
+                  </button>
+                </div>
+              </>
+            )}
           </form>
         );
       case "notifications":
@@ -272,6 +377,10 @@ export default function SettingsPage() {
     teamQuery.data,
     teamQuery.isLoading,
     usageQuery.data,
+    isLoadingProfile,
+    businessProfile,
+    profileForm,
+    updateProfileMutation,
   ]);
 
   return (
