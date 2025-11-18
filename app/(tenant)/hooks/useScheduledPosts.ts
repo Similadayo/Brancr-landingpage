@@ -25,7 +25,15 @@ export function useScheduledPosts() {
       try {
         const response = await tenantApi.scheduledPosts();
         const posts = response?.posts;
-        return Array.isArray(posts) ? posts : [];
+        if (!Array.isArray(posts)) {
+          return [];
+        }
+        // Normalize array properties
+        return posts.map((post) => ({
+          ...post,
+          platforms: Array.isArray(post.platforms) ? post.platforms : [],
+          media_asset_ids: Array.isArray(post.media_asset_ids) ? post.media_asset_ids : [],
+        }));
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
           return [];
@@ -42,7 +50,16 @@ export function useScheduledPost(postId: string) {
     queryFn: async () => {
       try {
         const response = await tenantApi.scheduledPost(postId);
-        return response.post;
+        const post = response.post;
+        if (!post) {
+          return null;
+        }
+        // Normalize array properties
+        return {
+          ...post,
+          platforms: Array.isArray(post.platforms) ? post.platforms : [],
+          media_asset_ids: Array.isArray(post.media_asset_ids) ? post.media_asset_ids : [],
+        };
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
           return null;

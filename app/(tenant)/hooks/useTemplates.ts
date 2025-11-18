@@ -22,13 +22,17 @@ export function useTemplates() {
     queryFn: async () => {
       try {
         const response = await tenantApi.templates();
-        return response.templates.map((template) => ({
+        const templates = response?.templates;
+        if (!Array.isArray(templates)) {
+          return [];
+        }
+        return templates.map((template) => ({
           id: template.id,
           name: template.name,
           category: template.category,
           description: template.description,
           body: template.body,
-          platforms: template.platforms,
+          platforms: Array.isArray(template.platforms) ? template.platforms : [],
           uses: template.uses,
           created_at: template.created_at,
           updated_at: template.updated_at,

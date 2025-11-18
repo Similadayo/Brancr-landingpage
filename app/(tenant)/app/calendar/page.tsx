@@ -38,15 +38,17 @@ export default function CalendarPage() {
       }),
     retry: 0,
   });
-  const { data: scheduledPosts = [] } = useScheduledPosts();
+  const { data: scheduledPostsData } = useScheduledPosts();
+  const scheduledPosts = Array.isArray(scheduledPostsData) ? scheduledPostsData : [];
 
   const entriesByDate = useMemo(() => {
     const map = new Map<string, Array<{ id?: string; name: string; platforms: string[] }>>();
-    if (calendarData?.entries) {
-      calendarData.entries.forEach((e) => {
+    const entries = calendarData?.entries;
+    if (Array.isArray(entries) && entries.length > 0) {
+      entries.forEach((e) => {
         const key = e.date;
         const list = map.get(key) || [];
-        list.push({ id: undefined, name: e.name, platforms: e.platforms });
+        list.push({ id: undefined, name: e.name, platforms: Array.isArray(e.platforms) ? e.platforms : [] });
         map.set(key, list);
       });
     } else {
@@ -54,7 +56,7 @@ export default function CalendarPage() {
         const d = new Date(p.scheduled_at);
         const key = d.toISOString().slice(0, 10);
         const list = map.get(key) || [];
-        list.push({ id: p.id, name: p.name + " • " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), platforms: p.platforms });
+        list.push({ id: p.id, name: p.name + " • " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), platforms: Array.isArray(p.platforms) ? p.platforms : [] });
         map.set(key, list);
       });
     }

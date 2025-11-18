@@ -36,7 +36,8 @@ export default function InboxPage() {
     return filters;
   }, [activeFilter, searchQuery]);
 
-  const { data: conversations = [], isLoading, error } = useConversations(apiFilters);
+  const { data: conversationsData, isLoading, error } = useConversations(apiFilters);
+  const conversations = Array.isArray(conversationsData) ? conversationsData : [];
   const { data: conversationDetail } = useConversation(selectedConversationId);
   const sendReplyMutation = useSendReply(selectedConversationId);
   const updateStatusMutation = useUpdateConversationStatus(selectedConversationId);
@@ -154,14 +155,14 @@ export default function InboxPage() {
                         </div>
                         <p className="mt-1 line-clamp-2 text-xs text-gray-500">{conversation.preview}</p>
                         <div className="mt-2 flex flex-wrap gap-1">
-                          {conversation.tags.map((tag) => (
+                          {Array.isArray(conversation.tags) ? conversation.tags.map((tag) => (
                             <span
                               key={tag}
                               className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-gray-600"
                             >
                               {tag}
                             </span>
-                          ))}
+                          )) : null}
                         </div>
                       </div>
                       <div className="text-right">
@@ -346,15 +347,15 @@ export default function InboxPage() {
                   <div className="mt-4">
                     <p className="uppercase tracking-[0.3em] text-gray-400">Tags</p>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {activeConversation.tags.map((tag) => (
+                      {Array.isArray(activeConversation.tags) ? activeConversation.tags.map((tag) => (
                         <span
                           key={tag}
                           className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-gray-600"
                         >
                           {tag}
                         </span>
-                      ))}
-                      {activeConversation.tags.length === 0 ? (
+                      )) : null}
+                      {(!Array.isArray(activeConversation.tags) || activeConversation.tags.length === 0) ? (
                         <span className="text-xs text-gray-500">No tags yet.</span>
                       ) : null}
                     </div>

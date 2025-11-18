@@ -111,7 +111,7 @@ export function useConversations(filters?: { platform?: string; status?: string;
           preview: conversation.preview ?? "",
           updatedAt: conversation.updated_at ?? "",
           unreadCount: conversation.unread_count ?? 0,
-          tags: conversation.tags ?? [],
+          tags: Array.isArray(conversation.tags) ? conversation.tags : [],
           assignee: conversation.assignee ?? null,
           status: (conversation.status ?? "open") as ConversationSummary["status"],
         }));

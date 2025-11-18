@@ -17,8 +17,12 @@ const STATUS_STYLES: Record<string, string> = {
 
 export default function CampaignsPage() {
   const [filter, setFilter] = useState<string>("All");
-  const { data: scheduledPosts = [], isLoading, error } = useScheduledPosts();
-  const { data: templates = [] } = useTemplates();
+  const { data: scheduledPostsData, isLoading, error } = useScheduledPosts();
+  const { data: templatesData } = useTemplates();
+  
+  // Ensure all data is arrays to prevent map errors
+  const scheduledPosts = Array.isArray(scheduledPostsData) ? scheduledPostsData : [];
+  const templates = Array.isArray(templatesData) ? templatesData : [];
   const cancelMutation = useCancelScheduledPost();
   const [cancellingPostId, setCancellingPostId] = useState<string | null>(null);
   const updateMutation = useUpdateScheduledPost();
@@ -144,14 +148,16 @@ export default function CampaignsPage() {
                       </td>
                       <td className="px-4 py-4 align-top">
                         <div className="flex flex-wrap gap-1">
-                          {post.platforms.map((platform) => (
+                          {Array.isArray(post.platforms) ? post.platforms.map((platform) => (
                             <span
                               key={platform}
                               className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600 capitalize"
                             >
                               {platform}
                             </span>
-                          ))}
+                          )) : (
+                            <span className="text-xs text-gray-400">No platforms</span>
+                          )}
                         </div>
                       </td>
                       <td className="px-4 py-4 align-top text-xs text-gray-500">
@@ -245,7 +251,7 @@ export default function CampaignsPage() {
                       minute: "2-digit",
                     })}
                   </p>
-                  <p className="mt-1 text-gray-400">{post.platforms.join(", ")}</p>
+                  <p className="mt-1 text-gray-400">{Array.isArray(post.platforms) ? post.platforms.join(", ") : "No platforms"}</p>
                 </div>
               ))}
             {scheduledPosts.filter((post) => post.status === "scheduled" || post.status === "posting").length === 0 && (

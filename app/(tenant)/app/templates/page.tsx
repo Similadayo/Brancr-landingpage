@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useTemplates, useDeleteTemplate } from "@/app/(tenant)/hooks/useTemplates";
 
 export default function TemplatesPage() {
-  const { data: templates = [], isLoading, error } = useTemplates();
+  const { data: templatesData, isLoading, error } = useTemplates();
+  const templates = Array.isArray(templatesData) ? templatesData : [];
   const deleteMutation = useDeleteTemplate();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -98,14 +99,16 @@ export default function TemplatesPage() {
                 <p className="mt-2 line-clamp-3 text-sm text-gray-700">{template.body}</p>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
-                {template.platforms.map((platform) => (
+                {Array.isArray(template.platforms) ? template.platforms.map((platform) => (
                   <span
                     key={platform}
                     className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-700 capitalize"
                   >
                     {platform}
                   </span>
-                ))}
+                )) : (
+                  <span className="text-xs text-gray-400">No platforms</span>
+                )}
               </div>
               <div className="mt-6 flex items-center justify-between">
                 <p className="text-xs text-gray-500">{template.uses ?? 0} uses</p>

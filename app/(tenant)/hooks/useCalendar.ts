@@ -20,7 +20,14 @@ export function useCalendar(params?: { start_date?: string; end_date?: string; p
       try {
         const response = await tenantApi.calendar(params);
         const entries = response?.entries;
-        return Array.isArray(entries) ? entries : [];
+        if (!Array.isArray(entries)) {
+          return [];
+        }
+        // Normalize array properties
+        return entries.map((entry) => ({
+          ...entry,
+          platforms: Array.isArray(entry.platforms) ? entry.platforms : [],
+        }));
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
           return [];

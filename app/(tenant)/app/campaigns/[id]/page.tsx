@@ -95,14 +95,16 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
           <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Platforms</p>
           <div className="mt-2 flex flex-wrap gap-2">
-            {post.platforms.map((platform) => (
+            {Array.isArray(post.platforms) ? post.platforms.map((platform) => (
               <span
                 key={platform}
                 className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 capitalize"
               >
                 {platform}
               </span>
-            ))}
+            )) : (
+              <span className="text-xs text-gray-400">No platforms</span>
+            )}
           </div>
         </div>
         <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
