@@ -131,7 +131,7 @@ export default function TenantOverviewPage() {
               Welcome back{tenant ? `, ${tenant.name.split(" ")[0]}` : ""} 👋
             </h1>
             <p className="mt-2 text-sm text-gray-600">
-              Here's a quick snapshot of your automation, conversations, and campaign health today.
+              Here&apos;s a quick snapshot of your automation, conversations, and campaign health today.
             </p>
           </div>
           <div className="flex gap-3">
@@ -252,7 +252,7 @@ export default function TenantOverviewPage() {
         <div className="space-y-4">
           {/* Today's Focus */}
           <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h2 className="text-base font-semibold text-gray-900 mb-4">Today's focus</h2>
+            <h2 className="text-base font-semibold text-gray-900 mb-4">Today&apos;s focus</h2>
             <ul className="space-y-3 text-sm text-gray-600">
               {todayFocus.map((item, index) => (
                 <li key={item.id} className="flex items-start gap-2">

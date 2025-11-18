@@ -378,7 +378,6 @@ export default function SettingsPage() {
     teamQuery.isLoading,
     usageQuery.data,
     isLoadingProfile,
-    businessProfile,
     profileForm,
     updateProfileMutation,
   ]);
