@@ -58,6 +58,33 @@ export function TenantShell({ children }: { children: ReactNode }) {
     enabled: !!tenant,
   });
 
+  // Fetch stats for header
+  const { data: integrations } = useQuery({
+    queryKey: ["integrations"],
+    queryFn: () => tenantApi.integrations(),
+    enabled: !!tenant,
+  });
+  
+  const { data: scheduledPostsData } = useQuery({
+    queryKey: ["scheduled-posts"],
+    queryFn: () => tenantApi.scheduledPosts(),
+    enabled: !!tenant,
+  });
+
+  const { data: conversationsData } = useQuery({
+    queryKey: ["conversations"],
+    queryFn: () => tenantApi.conversations({ limit: 1 }),
+    enabled: !!tenant,
+  });
+
+  const stats = useMemo(() => {
+    const connectedChannels = integrations?.integrations?.filter((i: any) => i.connected).length || 0;
+    const totalChannels = integrations?.integrations?.length || 4;
+    const scheduledPosts = scheduledPostsData?.posts?.length || 0;
+    const conversations = conversationsData?.conversations?.length || 0;
+    return { connectedChannels, totalChannels, scheduledPosts, conversations };
+  }, [integrations, scheduledPostsData, conversationsData]);
+
   // Settings items including conditional Onboarding Summary
   const settingsNavItems = useMemo(() => {
     const items = [...SETTINGS_NAV_ITEMS_BASE];
@@ -119,7 +146,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-neutral-bg">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-accent/20 border-t-accent" />
       </div>
     );
   }
@@ -132,7 +159,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <p className="mt-3 text-sm text-gray-600">{error}</p>
           <button
             onClick={refresh}
-            className="mt-6 inline-flex items-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow hover:bg-primary/90"
+            className="mt-6 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow hover:bg-accent/90"
           >
             Try again
           </button>
@@ -153,17 +180,17 @@ export function TenantShell({ children }: { children: ReactNode }) {
         key={item.href}
         href={item.href}
         onClick={() => setIsMobileNavOpen(false)}
-        className={cn(
-          "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-          isActive
-            ? "bg-primary/10 text-primary shadow-sm shadow-primary/10"
-            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-        )}
+            className={cn(
+              "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
+              isActive
+                ? "bg-accent/10 text-accent shadow-sm"
+                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            )}
       >
         <span
           className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-base transition group-hover:bg-primary/10 group-hover:text-primary",
-            isActive && "bg-primary text-white group-hover:bg-primary"
+                "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-base transition group-hover:bg-accent/10 group-hover:text-accent",
+                isActive && "bg-accent text-white group-hover:bg-accent"
           )}
           aria-hidden
         >
@@ -172,9 +199,9 @@ export function TenantShell({ children }: { children: ReactNode }) {
         {!compact ? (
           <>
             <span className="flex-1">{item.label}</span>
-            <span className="text-xs text-gray-400 group-hover:text-primary" aria-hidden>
-              {isActive ? "•" : "→"}
-            </span>
+                <span className="text-xs text-gray-400 group-hover:text-accent" aria-hidden>
+                  {isActive ? "•" : "→"}
+                </span>
           </>
         ) : null}
       </Link>
@@ -202,21 +229,21 @@ export function TenantShell({ children }: { children: ReactNode }) {
                 className={cn(
                   "group flex flex-1 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
                   (pathname === MEDIA_NAV_ITEM.href || pathname?.startsWith(`${MEDIA_NAV_ITEM.href}/`)) && !pathname?.startsWith(`${BULK_UPLOADS_NAV_ITEM.href}/`)
-                    ? "bg-primary/10 text-primary shadow-sm shadow-primary/10"
+                    ? "bg-accent/10 text-accent shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                 )}
               >
                 <span
                   className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-base transition group-hover:bg-primary/10 group-hover:text-primary",
-                    (pathname === MEDIA_NAV_ITEM.href || pathname?.startsWith(`${MEDIA_NAV_ITEM.href}/`)) && !pathname?.startsWith(`${BULK_UPLOADS_NAV_ITEM.href}/`) && "bg-primary text-white group-hover:bg-primary"
+                    "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-base transition group-hover:bg-accent/10 group-hover:text-accent",
+                    (pathname === MEDIA_NAV_ITEM.href || pathname?.startsWith(`${MEDIA_NAV_ITEM.href}/`)) && !pathname?.startsWith(`${BULK_UPLOADS_NAV_ITEM.href}/`) && "bg-accent text-white group-hover:bg-accent"
                   )}
                   aria-hidden
                 >
                   {MEDIA_NAV_ITEM.icon}
                 </span>
                 <span className="flex-1">{MEDIA_NAV_ITEM.label}</span>
-                <span className="text-xs text-gray-400 group-hover:text-primary" aria-hidden>
+                <span className="text-xs text-gray-400 group-hover:text-accent" aria-hidden>
                   {(pathname === MEDIA_NAV_ITEM.href || pathname?.startsWith(`${MEDIA_NAV_ITEM.href}/`)) && !pathname?.startsWith(`${BULK_UPLOADS_NAV_ITEM.href}/`) ? "•" : "→"}
                 </span>
               </Link>
@@ -224,7 +251,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                 onClick={() => setIsMediaExpanded(!isMediaExpanded)}
                 className={cn(
                   "rounded-xl p-2 text-xs text-gray-400 transition hover:bg-gray-100 hover:text-gray-600",
-                  isMediaExpanded && "text-primary"
+                  isMediaExpanded && "text-accent"
                 )}
                 aria-label={isMediaExpanded ? "Collapse Media submenu" : "Expand Media submenu"}
               >
@@ -294,7 +321,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
       ) : null}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-gray-200 bg-white px-6 py-8 shadow-2xl transition-transform lg:hidden",
+          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-gray-200 bg-white px-6 py-6 shadow-2xl transition-transform lg:hidden",
           isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -345,7 +372,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
               type="button"
               onClick={handleSignOut}
               disabled={isSigningOut}
-              className="mt-4 w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-4 w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSigningOut ? "Signing out…" : "Sign out"}
             </button>
@@ -357,7 +384,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
         {/* Desktop sidebar */}
         <aside
           className={cn(
-          "sticky top-0 hidden h-screen shrink-0 border-r border-gray-200 bg-white/80 px-4 py-8 backdrop-blur-xl transition-all duration-300 lg:flex lg:flex-col"
+          "sticky top-0 hidden h-screen shrink-0 border-r border-gray-200 bg-white px-4 py-6 transition-all duration-300 lg:flex lg:flex-col"
           )}
           style={{ width: sidebarDesktopWidth }}
         >
@@ -415,7 +442,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                 <>
                   <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Account</p>
                   <div className="mt-3 flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
                       {tenant.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
@@ -426,7 +453,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                 </>
               ) : (
                 <div className="flex flex-col items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
                     {tenant.name.charAt(0).toUpperCase()}
                   </div>
                   <span className="text-xs font-semibold text-gray-600">Account</span>
@@ -436,7 +463,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                 type="button"
                 onClick={handleSignOut}
                 disabled={isSigningOut}
-                className="mt-4 w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-4 w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSigningOut ? "Signing out…" : "Sign out"}
               </button>
@@ -445,7 +472,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => setIsSidebarCollapsed((prev) => !prev)}
-            className="mt-auto flex items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-500 transition hover:border-primary hover:text-primary"
+            className="mt-auto flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-500 transition hover:border-accent hover:text-accent"
             aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isSidebarCollapsed ? "⟩" : "⟨"}
@@ -453,93 +480,92 @@ export function TenantShell({ children }: { children: ReactNode }) {
         </aside>
 
         <div className="flex min-h-screen flex-1 flex-col">
-          <header className="sticky top-0 z-20 flex h-20 items-center border-b border-gray-200 bg-white/70 px-4 backdrop-blur lg:px-8">
-            <div className="flex w-full items-center justify-between">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsMobileNavOpen(true)}
-                  className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-600 shadow-sm transition hover:border-primary hover:text-primary lg:hidden"
-                >
-                  Menu
-                </button>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Current view</p>
-                  <h1 className="text-xl font-semibold text-gray-900 lg:text-2xl">{currentNav?.label ?? "Overview"}</h1>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="hidden items-center gap-3 lg:flex">
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold",
-                      tenant.status === "active"
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                        : tenant.status === "trial"
-                        ? "border-primary/30 bg-primary/10 text-primary"
-                        : "border-amber-200 bg-amber-50 text-amber-700"
-                    )}
-                  >
-                    <span className="h-2 w-2 rounded-full bg-current" aria-hidden />
-                    {tenant.status ?? "active"}
-                  </span>
-                  <Link
-                    href="/docs"
-                    className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
-                  >
-                    Docs
-                  </Link>
-                  <Link
-                    href="mailto:contact@brancr.com"
-                    className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
-                  >
-                    Support
-                  </Link>
-                  {/* Dark mode toggle temporarily disabled for design polish */}
-                </div>
-                <div className="relative" ref={profileMenuRef}>
+          {/* Top Header Bar with Stats */}
+          <header className="sticky top-0 z-20 border-b border-gray-200 bg-white shadow-sm">
+            <div className="px-4 lg:px-6">
+              <div className="flex h-16 items-center justify-between">
+                <div className="flex items-center gap-4">
                   <button
                     type="button"
-                    onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-                    className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-primary hover:text-primary"
+                    onClick={() => setIsMobileNavOpen(true)}
+                    className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-600 shadow-sm transition hover:border-accent hover:text-accent lg:hidden"
                   >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
-                      {tenant.name.charAt(0).toUpperCase()}
-                    </span>
-                    <span className="hidden text-left leading-tight lg:block">
-                      <span className="block text-xs text-gray-500">Tenant</span>
-                      <span>{tenant.name}</span>
-                    </span>
-                    <span className="text-gray-400" aria-hidden>
-                      {isProfileMenuOpen ? "▲" : "▼"}
-                    </span>
+                    Menu
                   </button>
-                  {isProfileMenuOpen ? (
-                    <div className="absolute right-0 z-30 mt-2 w-48 rounded-2xl border border-gray-200 bg-white p-2 shadow-lg">
-                      <Link
-                        href="/app/settings/profile"
-                        className="block rounded-xl px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary"
-                        onClick={() => setIsProfileMenuOpen(false)}
-                      >
-                        View profile
-                      </Link>
-                      <button
-                        type="button"
-                        className="block w-full rounded-xl px-3 py-2 text-left text-sm font-medium text-red-500 hover:bg-red-50"
-                        onClick={() => {
-                          setIsProfileMenuOpen(false);
-                          void handleSignOut();
-                        }}
-                      >
-                        Sign out
-                      </button>
+                  <div>
+                    <h1 className="text-lg font-semibold text-gray-900">{currentNav?.label ?? "Overview"}</h1>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  {/* Global Stats */}
+                  <div className="hidden items-center gap-4 lg:flex">
+                    <div className="text-right">
+                      <p className="text-xs font-medium text-gray-500">Connected</p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {stats.connectedChannels}/{stats.totalChannels || 4}
+                      </p>
                     </div>
-                  ) : null}
+                    <div className="text-right">
+                      <p className="text-xs font-medium text-gray-500">Posts</p>
+                      <p className="text-sm font-bold text-gray-900">{stats.scheduledPosts}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-medium text-gray-500">Conversations</p>
+                      <p className="text-sm font-bold text-gray-900">{stats.conversations}</p>
+                    </div>
+                  </div>
+                  {/* User Profile */}
+                  <div className="relative" ref={profileMenuRef}>
+                    <button
+                      type="button"
+                      onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                      className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-accent hover:text-accent"
+                    >
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
+                        {tenant.name.charAt(0).toUpperCase()}
+                      </span>
+                      <span className="hidden text-left leading-tight lg:block">
+                        <span className="block text-xs text-gray-500">{tenant.name.split(" ")[0]}</span>
+                        <span className="text-xs capitalize">{tenant.plan ?? "trial"}</span>
+                      </span>
+                      <span className="text-gray-400" aria-hidden>
+                        {isProfileMenuOpen ? "▲" : "▼"}
+                      </span>
+                    </button>
+                    {isProfileMenuOpen ? (
+                      <div className="absolute right-0 z-30 mt-2 w-48 rounded-xl border border-gray-200 bg-white p-2 shadow-lg">
+                        <Link
+                          href="/app/settings"
+                          className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-accent"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                        >
+                          Settings
+                        </Link>
+                        <Link
+                          href="/app/settings/billing"
+                          className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-accent"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                        >
+                          Upgrade plan
+                        </Link>
+                        <button
+                          type="button"
+                          className="block w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-red-500 hover:bg-red-50"
+                          onClick={() => {
+                            setIsProfileMenuOpen(false);
+                            void handleSignOut();
+                          }}
+                        >
+                          Sign out
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             </div>
           </header>
-          <main className="flex-1 px-4 pb-16 pt-10 lg:px-8">{children}</main>
+          <main className="flex-1 px-4 pb-8 pt-6 lg:px-6">{children}</main>
         </div>
       </div>
     </div>
