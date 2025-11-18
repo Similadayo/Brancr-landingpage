@@ -32,7 +32,8 @@ export function useIntegrations() {
 
         // Get integrations from response
         if (integrationsResponse.status === "fulfilled") {
-          integrations = integrationsResponse.value.integrations;
+          const integrationsData = integrationsResponse.value?.integrations;
+          integrations = Array.isArray(integrationsData) ? integrationsData : [];
         } else if (
           integrationsResponse.reason instanceof ApiError &&
           integrationsResponse.reason.status === 404

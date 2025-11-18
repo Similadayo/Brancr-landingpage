@@ -100,7 +100,11 @@ export function useConversations(filters?: { platform?: string; status?: string;
     queryFn: async () => {
       try {
         const response = await tenantApi.conversations(filters);
-        return response.conversations.map((conversation) => ({
+        const conversations = response?.conversations;
+        if (!Array.isArray(conversations)) {
+          return FALLBACK_CONVERSATIONS;
+        }
+        return conversations.map((conversation) => ({
           id: conversation.id,
           contactName: conversation.contact_name ?? "Unknown contact",
           channel: (conversation.channel ?? "whatsapp") as ConversationSummary["channel"],

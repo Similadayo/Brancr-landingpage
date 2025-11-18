@@ -19,7 +19,8 @@ export function useCalendar(params?: { start_date?: string; end_date?: string; p
     queryFn: async () => {
       try {
         const response = await tenantApi.calendar(params);
-        return response?.entries || [];
+        const entries = response?.entries;
+        return Array.isArray(entries) ? entries : [];
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
           return [];

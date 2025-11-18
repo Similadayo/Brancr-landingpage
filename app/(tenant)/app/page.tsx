@@ -24,16 +24,22 @@ export default function TenantOverviewPage() {
     queryKey: ["tenant", "overview"],
     queryFn: () => tenantApi.overview(),
   });
-  const { data: scheduledPosts = [] } = useScheduledPosts();
-  const { data: integrations = [] } = useIntegrations();
-  const { data: conversations = [] } = useConversations({ limit: 5 });
+  const { data: scheduledPostsData } = useScheduledPosts();
+  const { data: integrationsData } = useIntegrations();
+  const { data: conversationsData } = useConversations({ limit: 5 });
   
   // Get calendar entries for upcoming posts (next 30 days)
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const startDate = today.toISOString();
   const endDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
-  const { data: calendarEntries = [] } = useCalendar({ start_date: startDate, end_date: endDate });
+  const { data: calendarEntriesData } = useCalendar({ start_date: startDate, end_date: endDate });
+
+  // Ensure all data is arrays to prevent filter errors
+  const scheduledPosts = Array.isArray(scheduledPostsData) ? scheduledPostsData : [];
+  const integrations = Array.isArray(integrationsData) ? integrationsData : [];
+  const conversations = Array.isArray(conversationsData) ? conversationsData : [];
+  const calendarEntries = Array.isArray(calendarEntriesData) ? calendarEntriesData : [];
 
   const stats = useMemo(() => {
     const upcomingPosts = scheduledPosts.filter(
