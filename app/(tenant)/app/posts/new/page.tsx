@@ -238,7 +238,7 @@ export default function NewPostPage() {
           <h2 className="text-lg font-semibold text-gray-900">Review</h2>
           <div className="rounded-2xl border border-gray-200 bg-white p-4">
             <p className="text-sm font-semibold text-gray-900">Platforms</p>
-            <p className="text-xs text-gray-600">{platforms.join(", ")}</p>
+            <p className="text-xs text-gray-600">{Array.isArray(platforms) ? platforms.join(", ") : "No platforms selected"}</p>
             <p className="mt-3 text-sm font-semibold text-gray-900">Schedule</p>
             <p className="text-xs text-gray-600">{scheduledAt || "Not set"}</p>
             <p className="mt-3 text-sm font-semibold text-gray-900">Caption</p>

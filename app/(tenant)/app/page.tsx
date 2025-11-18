@@ -80,7 +80,7 @@ export default function TenantOverviewPage() {
       .slice(0, 2)
       .map((post) => ({
         id: post.id,
-        text: `Confirm assets for ${post.name} (${post.platforms.join(", ")}) scheduled ${new Date(
+        text: `Confirm assets for ${post.name} (${Array.isArray(post.platforms) ? post.platforms.join(", ") : "No platforms"}) scheduled ${new Date(
           post.scheduled_at
         ).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}.`,
       }));
@@ -110,7 +110,7 @@ export default function TenantOverviewPage() {
         .map((entry) => ({
           id: entry.id,
           name: entry.name,
-          platforms: entry.platforms,
+          platforms: Array.isArray(entry.platforms) ? entry.platforms : [],
           scheduled_at: `${entry.date}T${entry.time || '00:00:00'}`,
         }));
     }
@@ -206,7 +206,7 @@ export default function TenantOverviewPage() {
                 <div key={post.id} className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3 hover:bg-gray-100 transition">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-gray-900">{post.name}</p>
-                    <p className="mt-0.5 text-xs text-gray-500">{post.platforms.join(", ")}</p>
+                    <p className="mt-0.5 text-xs text-gray-500">{Array.isArray(post.platforms) ? post.platforms.join(", ") : "No platforms"}</p>
                   </div>
                   <div className="ml-3 text-right text-xs text-gray-500 whitespace-nowrap">
                     {new Date(post.scheduled_at).toLocaleString([], {

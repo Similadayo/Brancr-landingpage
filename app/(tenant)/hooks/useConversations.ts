@@ -137,6 +137,7 @@ export function useConversation(conversationId: string | null) {
       }
       try {
         const response = await tenantApi.conversation(conversationId);
+        const messages = response?.messages;
         return {
           conversation: {
             id: response.conversation.id,
@@ -145,18 +146,18 @@ export function useConversation(conversationId: string | null) {
             preview: "",
             updatedAt: new Date().toISOString(),
             unreadCount: 0,
-            tags: response.conversation.tags ?? [],
+            tags: Array.isArray(response.conversation.tags) ? response.conversation.tags : [],
             assignee: response.conversation.assignee ?? null,
             status: (response.conversation.status ?? "open") as ConversationSummary["status"],
           },
-          messages: response.messages.map((message) => ({
+          messages: Array.isArray(messages) ? messages.map((message) => ({
             id: message.id,
             author: message.author,
             authorName: message.author_name,
             body: message.body,
             sentAt: message.sent_at,
             attachments: message.attachments,
-          })),
+          })) : [],
         };
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
