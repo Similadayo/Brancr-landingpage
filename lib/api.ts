@@ -694,10 +694,10 @@ export const tenantApi = {
   disconnectWhatsApp: () =>
     post<undefined, { success: boolean }>("/api/tenant/whatsapp/disconnect"),
 
-  requestWhatsAppNumber: (payload: { phone_number: string }) =>
-    post<typeof payload, { phone_number_id: string }>("/api/tenant/whatsapp/request-number", payload),
+  requestWhatsAppNumber: (payload: { phone_number: string; code_method: "SMS" | "VOICE" }) =>
+    post<typeof payload, { request_id: number }>("/api/tenant/whatsapp/request-number", payload),
 
-  verifyWhatsAppNumber: (payload: { phone_number_id: string; verification_code: string }) =>
+  verifyWhatsAppNumber: (payload: { request_id: number; verification_code: string }) =>
     post<typeof payload, { success: boolean; message: string }>("/api/tenant/whatsapp/verify-number", payload),
 
   checkWhatsAppNumber: (payload: { phone_number: string }) =>
