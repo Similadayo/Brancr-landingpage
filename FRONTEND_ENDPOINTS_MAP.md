@@ -14,12 +14,15 @@
 ## 1. **Overview** (`/app/overview`)
 
 ### Primary Endpoint
+
 ```
 GET /api/tenant/overview
 ```
+
 **Response:** Dashboard summary with stats, recent activity, quick insights
 
 **Additional Data Sources:**
+
 - Uses `GET /api/tenant/scheduled-posts?limit=5` for recent posts
 - Uses `GET /api/tenant/conversations?limit=5` for recent conversations
 - Uses `GET /api/tenant/calendar?start={today}&end={+7days}` for upcoming posts
@@ -30,16 +33,20 @@ GET /api/tenant/overview
 ## 2. **Inbox** (`/app/inbox`)
 
 ### List Conversations
+
 ```
 GET /api/tenant/conversations
 ```
+
 **Query Parameters:**
+
 - `cursor` (optional): Pagination cursor (integer ID)
 - `limit` (optional): Number of items per page (default: 20)
 - `status` (optional): Filter by status (`open`, `closed`, `pending`)
 - `platform` (optional): Filter by platform (`instagram`, `facebook`, `whatsapp`)
 
 **Response:**
+
 ```json
 {
   "items": [
@@ -58,16 +65,21 @@ GET /api/tenant/conversations
 ```
 
 ### Get Single Conversation
+
 ```
 GET /api/tenant/conversations/{id}
 ```
+
 **Response:** Full conversation with all messages, customer details, metadata
 
 ### Send Reply
+
 ```
 POST /api/tenant/conversations/{id}/replies
 ```
+
 **Request Body:**
+
 ```json
 {
   "message": "Hello, thanks for reaching out!",
@@ -76,10 +88,13 @@ POST /api/tenant/conversations/{id}/replies
 ```
 
 ### Update Conversation
+
 ```
 PUT /api/tenant/conversations/{id}
 ```
+
 **Request Body:**
+
 ```json
 {
   "status": "closed", // or "open", "pending"
@@ -89,9 +104,11 @@ PUT /api/tenant/conversations/{id}
 ```
 
 ### Get AI-Suggested Replies
+
 ```
 POST /api/tenant/conversations/{id}/suggest-replies
 ```
+
 **Response:** Array of AI-generated reply suggestions based on conversation context
 
 ---
@@ -99,10 +116,13 @@ POST /api/tenant/conversations/{id}/suggest-replies
 ## 3. **Campaigns** (`/app/campaigns`)
 
 ### List Scheduled Posts (Campaigns)
+
 ```
 GET /api/tenant/scheduled-posts
 ```
+
 **Query Parameters:**
+
 - `status` (optional): Filter by status (`scheduled`, `published`, `failed`, `cancelled`)
 - `platform` (optional): Filter by platform (`instagram`, `facebook`, `whatsapp`, `tiktok`)
 - `start_date` (optional): Filter posts scheduled after this date (ISO 8601)
@@ -111,6 +131,7 @@ GET /api/tenant/scheduled-posts
 - `cursor` (optional): Pagination cursor
 
 **Response:**
+
 ```json
 {
   "items": [
@@ -129,16 +150,21 @@ GET /api/tenant/scheduled-posts
 ```
 
 ### Get Single Scheduled Post
+
 ```
 GET /api/tenant/scheduled-posts/{id}
 ```
+
 **Response:** Full post details including media, caption, scheduling info, status
 
 ### Update Scheduled Post
+
 ```
 PUT /api/tenant/scheduled-posts/{id}
 ```
+
 **Request Body:**
+
 ```json
 {
   "caption": "Updated caption",
@@ -149,15 +175,19 @@ PUT /api/tenant/scheduled-posts/{id}
 ```
 
 ### Delete Scheduled Post
+
 ```
 DELETE /api/tenant/scheduled-posts/{id}
 ```
 
 ### Create Post (from Campaigns page)
+
 ```
 POST /api/tenant/posts
 ```
+
 **Request Body:**
+
 ```json
 {
   "platform": "instagram",
@@ -169,10 +199,13 @@ POST /api/tenant/posts
 ```
 
 ### Generate Caption (AI)
+
 ```
 POST /api/tenant/posts/generate-caption
 ```
+
 **Request Body:**
+
 ```json
 {
   "media_urls": ["https://..."],
@@ -180,7 +213,9 @@ POST /api/tenant/posts/generate-caption
   "hashtags": true // optional, include hashtags
 }
 ```
+
 **Response:**
+
 ```json
 {
   "caption": "Generated caption text...",
@@ -189,14 +224,18 @@ POST /api/tenant/posts/generate-caption
 ```
 
 ### Get Optimal Posting Times
+
 ```
 GET /api/tenant/posts/optimal-times
 ```
+
 **Query Parameters:**
+
 - `platform` (optional): Filter by platform
 - `day_of_week` (optional): Filter by day (0-6, Sunday=0)
 
 **Response:**
+
 ```json
 {
   "optimal_times": [
@@ -214,14 +253,18 @@ GET /api/tenant/posts/optimal-times
 ## 4. **Calendar** (`/app/calendar`)
 
 ### Get Calendar View
+
 ```
 GET /api/tenant/calendar
 ```
+
 **Query Parameters:**
+
 - `start` (required): Start date (ISO 8601, e.g., `2025-01-01T00:00:00Z`)
 - `end` (required): End date (ISO 8601, e.g., `2025-01-31T23:59:59Z`)
 
 **Response:**
+
 ```json
 {
   "items": [
@@ -239,15 +282,19 @@ GET /api/tenant/calendar
 ```
 
 **Note:** This endpoint aggregates:
+
 - Scheduled posts (`scheduled_at` within range)
 - Recurring templates (next occurrences)
 - Any other calendar-worthy events
 
 ### Update Scheduled Post (Drag & Drop Reschedule)
+
 ```
 PUT /api/tenant/scheduled-posts/{id}
 ```
+
 **Request Body:**
+
 ```json
 {
   "scheduled_at": "2025-01-20T14:00:00Z" // New date/time from drag-drop
@@ -259,16 +306,20 @@ PUT /api/tenant/scheduled-posts/{id}
 ## 5. **Media** (`/app/media`)
 
 ### List Media Library
+
 ```
 GET /api/tenant/media
 ```
+
 **Query Parameters:**
+
 - `cursor` (optional): Pagination cursor (integer ID)
 - `limit` (optional): Number of items per page (default: 20)
 - `type` (optional): Filter by type (`image`, `video`)
 - `platform` (optional): Filter by platform
 
 **Response:**
+
 ```json
 {
   "items": [
@@ -291,16 +342,21 @@ GET /api/tenant/media
 ```
 
 ### Get Single Media Item
+
 ```
 GET /api/tenant/media/{id}
 ```
+
 **Response:** Full media item details
 
 ### Upload Media (Stub - needs implementation)
+
 ```
 POST /api/tenant/media
 ```
+
 **Request Body:**
+
 ```json
 {
   "file": "<multipart/form-data>",
@@ -308,13 +364,17 @@ POST /api/tenant/media
   "tags": ["product", "summer"] // optional
 }
 ```
+
 **Status:** ⚠️ Currently a stub - needs pre-signed upload URL or direct upload implementation
 
 ### Update Media Metadata
+
 ```
 PUT /api/tenant/media/{id}
 ```
+
 **Request Body:**
+
 ```json
 {
   "tags": ["updated", "tags"],
@@ -323,6 +383,7 @@ PUT /api/tenant/media/{id}
 ```
 
 ### Delete Media
+
 ```
 DELETE /api/tenant/media/{id}
 ```
@@ -332,15 +393,19 @@ DELETE /api/tenant/media/{id}
 ### 5.1. **Bulk Uploads** (Submenu under Media)
 
 ### List Bulk Uploads
+
 ```
 GET /api/tenant/bulk-uploads
 ```
+
 **Query Parameters:**
+
 - `cursor` (optional): Pagination cursor
 - `limit` (optional): Number of items per page
 - `status` (optional): Filter by status (`pending`, `processing`, `completed`, `failed`)
 
 **Response:**
+
 ```json
 {
   "items": [
@@ -358,33 +423,43 @@ GET /api/tenant/bulk-uploads
 ```
 
 ### Get Single Bulk Upload
+
 ```
 GET /api/tenant/bulk-uploads/{id}
 ```
+
 **Response:** Bulk upload details with progress, items, errors
 
 ### Create Bulk Upload (Stub)
+
 ```
 POST /api/tenant/bulk-uploads
 ```
+
 **Status:** ⚠️ Currently a stub - needs implementation
 
 ### Update Bulk Upload Status
+
 ```
 PUT /api/tenant/bulk-uploads/{id}
 ```
+
 **Request Body:**
+
 ```json
 {
   "status": "paused" // or "resumed", "cancelled"
 }
 ```
+
 **Status:** ⚠️ Currently a stub
 
 ### Cancel Bulk Upload
+
 ```
 POST /api/tenant/bulk-uploads/{id}/cancel
 ```
+
 **Status:** ⚠️ Currently a stub
 
 ---
@@ -396,10 +471,13 @@ POST /api/tenant/bulk-uploads/{id}/cancel
 ## 6. **Integrations** (`/app/integrations`)
 
 ### List All Integrations
+
 ```
 GET /api/tenant/integrations
 ```
+
 **Response:**
+
 ```json
 {
   "integrations": [
@@ -436,18 +514,23 @@ GET /api/tenant/integrations
 ```
 
 ### Get Single Integration
+
 ```
 GET /api/tenant/integrations/{platform}
 ```
+
 **Platform values:** `instagram`, `facebook`, `whatsapp`, `tiktok`
 
 **Response:** Detailed integration info for specific platform
 
 ### Connect Integration (OAuth Start)
+
 ```
 GET /api/oauth/{platform}/start?tenant_id={id}&success_redirect={url}
 ```
+
 **Response:**
+
 ```json
 {
   "platform": "instagram",
@@ -457,39 +540,51 @@ GET /api/oauth/{platform}/start?tenant_id={id}&success_redirect={url}
 ```
 
 ### OAuth Callback
+
 ```
 GET /api/oauth/{platform}/callback?code={code}&state={state}
 ```
+
 **Status:** ⚠️ Currently a stub - needs full OAuth flow implementation
 
 ### Verify Integration
+
 ```
 POST /api/tenant/integrations/{platform}/verify
 ```
+
 **Response:** Verification result, health check status
 
 ### Repair Integration
+
 ```
 POST /api/tenant/integrations/{platform}/repair
 ```
+
 **Response:** Repair attempt result (reconnects webhooks, refreshes tokens)
 
 ### Delete/Disconnect Integration
+
 ```
 DELETE /api/tenant/integrations/{platform}
 ```
 
 ### Debug Integration
+
 ```
 GET /api/tenant/integrations/{platform}/debug
 ```
+
 **Response:** Detailed debug info (tokens, webhook URLs, account details)
 
 ### Subscribe Instagram Page (Manual)
+
 ```
 POST /api/tenant/integrations/instagram/subscribe
 ```
+
 **Request Body:**
+
 ```json
 {
   "page_id": "123456789"
@@ -501,16 +596,20 @@ POST /api/tenant/integrations/instagram/subscribe
 ## 7. **Analytics** (`/app/analytics`)
 
 ### Get Analytics Dashboard
+
 ```
 GET /api/tenant/analytics
 ```
+
 **Query Parameters:**
+
 - `start_date` (optional): Start date for analytics range (ISO 8601)
 - `end_date` (optional): End date for analytics range (ISO 8601)
 - `platform` (optional): Filter by platform
 - `metric` (optional): Specific metric to retrieve
 
 **Response:**
+
 ```json
 {
   "period": {
@@ -560,6 +659,7 @@ GET /api/tenant/analytics
 ```
 
 **Note:** Some analytics features may be stubs or need aggregation jobs:
+
 - ⚠️ `team_leaderboard` - needs implementation
 - ⚠️ Nightly aggregation - needs cron job
 
@@ -570,10 +670,13 @@ GET /api/tenant/analytics
 ### 8.1. **Account Settings**
 
 **Get Current User**
+
 ```
 GET /api/auth/me
 ```
+
 **Response:**
+
 ```json
 {
   "id": 1,
@@ -586,12 +689,15 @@ GET /api/auth/me
 ```
 
 **Update Account** (if exists)
+
 ```
 PUT /api/auth/me
 ```
+
 **Status:** ⚠️ May need implementation
 
 **Logout**
+
 ```
 POST /api/auth/logout
 ```
@@ -601,10 +707,13 @@ POST /api/auth/logout
 ### 8.2. **Business Profile**
 
 **Get Business Profile** (via onboarding status)
+
 ```
 GET /api/tenant/onboarding/status
 ```
+
 **Response includes:**
+
 ```json
 {
   "onboarding_complete": true,
@@ -619,10 +728,13 @@ GET /api/tenant/onboarding/status
 ```
 
 **Update Business Profile**
+
 ```
 PUT /api/tenant/settings/business-profile
 ```
+
 **Request Body:**
+
 ```json
 {
   "name": "Updated Business Name",
@@ -640,10 +752,13 @@ PUT /api/tenant/settings/business-profile
 ### 8.3. **AI Persona**
 
 **Get AI Persona** (via onboarding status)
+
 ```
 GET /api/tenant/onboarding/status
 ```
+
 **Response includes:**
+
 ```json
 {
   "persona": {
@@ -656,10 +771,13 @@ GET /api/tenant/onboarding/status
 ```
 
 **Update AI Persona**
+
 ```
 PUT /api/tenant/settings/persona
 ```
+
 **Request Body:**
+
 ```json
 {
   "style": "helpful", // or "professional", "casual", "friendly"
@@ -675,46 +793,60 @@ PUT /api/tenant/settings/persona
 ### 8.4. **Team** (Coming Soon)
 
 **List Team Members**
+
 ```
 GET /api/tenant/team/members
 ```
+
 **Status:** ⚠️ Currently a stub/placeholder
 
 **Invite Team Member**
+
 ```
 POST /api/tenant/team/invite
 ```
+
 **Request Body:**
+
 ```json
 {
   "email": "member@example.com",
   "role": "editor" // or "viewer", "admin"
 }
 ```
+
 **Status:** ⚠️ Currently a stub
 
 **Get Team Member**
+
 ```
 GET /api/tenant/team/members/{id}
 ```
+
 **Status:** ⚠️ Currently a stub
 
 **Update Team Member**
+
 ```
 PUT /api/tenant/team/members/{id}
 ```
+
 **Request Body:**
+
 ```json
 {
   "role": "admin"
 }
 ```
+
 **Status:** ⚠️ Currently a stub
 
 **Remove Team Member**
+
 ```
 DELETE /api/tenant/team/members/{id}
 ```
+
 **Status:** ⚠️ Currently a stub
 
 ---
@@ -722,10 +854,13 @@ DELETE /api/tenant/team/members/{id}
 ## 9. **Onboarding Summary** (Conditional - only if completed)
 
 ### Get Onboarding Status
+
 ```
 GET /api/tenant/onboarding/status
 ```
+
 **Response:**
+
 ```json
 {
   "onboarding_complete": true,
@@ -746,6 +881,7 @@ GET /api/tenant/onboarding/status
 ```
 
 **Note:** This endpoint is used to:
+
 1. Check if onboarding is complete (redirect if not)
 2. Show onboarding summary in Settings
 3. Determine which integrations are connected
@@ -755,10 +891,13 @@ GET /api/tenant/onboarding/status
 ## 🔐 Authentication Endpoints (Public)
 
 ### Signup
+
 ```
 POST /api/auth/signup
 ```
+
 **Request Body:**
+
 ```json
 {
   "name": "Business Name",
@@ -768,28 +907,36 @@ POST /api/auth/signup
 ```
 
 ### Login
+
 ```
 POST /api/auth/login
 ```
+
 **Request Body:**
+
 ```json
 {
   "email": "business@example.com",
   "password": "securepassword"
 }
 ```
+
 **Response:** Sets `brancr_tenant_session` cookie with JWT token
 
 ### Logout
+
 ```
 POST /api/auth/logout
 ```
+
 **Response:** Clears session cookie
 
 ### Get Current User
+
 ```
 GET /api/auth/me
 ```
+
 **Requires:** Authentication cookie
 
 ---
@@ -797,14 +944,18 @@ GET /api/auth/me
 ## 📝 Templates (Used in Campaigns)
 
 ### List Templates
+
 ```
 GET /api/tenant/templates
 ```
+
 **Query Parameters:**
+
 - `type` (optional): Filter by type (`recurring`, `one_time`)
 - `platform` (optional): Filter by platform
 
 **Response:**
+
 ```json
 {
   "items": [
@@ -827,10 +978,13 @@ GET /api/tenant/templates
 ```
 
 ### Create Template
+
 ```
 POST /api/tenant/templates
 ```
+
 **Request Body:**
+
 ```json
 {
   "name": "Template Name",
@@ -847,16 +1001,19 @@ POST /api/tenant/templates
 ```
 
 ### Get Template
+
 ```
 GET /api/tenant/templates/{id}
 ```
 
 ### Update Template
+
 ```
 PUT /api/tenant/templates/{id}
 ```
 
 ### Delete Template
+
 ```
 DELETE /api/tenant/templates/{id}
 ```
@@ -866,21 +1023,27 @@ DELETE /api/tenant/templates/{id}
 ## 📱 WhatsApp-Specific Endpoints
 
 ### List Available Phone Numbers (Provider-Owned)
+
 ```
 GET /api/tenant/whatsapp/numbers
 ```
+
 **Response:** List of available phone numbers from provider
 
 ### Assign Phone Number
+
 ```
 POST /api/tenant/whatsapp/numbers/{id}/assign
 ```
 
 ### Select WhatsApp Number (Simplified)
+
 ```
 POST /api/tenant/whatsapp/select-number
 ```
+
 **Request Body:**
+
 ```json
 {
   "phone_number_id": "123456789"
@@ -888,26 +1051,31 @@ POST /api/tenant/whatsapp/select-number
 ```
 
 ### Get Current Assigned Number
+
 ```
 GET /api/tenant/whatsapp/current
 ```
 
 ### Disconnect Phone Number
+
 ```
 POST /api/tenant/whatsapp/disconnect
 ```
 
 ### Request Tenant Phone Number (Tenant-Provided)
+
 ```
 POST /api/tenant/whatsapp/request-number
 ```
 
 ### Verify Tenant Phone Number
+
 ```
 POST /api/tenant/whatsapp/verify-number
 ```
 
 ### Check Phone Number Status
+
 ```
 POST /api/tenant/whatsapp/check-number
 ```
@@ -917,6 +1085,7 @@ POST /api/tenant/whatsapp/check-number
 ## ⚠️ Endpoints That Need Implementation
 
 ### Stubs/Placeholders:
+
 1. **Media Upload** (`POST /api/tenant/media`) - Needs pre-signed URL or direct upload
 2. **Bulk Upload Creation** (`POST /api/tenant/bulk-uploads`) - Needs job creation logic
 3. **Bulk Upload Management** (`PUT /api/tenant/bulk-uploads/{id}`, `POST /api/tenant/bulk-uploads/{id}/cancel`) - Needs pause/resume/cancel logic
@@ -926,6 +1095,7 @@ POST /api/tenant/whatsapp/check-number
 7. **CSV Export** - Not implemented (remove from frontend)
 
 ### Needs Enhancement:
+
 1. **Analytics Aggregation** - Needs nightly cron job for `team_leaderboard` and trends
 2. **Calendar Drag-Drop** - Needs validation for `PUT /api/tenant/scheduled-posts/{id}` with new `scheduled_at`
 3. **Caption Generation** - Could be enhanced with more AI options
@@ -936,6 +1106,7 @@ POST /api/tenant/whatsapp/check-number
 ## 📊 Response Format Standards
 
 ### Success Response
+
 ```json
 {
   "data": {...} // or "items": [...] for lists
@@ -943,6 +1114,7 @@ POST /api/tenant/whatsapp/check-number
 ```
 
 ### Paginated List Response
+
 ```json
 {
   "items": [...],
@@ -951,6 +1123,7 @@ POST /api/tenant/whatsapp/check-number
 ```
 
 ### Error Response
+
 ```json
 {
   "error": {
@@ -961,6 +1134,7 @@ POST /api/tenant/whatsapp/check-number
 ```
 
 ### Common HTTP Status Codes
+
 - `200` - Success
 - `201` - Created
 - `400` - Bad Request

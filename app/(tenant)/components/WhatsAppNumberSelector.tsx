@@ -10,9 +10,9 @@ export function WhatsAppNumberSelector() {
   const [assigningNumberId, setAssigningNumberId] = useState<string | null>(null);
   
   // Tenant-provided number flow
-  const [showRequestForm, setShowRequestForm] = useState(false);
   const [requestPhoneNumber, setRequestPhoneNumber] = useState('');
-  const [phoneNumberID, setPhoneNumberID] = useState<string | null>(null);
+  const [codeMethod, setCodeMethod] = useState<"SMS" | "VOICE">("SMS");
+  const [requestId, setRequestId] = useState<number | null>(null);
   const [showVerifyForm, setShowVerifyForm] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [checkingNumber, setCheckingNumber] = useState(false);
@@ -45,12 +45,12 @@ export function WhatsAppNumberSelector() {
 
   // Request number mutation (custom number)
   const requestMutation = useMutation({
-    mutationFn: (phoneNumber: string) => tenantApi.requestWhatsAppNumber({ phone_number: phoneNumber }),
+    mutationFn: (payload: { phone_number: string; code_method: "SMS" | "VOICE" }) => 
+      tenantApi.requestWhatsAppNumber(payload),
     onSuccess: (data) => {
-      setPhoneNumberID(data.phone_number_id);
-      setShowRequestForm(false);
+      setRequestId(data.request_id);
       setShowVerifyForm(true);
-      toast.success("📨 Verification code requested! Check your phone (SMS) for the code.");
+      toast.success(`📨 Verification code requested! Check your phone (${codeMethod}) for the code.`);
     },
     onError: (error) => {
       if (error instanceof ApiError) {
@@ -59,7 +59,6 @@ export function WhatsAppNumberSelector() {
             "📱 This phone number is not yet in our system. Please contact support to add your phone number first, or select an available number from the pool below.",
             { duration: 8000 }
           );
-          setShowRequestForm(false);
         } else {
           toast.error(error.message || "Failed to request number");
         }
@@ -71,14 +70,15 @@ export function WhatsAppNumberSelector() {
 
   // Verify number mutation
   const verifyMutation = useMutation({
-    mutationFn: (payload: { phone_number_id: string; verification_code: string }) =>
+    mutationFn: (payload: { request_id: number; verification_code: string }) =>
       tenantApi.verifyWhatsAppNumber(payload),
     onSuccess: (data) => {
       toast.success(`✅ ${data.message}`);
       setShowVerifyForm(false);
       setVerificationCode('');
       setRequestPhoneNumber('');
-      setPhoneNumberID(null);
+      setRequestId(null);
+      setCodeMethod("SMS");
       void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
       void queryClient.invalidateQueries({ queryKey: ["whatsapp-current"] });
       void queryClient.invalidateQueries({ queryKey: ["integrations"] });
@@ -116,7 +116,6 @@ export function WhatsAppNumberSelector() {
     onSuccess: (data) => {
       if (data.ready) {
         toast.success("✅ Number is ready for verification!");
-        setShowRequestForm(true);
       } else {
         toast.error(data.message || "Number is not ready yet. Please contact support to add your number to Meta Business Manager first.");
       }
@@ -151,14 +150,17 @@ export function WhatsAppNumberSelector() {
       return;
     }
     const cleanedPhone = requestPhoneNumber.replace(/\s+/g, '');
-    requestMutation.mutate(cleanedPhone);
+    requestMutation.mutate({
+      phone_number: cleanedPhone,
+      code_method: codeMethod,
+    });
   };
 
   const handleVerifyNumber = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phoneNumberID || verificationCode.length !== 6) return;
+    if (!requestId || verificationCode.length !== 6) return;
     verifyMutation.mutate({
-      phone_number_id: phoneNumberID,
+      request_id: requestId,
       verification_code: verificationCode,
     });
   };
@@ -332,8 +334,8 @@ export function WhatsAppNumberSelector() {
               </p>
             </div>
 
-            {!showRequestForm && !showVerifyForm && (
-              <div className="space-y-2">
+            {!showVerifyForm && (
+              <form onSubmit={handleRequestNumber} className="space-y-2">
                 <input
                   type="tel"
                   value={requestPhoneNumber}
@@ -345,10 +347,39 @@ export function WhatsAppNumberSelector() {
                     }
                   }}
                   placeholder="+1234567890"
+                  required
                   className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
+                
+                {/* SMS/Voice selector */}
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="codeMethod"
+                      value="SMS"
+                      checked={codeMethod === "SMS"}
+                      onChange={(e) => setCodeMethod(e.target.value as "SMS" | "VOICE")}
+                      className="w-4 h-4 text-primary focus:ring-primary"
+                    />
+                    <span className="text-xs font-medium text-gray-700">SMS</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="codeMethod"
+                      value="VOICE"
+                      checked={codeMethod === "VOICE"}
+                      onChange={(e) => setCodeMethod(e.target.value as "SMS" | "VOICE")}
+                      className="w-4 h-4 text-primary focus:ring-primary"
+                    />
+                    <span className="text-xs font-medium text-gray-700">Voice</span>
+                  </label>
+                </div>
+
                 <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={handleCheckNumber}
                     disabled={checkingNumber || !requestPhoneNumber}
                     className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50"
@@ -356,95 +387,57 @@ export function WhatsAppNumberSelector() {
                     {checkingNumber ? "Checking..." : "Check Status"}
                   </button>
                   <button
-                    onClick={() => setShowRequestForm(true)}
-                    disabled={!requestPhoneNumber}
-                    className="flex-1 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
-                  >
-                    Request Verification Code
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {showRequestForm && (
-              <form onSubmit={handleRequestNumber} className="space-y-2">
-                <div className="rounded-lg border border-amber-200 bg-amber-50 p-2">
-                  <p className="text-xs text-amber-900">
-                    ⚠️ Admin must add your number to Meta Business Manager first
-                  </p>
-                </div>
-                <input
-                  type="tel"
-                  value={requestPhoneNumber}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    // Allow digits, +, spaces, and dashes
-                    if (/^[\d\s\+\-]*$/.test(value)) {
-                      setRequestPhoneNumber(value);
-                    }
-                  }}
-                  placeholder="+1234567890"
-                  required
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                <div className="flex gap-2">
-                  <button
                     type="submit"
                     disabled={requestMutation.isPending || !requestPhoneNumber}
                     className="flex-1 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
                   >
-                    {requestMutation.isPending ? "Requesting..." : "Request Code"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowRequestForm(false);
-                      setRequestPhoneNumber('');
-                    }}
-                    className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-gray-300"
-                  >
-                    Cancel
+                    {requestMutation.isPending ? "Requesting..." : "Request Verification Code"}
                   </button>
                 </div>
               </form>
             )}
 
             {showVerifyForm && (
-              <form onSubmit={handleVerifyNumber} className="space-y-2">
-                <p className="text-xs text-gray-600">
-                  Enter the 6-digit verification code sent to {requestPhoneNumber}
-                </p>
-                <input
-                  type="text"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
-                  placeholder="123456"
-                  maxLength={6}
-                  required
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                <div className="flex gap-2">
-                  <button
-                    type="submit"
-                    disabled={verifyMutation.isPending || verificationCode.length !== 6}
-                    className="flex-1 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
-                  >
-                    {verifyMutation.isPending ? "Verifying..." : "Verify"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowVerifyForm(false);
-                      setVerificationCode('');
-                      setPhoneNumberID(null);
-                      setRequestPhoneNumber('');
-                    }}
-                    className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-gray-300"
-                  >
-                    Cancel
-                  </button>
+              <div className="space-y-2">
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-2">
+                  <p className="text-xs text-emerald-900">
+                    ✅ Verification code sent via {codeMethod} to {formatPhoneNumber(requestPhoneNumber)}
+                  </p>
                 </div>
-              </form>
+                <form onSubmit={handleVerifyNumber} className="space-y-2">
+                  <input
+                    type="text"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
+                    placeholder="123456"
+                    maxLength={6}
+                    required
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      disabled={verifyMutation.isPending || verificationCode.length !== 6}
+                      className="flex-1 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
+                    >
+                      {verifyMutation.isPending ? "Verifying..." : "Verify Code"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowVerifyForm(false);
+                        setVerificationCode('');
+                        setRequestId(null);
+                        setRequestPhoneNumber('');
+                        setCodeMethod("SMS");
+                      }}
+                      className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-gray-300"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
             )}
           </div>
 
