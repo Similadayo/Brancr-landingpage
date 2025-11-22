@@ -10,12 +10,27 @@ export function WhatsAppNumberSelector() {
   const [assigningNumberId, setAssigningNumberId] = useState<string | null>(null);
   
   // Tenant-provided number flow
-  const [requestPhoneNumber, setRequestPhoneNumber] = useState('');
+  const [countryCode, setCountryCode] = useState('+234'); // Default to Nigeria
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [codeMethod, setCodeMethod] = useState<"SMS" | "VOICE">("SMS");
   const [requestId, setRequestId] = useState<number | null>(null);
   const [showVerifyForm, setShowVerifyForm] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [checkingNumber, setCheckingNumber] = useState(false);
+
+  // Common country codes (focusing on African countries)
+  const countryCodes = [
+    { code: '+234', country: '🇳🇬 Nigeria' },
+    { code: '+27', country: '🇿🇦 South Africa' },
+    { code: '+254', country: '🇰🇪 Kenya' },
+    { code: '+233', country: '🇬🇭 Ghana' },
+    { code: '+256', country: '🇺🇬 Uganda' },
+    { code: '+255', country: '🇹🇿 Tanzania' },
+    { code: '+251', country: '🇪🇹 Ethiopia' },
+    { code: '+1', country: '🇺🇸 USA/Canada' },
+    { code: '+44', country: '🇬🇧 UK' },
+    { code: '+91', country: '🇮🇳 India' },
+  ];
 
   // Fetch available numbers and current assignment
   const { data: numbersData, isLoading, error } = useQuery({
@@ -76,7 +91,7 @@ export function WhatsAppNumberSelector() {
       toast.success(`✅ ${data.message}`);
       setShowVerifyForm(false);
       setVerificationCode('');
-      setRequestPhoneNumber('');
+      setPhoneNumber('');
       setRequestId(null);
       setCodeMethod("SMS");
       void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
@@ -145,13 +160,18 @@ export function WhatsAppNumberSelector() {
 
   const handleRequestNumber = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validatePhoneNumber(requestPhoneNumber)) {
-      toast.error("Please enter a valid phone number (e.g., +1234567890)");
+    if (!phoneNumber.trim()) {
+      toast.error("Please enter a phone number");
       return;
     }
-    const cleanedPhone = requestPhoneNumber.replace(/\s+/g, '');
+    // Combine country code and phone number
+    const fullPhoneNumber = `${countryCode}${phoneNumber.replace(/\s+/g, '')}`;
+    if (!validatePhoneNumber(fullPhoneNumber)) {
+      toast.error("Please enter a valid phone number");
+      return;
+    }
     requestMutation.mutate({
-      phone_number: cleanedPhone,
+      phone_number: fullPhoneNumber,
       code_method: codeMethod,
     });
   };
@@ -166,19 +186,20 @@ export function WhatsAppNumberSelector() {
   };
 
   const handleCheckNumber = () => {
-    if (!requestPhoneNumber) {
+    if (!phoneNumber.trim()) {
       toast.error("Please enter a phone number first");
       return;
     }
+    // Combine country code and phone number
+    const fullPhoneNumber = `${countryCode}${phoneNumber.replace(/\s+/g, '')}`;
     // Basic phone number validation
     const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-    const cleanedPhone = requestPhoneNumber.replace(/\s+/g, '');
-    if (!phoneRegex.test(cleanedPhone)) {
-      toast.error("Please enter a valid phone number (e.g., +1234567890)");
+    if (!phoneRegex.test(fullPhoneNumber)) {
+      toast.error("Please enter a valid phone number");
       return;
     }
     setCheckingNumber(true);
-    checkNumberMutation.mutate(cleanedPhone);
+    checkNumberMutation.mutate(fullPhoneNumber);
   };
 
   // Format phone number for display
@@ -336,20 +357,34 @@ export function WhatsAppNumberSelector() {
 
             {!showVerifyForm && (
               <form onSubmit={handleRequestNumber} className="space-y-2">
-                <input
-                  type="tel"
-                  value={requestPhoneNumber}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    // Allow digits, +, spaces, and dashes
-                    if (/^[\d\s\+\-]*$/.test(value)) {
-                      setRequestPhoneNumber(value);
-                    }
-                  }}
-                  placeholder="+1234567890"
-                  required
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                />
+                <div className="flex gap-2">
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    aria-label="Country code"
+                    className="w-32 rounded-lg border border-gray-200 px-2 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white"
+                  >
+                    {countryCodes.map((cc) => (
+                      <option key={cc.code} value={cc.code}>
+                        {cc.code} {cc.country}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow only digits, spaces, and dashes (no + sign needed as it's in country code)
+                      if (/^[\d\s\-]*$/.test(value)) {
+                        setPhoneNumber(value);
+                      }
+                    }}
+                    placeholder="8123456789"
+                    required
+                    className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
                 
                 {/* SMS/Voice selector */}
                 <div className="flex gap-4">
@@ -381,14 +416,14 @@ export function WhatsAppNumberSelector() {
                   <button
                     type="button"
                     onClick={handleCheckNumber}
-                    disabled={checkingNumber || !requestPhoneNumber}
+                    disabled={checkingNumber || !phoneNumber.trim()}
                     className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50"
                   >
                     {checkingNumber ? "Checking..." : "Check Status"}
                   </button>
                   <button
                     type="submit"
-                    disabled={requestMutation.isPending || !requestPhoneNumber}
+                    disabled={requestMutation.isPending || !phoneNumber.trim()}
                     className="flex-1 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
                   >
                     {requestMutation.isPending ? "Requesting..." : "Request Verification Code"}
@@ -401,7 +436,7 @@ export function WhatsAppNumberSelector() {
               <div className="space-y-2">
                 <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-2">
                   <p className="text-xs text-emerald-900">
-                    ✅ Verification code sent via {codeMethod} to {formatPhoneNumber(requestPhoneNumber)}
+                    ✅ Verification code sent via {codeMethod} to {formatPhoneNumber(`${countryCode}${phoneNumber.replace(/\s+/g, '')}`)}
                   </p>
                 </div>
                 <form onSubmit={handleVerifyNumber} className="space-y-2">
@@ -428,7 +463,7 @@ export function WhatsAppNumberSelector() {
                         setShowVerifyForm(false);
                         setVerificationCode('');
                         setRequestId(null);
-                        setRequestPhoneNumber('');
+                        setPhoneNumber('');
                         setCodeMethod("SMS");
                       }}
                       className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-gray-300"
