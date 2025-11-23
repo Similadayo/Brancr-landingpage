@@ -64,7 +64,7 @@ export function WhatsAppNumberSelector() {
       tenantApi.connectWhatsApp(payload),
     onSuccess: (data) => {
       if (data.provider === 'respondio') {
-        // Instant connection - show success
+        // Instant connection - show success and refresh
         toast.success(data.message || "✅ WhatsApp connected successfully via Respond.io!");
         void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
         void queryClient.invalidateQueries({ queryKey: ["whatsapp-current"] });
@@ -72,6 +72,10 @@ export function WhatsAppNumberSelector() {
         void queryClient.invalidateQueries({ queryKey: ["whatsapp-connection-status"] });
         // Reset form
         setPhoneNumber('');
+        // Refresh page after a short delay to show updated connection status
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       } else {
         // Gupshup - show verification code input
         if (data.request_id) {
@@ -312,7 +316,10 @@ export function WhatsAppNumberSelector() {
         </div>
       ) : (
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-gray-900">No WhatsApp Number Assigned</h3>
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900">No WhatsApp Number Assigned</h3>
+            <p className="mt-1 text-xs text-gray-500 uppercase tracking-wide">NO NUMBER ASSIGNED</p>
+          </div>
 
           {/* Option 1: Select from Pool */}
           {availableNumbers.length > 0 && (
