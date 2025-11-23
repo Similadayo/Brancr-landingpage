@@ -60,7 +60,7 @@ export function WhatsAppNumberSelector() {
 
   // Connect WhatsApp mutation
   const connectMutation = useMutation({
-    mutationFn: (payload: { phone_number: string; provider?: "auto" | "respondio" | "gupshup" }) => 
+    mutationFn: (payload: { phone_number: string; provider?: "auto" | "respondio" | "gupshup"; channel_id?: string }) => 
       tenantApi.connectWhatsApp(payload),
     onSuccess: (data) => {
       if (data.provider === 'respondio') {
@@ -174,10 +174,19 @@ export function WhatsAppNumberSelector() {
       toast.error("Please enter a valid phone number");
       return;
     }
-    connectMutation.mutate({
+    
+    // Build payload - include channel_id for Respond.io connections
+    const payload: { phone_number: string; provider?: "auto" | "respondio" | "gupshup"; channel_id?: string } = {
       phone_number: fullPhoneNumber,
       provider: provider,
-    });
+    };
+    
+    // Include channel_id for Respond.io (or auto which might choose Respond.io)
+    if (provider === "respondio" || provider === "auto") {
+      payload.channel_id = "440617";
+    }
+    
+    connectMutation.mutate(payload);
   };
 
   const handleVerifyNumber = (e: React.FormEvent) => {

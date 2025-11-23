@@ -703,7 +703,7 @@ export const tenantApi = {
   checkWhatsAppNumber: (payload: { phone_number: string }) =>
     post<typeof payload, { ready: boolean; message?: string }>("/api/tenant/whatsapp/check-number", payload),
 
-  connectWhatsApp: (payload: { phone_number: string; provider?: "auto" | "respondio" | "gupshup" }) =>
+  connectWhatsApp: (payload: { phone_number: string; provider?: "auto" | "respondio" | "gupshup"; channel_id?: string }) =>
     post<typeof payload, { 
       success: boolean; 
       provider: string; 
