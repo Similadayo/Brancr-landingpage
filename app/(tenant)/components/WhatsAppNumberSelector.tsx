@@ -134,10 +134,20 @@ export function WhatsAppNumberSelector() {
     },
   });
 
-  // Check connection status
+  // Check connection status (with error handling to prevent crashes)
   const { data: connectionStatus } = useQuery({
     queryKey: ["whatsapp-connection-status"],
-    queryFn: () => tenantApi.whatsappConnectionStatus(),
+    queryFn: async () => {
+      try {
+        return await tenantApi.whatsappConnectionStatus();
+      } catch (error) {
+        // Silently fail - connection status is optional
+        console.warn("Failed to fetch WhatsApp connection status:", error);
+        return { connected: false };
+      }
+    },
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 
   const handleAssign = (phoneNumberId: string) => {
@@ -243,7 +253,8 @@ export function WhatsAppNumberSelector() {
 
   const currentNumber = numbersData?.current;
   const availableNumbers = numbersData?.available_numbers || [];
-  const isConnected = connectionStatus?.connected || !!currentNumber;
+  // Safely check connection status - fallback to currentNumber if status query fails
+  const isConnected = (connectionStatus?.connected ?? false) || !!currentNumber;
 
   return (
     <div className="space-y-4">
@@ -259,6 +270,11 @@ export function WhatsAppNumberSelector() {
                 {connectionStatus?.provider && (
                   <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
                     {connectionStatus.provider === 'respondio' ? 'Respond.io' : connectionStatus.provider === 'gupshup' ? 'Gupshup' : connectionStatus.provider}
+                  </span>
+                )}
+                {!connectionStatus?.provider && currentNumber && (
+                  <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
+                    WhatsApp
                   </span>
                 )}
                 {(currentNumber as any)?.quality_rating && getQualityBadge((currentNumber as any).quality_rating)}
