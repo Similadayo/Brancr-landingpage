@@ -121,13 +121,20 @@ export function WhatsAppNumberSelector() {
     mutationFn: () => tenantApi.disconnectWhatsApp(),
     onSuccess: () => {
       toast.success("✅ WhatsApp number disconnected");
+      // Invalidate all related queries
       void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
       void queryClient.invalidateQueries({ queryKey: ["whatsapp-current"] });
+      void queryClient.invalidateQueries({ queryKey: ["whatsapp-connection-status"] });
       void queryClient.invalidateQueries({ queryKey: ["integrations"] });
+      // Reset form state
+      setPhoneNumber('');
+      setRequestId(null);
+      setShowVerifyForm(false);
+      setVerificationCode('');
     },
     onError: (error) => {
       if (error instanceof ApiError) {
-        toast.error(error.message);
+        toast.error(error.message || "Failed to disconnect WhatsApp");
       } else {
         toast.error("Failed to disconnect. Please try again.");
       }
