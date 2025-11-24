@@ -162,8 +162,16 @@ export function WhatsAppNumberSelector() {
     },
     onError: (error) => {
       if (error instanceof ApiError) {
-        toast.error(error.message || "Failed to connect WhatsApp");
+        // Try to extract error message from response body
+        const errorMessage = 
+          (typeof error.body?.error === 'string' ? error.body.error : null) ||
+          (typeof error.body?.message === 'string' ? error.body.message : null) ||
+          error.message ||
+          "Failed to connect WhatsApp";
+        console.error("WhatsApp connection error:", error.status, error.body);
+        toast.error(errorMessage);
       } else {
+        console.error("WhatsApp connection error:", error);
         toast.error("Failed to connect WhatsApp. Please try again.");
       }
     },
@@ -223,8 +231,10 @@ export function WhatsAppNumberSelector() {
     
     // Build payload
     const payload: { phone_number: string; provider: "gupshup_partner" | "respondio" | "auto"; channel_id?: string } = {
-      phone_number: fullPhoneNumber,
       provider: provider,
+      // For Gupshup Partner: phone_number can be empty string (optional)
+      // For Respond.io/auto: phone_number is required
+      phone_number: provider === "gupshup_partner" ? (fullPhoneNumber || "") : fullPhoneNumber,
     };
     
     // Include channel_id for Respond.io
