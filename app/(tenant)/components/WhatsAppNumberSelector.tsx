@@ -137,13 +137,30 @@ export function WhatsAppNumberSelector() {
       tenantApi.connectWhatsApp(payload),
     onSuccess: (data) => {
       if (data.onboarding_url && data.status === "pending_onboarding") {
-        // Gupshup Partner - open onboarding URL
+        // Gupshup Partner - open onboarding URL in popup
         setOnboardingUrl(data.onboarding_url);
-        const newWindow = window.open(data.onboarding_url, '_blank', 'noopener,noreferrer');
-        if (newWindow) {
-          setOnboardingWindow(newWindow);
+        
+        // Calculate popup dimensions (centered on screen)
+        const width = 800;
+        const height = 900;
+        const left = (window.screen.width - width) / 2;
+        const top = (window.screen.height - height) / 2;
+        
+        const popupFeatures = `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes,toolbar=no,menubar=no,location=no`;
+        
+        const popupWindow = window.open(
+          data.onboarding_url,
+          'GupshupOnboarding',
+          popupFeatures
+        );
+        
+        if (popupWindow) {
+          setOnboardingWindow(popupWindow);
           setIsPolling(true);
-          toast.success("📱 Opening Gupshup onboarding... Complete the setup in the new tab.");
+          toast.success("📱 Opening Gupshup onboarding... Complete the setup in the popup window.");
+          
+          // Focus on popup
+          popupWindow.focus();
         } else {
           toast.error("Please allow popups to open the onboarding page.");
         }
@@ -378,17 +395,37 @@ export function WhatsAppNumberSelector() {
                 </div>
               </div>
               {onboardingUrl && (
-                <a
-                  href={onboardingUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => {
+                    // Calculate popup dimensions (centered on screen)
+                    const width = 800;
+                    const height = 900;
+                    const left = (window.screen.width - width) / 2;
+                    const top = (window.screen.height - height) / 2;
+                    
+                    const popupFeatures = `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes,toolbar=no,menubar=no,location=no`;
+                    
+                    const popupWindow = window.open(
+                      onboardingUrl,
+                      'GupshupOnboarding',
+                      popupFeatures
+                    );
+                    
+                    if (popupWindow) {
+                      setOnboardingWindow(popupWindow);
+                      setIsPolling(true);
+                      popupWindow.focus();
+                    } else {
+                      toast.error("Please allow popups to open the onboarding page.");
+                    }
+                  }}
                   className="mt-3 inline-flex items-center gap-2 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
                 >
                   Open Gupshup Onboarding
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
-                </a>
+                </button>
               )}
             </div>
           )}
