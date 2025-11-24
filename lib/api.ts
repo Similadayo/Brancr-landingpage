@@ -703,21 +703,27 @@ export const tenantApi = {
   checkWhatsAppNumber: (payload: { phone_number: string }) =>
     post<typeof payload, { ready: boolean; message?: string }>("/api/tenant/whatsapp/check-number", payload),
 
-  connectWhatsApp: (payload: { phone_number: string; provider?: "auto" | "respondio" | "gupshup"; channel_id?: string }) =>
+  connectWhatsApp: (payload: { phone_number: string; provider: "gupshup_partner" | "respondio" | "auto"; channel_id?: string }) =>
     post<typeof payload, { 
-      success: boolean; 
-      provider: string; 
-      phone_number: string; 
-      message: string; 
+      // For Gupshup Partner
+      onboarding_url?: string;
+      status?: "pending_onboarding" | "pending_verification" | "live" | "failed";
+      message: string;
+      // For Respond.io (immediate connection)
+      success?: boolean;
+      provider?: string;
+      phone_number?: string;
       account_id?: number;
-      request_id?: number; // For Gupshup verification flow
     }>("/api/tenant/whatsapp/connect", payload),
 
   whatsappConnectionStatus: () =>
     get<{
       connected: boolean;
-      provider?: string;
+      provider?: "gupshup_partner" | "respondio" | "none";
       phone_number?: string;
+      app_id?: string; // For Gupshup Partner
+      status?: "live" | "pending_onboarding" | "pending_verification" | "failed";
+      message?: string;
       account_id?: number;
     }>("/api/tenant/whatsapp/connection-status"),
 
