@@ -163,12 +163,22 @@ export function WhatsAppNumberSelector() {
     onError: (error) => {
       if (error instanceof ApiError) {
         // Try to extract error message from response body
+        const errorBody = error.body || {};
         const errorMessage = 
-          (typeof error.body?.error === 'string' ? error.body.error : null) ||
-          (typeof error.body?.message === 'string' ? error.body.message : null) ||
+          (typeof errorBody.error === 'string' ? errorBody.error : null) ||
+          (typeof errorBody.message === 'string' ? errorBody.message : null) ||
+          (typeof errorBody.detail === 'string' ? errorBody.detail : null) ||
           error.message ||
-          "Failed to connect WhatsApp";
-        console.error("WhatsApp connection error:", error.status, error.body);
+          `Failed to connect WhatsApp (${error.status})`;
+        
+        // Log full error details for debugging
+        console.error("WhatsApp connection error:", {
+          status: error.status,
+          statusText: error.message,
+          body: errorBody,
+          fullError: error
+        });
+        
         toast.error(errorMessage);
       } else {
         console.error("WhatsApp connection error:", error);
@@ -229,20 +239,32 @@ export function WhatsAppNumberSelector() {
       }
     }
     
-    // Build payload
-    const payload: { phone_number: string; provider: "gupshup_partner" | "respondio" | "auto"; channel_id?: string } = {
+    // Build payload - conditionally include phone_number
+    // For Gupshup Partner: phone_number is optional (omit if empty)
+    // For Respond.io/auto: phone_number is required
+    const payload: { phone_number?: string; provider: "gupshup_partner" | "respondio" | "auto"; channel_id?: string } = {
       provider: provider,
-      // For Gupshup Partner: phone_number can be empty string (optional)
-      // For Respond.io/auto: phone_number is required
-      phone_number: provider === "gupshup_partner" ? (fullPhoneNumber || "") : fullPhoneNumber,
     };
+    
+    if (provider === "gupshup_partner") {
+      // For Gupshup Partner, only include phone_number if provided
+      if (fullPhoneNumber) {
+        payload.phone_number = fullPhoneNumber;
+      }
+    } else {
+      // For Respond.io and auto, phone_number is required
+      payload.phone_number = fullPhoneNumber;
+    }
     
     // Include channel_id for Respond.io
     if (provider === "respondio" && channelId) {
       payload.channel_id = channelId;
     }
     
-    connectMutation.mutate(payload);
+    // Log payload for debugging
+    console.log("Connecting WhatsApp with payload:", payload);
+    
+    connectMutation.mutate(payload as { phone_number: string; provider: "gupshup_partner" | "respondio" | "auto"; channel_id?: string });
   };
 
   // Format phone number for display
