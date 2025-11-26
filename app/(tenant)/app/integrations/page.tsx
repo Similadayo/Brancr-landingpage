@@ -58,7 +58,8 @@ const connectionHistory = [
 ];
 
 export default function IntegrationsPage() {
-  const { data: integrations = [], isLoading, error, refetch: refetchIntegrations } = useIntegrations();
+  const { data: integrationsData, isLoading, error, refetch: refetchIntegrations } = useIntegrations();
+  const integrations = Array.isArray(integrationsData) ? integrationsData : [];
   const verifyMutation = useVerifyIntegration();
   const disconnectMutation = useDisconnectIntegration();
   const [disconnectingPlatform, setDisconnectingPlatform] = useState<string | null>(null);
