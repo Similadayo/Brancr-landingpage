@@ -231,9 +231,9 @@ export default function IntegrationsPage() {
                 </div>
                 {isWhatsApp && connected && integration?.external_id ? (
                   <p className="mt-2 text-xs text-gray-500">Number: {integration.external_id}</p>
-                ) : platform === "facebook" && integration?.page_name ? (
+                ) : platform === "facebook" && connected && integration?.page_name ? (
                   <p className="mt-2 text-xs text-gray-500">{integration.page_name}</p>
-                ) : platform === "instagram" ? (
+                ) : platform === "instagram" && connected ? (
                   <div className="mt-2 space-y-1">
                     {integration?.instagram_handle ? (
                       <p className="text-xs text-gray-500">@{integration.instagram_handle}</p>
@@ -244,13 +244,13 @@ export default function IntegrationsPage() {
                       <p className="text-xs text-gray-400">Page: {integration.page_name}</p>
                     )}
                   </div>
-                ) : integration?.username && !isWhatsApp ? (
+                ) : connected && integration?.username && !isWhatsApp ? (
                   <p className="mt-2 text-xs text-gray-500">@{integration.username}</p>
                 ) : null}
                 {!isWhatsApp && (
                   <>
                     <p className="mt-3 text-sm text-gray-600">{status.description}</p>
-                    {integration && "webhook_status" in integration ? (
+                    {connected && integration && "webhook_status" in integration ? (
                       <div className="mt-3">
                         <div className="rounded-lg border border-gray-200 bg-white px-3 py-2">
                           <p className="uppercase tracking-[0.3em] text-gray-400">Webhook</p>
