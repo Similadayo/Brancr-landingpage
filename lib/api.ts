@@ -454,6 +454,8 @@ export const tenantApi = {
         platform: string;
         connected: boolean;
         username?: string;
+        page_name?: string;
+        instagram_handle?: string;
         external_id?: string;
         page_id?: string;
         mode?: string;
@@ -470,6 +472,8 @@ export const tenantApi = {
         platform: string;
         connected: boolean;
         username?: string;
+        page_name?: string;
+        instagram_handle?: string;
         external_id?: string;
         page_id?: string;
         mode?: string;

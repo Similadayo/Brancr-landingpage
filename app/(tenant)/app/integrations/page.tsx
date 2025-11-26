@@ -231,6 +231,19 @@ export default function IntegrationsPage() {
                 </div>
                 {isWhatsApp && connected && integration?.external_id ? (
                   <p className="mt-2 text-xs text-gray-500">Number: {integration.external_id}</p>
+                ) : platform === "facebook" && integration?.page_name ? (
+                  <p className="mt-2 text-xs text-gray-500">{integration.page_name}</p>
+                ) : platform === "instagram" ? (
+                  <div className="mt-2 space-y-1">
+                    {integration?.instagram_handle ? (
+                      <p className="text-xs text-gray-500">@{integration.instagram_handle}</p>
+                    ) : integration?.username ? (
+                      <p className="text-xs text-gray-500">@{integration.username}</p>
+                    ) : null}
+                    {integration?.page_name && (
+                      <p className="text-xs text-gray-400">Page: {integration.page_name}</p>
+                    )}
+                  </div>
                 ) : integration?.username && !isWhatsApp ? (
                   <p className="mt-2 text-xs text-gray-500">@{integration.username}</p>
                 ) : null}
