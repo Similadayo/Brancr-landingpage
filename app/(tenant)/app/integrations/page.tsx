@@ -42,8 +42,8 @@ const STATUS_MAP: Record<
 
 const PLATFORM_NAMES: Record<string, string> = {
   whatsapp: "WhatsApp Business",
-  instagram: "Instagram DM",
-  facebook: "Facebook Messenger",
+  instagram: "Instagram",
+  facebook: "Facebook",
   telegram: "Telegram Bot",
   tiktok: "TikTok Shop",
 };
