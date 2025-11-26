@@ -247,55 +247,41 @@ export default function IntegrationsPage() {
                 ) : integration?.username && !isWhatsApp ? (
                   <p className="mt-2 text-xs text-gray-500">@{integration.username}</p>
                 ) : null}
-                <p className="mt-3 text-sm text-gray-600">
-                  {isWhatsApp && connected
-                    ? "Brancr manages your WhatsApp Business Account. All set for messaging automation."
-                    : isWhatsApp && !connected
-                    ? "Select or add your WhatsApp number to start messaging automation."
-                    : status.description}
-                </p>
-                {!isWhatsApp && integration ? (
-                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-gray-500">
-                    {"webhook_status" in integration ? (
-                      <div className="rounded-lg border border-gray-200 bg-white px-3 py-2">
-                        <p className="uppercase tracking-[0.3em] text-gray-400">Webhook</p>
-                        <p className={`mt-1 inline-flex items-center gap-2 font-semibold ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "text-emerald-700" : "text-amber-700"}`}>
-                          <span className={`h-2 w-2 rounded-full ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "bg-emerald-500" : "bg-amber-500"}`} aria-hidden />
-                          {(integration as any).webhook_status ?? "unknown"}
-                        </p>
-                      </div>
-                    ) : null}
-                    {"expires_at" in integration ? (
-                      <div className="rounded-lg border border-gray-200 bg-white px-3 py-2">
-                        <p className="uppercase tracking-[0.3em] text-gray-400">Token</p>
-                        <div className="mt-1">
-                          <p className="font-semibold text-gray-900">
-                            {(integration as any).expires_at ? new Date((integration as any).expires_at as string).toLocaleDateString() : "—"}
+                {!isWhatsApp && (
+                  <>
+                    <p className="mt-3 text-sm text-gray-600">{status.description}</p>
+                    {integration && "webhook_status" in integration ? (
+                      <div className="mt-3">
+                        <div className="rounded-lg border border-gray-200 bg-white px-3 py-2">
+                          <p className="uppercase tracking-[0.3em] text-gray-400">Webhook</p>
+                          <p className={`mt-1 inline-flex items-center gap-2 font-semibold ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "text-emerald-700" : "text-amber-700"}`}>
+                            <span className={`h-2 w-2 rounded-full ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "bg-emerald-500" : "bg-amber-500"}`} aria-hidden />
+                            {(integration as any).webhook_status ?? "unknown"}
                           </p>
-                          {(() => {
-                            const exp = (integration as any).expires_at ? new Date((integration as any).expires_at as string).getTime() : 0;
-                            const soon = exp && exp - Date.now() < 7 * 24 * 3600 * 1000;
-                            return soon ? <p className="mt-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-amber-700">Expiring soon</p> : null;
-                          })()}
                         </div>
                       </div>
                     ) : null}
-                  </div>
-                ) : null}
-                <p className="mt-3 text-xs uppercase tracking-[0.3em] text-gray-400">
-                  Last updated{" "}
-                  {new Date(updatedAt).toLocaleString([], {
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-                <p className="mt-2 text-xs text-gray-500">{status.helper}</p>
+                    <p className="mt-3 text-xs uppercase tracking-[0.3em] text-gray-400">
+                      Last updated{" "}
+                      {new Date(updatedAt).toLocaleString([], {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                    <p className="mt-2 text-xs text-gray-500">{status.helper}</p>
+                  </>
+                )}
 
-                {/* WhatsApp number selector */}
+                {/* WhatsApp number selector - shown prominently for WhatsApp */}
                 {isWhatsApp && (
                   <div className="mt-4">
+                    <p className="mb-3 text-sm text-gray-600">
+                      {connected
+                        ? "Brancr manages your WhatsApp Business Account. All set for messaging automation."
+                        : "Select or add your WhatsApp number to start messaging automation."}
+                    </p>
                     <WhatsAppNumberSelector />
                   </div>
                 )}
