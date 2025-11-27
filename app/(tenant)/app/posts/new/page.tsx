@@ -75,25 +75,6 @@ export default function NewPostPage() {
     }
   }, []);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd/Ctrl + Enter: Publish immediately
-      if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && step === "review" && canNext) {
-        e.preventDefault();
-        void handlePublish();
-      }
-      // Cmd/Ctrl + S: Save draft (already auto-saving)
-      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
-        e.preventDefault();
-        toast.success("Draft saved automatically", { duration: 2000 });
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, canNext]);
-
   const currentStepIndex = STEPS.indexOf(step);
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
   const currentStepLabel = STEP_LABELS[step];
@@ -243,6 +224,25 @@ export default function NewPostPage() {
       setIsSubmitting(false);
     }
   }, [canNext, caption, selectedMediaIds, selectedPlatforms, scheduledAt, router]);
+
+  // Keyboard shortcuts (must be after canNext and handlePublish are defined)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl + Enter: Publish immediately
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && step === "review" && canNext) {
+        e.preventDefault();
+        void handlePublish();
+      }
+      // Cmd/Ctrl + S: Save draft (already auto-saving)
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        toast.success("Draft saved automatically", { duration: 2000 });
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, canNext]);
 
   const handleEdit = useCallback((editStep: "media" | "caption" | "platforms" | "schedule") => {
     setStep(editStep);
