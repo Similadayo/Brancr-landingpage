@@ -26,7 +26,11 @@ export default function MediaSelector({
       type: "image" as const,
       created_at: new Date().toISOString(),
     })),
-    ...assets,
+    ...assets.map((asset) => ({
+      ...asset,
+      url: asset.url || asset.urls?.[0] || "",
+      thumbnail_url: asset.thumbnail_url || asset.urls?.[0] || "",
+    })),
   ];
 
   const toggleMedia = (mediaId: string | number) => {
@@ -166,7 +170,10 @@ export default function MediaSelector({
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setPreviewMedia({ id: String(media.id), url: media.thumbnail_url || media.url });
+                    const previewUrl = (media.thumbnail_url || media.url || "") as string;
+                    if (previewUrl) {
+                      setPreviewMedia({ id: String(media.id), url: previewUrl });
+                    }
                   }}
                   className="absolute left-2 bottom-2 rounded-full bg-black/70 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 backdrop-blur-sm"
                   aria-label="Preview media"
