@@ -65,22 +65,47 @@ export default function MediaUploader({
 
       try {
         const response = await tenantApi.mediaUpload(formData);
-        // API may return assets array or items array
-        const assets = (response as any).assets || (response as any).items || [];
-        if (Array.isArray(assets) && assets.length > 0) {
-          const asset = assets[0] as any;
+        
+        // Handle different response formats
+        // Format 1: { success: true, assets: [...] }
+        // Format 2: { items: [...] }
+        // Format 3: Direct array
+        // Format 4: Single asset object
+        let asset: any = null;
+        
+        if (Array.isArray(response)) {
+          // Direct array response
+          asset = response[0];
+        } else if ((response as any).assets && Array.isArray((response as any).assets)) {
+          // assets array
+          asset = (response as any).assets[0];
+        } else if ((response as any).items && Array.isArray((response as any).items)) {
+          // items array
+          asset = (response as any).items[0];
+        } else if ((response as any).id || (response as any).asset_id) {
+          // Single asset object
+          asset = response;
+        }
+        
+        if (asset && (asset.id || asset.asset_id)) {
+          const assetId = asset.id || asset.asset_id;
           // Handle both old format (url) and new format (urls array)
           const urls = asset.urls || (asset.url ? [asset.url] : []);
+          
           return {
-            id: String(asset.id),
-            url: urls[0] || "",
-            urls: urls,
+            id: String(assetId),
+            url: urls[0] || asset.url || "",
+            urls: urls.length > 0 ? urls : (asset.url ? [asset.url] : []),
             type: asset.type || (file.type.startsWith("image/") ? "image" : "video"),
-            name: asset.name || file.name,
-            thumbnail_url: urls[0] || asset.thumbnail_url,
+            name: asset.name || asset.filename || file.name,
+            thumbnail_url: urls[0] || asset.thumbnail_url || asset.url || "",
           };
         }
-        throw new Error("No asset returned from upload");
+        
+        // Log the actual response for debugging
+        console.error("Unexpected upload response format:", response);
+        const responseStr = JSON.stringify(response, null, 2);
+        throw new Error(`No asset returned from upload. Received: ${responseStr.substring(0, 200)}`);
       } catch (error: any) {
         // Parse detailed error response from API
         let errorMessage = "Upload failed";
