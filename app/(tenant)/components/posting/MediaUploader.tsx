@@ -74,7 +74,7 @@ export default function MediaUploader({
         throw error;
       }
     },
-    [maxFileSize, acceptedTypes, validateFile]
+    [maxFileSize, acceptedTypes]
   );
 
   const handleFiles = useCallback(
