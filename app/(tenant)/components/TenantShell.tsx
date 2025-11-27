@@ -251,7 +251,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
         ) : (
           item.badge && (
             <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[8px] font-bold text-white">
-              {item.badge > 9 ? "9+" : item.badge}
+              {typeof item.badge === "number" && item.badge > 9 ? "9+" : item.badge}
             </span>
           )
         )}
