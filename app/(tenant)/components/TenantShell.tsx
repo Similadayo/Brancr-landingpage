@@ -241,7 +241,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
             <span className="flex-1">{item.label}</span>
             {item.badge && (
               <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-white">
-                {item.badge > 99 ? "99+" : item.badge}
+                {typeof item.badge === "number" && item.badge > 99 ? "99+" : item.badge}
               </span>
             )}
             <span className="text-xs text-gray-400 group-hover:text-accent" aria-hidden>
