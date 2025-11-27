@@ -19,6 +19,7 @@ type NavItem = {
 const CORE_NAV_ITEMS: NavItem[] = [
   { label: "Overview", href: "/app", icon: "🏠" },
   { label: "Inbox", href: "/app/inbox", icon: "💬" },
+  { label: "Escalations", href: "/app/escalations", icon: "⚠️" },
   { label: "Campaigns", href: "/app/campaigns", icon: "🚀" },
   { label: "Calendar", href: "/app/calendar", icon: "🗓️" },
 ];

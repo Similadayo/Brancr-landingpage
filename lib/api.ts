@@ -802,5 +802,104 @@ export const tenantApi = {
     post<undefined, { success: boolean; message: string; redirect_to?: string }>(
       "/api/tenant/onboarding/complete"
     ),
+
+  // Escalations endpoints
+  escalations: (params?: { priority?: "low" | "normal" | "high" | "urgent" | "critical"; limit?: number }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params)
+            .filter(([_, v]) => v !== undefined && v !== null)
+            .map(([k, v]) => [k, String(v)] as [string, string])
+        ).toString()}`
+      : "";
+    return get<{
+      escalations: Array<{
+        id: number;
+        interaction_id: number;
+        customer_id: number;
+        customer_name: string;
+        customer_username?: string;
+        platform: string;
+        message: string;
+        intent: string;
+        tone: string;
+        confidence: number;
+        suggested_reply: string;
+        created_at: string;
+        conversation_id: number;
+        priority: "low" | "normal" | "high" | "urgent" | "critical";
+      }>;
+      count: number;
+    }>(`/api/tenant/escalations${query}`);
+  },
+
+  escalation: (escalationId: number) =>
+    get<{
+      escalation: {
+        id: number;
+        interaction_id: number;
+        customer_id: number;
+        customer_name: string;
+        customer_username?: string;
+        platform: string;
+        message: string;
+        intent: string;
+        tone: string;
+        confidence: number;
+        suggested_reply: string;
+        created_at: string;
+        conversation_id: number;
+        priority: "low" | "normal" | "high" | "urgent" | "critical";
+      };
+      customer: {
+        id: number;
+        name: string;
+        username?: string;
+        platform: string;
+      };
+      conversation_history: Array<{
+        id: number;
+        author: "tenant" | "customer";
+        body: string;
+        sent_at: string;
+      }>;
+      interactions: Array<{
+        id: number;
+        type: string;
+        created_at: string;
+      }>;
+    }>(`/api/tenant/escalations/${escalationId}`),
+
+  approveEscalationReply: (escalationId: number) =>
+    post<undefined, { success: boolean; message?: string }>(`/api/tenant/escalations/${escalationId}/approve`),
+
+  sendEscalationReply: (escalationId: number, payload: { reply: string }, edit?: boolean) => {
+    const query = edit ? "?edit=true" : "";
+    return post<typeof payload, { success: boolean; message?: string }>(
+      `/api/tenant/escalations/${escalationId}/reply${query}`,
+      payload
+    );
+  },
+
+  ignoreEscalation: (escalationId: number) =>
+    post<undefined, { success: boolean; message?: string }>(`/api/tenant/escalations/${escalationId}/ignore`),
+
+  resolveEscalation: (escalationId: number) =>
+    post<undefined, { success: boolean; message?: string }>(`/api/tenant/escalations/${escalationId}/resolve`),
+
+  escalationStats: (params?: { start_date?: string; end_date?: string }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+        ).toString()}`
+      : "";
+    return get<{
+      total: number;
+      pending: number;
+      resolved: number;
+      avg_response_time: string;
+    }>(`/api/tenant/escalations/stats${query}`);
+  },
 };
 
+ 
