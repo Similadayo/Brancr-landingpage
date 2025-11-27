@@ -8,33 +8,53 @@ import { useQuery } from "@tanstack/react-query";
 import { authApi, tenantApi } from "@/lib/api";
 import { useTenant } from "../providers/TenantProvider";
 import { useEffect, useRef } from "react";
+import {
+  HomeIcon,
+  InboxIcon,
+  AlertIcon,
+  RocketIcon,
+  CalendarIcon,
+  ImageIcon,
+  PackageIcon,
+  LinkIcon,
+  ChartIcon,
+  SettingsIcon,
+  ClipboardIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  XIcon,
+  MenuIcon,
+  ChevronLeftIcon,
+  ExternalLinkIcon,
+} from "./icons";
 
 type NavItem = {
   label: string;
   href: string;
   icon: ReactNode;
+  badge?: number | string;
 };
 
-// Core navigation items (always visible)
-const CORE_NAV_ITEMS: NavItem[] = [
-  { label: "Overview", href: "/app", icon: "🏠" },
-  { label: "Inbox", href: "/app/inbox", icon: "💬" },
-  { label: "Escalations", href: "/app/escalations", icon: "⚠️" },
-  { label: "Campaigns", href: "/app/campaigns", icon: "🚀" },
-  { label: "Calendar", href: "/app/calendar", icon: "🗓️" },
+// Core navigation items (always visible) - will be populated with dynamic badges
+const getCoreNavItems = (badges?: { inbox?: number; escalations?: number }): NavItem[] => [
+  { label: "Overview", href: "/app", icon: <HomeIcon className="w-5 h-5" /> },
+  { label: "Inbox", href: "/app/inbox", icon: <InboxIcon className="w-5 h-5" />, badge: badges?.inbox },
+  { label: "Escalations", href: "/app/escalations", icon: <AlertIcon className="w-5 h-5" />, badge: badges?.escalations },
+  { label: "Campaigns", href: "/app/campaigns", icon: <RocketIcon className="w-5 h-5" /> },
+  { label: "Calendar", href: "/app/calendar", icon: <CalendarIcon className="w-5 h-5" /> },
 ];
 
 // Media with submenu
-const MEDIA_NAV_ITEM: NavItem = { label: "Media", href: "/app/media", icon: "🖼️" };
-const BULK_UPLOADS_NAV_ITEM: NavItem = { label: "Bulk Uploads", href: "/app/bulk-uploads", icon: "📦" };
+const MEDIA_NAV_ITEM: NavItem = { label: "Media", href: "/app/media", icon: <ImageIcon className="w-5 h-5" /> };
+const BULK_UPLOADS_NAV_ITEM: NavItem = { label: "Bulk Uploads", href: "/app/bulk-uploads", icon: <PackageIcon className="w-5 h-5" /> };
 
 // Settings section items (grouped)
 const SETTINGS_NAV_ITEMS_BASE: NavItem[] = [
-  { label: "Integrations", href: "/app/integrations", icon: "🔗" },
-  { label: "Analytics", href: "/app/analytics", icon: "📊" },
-  { label: "Settings", href: "/app/settings", icon: "⚙️" },
+  { label: "Integrations", href: "/app/integrations", icon: <LinkIcon className="w-5 h-5" /> },
+  { label: "Analytics", href: "/app/analytics", icon: <ChartIcon className="w-5 h-5" /> },
+  { label: "Settings", href: "/app/settings", icon: <SettingsIcon className="w-5 h-5" /> },
 ];
-const ONBOARDING_SUMMARY_ITEM: NavItem = { label: "Onboarding Summary", href: "/app/settings/onboarding", icon: "📋" };
+const ONBOARDING_SUMMARY_ITEM: NavItem = { label: "Onboarding Summary", href: "/app/settings/onboarding", icon: <ClipboardIcon className="w-5 h-5" /> };
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -85,6 +105,24 @@ export function TenantShell({ children }: { children: ReactNode }) {
     const conversations = conversationsData?.conversations?.length || 0;
     return { connectedChannels, totalChannels, scheduledPosts, conversations };
   }, [integrations, scheduledPostsData, conversationsData]);
+
+  // Fetch escalations for badge count
+  const { data: escalationsData } = useQuery({
+    queryKey: ["escalations"],
+    queryFn: () => tenantApi.escalations({ limit: 100 }),
+    enabled: !!tenant,
+  });
+
+  const navBadges = useMemo(() => {
+    const unreadConversations = conversationsData?.conversations?.filter((c: any) => c.unread_count > 0).length || 0;
+    const pendingEscalations = escalationsData?.escalations?.filter((e: any) => e.status === "pending").length || 0;
+    return {
+      inbox: unreadConversations > 0 ? unreadConversations : undefined,
+      escalations: pendingEscalations > 0 ? pendingEscalations : undefined,
+    };
+  }, [conversationsData, escalationsData]);
+
+  const CORE_NAV_ITEMS = useMemo(() => getCoreNavItems(navBadges), [navBadges]);
 
   // Settings items including conditional Onboarding Summary
   const settingsNavItems = useMemo(() => {
@@ -181,17 +219,17 @@ export function TenantShell({ children }: { children: ReactNode }) {
         key={item.href}
         href={item.href}
         onClick={() => setIsMobileNavOpen(false)}
-            className={cn(
-              "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
-              isActive
-                ? "bg-accent/10 text-accent shadow-sm"
-                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-            )}
+        className={cn(
+          "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
+          isActive
+            ? "bg-accent/10 text-accent shadow-sm"
+            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+        )}
       >
         <span
           className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-base transition group-hover:bg-accent/10 group-hover:text-accent",
-                isActive && "bg-accent text-white group-hover:bg-accent"
+            "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 transition group-hover:bg-accent/10 group-hover:text-accent",
+            isActive && "bg-accent text-white group-hover:bg-accent"
           )}
           aria-hidden
         >
@@ -200,11 +238,22 @@ export function TenantShell({ children }: { children: ReactNode }) {
         {!compact ? (
           <>
             <span className="flex-1">{item.label}</span>
-                <span className="text-xs text-gray-400 group-hover:text-accent" aria-hidden>
-                  {isActive ? "•" : "→"}
-                </span>
+            {item.badge && (
+              <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-white">
+                {item.badge > 99 ? "99+" : item.badge}
+              </span>
+            )}
+            <span className="text-xs text-gray-400 group-hover:text-accent" aria-hidden>
+              {isActive ? "•" : "→"}
+            </span>
           </>
-        ) : null}
+        ) : (
+          item.badge && (
+            <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[8px] font-bold text-white">
+              {item.badge > 9 ? "9+" : item.badge}
+            </span>
+          )
+        )}
       </Link>
     );
   }
@@ -256,7 +305,11 @@ export function TenantShell({ children }: { children: ReactNode }) {
                 )}
                 aria-label={isMediaExpanded ? "Collapse Media submenu" : "Expand Media submenu"}
               >
-                {isMediaExpanded ? "▼" : "▶"}
+                {isMediaExpanded ? (
+                  <ChevronDownIcon className="w-4 h-4" />
+                ) : (
+                  <ChevronRightIcon className="w-4 h-4" />
+                )}
               </button>
             </div>
             {isMediaExpanded && (
@@ -280,11 +333,15 @@ export function TenantShell({ children }: { children: ReactNode }) {
               className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition"
             >
               <span className="flex items-center gap-2">
-                <span>⚙️</span>
+                <SettingsIcon className="w-5 h-5" />
                 <span>Settings</span>
               </span>
               <span className="text-xs text-gray-400" aria-hidden>
-                {isSettingsExpanded ? "▼" : "▶"}
+                {isSettingsExpanded ? (
+                  <ChevronDownIcon className="w-4 h-4" />
+                ) : (
+                  <ChevronRightIcon className="w-4 h-4" />
+                )}
               </span>
             </button>
             {isSettingsExpanded && (
@@ -337,7 +394,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
             className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
             aria-label="Close navigation"
           >
-            ✕
+            <XIcon className="w-5 h-5" />
           </button>
         </div>
         <div className="mt-10 flex h-[calc(100vh-8rem)] flex-col space-y-6 overflow-y-auto pr-1">
@@ -351,12 +408,12 @@ export function TenantShell({ children }: { children: ReactNode }) {
             <p className="mt-2 text-xs text-gray-500">
               Track usage, upgrade your plan, and manage billing from settings.
             </p>
-            <Link
-              href="/app/settings/billing"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2 text-xs font-semibold text-sky-700 shadow-sm hover:bg-white"
-            >
-              Manage plan <span aria-hidden>↗</span>
-            </Link>
+                  <Link
+                    href="/app/settings/billing"
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2 text-xs font-semibold text-sky-700 shadow-sm hover:bg-white"
+                  >
+                    Manage plan <ExternalLinkIcon className="w-3 h-3" aria-hidden />
+                  </Link>
           </div>
           <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm">
             <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Account</p>
@@ -424,7 +481,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                     href="/app/settings/billing"
                     className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2 text-xs font-semibold text-sky-700 shadow-sm hover:bg-white"
                   >
-                    Manage plan <span aria-hidden>↗</span>
+                    Manage plan <ExternalLinkIcon className="w-3 h-3" aria-hidden />
                   </Link>
                 </>
               ) : (
@@ -476,7 +533,9 @@ export function TenantShell({ children }: { children: ReactNode }) {
             className="mt-auto flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-500 transition hover:border-accent hover:text-accent"
             aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            {isSidebarCollapsed ? "⟩" : "⟨"}
+            <ChevronLeftIcon
+              className={cn("w-5 h-5 transition-transform", isSidebarCollapsed && "rotate-180")}
+            />
           </button>
         </aside>
 
@@ -490,8 +549,9 @@ export function TenantShell({ children }: { children: ReactNode }) {
                     type="button"
                     onClick={() => setIsMobileNavOpen(true)}
                     className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-600 shadow-sm transition hover:border-accent hover:text-accent lg:hidden"
+                    aria-label="Open navigation menu"
                   >
-                    Menu
+                    <MenuIcon className="w-5 h-5" />
                   </button>
                   <div>
                     <h1 className="text-lg font-semibold text-gray-900">{currentNav?.label ?? "Overview"}</h1>
@@ -529,9 +589,10 @@ export function TenantShell({ children }: { children: ReactNode }) {
                         <span className="block text-xs text-gray-500">{tenant.name.split(" ")[0]}</span>
                         <span className="text-xs capitalize">{tenant.plan ?? "trial"}</span>
                       </span>
-                      <span className="text-gray-400" aria-hidden>
-                        {isProfileMenuOpen ? "▲" : "▼"}
-                      </span>
+                      <ChevronDownIcon
+                        className={cn("w-4 h-4 text-gray-400 transition-transform", isProfileMenuOpen && "rotate-180")}
+                        aria-hidden
+                      />
                     </button>
                     {isProfileMenuOpen ? (
                       <div className="absolute right-0 z-30 mt-2 w-48 rounded-xl border border-gray-200 bg-white p-2 shadow-lg">
