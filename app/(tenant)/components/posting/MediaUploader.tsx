@@ -41,21 +41,15 @@ export default function MediaUploader({
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const validateFile = (file: File): string | null => {
-    if (file.size > maxFileSize * 1024 * 1024) {
-      return `File exceeds ${maxFileSize}MB limit`;
-    }
-    if (!acceptedTypes.includes(file.type)) {
-      return "Only images and videos are supported";
-    }
-    return null;
-  };
-
   const uploadFile = useCallback(
     async (file: File): Promise<UploadedMedia | null> => {
-      const error = validateFile(file);
-      if (error) {
-        toast.error(`${file.name}: ${error}`);
+      // Validate file
+      if (file.size > maxFileSize * 1024 * 1024) {
+        toast.error(`${file.name}: File exceeds ${maxFileSize}MB limit`);
+        return null;
+      }
+      if (!acceptedTypes.includes(file.type)) {
+        toast.error(`${file.name}: Only images and videos are supported`);
         return null;
       }
 
@@ -80,7 +74,7 @@ export default function MediaUploader({
         throw error;
       }
     },
-    [maxFileSize, acceptedTypes]
+    [maxFileSize, acceptedTypes, validateFile]
   );
 
   const handleFiles = useCallback(

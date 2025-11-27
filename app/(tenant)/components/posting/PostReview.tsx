@@ -169,7 +169,7 @@ export default function PostReview({
         <button
           type="button"
           onClick={onPublish}
-          disabled={isPublishing || (scheduledDate && scheduledDate < new Date())}
+          disabled={isPublishing || (scheduledDate ? scheduledDate < new Date() : false)}
           className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPublishing ? (
