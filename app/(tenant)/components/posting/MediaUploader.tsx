@@ -54,6 +54,7 @@ export default function MediaUploader({
       }
 
       const formData = new FormData();
+      // Use "files" to match the API expectation (same as media page)
       formData.append("files", file);
 
       try {
@@ -70,7 +71,16 @@ export default function MediaUploader({
         }
         throw new Error("No asset returned from upload");
       } catch (error: any) {
-        toast.error(`Failed to upload ${file.name}: ${error.message || "Upload failed"}`);
+        // Provide more detailed error message
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : error?.body?.error || error?.body?.message || "Upload failed";
+        const detailedMessage = error?.status === 400 
+          ? `Bad request: ${errorMessage}. Please check file format and size.`
+          : error?.status === 413
+          ? `File too large: ${errorMessage}`
+          : errorMessage;
+        toast.error(`Failed to upload ${file.name}: ${detailedMessage}`);
         throw error;
       }
     },
