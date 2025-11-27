@@ -8,7 +8,7 @@ import { tenantApi } from "@/lib/api";
 import { useScheduledPosts } from "@/app/(tenant)/hooks/useScheduledPosts";
 import { useIntegrations } from "@/app/(tenant)/hooks/useIntegrations";
 import { useConversations } from "@/app/(tenant)/hooks/useConversations";
-import { useEscalations } from "@/app/(tenant)/hooks/useEscalations";
+import { useEscalations, useEscalationStats } from "@/app/(tenant)/hooks/useEscalations";
 import { useMedia } from "@/app/(tenant)/hooks/useMedia";
 import {
   RocketIcon,
@@ -44,6 +44,7 @@ export default function TenantOverviewPage() {
   const { data: integrationsData } = useIntegrations();
   const { data: conversationsData } = useConversations({ limit: 10 });
   const { data: escalationsData } = useEscalations({ limit: 5 });
+  const { data: escalationStatsData } = useEscalationStats();
   const { data: mediaData } = useMedia({ limit: 5 });
 
   // Ensure all data is arrays
@@ -58,7 +59,8 @@ export default function TenantOverviewPage() {
     const totalPosts = scheduledPosts.length;
     const publishedPosts = scheduledPosts.filter((p) => p.status === "posted").length;
     const activeConversations = conversations.length;
-    const pendingEscalations = escalations.filter((e) => e.status === "pending").length;
+    // Use escalation stats if available, otherwise count all escalations as pending
+    const pendingEscalations = escalationStatsData?.pending ?? escalations.length;
     const connectedPlatforms = integrations.filter((i) => i.connected).length;
     const totalPlatforms = integrations.length || 4;
 
@@ -70,7 +72,7 @@ export default function TenantOverviewPage() {
       connectedPlatforms,
       totalPlatforms,
     };
-  }, [scheduledPosts, conversations, escalations, integrations]);
+  }, [scheduledPosts, conversations, escalations, integrations, escalationStatsData]);
 
   // Activity feed items
   const activityFeed = useMemo(() => {
