@@ -111,14 +111,14 @@ export default function MediaLibraryPage() {
                 <div className="flex items-center justify-between text-xs">
                   <button
                     onClick={() =>
-                      updateMutation.mutate({ assetId: asset.id, payload: { caption: asset.caption || "" } })
+                      updateMutation.mutate({ assetId: String(asset.id), payload: { caption: asset.caption || "" } })
                     }
                     className="text-gray-600 hover:text-primary"
                   >
                     Save
                   </button>
                   <button
-                    onClick={() => deleteMutation.mutate(asset.id)}
+                    onClick={() => deleteMutation.mutate(String(asset.id))}
                     className="text-rose-600 hover:text-rose-700"
                   >
                     Delete
