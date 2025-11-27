@@ -3,6 +3,14 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useEscalations, useEscalationStats, type Escalation } from "@/app/(tenant)/hooks/useEscalations";
+import {
+  AlertIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  TrendingUpIcon,
+  FunnelIcon,
+  ArrowRightIcon,
+} from "../components/icons";
 
 const PRIORITY_COLORS: Record<string, string> = {
   low: "bg-gray-100 text-gray-700",
@@ -73,19 +81,25 @@ export default function EscalationsPage() {
 
   return (
     <div className="space-y-8">
-      <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Escalations</h1>
-          <p className="mt-2 max-w-2xl text-sm text-gray-600">
-            Review and respond to customer escalations that require your attention. AI-suggested replies are ready to approve or edit.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
+      {/* Header */}
+      <section className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
+              <AlertIcon className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Escalations</h1>
+              <p className="mt-1 max-w-2xl text-sm text-gray-600">
+                Review and respond to customer escalations that require your attention
+              </p>
+            </div>
+          </div>
           {pendingCount > 0 && (
-            <span className="inline-flex items-center gap-2 rounded-full bg-red-100 px-4 py-2 text-sm font-semibold text-red-700">
-              <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-              {pendingCount} Pending
-            </span>
+            <div className="inline-flex items-center gap-2 rounded-xl border-2 border-red-200 bg-red-50 px-4 py-2.5">
+              <div className="h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-sm font-bold text-red-700">{pendingCount} Pending</span>
+            </div>
           )}
         </div>
       </section>
@@ -93,33 +107,62 @@ export default function EscalationsPage() {
       {/* Stats Widget */}
       {stats && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Total</p>
-            <p className="mt-2 text-2xl font-bold text-gray-900">{stats.total}</p>
+          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Total</p>
+                <p className="mt-2 text-3xl font-bold text-gray-900">{stats.total}</p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-600 transition group-hover:bg-gray-200">
+                <AlertIcon className="w-6 h-6" />
+              </div>
+            </div>
           </div>
-          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Pending</p>
-            <p className="mt-2 text-2xl font-bold text-orange-600">{stats.pending}</p>
+          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Pending</p>
+                <p className="mt-2 text-3xl font-bold text-orange-600">{stats.pending}</p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100 text-orange-600 transition group-hover:bg-orange-200">
+                <ClockIcon className="w-6 h-6" />
+              </div>
+            </div>
           </div>
-          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Resolved</p>
-            <p className="mt-2 text-2xl font-bold text-green-600">{stats.resolved}</p>
+          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Resolved</p>
+                <p className="mt-2 text-3xl font-bold text-green-600">{stats.resolved}</p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-600 transition group-hover:bg-green-200">
+                <CheckCircleIcon className="w-6 h-6" />
+              </div>
+            </div>
           </div>
-          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Avg Response</p>
-            <p className="mt-2 text-lg font-semibold text-gray-900">{stats.avgResponseTime}</p>
+          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Avg Response</p>
+                <p className="mt-2 text-lg font-bold text-gray-900">{stats.avgResponseTime}</p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 transition group-hover:bg-blue-200">
+                <TrendingUpIcon className="w-6 h-6" />
+              </div>
+            </div>
           </div>
         </div>
       )}
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4">
+      <div className="flex flex-wrap items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
         <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Priority</label>
+          <FunnelIcon className="h-4 w-4 text-gray-400" />
+          <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Priority</label>
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
             <option value="all">All</option>
             <option value="critical">Critical</option>
@@ -130,11 +173,11 @@ export default function EscalationsPage() {
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Platform</label>
+          <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Platform</label>
           <select
             value={platformFilter}
             onChange={(e) => setPlatformFilter(e.target.value)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
             <option value="all">All</option>
             <option value="instagram">Instagram</option>
@@ -144,12 +187,12 @@ export default function EscalationsPage() {
             <option value="telegram">Telegram</option>
           </select>
         </div>
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Sort</label>
+        <div className="ml-auto flex items-center gap-2">
+          <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Sort</label>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as "newest" | "priority")}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
             <option value="newest">Newest First</option>
             <option value="priority">Priority</option>
@@ -168,9 +211,10 @@ export default function EscalationsPage() {
             Failed to load escalations: {error.message}
           </div>
         ) : filteredEscalations.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-12 text-center">
-            <p className="text-sm font-semibold text-gray-900">No escalations found</p>
-            <p className="mt-2 text-xs text-gray-500">All escalations have been handled or match your filters.</p>
+          <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-12 text-center">
+            <AlertIcon className="mx-auto h-12 w-12 text-gray-400" />
+            <p className="mt-3 text-sm font-semibold text-gray-900">No escalations found</p>
+            <p className="mt-1 text-xs text-gray-500">All escalations have been handled or match your filters.</p>
           </div>
         ) : (
           filteredEscalations.map((escalation) => (
@@ -186,7 +230,7 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
   return (
     <Link
       href={`/app/escalations/${escalation.id}`}
-      className="block rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-primary hover:shadow-md"
+      className="group block rounded-xl border-2 border-gray-200 bg-white p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
@@ -229,10 +273,8 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
             <span>{formatTimeAgo(escalation.createdAt)}</span>
           </div>
         </div>
-        <div className="text-right">
-          <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400">
-            {formatTimeAgo(escalation.createdAt)}
-          </span>
+        <div className="flex flex-col items-end gap-2">
+          <ArrowRightIcon className="h-5 w-5 text-gray-400 transition group-hover:text-primary group-hover:translate-x-1" />
         </div>
       </div>
     </Link>

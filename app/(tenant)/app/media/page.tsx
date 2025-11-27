@@ -2,13 +2,32 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMedia, useUploadMedia, useDeleteMedia, useUpdateMedia } from "@/app/(tenant)/hooks/useMedia";
+import {
+  ImageIcon,
+  MagnifyingGlassIcon,
+  FunnelIcon,
+  PlusIcon,
+  XIcon,
+  TrashIcon,
+  TagIcon,
+  EyeIcon,
+  PencilIcon,
+  Squares2X2Icon,
+  ListBulletIcon,
+  CheckCircleIcon,
+  ArrowUpTrayIcon,
+} from "../components/icons";
+
+type ViewMode = "grid" | "list";
 
 export default function MediaLibraryPage() {
   const [query, setQuery] = useState("");
   const [type, setType] = useState<string | undefined>(undefined);
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [selectedMediaIds, setSelectedMediaIds] = useState<string[]>([]);
   const [previewMedia, setPreviewMedia] = useState<{ id: string; url: string } | null>(null);
+  const [isBulkActionOpen, setIsBulkActionOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: assets = [], isLoading, error } = useMedia({ 
@@ -42,63 +61,110 @@ export default function MediaLibraryPage() {
 
   const clearSelection = () => {
     setSelectedMediaIds([]);
+    setIsBulkActionOpen(false);
+  };
+
+  const handleBulkDelete = () => {
+    if (confirm(`Are you sure you want to delete ${selectedMediaIds.length} media item(s)? This cannot be undone.`)) {
+      selectedMediaIds.forEach((id) => {
+        deleteMutation.mutate(id);
+      });
+      clearSelection();
+    }
   };
 
   async function handleUpload(files: FileList | null) {
     if (!files || files.length === 0) return;
     const form = new FormData();
-    // API expects 'file' field name for each file
     Array.from(files).forEach((file) => {
       form.append("file", file);
-      // Optional: add name if needed
-      // form.append("name", file.name);
     });
     await uploadMutation.mutateAsync(form);
     setIsUploadOpen(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
+  // Close bulk actions when no items selected
+  useEffect(() => {
+    if (selectedMediaIds.length === 0) {
+      setIsBulkActionOpen(false);
+    }
+  }, [selectedMediaIds.length]);
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Header */}
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Media Library</h1>
-          <p className="mt-2 max-w-2xl text-sm text-gray-600">Manage your images and videos for posts and campaigns.</p>
-          {uploadMutation.isError && (
-            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-800">
-              ⚠️ Media upload is currently being implemented. Pre-signed URL generation coming soon.
-            </div>
-          )}
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <ImageIcon className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Media Library</h1>
+            <p className="mt-1 text-sm text-gray-600">Manage your images and videos for posts and campaigns</p>
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <select
-            value={type || ""}
-            onChange={(e) => setType(e.target.value || undefined)}
-            className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-          >
-            <option value="">All types</option>
-            <option value="image">Images</option>
-            <option value="video">Videos</option>
-            <option value="carousel">Carousels</option>
-          </select>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search media..."
-            className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
-          />
           <button
             onClick={() => setIsUploadOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-primary/90"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105"
           >
-            Upload
+            <PlusIcon className="w-4 h-4" />
+            Upload Media
           </button>
         </div>
       </header>
 
+      {/* Filters and Search */}
+      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search media by name, caption, or tags..."
+            className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <FunnelIcon className="h-4 w-4 text-gray-400" />
+          <select
+            value={type || ""}
+            onChange={(e) => setType(e.target.value || undefined)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            <option value="">All Types</option>
+            <option value="image">Images</option>
+            <option value="video">Videos</option>
+            <option value="carousel">Carousels</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1">
+          <button
+            onClick={() => setViewMode("grid")}
+            className={`rounded-md p-2 transition ${
+              viewMode === "grid" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-gray-900"
+            }`}
+            aria-label="Grid view"
+          >
+            <Squares2X2Icon className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setViewMode("list")}
+            className={`rounded-md p-2 transition ${
+              viewMode === "list" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-gray-900"
+            }`}
+            aria-label="List view"
+          >
+            <ListBulletIcon className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
       {/* Selection Controls */}
       {filtered.length > 0 && (
-        <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3">
+        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <div>
               <p className="text-sm font-semibold text-gray-900">
@@ -112,20 +178,39 @@ export default function MediaLibraryPage() {
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {selectedMediaIds.length > 0 && (
-              <button
-                type="button"
-                onClick={clearSelection}
-                className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-red-300 hover:text-red-600 transition"
-              >
-                Clear Selection
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsBulkActionOpen(!isBulkActionOpen)}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                >
+                  <TagIcon className="h-3.5 w-3.5" />
+                  Bulk Actions
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBulkDelete}
+                  disabled={deleteMutation.isPending}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
+                >
+                  <TrashIcon className="h-3.5 w-3.5" />
+                  Delete Selected
+                </button>
+                <button
+                  type="button"
+                  onClick={clearSelection}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-gray-300"
+                >
+                  Clear
+                </button>
+              </>
             )}
             <button
               type="button"
               onClick={selectAll}
-              className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-primary hover:text-primary transition"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
             >
               Select All
             </button>
@@ -133,35 +218,66 @@ export default function MediaLibraryPage() {
         </div>
       )}
 
+      {/* Bulk Actions Menu */}
+      {isBulkActionOpen && selectedMediaIds.length > 0 && (
+        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Bulk Actions</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+            >
+              <TagIcon className="h-4 w-4" />
+              Add Tags
+            </button>
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+            >
+              <PencilIcon className="h-4 w-4" />
+              Edit Captions
+            </button>
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+            >
+              <ArrowUpTrayIcon className="h-4 w-4" />
+              Export
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Content */}
       {isLoading ? (
         <div className="space-y-4">
           <div className="h-6 w-48 animate-pulse rounded bg-gray-200" />
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="aspect-video animate-pulse rounded-2xl bg-gray-200" />
+              <div key={i} className="aspect-video animate-pulse rounded-xl bg-gray-200" />
             ))}
           </div>
         </div>
       ) : error ? (
-        <div className="rounded-2xl border-2 border-rose-200 bg-rose-50 p-6 text-center">
-          <p className="text-sm font-semibold text-rose-900">Failed to load media</p>
-          <p className="mt-2 text-xs text-rose-700">{error.message}</p>
+        <div className="rounded-xl border-2 border-rose-200 bg-rose-50 p-8 text-center">
+          <XIcon className="mx-auto h-12 w-12 text-rose-400" />
+          <p className="mt-3 text-sm font-semibold text-rose-900">Failed to load media</p>
+          <p className="mt-1 text-xs text-rose-700">{error.message}</p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-3xl border-2 border-dashed border-gray-300 bg-gray-50 p-16 text-center">
-          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-200 text-4xl">
-            📷
-          </div>
-          <p className="text-lg font-semibold text-gray-900">No media found</p>
+        <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-16 text-center">
+          <ImageIcon className="mx-auto h-16 w-16 text-gray-400" />
+          <p className="mt-4 text-lg font-semibold text-gray-900">No media found</p>
           <p className="mt-2 text-sm text-gray-600">Upload your first image or video to get started.</p>
           <button
             onClick={() => setIsUploadOpen(true)}
-            className="mt-6 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-primary/90 hover:scale-105"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105"
           >
+            <PlusIcon className="w-4 h-4" />
             Upload Media
           </button>
         </div>
-      ) : (
+      ) : viewMode === "grid" ? (
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {filtered.map((asset, index) => {
             const isSelected = selectedMediaIds.includes(String(asset.id));
@@ -169,7 +285,7 @@ export default function MediaLibraryPage() {
             return (
               <div key={asset.id} className="relative group">
                 <div
-                  className={`relative overflow-hidden rounded-2xl border-2 transition-all cursor-pointer ${
+                  className={`relative overflow-hidden rounded-xl border-2 transition-all cursor-pointer ${
                     isSelected
                       ? "border-primary ring-4 ring-primary/20 shadow-lg scale-[1.02]"
                       : "border-gray-200 hover:border-primary/50 hover:shadow-md"
@@ -192,9 +308,7 @@ export default function MediaLibraryPage() {
                           {selectionIndex}
                         </div>
                         <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow-lg">
-                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
+                          <CheckCircleIcon className="h-4 w-4" />
                         </div>
                       </>
                     )}
@@ -215,10 +329,7 @@ export default function MediaLibraryPage() {
                       className="absolute left-2 bottom-2 rounded-full bg-black/70 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 backdrop-blur-sm"
                       aria-label="Preview media"
                     >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
+                      <EyeIcon className="h-4 w-4" />
                     </button>
                   </div>
                   <div className="space-y-2 p-3">
@@ -242,10 +353,11 @@ export default function MediaLibraryPage() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          updateMutation.mutate({ assetId: String(asset.id), payload: { caption: asset.caption || "" } });
+                          // Edit functionality
                         }}
-                        className="font-medium text-primary hover:text-primary/80 transition"
+                        className="flex items-center gap-1 font-medium text-primary hover:text-primary/80 transition"
                       >
+                        <PencilIcon className="h-3 w-3" />
                         Edit
                       </button>
                       <button
@@ -256,12 +368,94 @@ export default function MediaLibraryPage() {
                             deleteMutation.mutate(String(asset.id));
                           }
                         }}
-                        className="font-medium text-rose-600 hover:text-rose-700 transition"
+                        className="flex items-center gap-1 font-medium text-rose-600 hover:text-rose-700 transition"
                       >
+                        <TrashIcon className="h-3 w-3" />
                         Delete
                       </button>
                     </div>
                   </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map((asset) => {
+            const isSelected = selectedMediaIds.includes(String(asset.id));
+            return (
+              <div
+                key={asset.id}
+                className={`flex items-center gap-4 rounded-xl border-2 p-4 transition ${
+                  isSelected
+                    ? "border-primary bg-primary/5"
+                    : "border-gray-200 bg-white hover:border-primary/50"
+                }`}
+              >
+                <div
+                  className="relative h-20 w-20 shrink-0 cursor-pointer overflow-hidden rounded-lg"
+                  onClick={() => toggleMedia(asset.id)}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={asset.thumbnail_url || asset.url}
+                    alt={asset.caption || "Media"}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                  {isSelected && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-primary/20">
+                      <CheckCircleIcon className="h-6 w-6 text-primary" />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-gray-900">{asset.caption || "No caption"}</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="text-xs text-gray-500 capitalize">{asset.type}</span>
+                    {asset.tags && asset.tags.length > 0 && (
+                      <>
+                        <span className="text-gray-300">•</span>
+                        <div className="flex flex-wrap gap-1">
+                          {asset.tags.slice(0, 3).map((t) => (
+                            <span key={t} className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const previewUrl = (asset.thumbnail_url || asset.url || "") as string;
+                      if (previewUrl) {
+                        setPreviewMedia({ id: String(asset.id), url: previewUrl });
+                      }
+                    }}
+                    className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                  >
+                    <EyeIcon className="h-3.5 w-3.5" />
+                    Preview
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm("Are you sure you want to delete this media?")) {
+                        deleteMutation.mutate(String(asset.id));
+                      }
+                    }}
+                    className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
+                  >
+                    <TrashIcon className="h-3.5 w-3.5" />
+                    Delete
+                  </button>
                 </div>
               </div>
             );
@@ -286,12 +480,10 @@ export default function MediaLibraryPage() {
             <button
               type="button"
               onClick={() => setPreviewMedia(null)}
-              className="absolute right-4 top-4 rounded-full bg-black/70 p-2 text-white hover:bg-black/90 transition"
+              className="absolute right-4 top-4 rounded-full bg-black/70 p-2 text-white transition hover:bg-black/90"
               aria-label="Close preview"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <XIcon className="h-6 w-6" />
             </button>
           </div>
         </div>
@@ -300,7 +492,7 @@ export default function MediaLibraryPage() {
       {/* Upload Modal */}
       {isUploadOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-3xl border-2 border-gray-200 bg-white p-6 shadow-xl">
+          <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-6 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Upload Media</h2>
               <button
@@ -309,15 +501,13 @@ export default function MediaLibraryPage() {
                 className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
                 aria-label="Close upload modal"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <XIcon className="h-5 w-5" />
               </button>
             </div>
             <div className="space-y-4">
               <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-2xl">
-                  📤
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                  <ArrowUpTrayIcon className="h-8 w-8 text-primary" />
                 </div>
                 <p className="mb-2 text-sm font-semibold text-gray-900">Choose files to upload</p>
                 <p className="mb-4 text-xs text-gray-500">Images and videos are supported</p>
@@ -332,8 +522,9 @@ export default function MediaLibraryPage() {
                 />
                 <label
                   htmlFor="file-upload"
-                  className="inline-block cursor-pointer rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90"
                 >
+                  <PlusIcon className="h-4 w-4" />
                   Select Files
                 </label>
               </div>
@@ -348,7 +539,7 @@ export default function MediaLibraryPage() {
               <button
                 type="button"
                 onClick={() => setIsUploadOpen(false)}
-                className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
               >
                 Close
               </button>
@@ -359,5 +550,3 @@ export default function MediaLibraryPage() {
     </div>
   );
 }
-
-

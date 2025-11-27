@@ -27,6 +27,7 @@ import {
   ChevronLeftIcon,
   ExternalLinkIcon,
 } from "./icons";
+import { CommandPalette } from "./CommandPalette";
 
 type NavItem = {
   label: string;
@@ -630,6 +631,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <main className="flex-1 px-4 pb-8 pt-6 lg:px-6">{children}</main>
         </div>
       </div>
+      <CommandPalette />
     </div>
   );
 }

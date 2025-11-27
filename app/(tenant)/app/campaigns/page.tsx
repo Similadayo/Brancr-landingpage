@@ -7,24 +7,42 @@ import { useScheduledPosts, useCancelScheduledPost, useUpdateScheduledPost } fro
 import { tenantApi } from "@/lib/api";
 import { toast } from "react-hot-toast";
 import { useTemplates } from "@/app/(tenant)/hooks/useTemplates";
+import {
+  RocketIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  PencilIcon,
+  TrashIcon,
+  PlayIcon,
+  EyeIcon,
+  CalendarIcon,
+  DocumentTextIcon,
+  PlusIcon,
+  FunnelIcon,
+  MagnifyingGlassIcon,
+  ImageIcon,
+  XIcon,
+} from "../components/icons";
 
-const STATUS_FILTERS = ["All", "Scheduled", "Posting", "Posted", "Failed", "Cancelled"];
+type Tab = "scheduled" | "published" | "drafts";
 
 const STATUS_STYLES: Record<string, string> = {
-  scheduled: "bg-blue-100 text-blue-700",
-  posting: "bg-amber-100 text-amber-700",
-  posted: "bg-emerald-100 text-emerald-700",
-  failed: "bg-rose-100 text-rose-700",
-  cancelled: "bg-gray-100 text-gray-600",
+  scheduled: "bg-blue-100 text-blue-700 border-blue-200",
+  posting: "bg-amber-100 text-amber-700 border-amber-200",
+  posted: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  failed: "bg-rose-100 text-rose-700 border-rose-200",
+  cancelled: "bg-gray-100 text-gray-600 border-gray-200",
 };
 
 export default function CampaignsPage() {
   const queryClient = useQueryClient();
-  const [filter, setFilter] = useState<string>("All");
+  const [activeTab, setActiveTab] = useState<Tab>("scheduled");
+  const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const { data: scheduledPostsData, isLoading, error } = useScheduledPosts();
   const { data: templatesData } = useTemplates();
   
-  // Ensure all data is arrays to prevent map errors
   const scheduledPosts = Array.isArray(scheduledPostsData) ? scheduledPostsData : [];
   const templates = Array.isArray(templatesData) ? templatesData : [];
   const cancelMutation = useCancelScheduledPost();
@@ -38,10 +56,65 @@ export default function CampaignsPage() {
   const [editCaption, setEditCaption] = useState<string>("");
   const [editScheduledAt, setEditScheduledAt] = useState<string>("");
 
-  const campaigns = useMemo(() => {
-    if (filter === "All") return scheduledPosts;
-    return scheduledPosts.filter((post) => post.status === filter.toLowerCase());
-  }, [filter, scheduledPosts]);
+  // Filter and categorize posts
+  const { scheduled, published, drafts } = useMemo(() => {
+    const scheduled: typeof scheduledPosts = [];
+    const published: typeof scheduledPosts = [];
+    const drafts: typeof scheduledPosts = [];
+
+    scheduledPosts.forEach((post) => {
+      if (post.status === "posted") {
+        published.push(post);
+      } else if (post.status === "scheduled" || post.status === "posting") {
+        scheduled.push(post);
+      } else if (post.status === "cancelled" || post.status === "failed") {
+        // Could be considered drafts or archived
+        drafts.push(post);
+      }
+    });
+
+    return { scheduled, published, drafts };
+  }, [scheduledPosts]);
+
+  // Get posts for current tab
+  const currentPosts = useMemo(() => {
+    let posts: typeof scheduledPosts = [];
+    switch (activeTab) {
+      case "scheduled":
+        posts = scheduled;
+        break;
+      case "published":
+        posts = published;
+        break;
+      case "drafts":
+        posts = drafts;
+        break;
+    }
+
+    // Apply status filter
+    if (statusFilter !== "All") {
+      posts = posts.filter((post) => post.status === statusFilter.toLowerCase());
+    }
+
+    // Apply search
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      posts = posts.filter(
+        (post) =>
+          post.name.toLowerCase().includes(query) ||
+          post.caption?.toLowerCase().includes(query) ||
+          post.platforms.some((p) => p.toLowerCase().includes(query))
+      );
+    }
+
+    // Sort by scheduled date (newest first for published, oldest first for scheduled)
+    return posts.sort((a, b) => {
+      if (activeTab === "published") {
+        return new Date(b.posted_at || b.scheduled_at).getTime() - new Date(a.posted_at || a.scheduled_at).getTime();
+      }
+      return new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime();
+    });
+  }, [activeTab, scheduled, published, drafts, statusFilter, searchQuery]);
 
   const handleCancel = (postId: string, postName: string) => {
     if (confirm(`Are you sure you want to cancel "${postName}"? This cannot be undone.`)) {
@@ -59,7 +132,6 @@ export default function CampaignsPage() {
       setPublishingPostId(postId);
       await tenantApi.publishPost(postId);
       toast.success("Post is being published now!");
-      // Invalidate queries to refresh the list
       void queryClient.invalidateQueries({ queryKey: ["scheduled-posts"] });
       void queryClient.invalidateQueries({ queryKey: ["scheduled-post", postId] });
     } catch (error: any) {
@@ -71,320 +143,312 @@ export default function CampaignsPage() {
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
+      {/* Header */}
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Automation & Campaigns</h1>
-          <p className="mt-2 max-w-2xl text-sm text-gray-600">
-            Orchestrate broadcasts, drip flows, and templates that keep your community engaged across channels.
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <RocketIcon className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Posts & Campaigns</h1>
+            <p className="mt-1 max-w-2xl text-sm text-gray-600">
+              Manage scheduled posts, published content, and drafts
+            </p>
+          </div>
         </div>
         <div className="flex flex-wrap gap-3">
           <Link
-            href="/app/templates"
-            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-primary hover:text-primary"
-          >
-            Manage templates
-          </Link>
-          <Link
             href="/app/posts/new"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary/90"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105"
           >
-            + Build campaign
+            <PlusIcon className="w-4 h-4" />
+            Create Post
           </Link>
         </div>
       </header>
 
-      <section className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-lg shadow-primary/5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Campaigns</p>
-            <h2 className="mt-1 text-lg font-semibold text-gray-900">Pipeline</h2>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {STATUS_FILTERS.map((item) => (
-              <button
-                key={item}
-                onClick={() => setFilter(item)}
-                className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-                  filter === item
-                    ? "border-primary bg-primary text-white shadow shadow-primary/20"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary"
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
+      {/* Tabs */}
+      <div className="flex items-center gap-2 border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab("scheduled")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
+            activeTab === "scheduled"
+              ? "border-primary text-primary"
+              : "border-transparent text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <ClockIcon className="w-4 h-4" />
+          Scheduled ({scheduled.length})
+        </button>
+        <button
+          onClick={() => setActiveTab("published")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
+            activeTab === "published"
+              ? "border-primary text-primary"
+              : "border-transparent text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <CheckCircleIcon className="w-4 h-4" />
+          Published ({published.length})
+        </button>
+        <button
+          onClick={() => setActiveTab("drafts")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
+            activeTab === "drafts"
+              ? "border-primary text-primary"
+              : "border-transparent text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <DocumentTextIcon className="w-4 h-4" />
+          Drafts ({drafts.length})
+        </button>
+      </div>
+
+      {/* Filters and Search */}
+      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search posts by name, caption, or platform..."
+            className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
         </div>
+        {activeTab === "scheduled" && (
+          <div className="flex items-center gap-2">
+            <FunnelIcon className="h-4 w-4 text-gray-400" />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="All">All Status</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="posting">Posting</option>
+            </select>
+          </div>
+        )}
+      </div>
 
-        <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
-            </div>
-          ) : error ? (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-900">
-              Failed to load scheduled posts: {error?.message || "Unknown error occurred"}
-            </div>
-          ) : campaigns.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
-              No scheduled posts yet. Start by building your first campaign.
-            </div>
-          ) : (
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Post</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Platforms</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Scheduled</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-600">Status</th>
-                  <th className="px-4 py-3 text-right font-semibold text-gray-600">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {campaigns.map((post) => {
-                  const canCancel = post.status === "scheduled" || post.status === "posting";
-                  const canPublish = post.status === "scheduled";
-                  const isCancelling = cancellingPostId === post.id;
-                  const isPublishing = publishingPostId === post.id;
+      {/* Posts List */}
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+          </div>
+        ) : error ? (
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center">
+            <XCircleIcon className="mx-auto h-12 w-12 text-rose-400" />
+            <p className="mt-3 text-sm font-semibold text-rose-900">Failed to load posts</p>
+            <p className="mt-1 text-xs text-rose-700">{error?.message || "Unknown error occurred"}</p>
+          </div>
+        ) : currentPosts.length === 0 ? (
+          <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-12 text-center">
+            {activeTab === "scheduled" && <ClockIcon className="mx-auto h-12 w-12 text-gray-400" />}
+            {activeTab === "published" && <CheckCircleIcon className="mx-auto h-12 w-12 text-gray-400" />}
+            {activeTab === "drafts" && <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />}
+            <p className="mt-3 text-sm font-semibold text-gray-900">
+              {activeTab === "scheduled" && "No scheduled posts"}
+              {activeTab === "published" && "No published posts"}
+              {activeTab === "drafts" && "No drafts"}
+            </p>
+            <p className="mt-1 text-xs text-gray-500">
+              {activeTab === "scheduled" && "Create your first scheduled post to get started"}
+              {activeTab === "published" && "Published posts will appear here"}
+              {activeTab === "drafts" && "Draft posts will appear here"}
+            </p>
+            {activeTab === "scheduled" && (
+              <Link
+                href="/app/posts/new"
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
+              >
+                <PlusIcon className="w-4 h-4" />
+                Create Post
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-200">
+            {currentPosts.map((post) => {
+              const canCancel = post.status === "scheduled" || post.status === "posting";
+              const canPublish = post.status === "scheduled";
+              const isCancelling = cancellingPostId === post.id;
+              const isPublishing = publishingPostId === post.id;
 
-                  return (
-                    <tr key={post.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-4 align-top">
-                        <div className="flex flex-col gap-1">
+              return (
+                <div key={post.id} className="p-5 transition hover:bg-gray-50">
+                  <div className="flex items-start gap-4">
+                    {/* Media Preview Placeholder */}
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
+                      <ImageIcon className="h-6 w-6 text-gray-400" />
+                    </div>
+
+                    {/* Post Details */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold text-gray-900">{post.name}</span>
+                            <h3 className="text-base font-semibold text-gray-900">{post.name}</h3>
                             <span
-                              className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
-                                STATUS_STYLES[post.status] ?? "bg-gray-100 text-gray-600"
+                              className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                                STATUS_STYLES[post.status] ?? "bg-gray-100 text-gray-600 border-gray-200"
                               }`}
                             >
                               {post.status}
                             </span>
                           </div>
-                          <p className="text-xs text-gray-500 line-clamp-2">{post.caption}</p>
+                          <p className="mt-1 line-clamp-2 text-sm text-gray-600">{post.caption || "No caption"}</p>
+                          <div className="mt-2 flex flex-wrap items-center gap-3">
+                            <div className="flex flex-wrap gap-1">
+                              {post.platforms.map((platform) => (
+                                <span
+                                  key={platform}
+                                  className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 capitalize"
+                                >
+                                  {platform}
+                                </span>
+                              ))}
+                            </div>
+                            <span className="flex items-center gap-1 text-xs text-gray-500">
+                              <ClockIcon className="h-3.5 w-3.5" />
+                              {activeTab === "published" && post.posted_at
+                                ? new Date(post.posted_at).toLocaleString([], {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })
+                                : new Date(post.scheduled_at).toLocaleString([], {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                            </span>
+                          </div>
                           {post.last_error && (
-                            <p className="mt-1 text-xs text-rose-600">Error: {post.last_error}</p>
+                            <div className="mt-2 flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2">
+                              <XCircleIcon className="h-4 w-4 text-rose-600" />
+                              <p className="text-xs font-medium text-rose-900">Error: {post.last_error}</p>
+                            </div>
                           )}
                         </div>
-                      </td>
-                      <td className="px-4 py-4 align-top">
-                        <div className="flex flex-wrap gap-1">
-                          {Array.isArray(post.platforms) ? post.platforms.map((platform) => (
-                            <span
-                              key={platform}
-                              className="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600 capitalize"
-                            >
-                              {platform}
-                            </span>
-                          )) : (
-                            <span className="text-xs text-gray-400">No platforms</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 align-top text-xs text-gray-500">
-                        {new Date(post.scheduled_at).toLocaleString([], {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </td>
-                      <td className="px-4 py-4 align-top">
-                        <div className="flex flex-col gap-1">
-                          <span
-                            className={`inline-flex w-fit rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
-                              STATUS_STYLES[post.status] ?? "bg-gray-100 text-gray-600"
-                            }`}
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/app/campaigns/${post.id}`}
+                            className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
                           >
-                            {post.status}
-                          </span>
-                          {post.posted_at && (
-                            <span className="text-xs text-gray-400">
-                              Posted {new Date(post.posted_at).toLocaleDateString()}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-right text-xs font-semibold text-primary">
-                        <div className="inline-flex items-center gap-2">
-                          <Link href={`/app/campaigns/${post.id}`} className="hover:text-primary/80">
+                            <EyeIcon className="h-3.5 w-3.5" />
                             View
                           </Link>
                           {canPublish && (
-                            <>
-                              <span className="text-gray-300">•</span>
-                              <button
-                                onClick={() => void handlePublishNow(post.id)}
-                                disabled={isPublishing}
-                                className="hover:text-green-600 disabled:opacity-50"
-                              >
-                                {isPublishing ? "Publishing..." : "Publish Now"}
-                              </button>
-                            </>
+                            <button
+                              onClick={() => void handlePublishNow(post.id)}
+                              disabled={isPublishing}
+                              className="flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 transition hover:bg-green-100 disabled:opacity-50"
+                            >
+                              {isPublishing ? (
+                                <>
+                                  <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-green-600/20 border-t-green-600" />
+                                  Publishing...
+                                </>
+                              ) : (
+                                <>
+                                  <PlayIcon className="h-3.5 w-3.5" />
+                                  Publish Now
+                                </>
+                              )}
+                            </button>
                           )}
                           {canCancel && (
                             <>
-                              <span className="text-gray-300">•</span>
-                              <button
-                                onClick={() => handleCancel(post.id, post.name)}
-                                disabled={isCancelling || cancelMutation.isPending}
-                                className="hover:text-rose-600 disabled:opacity-50"
-                              >
-                                {isCancelling ? "Cancelling..." : "Cancel"}
-                              </button>
-                              <span className="text-gray-300">•</span>
                               <button
                                 onClick={() => {
                                   setEditPostId(post.id);
                                   setEditCaption(post.caption || "");
-                                  // Convert to local input datetime value (YYYY-MM-DDTHH:mm)
                                   const dt = new Date(post.scheduled_at);
                                   const tzOffset = dt.getTimezoneOffset() * 60000;
                                   const localISO = new Date(dt.getTime() - tzOffset).toISOString().slice(0, 16);
                                   setEditScheduledAt(localISO);
                                   setIsEditOpen(true);
                                 }}
-                                className="hover:text-primary/80"
+                                className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
                               >
-                                Reschedule / Edit
+                                <PencilIcon className="h-3.5 w-3.5" />
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleCancel(post.id, post.name)}
+                                disabled={isCancelling || cancelMutation.isPending}
+                                className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
+                              >
+                                {isCancelling ? (
+                                  <>
+                                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-red-600/20 border-t-red-600" />
+                                    Cancelling...
+                                  </>
+                                ) : (
+                                  <>
+                                    <TrashIcon className="h-3.5 w-3.5" />
+                                    Cancel
+                                  </>
+                                )}
                               </button>
                             </>
                           )}
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-3">
-        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-900">Upcoming calendar</h3>
-          <p className="mt-2 text-xs text-gray-500">
-            View campaign timing and platform delivery slots. Switch to calendar view for drag-drop scheduling.
-          </p>
-          <div className="mt-4 grid gap-3 text-xs text-gray-600">
-            {scheduledPosts
-              .filter((post) => post.status === "scheduled" || post.status === "posting")
-              .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
-              .slice(0, 3)
-              .map((post) => (
-                <div key={post.id} className="rounded-xl border border-gray-200 p-3">
-                  <p className="font-semibold text-gray-900">{post.name}</p>
-                  <p className="mt-1 text-gray-500">
-                    {new Date(post.scheduled_at).toLocaleString([], {
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                  <p className="mt-1 text-gray-400">{Array.isArray(post.platforms) ? post.platforms.join(", ") : "No platforms"}</p>
-                </div>
-              ))}
-            {scheduledPosts.filter((post) => post.status === "scheduled" || post.status === "posting").length === 0 && (
-              <p className="text-center text-gray-400">No upcoming posts</p>
-            )}
-          </div>
-        </div>
-        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm lg:col-span-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900">Template library</h3>
-              <p className="mt-1 text-xs text-gray-500">
-                Store brand-approved copy, call-to-actions, and voice settings for consistent messaging.
-              </p>
-            </div>
-            <Link
-              href="/app/templates"
-              className="text-xs font-semibold text-primary hover:text-primary/80"
-            >
-              View all ↗
-            </Link>
-          </div>
-          {templates.length === 0 ? (
-            <div className="mt-4 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-xs text-gray-500">
-              No templates yet. <Link href="/app/templates/new" className="text-primary hover:text-primary/80">Create your first template</Link>
-            </div>
-          ) : (
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
-              {templates.slice(0, 4).map((template) => (
-                <div key={template.id} className="rounded-xl border border-gray-200 p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-gray-900">{template.name}</p>
-                      <p className="mt-1 text-xs text-gray-400 uppercase tracking-widest">{template.category}</p>
-                      <p className="mt-2 text-xs text-gray-500 line-clamp-2">
-                        {template.description || template.body.slice(0, 100)}
-                      </p>
+                      </div>
                     </div>
                   </div>
-                  {template.uses !== undefined && template.uses > 0 && (
-                    <p className="mt-2 text-xs text-gray-400">Used {template.uses} times</p>
-                  )}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm lg:col-span-3 lg:flex lg:items-center lg:justify-between">
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900">Ideas board</h3>
-            <p className="mt-2 text-xs text-gray-500">
-              Keep a backlog of campaigns you’d love to test. Drag them into the planner when ready.
-            </p>
+              );
+            })}
           </div>
-          <div className="mt-4 flex flex-wrap gap-3 text-xs text-gray-600 lg:mt-0">
-            <span className="rounded-xl border border-gray-200 px-4 py-2">Festive upsell flow</span>
-            <span className="rounded-xl border border-gray-200 px-4 py-2">Referral reactivation</span>
-            <span className="rounded-xl border border-gray-200 px-4 py-2">VIP loyalty nurture</span>
-          </div>
-        </div>
-      </section>
+        )}
+      </div>
 
       {/* Edit / Reschedule Modal */}
       {isEditOpen && editPostId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-3xl border border-gray-200 bg-white p-6 shadow-xl">
+          <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-6 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Edit scheduled post</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Edit Scheduled Post</h2>
               <button
                 type="button"
                 onClick={() => setIsEditOpen(false)}
                 className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                aria-label="Close modal"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <XIcon className="h-5 w-5" />
               </button>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-900">Caption</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Caption</label>
                 <textarea
                   value={editCaption}
                   onChange={(e) => setEditCaption(e.target.value)}
                   rows={4}
-                  className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="Update the caption..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-900">Scheduled time</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Scheduled Time</label>
                 <input
                   type="datetime-local"
                   value={editScheduledAt}
                   onChange={(e) => setEditScheduledAt(e.target.value)}
-                  className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 <p className="mt-2 text-xs text-gray-500">Times are saved in your local timezone.</p>
               </div>
@@ -394,14 +458,13 @@ export default function CampaignsPage() {
               <button
                 type="button"
                 onClick={() => setIsEditOpen(false)}
-                className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={() => {
-                  // Convert local datetime to ISO
                   let iso: string | undefined = undefined;
                   if (editScheduledAt) {
                     const local = new Date(editScheduledAt);
@@ -423,9 +486,9 @@ export default function CampaignsPage() {
                   );
                 }}
                 disabled={updateMutation.isPending}
-                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 disabled:opacity-50"
               >
-                {updateMutation.isPending ? "Saving..." : "Save changes"}
+                {updateMutation.isPending ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>
@@ -434,4 +497,3 @@ export default function CampaignsPage() {
     </div>
   );
 }
-

@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState, useEffect } from "react";
-import Image from "next/image";
 import {
   useBilling,
   useTeamMembers,
@@ -10,14 +9,27 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { tenantApi, ApiError } from "@/lib/api";
 import { toast } from "react-hot-toast";
+import {
+  SettingsIcon,
+  UserIcon,
+  BellIcon,
+  UsersIcon,
+  CreditCardIcon,
+  PencilIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  PlusIcon,
+  SparklesIcon,
+  ChartBarIcon,
+} from "../../components/icons";
 
 type TabKey = "profile" | "notifications" | "team" | "billing";
 
-const TABS: Array<{ key: TabKey; label: string }> = [
-  { key: "profile", label: "Business profile" },
-  { key: "notifications", label: "Notifications" },
-  { key: "team", label: "Team" },
-  { key: "billing", label: "Billing & plan" },
+const TABS: Array<{ key: TabKey; label: string; icon: React.ReactNode }> = [
+  { key: "profile", label: "Business Profile", icon: <UserIcon className="w-4 h-4" /> },
+  { key: "notifications", label: "Notifications", icon: <BellIcon className="w-4 h-4" /> },
+  { key: "team", label: "Team", icon: <UsersIcon className="w-4 h-4" /> },
+  { key: "billing", label: "Billing & Plan", icon: <CreditCardIcon className="w-4 h-4" /> },
 ];
 
 export default function SettingsPage() {
@@ -98,8 +110,8 @@ export default function SettingsPage() {
             ) : (
               <>
                 <div>
-                  <label className="text-sm font-medium text-gray-700" htmlFor="business-name">
-                    Business name
+                  <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="business-name">
+                    Business Name
                   </label>
                   <input
                     id="business-name"
@@ -107,13 +119,13 @@ export default function SettingsPage() {
                     value={profileForm.name}
                     onChange={(e) => setProfileForm((prev) => ({ ...prev, name: e.target.value }))}
                     placeholder="Your company name"
-                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
-                    <label className="text-sm font-medium text-gray-700" htmlFor="industry">
+                    <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="industry">
                       Industry
                     </label>
                     <input
@@ -122,11 +134,11 @@ export default function SettingsPage() {
                       value={profileForm.industry}
                       onChange={(e) => setProfileForm((prev) => ({ ...prev, industry: e.target.value }))}
                       placeholder="Retail, Restaurant, Services..."
-                      className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-700" htmlFor="location">
+                    <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="location">
                       Location
                     </label>
                     <input
@@ -135,13 +147,13 @@ export default function SettingsPage() {
                       value={profileForm.location}
                       onChange={(e) => setProfileForm((prev) => ({ ...prev, location: e.target.value }))}
                       placeholder="City, Country"
-                      className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700" htmlFor="website">
+                  <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="website">
                     Website
                   </label>
                   <input
@@ -150,13 +162,13 @@ export default function SettingsPage() {
                     value={profileForm.website}
                     onChange={(e) => setProfileForm((prev) => ({ ...prev, website: e.target.value }))}
                     placeholder="https://example.com"
-                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700" htmlFor="operating-hours">
-                    Operating hours
+                  <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="operating-hours">
+                    Operating Hours
                   </label>
                   <input
                     id="operating-hours"
@@ -164,12 +176,12 @@ export default function SettingsPage() {
                     value={profileForm.operating_hours}
                     onChange={(e) => setProfileForm((prev) => ({ ...prev, operating_hours: e.target.value }))}
                     placeholder="Mon-Fri 9am-5pm, Sat 10am-2pm"
-                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700" htmlFor="description">
+                  <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="description">
                     Description
                   </label>
                   <textarea
@@ -178,7 +190,7 @@ export default function SettingsPage() {
                     onChange={(e) => setProfileForm((prev) => ({ ...prev, description: e.target.value }))}
                     rows={5}
                     placeholder="Tell us about your business..."
-                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
@@ -186,9 +198,19 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={updateProfileMutation.isPending}
-                    className="rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {updateProfileMutation.isPending ? "Saving..." : "Save profile"}
+                    {updateProfileMutation.isPending ? (
+                      <>
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircleIcon className="h-4 w-4" />
+                        Save Profile
+                      </>
+                    )}
                   </button>
                 </div>
               </>
@@ -198,39 +220,52 @@ export default function SettingsPage() {
       case "notifications":
         return (
           <form className="space-y-6">
-            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900">Channel alerts</h3>
-              <div className="mt-3 space-y-3 text-sm text-gray-600">
-                <label className="flex items-center gap-3">
-                  <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/40" /> WhatsApp connection events
+            <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <BellIcon className="h-5 w-5 text-gray-400" />
+                <h3 className="text-base font-semibold text-gray-900">Channel Alerts</h3>
+              </div>
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/40" />
+                  <span className="text-sm text-gray-700">WhatsApp connection events</span>
                 </label>
-                <label className="flex items-center gap-3">
-                  <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/40" /> Campaign send status
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/40" />
+                  <span className="text-sm text-gray-700">Campaign send status</span>
                 </label>
-                <label className="flex items-center gap-3">
-                  <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/40" /> Template approvals
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/40" />
+                  <span className="text-sm text-gray-700">Template approvals</span>
                 </label>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900">Escalation channels</h3>
-              <div className="mt-3 space-y-3 text-sm text-gray-600">
-                <label className="flex items-center gap-3">
-                  <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/40" /> Email: contact@brancr.com
+            <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <SparklesIcon className="h-5 w-5 text-gray-400" />
+                <h3 className="text-base font-semibold text-gray-900">Escalation Channels</h3>
+              </div>
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/40" />
+                  <span className="text-sm text-gray-700">Email: contact@brancr.com</span>
                 </label>
-                <label className="flex items-center gap-3">
-                  <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/40" /> Slack: #support-escalations
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/40" />
+                  <span className="text-sm text-gray-700">Slack: #support-escalations</span>
                 </label>
-                <label className="flex items-center gap-3">
-                  <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/40" /> Telegram bot ping
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/40" />
+                  <span className="text-sm text-gray-700">Telegram bot ping</span>
                 </label>
               </div>
             </div>
 
             <div className="flex justify-end">
-              <button className="rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary/90">
-                Save preferences
+              <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90">
+                <CheckCircleIcon className="h-4 w-4" />
+                Save Preferences
               </button>
             </div>
           </form>
@@ -239,15 +274,16 @@ export default function SettingsPage() {
         return (
           <div className="space-y-6">
             <div className="flex justify-end">
-              <button className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:border-primary hover:text-primary">
-                Invite teammate
+              <button className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary">
+                <PlusIcon className="h-4 w-4" />
+                Invite Teammate
               </button>
             </div>
-            <div className="overflow-hidden rounded-2xl border border-gray-200">
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
               {teamQuery.isLoading ? (
                 <div className="space-y-2 p-6">
                   {Array.from({ length: 3 }).map((_, index) => (
-                    <div key={index} className="animate-pulse rounded-xl border border-gray-100 bg-gray-50 p-4">
+                    <div key={index} className="animate-pulse rounded-lg border border-gray-100 bg-gray-50 p-4">
                       <div className="h-3 w-32 rounded-full bg-gray-200" />
                       <div className="mt-2 h-3 w-48 rounded-full bg-gray-200" />
                     </div>
@@ -257,28 +293,41 @@ export default function SettingsPage() {
                 <table className="min-w-full divide-y divide-gray-200 text-sm">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-600">Name</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-600">Email</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-600">Role</th>
-                      <th className="px-4 py-3 text-right font-semibold text-gray-600">Actions</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Name</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Email</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Role</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-600">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
                     {teamQuery.data.map((member) => (
-                      <tr key={member.id}>
+                      <tr key={member.id} className="transition hover:bg-gray-50">
                         <td className="px-4 py-4 text-sm font-semibold text-gray-900">{member.name}</td>
                         <td className="px-4 py-4 text-sm text-gray-600">{member.email}</td>
-                        <td className="px-4 py-4 text-xs font-semibold uppercase tracking-[0.3em] text-gray-500">{member.role}</td>
-                        <td className="px-4 py-4 text-right text-xs font-semibold text-primary">
-                          <button className="hover:text-primary/80">Edit role</button>
+                        <td className="px-4 py-4">
+                          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-gray-700">
+                            {member.role}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 text-right">
+                          <button className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary transition hover:text-primary/80">
+                            <PencilIcon className="h-3.5 w-3.5" />
+                            Edit Role
+                          </button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               ) : (
-                <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
-                  No teammates yet. Invite your first collaborator.
+                <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-12 text-center">
+                  <UsersIcon className="mx-auto h-12 w-12 text-gray-400" />
+                  <p className="mt-3 text-sm font-semibold text-gray-900">No teammates yet</p>
+                  <p className="mt-1 text-xs text-gray-500">Invite your first collaborator to get started</p>
+                  <button className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90">
+                    <PlusIcon className="h-4 w-4" />
+                    Invite Teammate
+                  </button>
                 </div>
               )}
             </div>
@@ -287,51 +336,66 @@ export default function SettingsPage() {
       case "billing":
         return (
           <div className="grid gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900">Current plan</h3>
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <CreditCardIcon className="h-5 w-5 text-gray-400" />
+                <h3 className="text-base font-semibold text-gray-900">Current Plan</h3>
+              </div>
               {billingQuery.isLoading ? (
-                <div className="mt-2 h-20 animate-pulse rounded-xl bg-gray-50" />
+                <div className="mt-2 h-20 animate-pulse rounded-lg bg-gray-50" />
               ) : billingQuery.data ? (
                 <>
-                  <p className="mt-2 text-xs text-gray-500">
-                    {billingQuery.data.plan}{" "}
+                  <p className="text-xs font-medium uppercase tracking-wider text-gray-500">
+                    {billingQuery.data.plan}
                     {billingQuery.data.trialDaysRemaining
-                      ? `• ${billingQuery.data.trialDaysRemaining} days remaining`
+                      ? ` • ${billingQuery.data.trialDaysRemaining} days remaining`
                       : null}
                   </p>
-                  <p className="mt-4 text-4xl font-semibold text-gray-900">
+                  <p className="mt-4 text-4xl font-bold text-gray-900">
                     {billingQuery.data.currency} {billingQuery.data.amount}
                   </p>
                   <p className="text-xs text-gray-500">
                     per {billingQuery.data.cadence === "annual" ? "year" : "month"}
                   </p>
+                  <div className="mt-6 space-y-2 text-xs text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <CheckCircleIcon className="h-4 w-4 text-green-600" />
+                      <span>5,000 monthly conversations</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircleIcon className="h-4 w-4 text-green-600" />
+                      <span>AI assisted replies</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircleIcon className="h-4 w-4 text-green-600" />
+                      <span>WhatsApp, Instagram, Facebook integrations</span>
+                    </div>
+                  </div>
+                  <button className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90">
+                    Upgrade Plan
+                  </button>
                 </>
               ) : (
                 <p className="mt-2 text-xs text-gray-500">Plan details unavailable.</p>
               )}
-              <div className="mt-4 space-y-2 text-xs text-gray-600">
-                <p>• 5,000 monthly conversations</p>
-                <p>• AI assisted replies</p>
-                <p>• WhatsApp, Instagram, Facebook integrations</p>
-              </div>
-              <button className="mt-6 w-full rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary/90">
-                Upgrade plan
-              </button>
             </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900">Usage</h3>
-              <p className="mt-2 text-xs text-gray-500">Monitor limits for conversations, templates, and seats.</p>
-              <div className="mt-6 space-y-4 text-xs text-gray-600">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <ChartBarIcon className="h-5 w-5 text-gray-400" />
+                <h3 className="text-base font-semibold text-gray-900">Usage</h3>
+              </div>
+              <p className="mb-6 text-xs text-gray-500">Monitor limits for conversations, templates, and seats.</p>
+              <div className="space-y-5">
                 <div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-gray-900">Conversations</span>
-                    <span>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-semibold text-gray-900">Conversations</span>
+                    <span className="text-sm text-gray-600">
                       {usageQuery.data?.conversations.used ?? "--"} / {usageQuery.data?.conversations.limit ?? "--"}
                     </span>
                   </div>
-                  <div className="mt-2 h-2 rounded-full bg-gray-100">
+                  <div className="h-2.5 rounded-full bg-gray-100">
                     <div
-                      className="h-2 rounded-full bg-primary"
+                      className="h-2.5 rounded-full bg-primary transition-all"
                       style={{
                         width: usageQuery.data
                           ? `${Math.min(
@@ -345,15 +409,15 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-gray-900">Active seats</span>
-                    <span>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-semibold text-gray-900">Active Seats</span>
+                    <span className="text-sm text-gray-600">
                       {usageQuery.data?.seats.used ?? "--"} / {usageQuery.data?.seats.limit ?? "--"}
                     </span>
                   </div>
-                  <div className="mt-2 h-2 rounded-full bg-gray-100">
+                  <div className="h-2.5 rounded-full bg-gray-100">
                     <div
-                      className="h-2 rounded-full bg-primary"
+                      className="h-2.5 rounded-full bg-primary transition-all"
                       style={{
                         width: usageQuery.data
                           ? `${Math.min(100, (usageQuery.data.seats.used / usageQuery.data.seats.limit) * 100)}%`
@@ -383,34 +447,46 @@ export default function SettingsPage() {
   ]);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
+      {/* Header */}
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Workspace settings</h1>
-        <p className="text-sm text-gray-600">
-          Manage your profile, channels, billing, notifications, and developer integrations in one place.
-        </p>
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <SettingsIcon className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Workspace Settings</h1>
+            <p className="mt-1 text-sm text-gray-600">
+              Manage your profile, channels, billing, notifications, and team
+            </p>
+          </div>
+        </div>
       </header>
 
-      <div className="rounded-3xl border border-gray-200 bg-white/80 p-4 shadow-sm">
+      {/* Tabs */}
+      <div className="rounded-xl border border-gray-200 bg-white p-2 shadow-sm">
         <div className="flex flex-wrap gap-2">
           {TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+              className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${
                 activeTab === tab.key
-                  ? "border-primary bg-primary text-white shadow shadow-primary/20"
+                  ? "border-primary bg-primary text-white shadow-md"
                   : "border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary"
               }`}
             >
+              {tab.icon}
               {tab.label}
             </button>
           ))}
         </div>
       </div>
 
-      <section className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">{renderTabContent}</section>
+      {/* Tab Content */}
+      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        {renderTabContent}
+      </section>
     </div>
   );
 }
-
