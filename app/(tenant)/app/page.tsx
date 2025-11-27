@@ -122,9 +122,8 @@ export default function TenantOverviewPage() {
         });
       });
 
-    // Recent escalations
+    // Recent escalations (all escalations are considered pending by default)
     escalations
-      .filter((e) => e.status === "pending")
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 2)
       .forEach((esc) => {
