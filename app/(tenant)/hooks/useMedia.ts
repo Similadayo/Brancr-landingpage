@@ -33,8 +33,23 @@ export function useUploadMedia() {
       void queryClient.invalidateQueries({ queryKey: ["media"] });
     },
     onError: (error) => {
-      if (error instanceof ApiError) toast.error(error.message);
-      else toast.error("Upload failed");
+      if (error instanceof ApiError) {
+        // Parse detailed JSON error response from API
+        const errorMessage = error.body?.error || error.body?.message || error.message;
+        let details = "";
+        
+        if (error.body?.available_fields) {
+          details = ` Available fields: ${Array.isArray(error.body.available_fields) ? error.body.available_fields.join(", ") : error.body.available_fields}`;
+        }
+        
+        if (error.status === 400) {
+          toast.error(`Upload failed: ${errorMessage}${details || ". Please check file format and size."}`);
+        } else {
+          toast.error(`Upload failed: ${errorMessage}${details || ""}`);
+        }
+      } else {
+        toast.error("Upload failed");
+      }
     },
   });
 }

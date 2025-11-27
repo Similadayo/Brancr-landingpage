@@ -54,7 +54,8 @@ export default function MediaUploader({
       }
 
       const formData = new FormData();
-      // API expects 'file' field name (not 'files')
+      // API supports multiple field names: 'file', 'media', 'upload', 'image', 'video'
+      // Using 'file' as the primary field name
       formData.append("file", file);
       // Optional fields can be added here if needed
       // formData.append("name", file.name);
@@ -75,16 +76,44 @@ export default function MediaUploader({
         }
         throw new Error("No asset returned from upload");
       } catch (error: any) {
-        // Provide more detailed error message
-        const errorMessage = error instanceof Error 
-          ? error.message 
-          : error?.body?.error || error?.body?.message || "Upload failed";
-        const detailedMessage = error?.status === 400 
-          ? `Bad request: ${errorMessage}. Please check file format and size.`
-          : error?.status === 413
-          ? `File too large: ${errorMessage}`
-          : errorMessage;
-        toast.error(`Failed to upload ${file.name}: ${detailedMessage}`);
+        // Parse detailed error response from API
+        let errorMessage = "Upload failed";
+        let errorDetails = "";
+
+        if (error?.body) {
+          // API now returns JSON errors with detailed information
+          const body = error.body;
+          errorMessage = body.error || body.message || "Upload failed";
+          
+          // Show available fields if provided (for debugging)
+          if (body.available_fields) {
+            errorDetails = ` Available fields: ${Array.isArray(body.available_fields) ? body.available_fields.join(", ") : body.available_fields}`;
+          }
+          
+          // Show which field names were tried
+          if (body.tried_fields) {
+            errorDetails += ` Tried: ${Array.isArray(body.tried_fields) ? body.tried_fields.join(", ") : body.tried_fields}`;
+          }
+        } else if (error instanceof Error) {
+          errorMessage = error.message;
+        } else if (typeof error === "string") {
+          errorMessage = error;
+        }
+
+        // Status-specific messages
+        if (error?.status === 400) {
+          const message = `Bad request: ${errorMessage}${errorDetails || ". Please check file format and size."}`;
+          toast.error(`Failed to upload ${file.name}: ${message}`);
+        } else if (error?.status === 413) {
+          toast.error(`Failed to upload ${file.name}: File too large - ${errorMessage}`);
+        } else if (error?.status === 401) {
+          toast.error(`Failed to upload ${file.name}: Authentication required`);
+        } else if (error?.status === 500) {
+          toast.error(`Failed to upload ${file.name}: Server error - ${errorMessage}`);
+        } else {
+          toast.error(`Failed to upload ${file.name}: ${errorMessage}${errorDetails || ""}`);
+        }
+        
         throw error;
       }
     },
