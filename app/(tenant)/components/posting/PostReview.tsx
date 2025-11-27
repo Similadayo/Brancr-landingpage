@@ -33,7 +33,7 @@ export default function PostReview({
   const { data: allAssets = [] } = useMedia();
 
   // Get selected media assets
-  const selectedMedia = allAssets.filter((asset) => selectedMediaIds.includes(asset.id));
+  const selectedMedia = allAssets.filter((asset) => selectedMediaIds.includes(String(asset.id)));
 
   const scheduledDate = scheduledAt ? new Date(scheduledAt) : null;
 
