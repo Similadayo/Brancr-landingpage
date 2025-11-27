@@ -19,7 +19,12 @@ export default function MediaLibraryPage() {
   async function handleUpload(files: FileList | null) {
     if (!files || files.length === 0) return;
     const form = new FormData();
-    Array.from(files).forEach((file) => form.append("files", file));
+    // API expects 'file' field name for each file
+    Array.from(files).forEach((file) => {
+      form.append("file", file);
+      // Optional: add name if needed
+      // form.append("name", file.name);
+    });
     await uploadMutation.mutateAsync(form);
     setIsUploadOpen(false);
     if (fileInputRef.current) fileInputRef.current.value = "";

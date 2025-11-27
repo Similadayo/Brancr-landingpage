@@ -54,8 +54,12 @@ export default function MediaUploader({
       }
 
       const formData = new FormData();
-      // Use "files" to match the API expectation (same as media page)
-      formData.append("files", file);
+      // API expects 'file' field name (not 'files')
+      formData.append("file", file);
+      // Optional fields can be added here if needed
+      // formData.append("name", file.name);
+      // formData.append("tags", "tag1,tag2");
+      // formData.append("campaign", "campaign-id");
 
       try {
         const response = await tenantApi.mediaUpload(formData);
