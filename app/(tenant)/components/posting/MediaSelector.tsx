@@ -27,16 +27,17 @@ export default function MediaSelector({
     ...assets,
   ];
 
-  const toggleMedia = (mediaId: string) => {
-    if (selectedMediaIds.includes(mediaId)) {
-      onSelectionChange(selectedMediaIds.filter((id) => id !== mediaId));
+  const toggleMedia = (mediaId: string | number) => {
+    const idStr = String(mediaId);
+    if (selectedMediaIds.includes(idStr)) {
+      onSelectionChange(selectedMediaIds.filter((id) => id !== idStr));
     } else {
-      onSelectionChange([...selectedMediaIds, mediaId]);
+      onSelectionChange([...selectedMediaIds, idStr]);
     }
   };
 
   const selectAll = () => {
-    onSelectionChange(allMedia.map((m) => m.id));
+    onSelectionChange(allMedia.map((m) => String(m.id)));
   };
 
   const clearAll = () => {
@@ -93,12 +94,12 @@ export default function MediaSelector({
 
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {allMedia.map((media) => {
-          const isSelected = selectedMediaIds.includes(media.id);
+          const isSelected = selectedMediaIds.includes(String(media.id));
           return (
             <button
               type="button"
               key={media.id}
-              onClick={() => toggleMedia(media.id)}
+              onClick={() => toggleMedia(String(media.id))}
               className={`group relative overflow-hidden rounded-2xl border transition ${
                 isSelected
                   ? "border-primary ring-2 ring-primary/30 shadow-md"

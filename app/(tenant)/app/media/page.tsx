@@ -9,7 +9,10 @@ export default function MediaLibraryPage() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: assets = [], isLoading, error } = useMedia({ q: query || undefined, type });
+  const { data: assets = [], isLoading, error } = useMedia({ 
+    q: query || undefined, 
+    type: type || undefined 
+  });
   const uploadMutation = useUploadMedia();
   const deleteMutation = useDeleteMedia();
   const updateMutation = useUpdateMedia();

@@ -64,14 +64,19 @@ export default function MediaUploader({
 
       try {
         const response = await tenantApi.mediaUpload(formData);
-        if (response.assets && Array.isArray(response.assets) && response.assets.length > 0) {
-          const asset = response.assets[0] as any;
+        // API may return assets array or items array
+        const assets = (response as any).assets || (response as any).items || [];
+        if (Array.isArray(assets) && assets.length > 0) {
+          const asset = assets[0] as any;
+          // Handle both old format (url) and new format (urls array)
+          const urls = asset.urls || (asset.url ? [asset.url] : []);
           return {
-            id: asset.id,
-            url: asset.url,
+            id: String(asset.id),
+            url: urls[0] || "",
+            urls: urls,
             type: asset.type || (file.type.startsWith("image/") ? "image" : "video"),
-            name: file.name,
-            thumbnail_url: asset.thumbnail_url,
+            name: asset.name || file.name,
+            thumbnail_url: urls[0] || asset.thumbnail_url,
           };
         }
         throw new Error("No asset returned from upload");

@@ -564,22 +564,29 @@ export const tenantApi = {
   },
 
   // Media Library endpoints (Phase 2)
-  mediaList: (params?: { type?: string; tags?: string; campaign?: string; q?: string; page?: string }) => {
+  mediaList: (params?: { type?: string; tag?: string; campaign?: string; q?: string; limit?: number }) => {
     const query = params
       ? `?${new URLSearchParams(
           Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
         ).toString()}`
       : "";
     return get<{
-      assets: Array<{
-        id: string;
+      items: Array<{
+        id: number;
         type: "image" | "video" | "carousel";
-        url: string;
-        thumbnail_url?: string;
-        tags?: string[];
-        caption?: string;
+        name: string;
+        carousel_name?: string | null;
+        caption?: string | null;
+        urls: string[];
+        status: string;
+        scheduled_at?: string | null;
+        platforms: string[];
+        tags: string[];
+        campaign?: string | null;
         created_at: string;
+        updated_at: string;
       }>;
+      count: number;
     }>(`/api/tenant/media${query}`);
   },
 
