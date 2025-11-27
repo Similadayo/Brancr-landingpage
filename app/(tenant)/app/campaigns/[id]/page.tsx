@@ -18,7 +18,7 @@ import {
   PencilIcon,
   ChartBarIcon,
   ImageIcon,
-} from "../../components/icons";
+} from "../../../components/icons";
 
 export default function CampaignDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);

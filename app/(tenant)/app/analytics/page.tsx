@@ -14,7 +14,7 @@ import {
   TrendingUpIcon,
   ClockIcon,
   UsersIcon,
-} from "../components/icons";
+} from "../../components/icons";
 
 const DATE_FILTERS = ["Last 7 days", "Last 30 days", "Quarter to date", "Custom"];
 const CHANNEL_FILTERS = ["All channels", "WhatsApp", "Instagram", "Facebook", "TikTok"];

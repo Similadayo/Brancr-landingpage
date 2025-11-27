@@ -17,7 +17,7 @@ import {
   PaperClipIcon,
   SparklesIcon,
   ArrowRightIcon,
-} from "../components/icons";
+} from "../../components/icons";
 
 const STATUS_FILTERS = ["All", "Open", "Pending", "Closed"];
 const PLATFORM_FILTERS = ["All", "Instagram", "Facebook", "WhatsApp", "TikTok", "Telegram"];

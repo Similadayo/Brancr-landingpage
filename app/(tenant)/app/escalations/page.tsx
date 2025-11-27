@@ -10,7 +10,7 @@ import {
   TrendingUpIcon,
   FunnelIcon,
   ArrowRightIcon,
-} from "../components/icons";
+} from "../../components/icons";
 
 const PRIORITY_COLORS: Record<string, string> = {
   low: "bg-gray-100 text-gray-700",

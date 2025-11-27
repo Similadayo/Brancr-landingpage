@@ -16,7 +16,7 @@ import {
   ListBulletIcon,
   CheckCircleIcon,
   ArrowUpTrayIcon,
-} from "../components/icons";
+} from "../../components/icons";
 
 type ViewMode = "grid" | "list";
 

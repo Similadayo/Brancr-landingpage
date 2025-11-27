@@ -23,7 +23,7 @@ import {
   MagnifyingGlassIcon,
   ImageIcon,
   XIcon,
-} from "../components/icons";
+} from "../../components/icons";
 
 type Tab = "scheduled" | "published" | "drafts";
 

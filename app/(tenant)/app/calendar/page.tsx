@@ -13,7 +13,7 @@ import {
   PlusIcon,
   XIcon,
   RocketIcon,
-} from "../components/icons";
+} from "../../components/icons";
 
 type ViewMode = "month" | "week" | "day";
 
