@@ -74,6 +74,19 @@ export default function EscalationDetailPage() {
   }
 
   const { escalation, customer, conversationHistory } = escalationDetail;
+  
+  // Safety checks
+  if (!escalation) {
+    return (
+      <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-900">
+        Escalation data is incomplete
+      </div>
+    );
+  }
+  
+  const customerName = customer?.name || escalation.customerName || "Unknown Customer";
+  const customerUsername = customer?.username || escalation.customerUsername;
+  const customerPlatform = customer?.platform || escalation.platform;
 
   const handleApprove = async () => {
     try {
@@ -134,18 +147,18 @@ export default function EscalationDetailPage() {
             <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-gray-400">Customer</h2>
             <div className="mt-4 flex items-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-xl font-semibold text-primary">
-                {customer.name.charAt(0).toUpperCase()}
+                {customerName.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900">{customer.name}</h3>
-                {customer.username && <p className="text-sm text-gray-500">@{customer.username}</p>}
+                <h3 className="text-lg font-semibold text-gray-900">{customerName}</h3>
+                {customerUsername && <p className="text-sm text-gray-500">@{customerUsername}</p>}
                 <div className="mt-2 flex items-center gap-2">
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
-                      PLATFORM_COLORS[customer.platform.toLowerCase()] ?? "bg-gray-100 text-gray-600"
+                      PLATFORM_COLORS[customerPlatform.toLowerCase()] ?? "bg-gray-100 text-gray-600"
                     }`}
                   >
-                    {customer.platform}
+                    {customerPlatform}
                   </span>
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
@@ -229,7 +242,7 @@ export default function EscalationDetailPage() {
           </div>
 
           {/* Conversation History */}
-          {conversationHistory.length > 0 && (
+          {conversationHistory && conversationHistory.length > 0 && (
             <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
               <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-gray-400">Conversation History</h2>
               <div className="mt-4 space-y-4">
@@ -242,7 +255,7 @@ export default function EscalationDetailPage() {
                   >
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-semibold text-gray-500">
-                        {message.author === "tenant" ? "You" : customer.name}
+                        {message.author === "tenant" ? "You" : customerName}
                       </p>
                       <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400">
                         {new Date(message.sentAt).toLocaleString([], {
