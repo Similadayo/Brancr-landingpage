@@ -83,15 +83,19 @@ export default function SchedulePicker({
       <h2 className="text-lg font-semibold text-gray-900">Schedule</h2>
 
       {/* Publish Now Toggle */}
-      <div className="flex items-center gap-3">
-        <label className="flex items-center gap-2">
+      <div className="flex items-center gap-4">
+        <label className="flex cursor-pointer items-center gap-3">
           <input
             type="checkbox"
             checked={publishNow}
             onChange={handlePublishNowToggle}
-            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            className="h-5 w-5 rounded border-2 border-gray-300 text-primary transition focus:ring-2 focus:ring-primary/20"
+            aria-label="Publish now or schedule for later"
           />
-          <span className="text-sm font-semibold text-gray-900">Publish Now</span>
+          <div>
+            <span className="text-sm font-semibold text-gray-900">Publish Now</span>
+            <p className="text-xs text-gray-500">Post immediately to all selected platforms</p>
+          </div>
         </label>
       </div>
 
@@ -109,7 +113,12 @@ export default function SchedulePicker({
               min={new Date().toISOString().slice(0, 16)}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
-            <p className="mt-2 text-xs text-gray-500">Saved in your local timezone</p>
+            <p className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
+              <span>Your timezone:</span>
+              <span className="font-semibold text-gray-700">
+                {Intl.DateTimeFormat().resolvedOptions().timeZone}
+              </span>
+            </p>
           </div>
 
           {/* Optimal Times */}

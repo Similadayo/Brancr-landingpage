@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
@@ -15,13 +15,25 @@ import PostReview from "@/app/(tenant)/components/posting/PostReview";
 type Step = "upload" | "media" | "caption" | "platforms" | "schedule" | "review";
 
 const STEPS: Step[] = ["upload", "media", "caption", "platforms", "schedule", "review"];
-const STEP_LABELS = ["Upload", "Media", "Caption", "Platforms", "Schedule", "Review"];
+const STEP_LABELS: Record<Step, string> = {
+  upload: "Upload Media",
+  media: "Select Media",
+  caption: "Write Caption",
+  platforms: "Choose Platforms",
+  schedule: "Schedule",
+  review: "Review & Publish",
+};
 
 export default function NewPostPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>("upload");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
+  const [publishingStatus, setPublishingStatus] = useState<{
+    status: "idle" | "publishing" | "success" | "error";
+    platformResults?: Record<string, "success" | "error">;
+    error?: string;
+  }>({ status: "idle" });
 
   // State
   const [uploadedMedia, setUploadedMedia] = useState<UploadedMedia[]>([]);
@@ -31,8 +43,60 @@ export default function NewPostPage() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [scheduledAt, setScheduledAt] = useState<string | null>(null);
 
+  // Auto-save draft to localStorage
+  useEffect(() => {
+    const draft = {
+      uploadedMedia,
+      selectedMediaIds,
+      caption,
+      isAIGenerated,
+      selectedPlatforms,
+      scheduledAt,
+      step,
+    };
+    localStorage.setItem("post-draft", JSON.stringify(draft));
+  }, [uploadedMedia, selectedMediaIds, caption, isAIGenerated, selectedPlatforms, scheduledAt, step]);
+
+  // Load draft on mount
+  useEffect(() => {
+    const savedDraft = localStorage.getItem("post-draft");
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft);
+        if (draft.selectedMediaIds) setSelectedMediaIds(draft.selectedMediaIds);
+        if (draft.caption) setCaption(draft.caption);
+        if (draft.isAIGenerated) setIsAIGenerated(draft.isAIGenerated);
+        if (draft.selectedPlatforms) setSelectedPlatforms(draft.selectedPlatforms);
+        if (draft.scheduledAt) setScheduledAt(draft.scheduledAt);
+        if (draft.step) setStep(draft.step);
+      } catch (e) {
+        // Ignore parse errors
+      }
+    }
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl + Enter: Publish immediately
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && step === "review" && canNext) {
+        e.preventDefault();
+        void handlePublish();
+      }
+      // Cmd/Ctrl + S: Save draft (already auto-saving)
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        toast.success("Draft saved automatically", { duration: 2000 });
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, canNext]);
+
   const currentStepIndex = STEPS.indexOf(step);
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
+  const currentStepLabel = STEP_LABELS[step];
 
   // Validation
   const canNext = useMemo(() => {
@@ -72,15 +136,18 @@ export default function NewPostPage() {
 
     try {
       setIsGeneratingCaption(true);
+      // Convert media IDs from strings to numbers
+      const mediaIds = selectedMediaIds.map((id) => Number(id)).filter((id) => !isNaN(id));
       const res = await tenantApi.generateCaption({
-        media_asset_ids: selectedMediaIds,
+        media_ids: mediaIds,
         include_hashtags: true,
       });
       setCaption(res.caption || "");
       setIsAIGenerated(true);
       toast.success("Caption generated successfully");
     } catch (error: any) {
-      toast.error(error.message || "Failed to generate caption");
+      const errorMessage = error?.body?.message || error?.message || "Failed to generate caption";
+      toast.error(errorMessage);
     } finally {
       setIsGeneratingCaption(false);
     }
@@ -105,21 +172,73 @@ export default function NewPostPage() {
         }
       }
 
-      const name = caption.split("\n")[0]?.slice(0, 50) || "Scheduled Post";
-      const scheduledAtISO = scheduledAt || new Date().toISOString();
+      // Convert media IDs from strings to numbers
+      const mediaIds = selectedMediaIds.map((id) => Number(id)).filter((id) => !isNaN(id));
 
-      await tenantApi.createPost({
-        name,
-        caption: caption.trim(),
-        media_asset_ids: selectedMediaIds,
+      // Prepare payload
+      const payload: {
+        media_ids: number[];
+        platforms: string[];
+        scheduled_at?: string | null;
+        caption?: string;
+        name?: string;
+      } = {
+        media_ids: mediaIds,
         platforms: selectedPlatforms,
-        scheduled_at: scheduledAtISO,
-      });
+      };
 
-      toast.success(scheduledAt ? "Post scheduled successfully!" : "Post published successfully!");
-      router.push("/app/campaigns");
+      // Add optional fields
+      if (caption.trim()) {
+        payload.caption = caption.trim();
+      }
+
+      // Handle scheduling
+      if (scheduledAt) {
+        // Convert local datetime to ISO string (RFC3339)
+        const local = new Date(scheduledAt);
+        payload.scheduled_at = new Date(local.getTime() - local.getTimezoneOffset() * 60000).toISOString();
+      } else {
+        // Publish immediately
+        payload.scheduled_at = "now";
+      }
+
+      // Add optional name
+      if (caption.trim()) {
+        payload.name = caption.split("\n")[0]?.slice(0, 50) || "Post";
+      }
+
+      setPublishingStatus({ status: "publishing" });
+
+      const response = await tenantApi.createPost(payload);
+
+      // Clear draft on success
+      localStorage.removeItem("post-draft");
+
+      if (response.publishing_now || !scheduledAt) {
+        setPublishingStatus({
+          status: "success",
+          platformResults: selectedPlatforms.reduce((acc, p) => ({ ...acc, [p]: "success" as const }), {}),
+        });
+        toast.success("✅ Post published successfully!", { duration: 5000 });
+        // Redirect after a short delay to show success state
+        setTimeout(() => {
+          router.push("/app/campaigns");
+        }, 2000);
+      } else {
+        setPublishingStatus({ status: "success" });
+        toast.success("Post scheduled successfully!", { duration: 5000 });
+        setTimeout(() => {
+          router.push("/app/campaigns");
+        }, 2000);
+      }
     } catch (error: any) {
-      toast.error(error.message || "Failed to publish post");
+      const errorMessage = error?.body?.message || error?.message || "Failed to publish post";
+      setPublishingStatus({
+        status: "error",
+        error: errorMessage,
+        platformResults: selectedPlatforms.reduce((acc, p) => ({ ...acc, [p]: "error" as const }), {}),
+      });
+      toast.error(errorMessage, { duration: 5000 });
     } finally {
       setIsSubmitting(false);
     }
@@ -159,8 +278,8 @@ export default function NewPostPage() {
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Create Post</h1>
-          <p className="mt-2 max-w-2xl text-sm text-gray-600">
-            Step {currentStepIndex + 1} of {STEPS.length}: {STEP_LABELS[currentStepIndex]}
+          <p className="mt-2 max-w-2xl text-sm font-medium text-gray-700">
+            Step {currentStepIndex + 1} of {STEPS.length}: {currentStepLabel}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -194,25 +313,35 @@ export default function NewPostPage() {
         </div>
       </div>
 
-      {/* Step Indicator */}
-      <div className="grid grid-cols-6 gap-2">
-        {STEP_LABELS.map((label, idx) => {
-          const stepKey = STEPS[idx];
+      {/* Step Indicator - Mobile responsive */}
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+        {STEPS.map((stepKey, idx) => {
+          const label = STEP_LABELS[stepKey];
           const isActive = step === stepKey;
           const isCompleted = idx < currentStepIndex;
           return (
-            <div
+            <button
               key={stepKey}
-              className={`rounded-xl border px-3 py-2 text-center text-xs font-semibold transition ${
+              type="button"
+              onClick={() => {
+                // Allow going back to completed steps
+                if (idx <= currentStepIndex) {
+                  setStep(stepKey);
+                }
+              }}
+              className={`rounded-xl border px-3 py-2 text-center text-xs font-semibold transition-all ${
                 isActive
-                  ? "border-primary bg-primary/10 text-primary"
+                  ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
                   : isCompleted
-                  ? "border-green-300 bg-green-50 text-green-700"
-                  : "border-gray-200 text-gray-600"
-              }`}
+                  ? "border-green-300 bg-green-50 text-green-700 hover:border-green-400"
+                  : "border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
+              } ${idx <= currentStepIndex ? "cursor-pointer hover:scale-105" : ""}`}
+              disabled={idx > currentStepIndex}
+              aria-label={`Step ${idx + 1}: ${label}`}
             >
-              {label}
-            </div>
+              <span className="hidden sm:inline">{label}</span>
+              <span className="sm:hidden">{idx + 1}</span>
+            </button>
           );
         })}
       </div>
@@ -243,6 +372,7 @@ export default function NewPostPage() {
             isAIGenerating={isGeneratingCaption}
             selectedMediaIds={selectedMediaIds}
             isAIGenerated={isAIGenerated}
+            selectedPlatforms={selectedPlatforms}
           />
         )}
 
@@ -270,28 +400,32 @@ export default function NewPostPage() {
             onEdit={handleEdit}
             onPublish={handlePublish}
             isPublishing={isSubmitting}
+            publishingStatus={publishingStatus}
+            uploadedMedia={uploadedMedia}
           />
         )}
       </div>
 
-      {/* Navigation */}
+      {/* Navigation - Mobile responsive */}
       {step !== "review" && (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={handleBack}
             disabled={currentStepIndex === 0}
-            className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+            className="min-h-[44px] flex-1 rounded-xl border-2 border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+            aria-label="Go to previous step"
           >
-            Back
+            ← Back
           </button>
           <button
             type="button"
             onClick={handleNext}
             disabled={!canNext}
-            className="rounded-xl bg-primary px-6 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="min-h-[44px] flex-1 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 focus:outline-none focus:ring-4 focus:ring-primary/20"
+            aria-label="Go to next step"
           >
-            Next
+            Next →
           </button>
         </div>
       )}

@@ -2,7 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 import { useScheduledPosts, useCancelScheduledPost, useUpdateScheduledPost } from "@/app/(tenant)/hooks/useScheduledPosts";
+import { tenantApi } from "@/lib/api";
+import { toast } from "react-hot-toast";
 import { useTemplates } from "@/app/(tenant)/hooks/useTemplates";
 
 const STATUS_FILTERS = ["All", "Scheduled", "Posting", "Posted", "Failed", "Cancelled"];
@@ -16,6 +19,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function CampaignsPage() {
+  const queryClient = useQueryClient();
   const [filter, setFilter] = useState<string>("All");
   const { data: scheduledPostsData, isLoading, error } = useScheduledPosts();
   const { data: templatesData } = useTemplates();
@@ -25,6 +29,7 @@ export default function CampaignsPage() {
   const templates = Array.isArray(templatesData) ? templatesData : [];
   const cancelMutation = useCancelScheduledPost();
   const [cancellingPostId, setCancellingPostId] = useState<string | null>(null);
+  const [publishingPostId, setPublishingPostId] = useState<string | null>(null);
   const updateMutation = useUpdateScheduledPost();
 
   // Modal state
@@ -46,6 +51,22 @@ export default function CampaignsPage() {
           setCancellingPostId(null);
         },
       });
+    }
+  };
+
+  const handlePublishNow = async (postId: string) => {
+    try {
+      setPublishingPostId(postId);
+      await tenantApi.publishPost(postId);
+      toast.success("Post is being published now!");
+      // Invalidate queries to refresh the list
+      void queryClient.invalidateQueries({ queryKey: ["scheduled-posts"] });
+      void queryClient.invalidateQueries({ queryKey: ["scheduled-post", postId] });
+    } catch (error: any) {
+      const errorMessage = error?.body?.message || error?.message || "Failed to publish post";
+      toast.error(errorMessage);
+    } finally {
+      setPublishingPostId(null);
     }
   };
 
@@ -124,7 +145,9 @@ export default function CampaignsPage() {
               <tbody className="divide-y divide-gray-200 bg-white">
                 {campaigns.map((post) => {
                   const canCancel = post.status === "scheduled" || post.status === "posting";
+                  const canPublish = post.status === "scheduled";
                   const isCancelling = cancellingPostId === post.id;
+                  const isPublishing = publishingPostId === post.id;
 
                   return (
                     <tr key={post.id} className="hover:bg-gray-50">
@@ -190,6 +213,18 @@ export default function CampaignsPage() {
                           <Link href={`/app/campaigns/${post.id}`} className="hover:text-primary/80">
                             View
                           </Link>
+                          {canPublish && (
+                            <>
+                              <span className="text-gray-300">•</span>
+                              <button
+                                onClick={() => void handlePublishNow(post.id)}
+                                disabled={isPublishing}
+                                className="hover:text-green-600 disabled:opacity-50"
+                              >
+                                {isPublishing ? "Publishing..." : "Publish Now"}
+                              </button>
+                            </>
+                          )}
                           {canCancel && (
                             <>
                               <span className="text-gray-300">•</span>

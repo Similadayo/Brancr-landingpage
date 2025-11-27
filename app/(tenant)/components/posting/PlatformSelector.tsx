@@ -119,35 +119,62 @@ export default function PlatformSelector({
             <button
               key={platform.id}
               type="button"
-              onClick={() => togglePlatform(platform.id)}
+              onClick={() => {
+                if (isDisabled) {
+                  // Show modal or toast for unconnected platforms
+                  return;
+                }
+                togglePlatform(platform.id);
+              }}
               disabled={isDisabled}
-              className={`group relative rounded-2xl border p-4 text-left transition ${
+              className={`group relative rounded-2xl border-2 p-4 text-left transition-all ${
                 isSelected
-                  ? "border-primary bg-primary/10 shadow-md"
+                  ? "border-primary bg-primary/10 shadow-lg ring-4 ring-primary/20 scale-[1.02]"
                   : isDisabled
-                  ? "border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed"
-                  : "border-gray-200 bg-white hover:border-primary hover:shadow-sm"
+                  ? "border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed"
+                  : "border-gray-200 bg-white hover:border-primary/50 hover:shadow-md hover:scale-[1.01]"
               }`}
+              aria-label={`${isSelected ? "Deselect" : "Select"} ${platform.name}`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{platform.icon}</span>
+                  <span className="text-3xl">{platform.icon}</span>
                   <div>
                     <p className="text-sm font-semibold text-gray-900">{platform.name}</p>
-                    <p className="text-xs text-gray-500">
-                      {isConnected ? "Connected" : "Not connected"}
-                    </p>
+                    <div className="mt-0.5 flex items-center gap-1.5">
+                      {isConnected ? (
+                        <>
+                          <span className="h-2 w-2 rounded-full bg-green-500" />
+                          <p className="text-xs font-medium text-green-700">Connected</p>
+                        </>
+                      ) : (
+                        <>
+                          <span className="h-2 w-2 rounded-full bg-gray-400" />
+                          <p className="text-xs text-gray-500">Not connected</p>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   {isConnected ? (
-                    <span className="text-green-500">✓</span>
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-green-600">
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
                   ) : (
-                    <span className="text-gray-400">✗</span>
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </div>
                   )}
                   {isSelected && (
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white text-xs">
-                      ✓
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow-lg">
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
                     </div>
                   )}
                 </div>
@@ -157,9 +184,12 @@ export default function PlatformSelector({
                   <Link
                     href="/app/integrations"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-xs font-semibold text-primary hover:underline"
+                    className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline transition"
                   >
-                    Connect {platform.name} →
+                    <span>Connect {platform.name}</span>
+                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </Link>
                 </div>
               )}
@@ -169,8 +199,14 @@ export default function PlatformSelector({
       </div>
 
       {selectedPlatforms.length === 0 && (
-        <div className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-2 text-xs text-orange-800">
-          ⚠️ Please select at least one platform to continue
+        <div className="rounded-xl border-2 border-orange-200 bg-orange-50 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">⚠️</span>
+            <div>
+              <p className="text-xs font-semibold text-orange-900">Platform selection required</p>
+              <p className="mt-0.5 text-xs text-orange-700">Please select at least one platform to continue</p>
+            </div>
+          </div>
         </div>
       )}
     </div>

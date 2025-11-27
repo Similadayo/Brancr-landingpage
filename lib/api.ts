@@ -603,18 +603,27 @@ export const tenantApi = {
 
   // Post Creation (Phase 2)
   createPost: (payload: {
-    name: string;
-    caption: string;
-    media_asset_ids: string[];
-    platforms: string[];
-    scheduled_at: string;
-  }) => post<typeof payload, { success: boolean; post_id: string }>(`/api/tenant/posts`, payload),
+    name?: string;
+    caption?: string;
+    media_ids: number[]; // Array of media asset IDs
+    platforms: string[]; // Required: At least one platform
+    scheduled_at?: string | null; // "now", RFC3339 date, or null for immediate publishing
+  }) => post<typeof payload, {
+    id: number;
+    status: "scheduled" | "posting" | "posted" | "failed";
+    publishing_now?: boolean;
+  }>(`/api/tenant/posts`, payload),
 
-  publishNow: (postId: string) =>
-    post<undefined, { success: boolean }>(`/api/tenant/posts/${postId}/publish-now`),
+  publishPost: (postId: number | string) =>
+    post<undefined, {
+      success: boolean;
+      message?: string;
+      post_id: number;
+      status: string;
+    }>(`/api/tenant/posts/${postId}/publish`),
 
   generateCaption: (payload: {
-    media_asset_ids: string[];
+    media_ids: number[]; // Array of media asset IDs
     tone?: string;
     include_hashtags?: boolean;
   }) => post<typeof payload, { caption: string }>(`/api/tenant/posts/generate-caption`, payload),
