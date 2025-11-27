@@ -7,6 +7,7 @@ import { tenantApi } from "@/lib/api";
 export type UploadedMedia = {
   id: string;
   url: string;
+  urls?: string[]; // Array of URLs (new API format)
   type: "image" | "video" | "carousel";
   name?: string;
   thumbnail_url?: string;
