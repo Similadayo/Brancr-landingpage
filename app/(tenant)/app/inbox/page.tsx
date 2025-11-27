@@ -60,6 +60,9 @@ export default function InboxPage() {
     return filters;
   }, [activeStatusFilter, activePlatformFilter, searchQuery]);
 
+  const { data: conversationsData, isLoading, error } = useConversations(apiFilters);
+  const conversations = Array.isArray(conversationsData) ? conversationsData : [];
+
   // Sort conversations
   const sortedConversations = useMemo(() => {
     const sorted = [...conversations];
@@ -74,9 +77,6 @@ export default function InboxPage() {
         return sorted;
     }
   }, [conversations, sortBy]);
-
-  const { data: conversationsData, isLoading, error } = useConversations(apiFilters);
-  const conversations = Array.isArray(conversationsData) ? conversationsData : [];
   const { data: conversationDetail } = useConversation(selectedConversationId);
   const sendReplyMutation = useSendReply(selectedConversationId);
   const updateStatusMutation = useUpdateConversationStatus(selectedConversationId);
