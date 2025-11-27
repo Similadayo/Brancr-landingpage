@@ -25,7 +25,7 @@ import {
   CheckCircleIcon,
   FireIcon,
   ImageIcon,
-} from "../../components/icons";
+} from "../components/icons";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
