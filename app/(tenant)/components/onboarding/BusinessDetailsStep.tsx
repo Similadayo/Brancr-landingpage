@@ -1,6 +1,41 @@
 'use client';
 
 import { useState, FormEvent, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { tenantApi } from '@/lib/api';
+
+// Currency mapping for different countries
+const CURRENCY_MAP: Record<string, { symbol: string; code: string; name: string }> = {
+  // African countries
+  'Nigeria': { symbol: '₦', code: 'NGN', name: 'Naira' },
+  'Ghana': { symbol: '₵', code: 'GHS', name: 'Cedi' },
+  'Kenya': { symbol: 'KSh', code: 'KES', name: 'Shilling' },
+  'South Africa': { symbol: 'R', code: 'ZAR', name: 'Rand' },
+  'Egypt': { symbol: 'E£', code: 'EGP', name: 'Pound' },
+  'Tanzania': { symbol: 'TSh', code: 'TZS', name: 'Shilling' },
+  'Uganda': { symbol: 'USh', code: 'UGX', name: 'Shilling' },
+  'Ethiopia': { symbol: 'Br', code: 'ETB', name: 'Birr' },
+  'Morocco': { symbol: 'د.م.', code: 'MAD', name: 'Dirham' },
+  'Algeria': { symbol: 'د.ج', code: 'DZD', name: 'Dinar' },
+  // Other common currencies
+  'United States': { symbol: '$', code: 'USD', name: 'Dollar' },
+  'United Kingdom': { symbol: '£', code: 'GBP', name: 'Pound' },
+  'Eurozone': { symbol: '€', code: 'EUR', name: 'Euro' },
+};
+
+// Default currency options (most common)
+const COMMON_CURRENCIES = [
+  { symbol: '₦', code: 'NGN', name: 'Naira (NGN)', country: 'Nigeria' },
+  { symbol: '₵', code: 'GHS', name: 'Cedi (GHS)', country: 'Ghana' },
+  { symbol: 'KSh', code: 'KES', name: 'Shilling (KES)', country: 'Kenya' },
+  { symbol: 'R', code: 'ZAR', name: 'Rand (ZAR)', country: 'South Africa' },
+  { symbol: '$', code: 'USD', name: 'Dollar (USD)', country: 'United States' },
+  { symbol: '£', code: 'GBP', name: 'Pound (GBP)', country: 'United Kingdom' },
+  { symbol: '€', code: 'EUR', name: 'Euro (EUR)', country: 'Eurozone' },
+  { symbol: 'E£', code: 'EGP', name: 'Pound (EGP)', country: 'Egypt' },
+  { symbol: 'TSh', code: 'TZS', name: 'Shilling (TZS)', country: 'Tanzania' },
+  { symbol: 'USh', code: 'UGX', name: 'Shilling (UGX)', country: 'Uganda' },
+];
 
 type MenuItem = {
   id?: number; // Include ID if updating existing, omit for new
@@ -37,6 +72,39 @@ export function BusinessDetailsStep({
     knowledge_base?: string;
   };
 }) {
+  // Get business profile to detect currency from location
+  const { data: onboardingStatus } = useQuery({
+    queryKey: ['onboarding', 'status'],
+    queryFn: () => tenantApi.onboardingStatus(),
+  });
+
+  // Detect currency from location
+  const detectCurrency = (location?: string): string => {
+    if (!location) return 'NGN'; // Default to Naira
+    
+    const locationLower = location.toLowerCase();
+    for (const [country, currency] of Object.entries(CURRENCY_MAP)) {
+      if (locationLower.includes(country.toLowerCase())) {
+        return currency.code;
+      }
+    }
+    return 'NGN'; // Default
+  };
+
+  // Initialize currency based on business location
+  const businessLocation = onboardingStatus?.business_profile?.location;
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('NGN');
+
+  // Update currency when location is available
+  useEffect(() => {
+    if (businessLocation) {
+      const detected = detectCurrency(businessLocation);
+      setSelectedCurrency(detected);
+    }
+  }, [businessLocation]);
+
+  const selectedCurrencyInfo = COMMON_CURRENCIES.find(c => c.code === selectedCurrency) || COMMON_CURRENCIES[0];
+
   const [menuItems, setMenuItems] = useState<MenuItem[]>(initialData?.menu_items || []);
   const [faqs, setFaqs] = useState<FAQ[]>(initialData?.faqs || []);
   const [keywords, setKeywords] = useState(initialData?.keywords || '');
@@ -62,8 +130,26 @@ export function BusinessDetailsStep({
 
   const updateMenuItem = (index: number, field: keyof MenuItem, value: string) => {
     const updated = [...menuItems];
-    updated[index] = { ...updated[index], [field]: value };
+    // Remove currency symbol if user types it
+    if (field === 'price') {
+      const cleanedValue = value.replace(/[₦₵$£€RKEUShTShBrد.م.د.ج]/g, '').trim();
+      updated[index] = { ...updated[index], [field]: cleanedValue };
+    } else {
+      updated[index] = { ...updated[index], [field]: value };
+    }
     setMenuItems(updated);
+  };
+
+  const formatPrice = (price: string): string => {
+    if (!price) return '';
+    // Remove any existing currency symbols
+    const cleaned = price.replace(/[₦₵$£€RKEUShTShBrد.م.د.ج]/g, '').trim();
+    return cleaned ? `${selectedCurrencyInfo.symbol}${cleaned}` : '';
+  };
+
+  const getPriceValue = (price: string): string => {
+    // Extract numeric value from price string
+    return price.replace(/[₦₵$£€RKEUShTShBrد.م.د.ج]/g, '').trim();
   };
 
   const addFAQ = () => {
@@ -84,7 +170,13 @@ export function BusinessDetailsStep({
     e.preventDefault();
     const data: BusinessDetailsData = {};
     if (menuItems.length > 0) {
-      data.menu_items = menuItems.filter((item) => item.name && item.category);
+      // Ensure prices are stored as numeric values (without currency symbols)
+      data.menu_items = menuItems
+        .filter((item) => item.name && item.category)
+        .map((item) => ({
+          ...item,
+          price: getPriceValue(item.price), // Store numeric value only
+        }));
     }
     if (faqs.length > 0) {
       data.faqs = faqs.filter((faq) => faq.question && faq.answer);
@@ -121,16 +213,30 @@ export function BusinessDetailsStep({
             <span className="text-primary">🍽️</span>
             Menu Items <span className="text-xs text-gray-500 font-normal">(optional)</span>
           </label>
-          <button
-            type="button"
-            onClick={addMenuItem}
-            className="inline-flex items-center gap-1.5 rounded-xl border-2 border-primary bg-primary/10 px-4 py-2 text-xs font-semibold text-primary transition-all duration-200 hover:bg-primary/20 hover:shadow-md"
-          >
-            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Add Item
-          </button>
+          <div className="flex items-center gap-2">
+            <select
+              value={selectedCurrency}
+              onChange={(e) => setSelectedCurrency(e.target.value)}
+              className="rounded-lg border-2 border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              aria-label="Select currency"
+            >
+              {COMMON_CURRENCIES.map((currency) => (
+                <option key={currency.code} value={currency.code}>
+                  {currency.symbol} {currency.code}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={addMenuItem}
+              className="inline-flex items-center gap-1.5 rounded-xl border-2 border-primary bg-primary/10 px-4 py-2 text-xs font-semibold text-primary transition-all duration-200 hover:bg-primary/20 hover:shadow-md"
+            >
+              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Add Item
+            </button>
+          </div>
         </div>
         {menuItems.length === 0 ? (
           <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-6 text-center">
@@ -158,13 +264,27 @@ export function BusinessDetailsStep({
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <input
-                    type="text"
-                    placeholder="Price"
-                    value={item.price}
-                    onChange={(e) => updateMenuItem(index, 'price', e.target.value)}
-                    className="rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
-                  />
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-600">
+                      {selectedCurrencyInfo.symbol}
+                    </span>
+                    <input
+                      type="text"
+                      placeholder="Price"
+                      value={getPriceValue(item.price)}
+                      onChange={(e) => {
+                        const numericValue = e.target.value.replace(/[^0-9.]/g, '');
+                        updateMenuItem(index, 'price', numericValue);
+                      }}
+                      onBlur={(e) => {
+                        const value = e.target.value.trim();
+                        if (value) {
+                          updateMenuItem(index, 'price', value);
+                        }
+                      }}
+                      className="w-full rounded-lg border-2 border-gray-200 bg-white pl-8 pr-3 py-2.5 text-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => removeMenuItem(index)}
@@ -319,4 +439,3 @@ export function BusinessDetailsStep({
     </form>
   );
 }
-
