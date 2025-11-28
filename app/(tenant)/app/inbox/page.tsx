@@ -134,7 +134,6 @@ export default function InboxPage() {
     if (!replyText.trim() || !selectedConversationId) return;
 
     try {
-      // @ts-expect-error - TypeScript incorrectly infers union type, but payload is correct
       await sendReplyMutation.mutateAsync({ body: replyText.trim() });
       setReplyText("");
     } catch (error) {
