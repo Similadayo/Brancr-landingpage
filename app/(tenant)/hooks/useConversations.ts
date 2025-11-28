@@ -5,94 +5,52 @@ import { toast } from "react-hot-toast";
 import { ApiError, tenantApi } from "@/lib/api";
 
 export type ConversationSummary = {
-  id: string;
-  contactName: string;
-  channel: "whatsapp" | "instagram" | "facebook" | "tiktok" | "telegram" | "email";
-  preview: string;
-  updatedAt: string;
-  unreadCount: number;
-  tags: string[];
+  id: number;
+  customer_id: number;
+  customer_name: string;
+  customer_avatar?: string;
+  platform: "whatsapp" | "instagram" | "facebook" | "tiktok" | "telegram" | "email";
+  status: "active" | "resolved" | "archived";
+  last_message: string;
+  last_message_at: string;
+  unread_count: number;
+  created_at: string;
+  updated_at: string;
+  tags?: string[];
   assignee?: string | null;
-  status: "open" | "pending" | "closed";
+};
+
+export type Message = {
+  id: number;
+  direction: "incoming" | "outgoing";
+  message_type: "text" | "image" | "video" | "comment";
+  content: string;
+  detected_intent?: string;
+  detected_tone?: string;
+  confidence?: number;
+  response_type?: "auto_reply" | "escalated" | "manual";
+  response_status?: "pending" | "approved" | "sent" | "rejected";
+  suggested_reply?: string;
+  final_reply?: string;
+  created_at: string;
+  metadata?: Record<string, unknown>;
 };
 
 export type ConversationDetail = {
-  conversation: ConversationSummary;
-  messages: Array<{
-    id: string;
-    author: "tenant" | "contact";
-    authorName?: string;
-    body: string;
-    sentAt: string;
-    attachments?: Array<Record<string, unknown>>;
-  }>;
+  id: number;
+  customer_id: number;
+  customer_name: string;
+  customer_avatar?: string;
+  platform: string;
+  status: "active" | "resolved" | "archived";
+  messages: Message[];
+  created_at: string;
+  updated_at: string;
+  tags?: string[];
+  assignee?: string | null;
 };
 
-const FALLBACK_CONVERSATIONS: ConversationSummary[] = [
-  {
-    id: "1",
-    contactName: "Amaka Interiors",
-    channel: "whatsapp",
-    preview: "Thanks for the quick response! Can we confirm delivery for Friday?",
-    updatedAt: "2025-07-04T10:24:00Z",
-    unreadCount: 1,
-    tags: ["priority", "orders"],
-    assignee: "Seyi",
-    status: "open",
-  },
-  {
-    id: "2",
-    contactName: "Chef Bisi",
-    channel: "instagram",
-    preview: "Here’s the updated media kit you requested.",
-    updatedAt: "2025-07-04T09:58:00Z",
-    unreadCount: 0,
-    tags: ["influencer"],
-    assignee: "You",
-    status: "pending",
-  },
-];
-
-const FALLBACK_DETAILS: Record<string, ConversationDetail> = {
-  "1": {
-    conversation: FALLBACK_CONVERSATIONS[0],
-    messages: [
-      {
-        id: "m1",
-        author: "contact",
-        authorName: "Amaka Interiors",
-        body: "Thanks for the quick response! Can we confirm delivery for Friday?",
-        sentAt: "2025-07-04T10:24:00Z",
-      },
-      {
-        id: "m2",
-        author: "tenant",
-        authorName: "Seyi (You)",
-        body: "Absolutely — I’ll schedule dispatch for 9AM and share the tracking link shortly.",
-        sentAt: "2025-07-04T10:26:00Z",
-      },
-    ],
-  },
-  "2": {
-    conversation: FALLBACK_CONVERSATIONS[1],
-    messages: [
-      {
-        id: "m3",
-        author: "contact",
-        authorName: "Chef Bisi",
-        body: "Here’s the updated media kit you requested.",
-        sentAt: "2025-07-04T09:58:00Z",
-      },
-      {
-        id: "m4",
-        author: "tenant",
-        authorName: "Ada (You)",
-        body: "Thank you! Looks great — we’ll include it in the next promotion cycle.",
-        sentAt: "2025-07-04T10:01:00Z",
-      },
-    ],
-  },
-};
+// Removed fallback data - use empty arrays/objects instead
 
 export function useConversations(filters?: { platform?: string; status?: string; search?: string; limit?: number }) {
   return useQuery<ConversationSummary[], Error>({
@@ -102,22 +60,28 @@ export function useConversations(filters?: { platform?: string; status?: string;
         const response = await tenantApi.conversations(filters);
         const conversations = response?.conversations;
         if (!Array.isArray(conversations)) {
-          return FALLBACK_CONVERSATIONS;
+          return [];
         }
         return conversations.map((conversation) => ({
-          id: conversation.id,
-          contactName: conversation.contact_name ?? "Unknown contact",
-          channel: (conversation.channel ?? "whatsapp") as ConversationSummary["channel"],
-          preview: conversation.preview ?? "",
-          updatedAt: conversation.updated_at ?? "",
-          unreadCount: conversation.unread_count ?? 0,
-          tags: Array.isArray(conversation.tags) ? conversation.tags : [],
+          id: Number(conversation.id),
+          customer_id: conversation.customer_id,
+          customer_name: conversation.customer_name || "Unknown contact",
+          customer_avatar: conversation.customer_avatar,
+          platform: (conversation.platform ?? "whatsapp") as ConversationSummary["platform"],
+          status: (conversation.status === "active" || conversation.status === "resolved" || conversation.status === "archived" 
+            ? conversation.status 
+            : "active") as ConversationSummary["status"],
+          last_message: conversation.last_message || "",
+          last_message_at: conversation.last_message_at || conversation.updated_at,
+          unread_count: conversation.unread_count ?? 0,
+          created_at: conversation.created_at,
+          updated_at: conversation.updated_at,
+          tags: conversation.tags || [],
           assignee: conversation.assignee ?? null,
-          status: (conversation.status ?? "open") as ConversationSummary["status"],
         }));
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
-          return FALLBACK_CONVERSATIONS;
+          return [];
         }
         throw error;
       }
@@ -137,35 +101,34 @@ export function useConversation(conversationId: string | null) {
       }
       try {
         const response = await tenantApi.conversation(conversationId);
-        const messages = response?.messages;
         return {
-          conversation: {
-            id: response.conversation.id,
-            contactName: response.conversation.contact_name ?? "Unknown contact",
-            channel: (response.conversation.channel ?? "whatsapp") as ConversationSummary["channel"],
-            preview: "",
-            updatedAt: new Date().toISOString(),
-            unreadCount: 0,
-            tags: Array.isArray(response.conversation.tags) ? response.conversation.tags : [],
-            assignee: response.conversation.assignee ?? null,
-            status: (response.conversation.status ?? "open") as ConversationSummary["status"],
-          },
-          messages: Array.isArray(messages) ? messages.map((message) => ({
-            id: message.id,
-            author: message.author,
-            authorName: message.author_name,
-            body: message.body,
-            sentAt: message.sent_at,
-            attachments: message.attachments,
+          id: Number(response.id),
+          customer_id: response.customer_id,
+          customer_name: response.customer_name || "Unknown contact",
+          customer_avatar: response.customer_avatar,
+          platform: response.platform,
+          status: (response.status === "active" || response.status === "resolved" || response.status === "archived"
+            ? response.status
+            : "active") as ConversationDetail["status"],
+          messages: Array.isArray(response.messages) ? response.messages.map((msg) => ({
+            id: Number(msg.id),
+            direction: msg.direction,
+            message_type: msg.message_type,
+            content: msg.content,
+            detected_intent: msg.detected_intent,
+            detected_tone: msg.detected_tone,
+            confidence: msg.confidence,
+            response_type: msg.response_type,
+            response_status: msg.response_status,
+            suggested_reply: msg.suggested_reply,
+            final_reply: msg.final_reply,
+            created_at: msg.created_at,
+            metadata: msg.metadata,
           })) : [],
+          created_at: response.created_at,
+          updated_at: response.updated_at,
         };
       } catch (error) {
-        if (error instanceof ApiError && error.status === 404) {
-          return FALLBACK_DETAILS[conversationId] ?? {
-            conversation: FALLBACK_CONVERSATIONS[0],
-            messages: [],
-          };
-        }
         throw error;
       }
     },
@@ -181,7 +144,7 @@ export function useSendReply(conversationId: string | null) {
       if (!conversationId) {
         throw new Error("No conversation selected");
       }
-      return tenantApi.sendReply(conversationId, payload);
+      return tenantApi.sendReply(conversationId, { message: payload.body });
     },
     onSuccess: () => {
       toast.success("Reply sent");
@@ -225,7 +188,7 @@ export function useAssignConversation(conversationId: string | null) {
 export function useUpdateConversationStatus(conversationId: string | null) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { status: string }) => {
+    mutationFn: async (payload: { status: "active" | "resolved" | "archived" }) => {
       if (!conversationId) {
         throw new Error("No conversation selected");
       }

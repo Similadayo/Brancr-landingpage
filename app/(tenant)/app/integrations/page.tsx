@@ -190,7 +190,7 @@ export default function IntegrationsPage() {
           <Link
             href="https://t.me/brancrbot"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary/90"
           >
             Launch Telegram assistant
@@ -316,7 +316,7 @@ export default function IntegrationsPage() {
                     <a
                       href="https://t.me/brancrbot"
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
                     >
                       Open bot deep link
