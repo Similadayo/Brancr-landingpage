@@ -176,7 +176,7 @@ export default function InboxPage() {
   return (
     <div className="flex h-[calc(100vh-120px)] flex-col gap-4 overflow-hidden">
       {/* Header */}
-      <section className="flex flex-shrink-0 flex-col gap-4">
+      <section className="mb-6 flex flex-shrink-0 flex-col gap-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="flex items-center gap-3">
