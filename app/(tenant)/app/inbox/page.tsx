@@ -25,15 +25,20 @@ import {
   PaperClipIcon,
   SparklesIcon,
   ArrowRightIcon,
+  FacebookIcon,
+  InstagramIcon,
+  WhatsAppIcon,
+  TelegramIcon,
+  AllMessagesIcon,
 } from "../../components/icons";
 
 const STATUS_FILTERS = ["All", "Active", "Resolved", "Archived"];
 const PLATFORM_COLUMNS = [
-  { value: "all", label: "All", icon: "📬" },
-  { value: "facebook", label: "Facebook", icon: "📘" },
-  { value: "instagram", label: "Instagram", icon: "📷" },
-  { value: "telegram", label: "Telegram", icon: "✈️" },
-  { value: "whatsapp", label: "WhatsApp", icon: "💬" },
+  { value: "all", label: "All", Icon: AllMessagesIcon },
+  { value: "facebook", label: "Facebook", Icon: FacebookIcon },
+  { value: "instagram", label: "Instagram", Icon: InstagramIcon },
+  { value: "telegram", label: "Telegram", Icon: TelegramIcon },
+  { value: "whatsapp", label: "WhatsApp", Icon: WhatsAppIcon },
 ];
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
@@ -174,51 +179,56 @@ export default function InboxPage() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-120px)] flex-col gap-4 overflow-hidden">
-      {/* Header */}
-      <section className="flex flex-shrink-0 flex-col gap-4">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <InboxIcon className="w-6 h-6" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Inbox</h1>
-                <p className="mt-1 max-w-2xl text-sm text-gray-600">
-                  Manage conversations across all platforms from one workspace
-                </p>
-              </div>
+    <div className="flex h-screen flex-col overflow-hidden sm:h-[calc(100vh-120px)]">
+      {/* Header - Mobile optimized */}
+      <section className="flex flex-shrink-0 flex-col gap-2 border-b border-gray-200 bg-white px-4 py-3 sm:gap-3 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
+        <div className="flex items-center justify-between sm:flex-col sm:items-start sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => setSelectedConversationId("")}
+              aria-label="Back to conversations"
+              className={`lg:hidden ${selectedConversationId ? "flex" : "hidden"} items-center justify-center rounded-lg p-1.5 text-gray-600 hover:bg-gray-100`}
+            >
+              <ArrowRightIcon className="h-5 w-5 rotate-180" />
+            </button>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary sm:h-10 sm:w-10 sm:rounded-xl">
+              <InboxIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+            </div>
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl lg:text-3xl xl:text-4xl">Inbox</h1>
+              <p className="hidden text-xs text-gray-600 sm:mt-1 sm:block sm:text-sm">
+                Manage conversations across all platforms from one workspace
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Filters and Search */}
-        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        {/* Filters and Search - Mobile optimized */}
+        <div className="flex flex-col gap-2 rounded-lg border border-gray-200 bg-white p-2 shadow-sm sm:gap-3 sm:rounded-xl sm:p-4">
           {/* Search Bar */}
           <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:left-3 sm:h-5 sm:w-5" />
             <input
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by customer name or message..."
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+              placeholder="Search conversations..."
+              className="w-full rounded-md border border-gray-200 bg-gray-50 pl-8 pr-3 py-2 text-xs text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 sm:rounded-lg sm:pl-10 sm:pr-4 sm:py-2.5 sm:text-sm"
             />
           </div>
 
-          {/* Filter Row */}
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Filter Row - Mobile optimized */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {/* Status Filters */}
-            <div className="flex items-center gap-2">
-              <FunnelIcon className="h-4 w-4 text-gray-400" />
-              <span className="text-xs font-medium text-gray-500">Status:</span>
-              <div className="flex gap-1.5">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <FunnelIcon className="hidden h-3.5 w-3.5 text-gray-400 sm:block sm:h-4 sm:w-4" />
+              <span className="text-[10px] font-medium text-gray-500 sm:text-xs">Status:</span>
+              <div className="flex gap-1 sm:gap-1.5">
                 {STATUS_FILTERS.map((filter) => (
                   <button
                     key={filter}
                     onClick={() => setActiveStatusFilter(filter)}
-                    className={`rounded-lg border px-3 py-1 text-xs font-semibold transition ${
+                    className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold transition sm:rounded-lg sm:px-3 sm:py-1 sm:text-xs ${
                       activeStatusFilter === filter
                         ? "border-primary bg-primary text-white shadow-sm"
                         : "border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary"
@@ -230,15 +240,14 @@ export default function InboxPage() {
               </div>
             </div>
 
-
             {/* Sort */}
-            <div className="ml-auto flex items-center gap-2">
-              <span className="text-xs font-medium text-gray-500">Sort:</span>
+            <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+              <span className="hidden text-[10px] font-medium text-gray-500 sm:inline sm:text-xs">Sort:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 aria-label="Sort conversations"
-                className="rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="rounded-md border border-gray-200 bg-white px-2 py-1 text-[10px] font-semibold text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:rounded-lg sm:px-3 sm:text-xs"
               >
                 {SORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -252,7 +261,7 @@ export default function InboxPage() {
       </section>
 
       {/* Platform Tabs */}
-      <div className="flex flex-shrink-0 gap-1 border-b border-gray-200 bg-white px-1">
+      <div className="flex flex-shrink-0 gap-1 overflow-x-auto border-b border-gray-200 bg-white px-1 scrollbar-hide">
         {PLATFORM_COLUMNS.map((column) => {
           const platformConversations = column.value === "all"
             ? sortedConversations
@@ -270,21 +279,21 @@ export default function InboxPage() {
                   setActivePlatformFilter(column.label);
                 }
               }}
-              className={`relative flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
+              className={`relative flex flex-shrink-0 items-center gap-1.5 border-b-2 px-3 py-2.5 text-xs font-semibold transition sm:gap-2 sm:px-4 sm:py-3 sm:text-sm ${
                 isSelected
                   ? "border-primary text-primary"
                   : "border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300"
               }`}
             >
-              <span>{column.icon}</span>
-              <span>{column.label}</span>
+              <column.Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="whitespace-nowrap">{column.label}</span>
               {unreadCount > 0 && (
-                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-white">
+                <span className="inline-flex h-4 min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-white sm:h-5 sm:min-w-[20px] sm:px-1.5 sm:text-[10px]">
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </span>
               )}
               {column.value === "whatsapp" && unreadCount === 0 && platformConversations.length > 0 && (
-                <span className="rounded-full bg-green-500 px-1.5 py-0.5 text-[9px] font-semibold text-white">
+                <span className="rounded-full bg-green-500 px-1 py-0.5 text-[8px] font-semibold text-white sm:px-1.5 sm:text-[9px]">
                   New
                 </span>
               )}
@@ -293,16 +302,18 @@ export default function InboxPage() {
         })}
       </div>
 
-      <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[340px_1fr] xl:grid-cols-[360px_1fr]">
+      <div className="grid min-h-0 flex-1 gap-4 sm:gap-6 lg:grid-cols-[340px_1fr] xl:grid-cols-[360px_1fr]">
         {/* Conversations List */}
-        <section className="flex flex-col rounded-3xl border border-gray-200 bg-white/70 p-4 shadow-lg shadow-primary/5">
-          <div className="flex flex-shrink-0 items-center justify-between px-2">
-            <h2 className="text-sm font-semibold text-gray-900">Conversations</h2>
-            <span className="rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-500">
+        <section className={`flex flex-col rounded-2xl border border-gray-200 bg-white/70 p-3 shadow-lg shadow-primary/5 sm:rounded-3xl sm:p-4 ${
+          selectedConversationId ? "hidden lg:flex" : "flex"
+        }`}>
+          <div className="flex flex-shrink-0 items-center justify-between px-1 sm:px-2">
+            <h2 className="text-xs font-semibold text-gray-900 sm:text-sm">Conversations</h2>
+            <span className="rounded-full border border-gray-200 px-2 py-0.5 text-[10px] text-gray-500 sm:px-3 sm:py-1 sm:text-xs">
               {sortedConversations.length}
             </span>
           </div>
-          <div className="mt-4 min-h-0 flex-1 space-y-2 overflow-y-auto px-1 pb-2 pt-1">
+          <div className="mt-2 min-h-0 flex-1 space-y-1.5 overflow-y-auto px-0.5 pb-1.5 pt-0.5 sm:mt-3 sm:space-y-2 sm:px-1 sm:pb-2 sm:pt-1 md:mt-4">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
@@ -352,7 +363,7 @@ export default function InboxPage() {
                   <button
                     key={conversation.id}
                     onClick={() => setSelectedConversationId(String(conversation.id))}
-                    className={`w-full rounded-2xl border-l-4 px-4 py-3 text-left transition ${
+                    className={`w-full rounded-xl border-l-4 px-2 py-2 text-left transition sm:rounded-2xl sm:px-3 sm:py-2.5 md:px-4 md:py-3 ${
                       isActive
                         ? "border-primary bg-primary/10 shadow-sm shadow-primary/20"
                         : unread
@@ -360,8 +371,8 @@ export default function InboxPage() {
                         : "border-transparent hover:border-gray-200 hover:bg-gray-50"
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2 sm:gap-3">
+                      <div className="flex items-start gap-2 flex-1 min-w-0 sm:gap-3">
                         {/* Avatar */}
                         <div className="flex-shrink-0">
                           {conversation.customer_avatar ? (
@@ -370,33 +381,33 @@ export default function InboxPage() {
                               alt={conversation.customer_name}
                               width={40}
                               height={40}
-                              className="h-10 w-10 rounded-full object-cover"
+                              className="h-8 w-8 rounded-full object-cover sm:h-10 sm:w-10"
                               unoptimized
                             />
                           ) : (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary sm:h-10 sm:w-10 sm:text-sm">
                               {conversation.customer_name.charAt(0).toUpperCase()}
                             </div>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold text-gray-900 truncate">{conversation.customer_name}</span>
+                          <div className="flex items-center gap-1.5 sm:gap-2">
+                            <span className="text-xs font-semibold text-gray-900 truncate sm:text-sm">{conversation.customer_name}</span>
                             <span
-                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest flex-shrink-0 ${
+                              className={`hidden items-center rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-widest sm:inline-flex sm:px-2 sm:text-[10px] ${
                                 CHANNEL_COLORS[platform] ?? "bg-gray-100 text-gray-600"
                               }`}
                             >
                               {platform}
                             </span>
                           </div>
-                          <p className="mt-1 line-clamp-1 text-xs text-gray-500">{conversation.last_message}</p>
-                          <p className="mt-1 text-[10px] text-gray-400">{formatTime(conversation.last_message_at)}</p>
+                          <p className="mt-0.5 line-clamp-1 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">{conversation.last_message}</p>
+                          <p className="mt-0.5 text-[9px] text-gray-400 sm:mt-1 sm:text-[10px]">{formatTime(conversation.last_message_at)}</p>
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0">
                         {unread ? (
-                          <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-white">
+                          <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-white sm:h-6 sm:min-w-[24px] sm:px-1.5 sm:text-xs">
                             {conversation.unread_count > 99 ? "99+" : conversation.unread_count}
                           </span>
                         ) : null}
@@ -409,30 +420,33 @@ export default function InboxPage() {
           </div>
         </section>
 
-        <section className="flex min-h-0 flex-1 flex-col gap-6 rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-lg shadow-primary/5">
+        <section className={`flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border border-gray-200 bg-white/80 p-3 shadow-lg shadow-primary/5 sm:gap-4 sm:rounded-3xl sm:p-4 md:gap-6 md:p-6 ${
+          selectedConversationId ? "flex" : "hidden lg:flex"
+        }`}>
           {activeConversation ? (
             <>
-              <header className="flex flex-shrink-0 flex-col gap-4 border-b border-gray-200 pb-4 md:flex-row md:items-center md:justify-between">
-                <div className="flex flex-wrap items-center gap-4">
+              <header className="flex flex-shrink-0 flex-col gap-2 border-b border-gray-200 pb-2 sm:gap-3 sm:pb-3 md:flex-row md:items-center md:justify-between md:gap-4 md:pb-4">
+                <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
                   {activeConversation.customer_avatar ? (
                     <Image
                       src={activeConversation.customer_avatar}
                       alt={activeConversation.customer_name}
                       width={48}
                       height={48}
-                      className="h-12 w-12 rounded-full object-cover"
+                      className="h-10 w-10 rounded-full object-cover sm:h-12 sm:w-12"
                       unoptimized
                     />
                   ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-base font-semibold text-primary sm:h-12 sm:w-12 sm:text-lg">
                       {activeConversation.customer_name.charAt(0).toUpperCase()}
                     </div>
                   )}
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900">{activeConversation.customer_name}</h2>
-                    <p className="text-sm text-gray-500">
-                      via <span className="font-medium capitalize">{activeConversation.platform}</span> ·{" "}
-                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
+                  <div className="min-w-0 flex-1">
+                    <h2 className="truncate text-base font-semibold text-gray-900 sm:text-lg">{activeConversation.customer_name}</h2>
+                    <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-gray-500 sm:text-sm">
+                      <span>via <span className="font-medium capitalize">{activeConversation.platform}</span></span>
+                      <span className="hidden sm:inline">·</span>
+                      <span className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase sm:px-2 sm:text-[10px] ${
                         activeConversation.status === "active" ? "bg-blue-100 text-blue-700" :
                         activeConversation.status === "resolved" ? "bg-green-100 text-green-700" :
                         "bg-gray-100 text-gray-600"
@@ -442,16 +456,11 @@ export default function InboxPage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-gray-200 px-3 py-1 text-xs uppercase tracking-[0.3em] text-gray-500">
-                    {activeConversation.status}
-                  </span>
-                </div>
               </header>
 
-              <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-                <div className="flex min-h-0 flex-col gap-4">
-                  <div className="flex min-h-0 flex-1 flex-col space-y-4 overflow-y-auto rounded-2xl bg-gray-50 p-4">
+              <div className="grid min-h-0 flex-1 gap-3 sm:gap-4 md:gap-6 lg:grid-cols-[minmax(0,1fr)_280px] xl:grid-cols-[minmax(0,1fr)_320px]">
+                <div className="flex min-h-0 flex-col gap-2 sm:gap-3 md:gap-4">
+                  <div className="flex min-h-0 flex-1 flex-col space-y-2 overflow-y-auto rounded-lg bg-gray-50 p-2 sm:space-y-3 sm:rounded-xl sm:p-3 md:space-y-4 md:rounded-2xl md:p-4">
                     {messages.map((message: Message) => {
                       const isIncoming = message.direction === "incoming";
                       const isOutgoing = message.direction === "outgoing";
@@ -592,14 +601,15 @@ export default function InboxPage() {
                     <div ref={messagesEndRef} />
                   </div>
 
-                  <div className="flex-shrink-0 rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="flex flex-wrap gap-1.5 flex-1">
+                  <div className="flex-shrink-0 rounded-lg border border-gray-200 bg-white p-2 shadow-sm sm:rounded-xl sm:p-3">
+                    {/* Quick replies - Hidden on very small screens */}
+                    <div className="hidden items-center gap-1.5 sm:flex sm:gap-2">
+                      <div className="flex flex-wrap gap-1 flex-1 sm:gap-1.5">
                         {["Thanks! We'll get back to you shortly.", "Could you share more details?", "Noted. I'll update you soon."].map((q) => (
                           <button
                             key={q}
                             onClick={() => setReplyText((prev) => (prev ? prev + "\n" + q : q))}
-                            className="flex items-center gap-1 rounded border border-gray-200 bg-white px-2 py-1 text-[10px] font-semibold text-gray-600 transition hover:border-primary hover:bg-primary/5 hover:text-primary"
+                            className="flex items-center gap-0.5 rounded border border-gray-200 bg-white px-1.5 py-0.5 text-[9px] font-semibold text-gray-600 transition hover:border-primary hover:bg-primary/5 hover:text-primary sm:gap-1 sm:px-2 sm:py-1 sm:text-[10px]"
                           >
                             {q}
                           </button>
@@ -627,14 +637,15 @@ export default function InboxPage() {
                             } catch {}
                           }}
                           disabled={suggestRepliesMutation.isPending}
-                          className="flex items-center gap-1 rounded border border-primary/30 bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
+                          className="flex items-center gap-0.5 rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50 sm:gap-1 sm:px-2 sm:py-1 sm:text-[10px]"
                         >
-                          <SparklesIcon className="h-3 w-3" />
-                          {suggestRepliesMutation.isPending ? "Generating..." : "AI Suggest"}
+                          <SparklesIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                          <span className="hidden md:inline">{suggestRepliesMutation.isPending ? "Generating..." : "AI Suggest"}</span>
+                          <span className="md:hidden">{suggestRepliesMutation.isPending ? "..." : "AI"}</span>
                         </button>
                       </div>
                     </div>
-                    <div className="mt-2 flex items-end gap-2">
+                    <div className="mt-2 flex items-end gap-1.5 sm:gap-2">
                       <textarea
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
@@ -645,19 +656,19 @@ export default function InboxPage() {
                           }
                         }}
                         disabled={sendReplyMutation.isPending || !selectedConversationId}
-                        placeholder="Type your reply... (Cmd/Ctrl + Enter to send)"
-                        className="min-h-[60px] max-h-[120px] flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                        placeholder="Type your reply..."
+                        className="min-h-[44px] max-h-[100px] flex-1 rounded-md border border-gray-200 bg-white px-2.5 py-2 text-xs text-gray-700 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50 resize-none sm:min-h-[50px] sm:max-h-[120px] sm:rounded-lg sm:px-3 sm:py-2 sm:text-sm"
                       />
                       <button
                         onClick={() => void handleSendReply()}
                         disabled={sendReplyMutation.isPending || !replyText.trim() || !selectedConversationId}
-                        className="flex-shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex-shrink-0 inline-flex items-center justify-center rounded-md bg-primary p-2 text-white shadow-md shadow-primary/20 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 sm:gap-1.5 sm:rounded-lg sm:px-4 sm:py-2"
                       >
                         {sendReplyMutation.isPending ? (
                           <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
                         ) : (
                           <>
-                            <span>Send</span>
+                            <span className="hidden sm:inline sm:mr-0.5">Send</span>
                             <ArrowUpIcon className="h-4 w-4" />
                           </>
                         )}
