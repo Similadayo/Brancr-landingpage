@@ -181,8 +181,9 @@ export default function InboxPage() {
   return (
     <div className="flex h-screen flex-col overflow-hidden sm:h-[calc(100vh-120px)]">
       {/* Header - Mobile optimized */}
-      <section className="flex flex-shrink-0 flex-col gap-2 border-b border-gray-200 bg-white px-4 py-3 sm:gap-3 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
-        <div className="flex items-center justify-between sm:flex-col sm:items-start sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <section className="flex flex-shrink-0 flex-col gap-3 border-b border-gray-200 bg-white px-4 py-3 sm:gap-4 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:gap-4">
+          {/* Left: Title */}
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={() => setSelectedConversationId("")}
@@ -201,24 +202,21 @@ export default function InboxPage() {
               </p>
             </div>
           </div>
-        </div>
 
-        {/* Filters and Search - Mobile optimized */}
-        <div className="flex flex-col gap-2 rounded-lg border border-gray-200 bg-white p-2 shadow-sm sm:gap-3 sm:rounded-xl sm:p-4">
-          {/* Search Bar */}
-          <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:left-3 sm:h-5 sm:w-5" />
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search conversations..."
-              className="w-full rounded-md border border-gray-200 bg-gray-50 pl-8 pr-3 py-2 text-xs text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 sm:rounded-lg sm:pl-10 sm:pr-4 sm:py-2.5 sm:text-sm"
-            />
-          </div>
+          {/* Right: Search, Status Filters, and Sort */}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+            {/* Search Bar */}
+            <div className="relative w-full sm:w-auto sm:min-w-[240px]">
+              <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:left-3 sm:h-5 sm:w-5" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search conversations..."
+                className="w-full rounded-md border border-gray-200 bg-gray-50 pl-8 pr-3 py-2 text-xs text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 sm:rounded-lg sm:pl-10 sm:pr-4 sm:py-2 sm:text-sm"
+              />
+            </div>
 
-          {/* Filter Row - Mobile optimized */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {/* Status Filters */}
             <div className="flex items-center gap-1.5 sm:gap-2">
               <FunnelIcon className="hidden h-3.5 w-3.5 text-gray-400 sm:block sm:h-4 sm:w-4" />
@@ -241,7 +239,7 @@ export default function InboxPage() {
             </div>
 
             {/* Sort */}
-            <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <span className="hidden text-[10px] font-medium text-gray-500 sm:inline sm:text-xs">Sort:</span>
               <select
                 value={sortBy}
