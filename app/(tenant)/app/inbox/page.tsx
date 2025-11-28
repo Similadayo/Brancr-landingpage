@@ -25,15 +25,20 @@ import {
   PaperClipIcon,
   SparklesIcon,
   ArrowRightIcon,
+  FacebookIcon,
+  InstagramIcon,
+  WhatsAppIcon,
+  TelegramIcon,
+  AllMessagesIcon,
 } from "../../components/icons";
 
 const STATUS_FILTERS = ["All", "Active", "Resolved", "Archived"];
 const PLATFORM_COLUMNS = [
-  { value: "all", label: "All", icon: "📬" },
-  { value: "facebook", label: "Facebook", icon: "📘" },
-  { value: "instagram", label: "Instagram", icon: "📷" },
-  { value: "telegram", label: "Telegram", icon: "✈️" },
-  { value: "whatsapp", label: "WhatsApp", icon: "💬" },
+  { value: "all", label: "All", Icon: AllMessagesIcon },
+  { value: "facebook", label: "Facebook", Icon: FacebookIcon },
+  { value: "instagram", label: "Instagram", Icon: InstagramIcon },
+  { value: "telegram", label: "Telegram", Icon: TelegramIcon },
+  { value: "whatsapp", label: "WhatsApp", Icon: WhatsAppIcon },
 ];
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
@@ -273,7 +278,7 @@ export default function InboxPage() {
                   : "border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300"
               }`}
             >
-              <span>{column.icon}</span>
+              <column.Icon className="h-5 w-5" />
               <span>{column.label}</span>
               {unreadCount > 0 && (
                 <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-white">
