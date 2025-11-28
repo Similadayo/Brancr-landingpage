@@ -16,6 +16,7 @@ export default function MediaSelector({
 }: MediaSelectorProps) {
   const { data: assets = [], isLoading } = useMedia();
   const [previewMedia, setPreviewMedia] = useState<{ id: string; url: string } | null>(null);
+  const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
 
   // Combine uploaded media with existing assets
   const allMedia = [
@@ -43,7 +44,9 @@ export default function MediaSelector({
   };
 
   const selectAll = () => {
-    onSelectionChange(allMedia.map((m) => String(m.id)));
+    // Only select media that has valid images (not broken)
+    const validMedia = allMedia.filter((m) => !brokenImages.has(String(m.id)));
+    onSelectionChange(validMedia.map((m) => String(m.id)));
   };
 
   const clearAll = () => {
@@ -54,19 +57,6 @@ export default function MediaSelector({
     return (
       <div className="flex items-center justify-center py-12">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="h-6 w-48 animate-pulse rounded bg-gray-200" />
-        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="aspect-video animate-pulse rounded-2xl bg-gray-200" />
-          ))}
-        </div>
       </div>
     );
   }
@@ -125,28 +115,33 @@ export default function MediaSelector({
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {allMedia.map((media, index) => {
-          const isSelected = selectedMediaIds.includes(String(media.id));
-          const selectionIndex = isSelected ? selectedMediaIds.indexOf(String(media.id)) + 1 : null;
-          return (
-            <div key={media.id} className="relative group">
-              <button
-                type="button"
-                onClick={() => toggleMedia(String(media.id))}
-                className={`relative w-full overflow-hidden rounded-2xl border-2 transition-all ${
-                  isSelected
-                    ? "border-primary ring-4 ring-primary/20 shadow-lg scale-[1.02]"
-                    : "border-gray-200 hover:border-primary/50 hover:shadow-md"
-                } bg-white`}
-                aria-label={`${isSelected ? "Deselect" : "Select"} media ${index + 1}`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={media.thumbnail_url || media.url}
-                  alt={`Media ${index + 1}`}
-                  className="aspect-video w-full object-cover transition-transform group-hover:scale-105"
-                  loading="lazy"
-                />
+        {allMedia
+          .filter((media) => !brokenImages.has(String(media.id)))
+          .map((media, index) => {
+            const isSelected = selectedMediaIds.includes(String(media.id));
+            const selectionIndex = isSelected ? selectedMediaIds.indexOf(String(media.id)) + 1 : null;
+            return (
+              <div key={media.id} className="relative group">
+                <button
+                  type="button"
+                  onClick={() => toggleMedia(String(media.id))}
+                  className={`relative w-full overflow-hidden rounded-2xl border-2 transition-all ${
+                    isSelected
+                      ? "border-primary ring-4 ring-primary/20 shadow-lg scale-[1.02]"
+                      : "border-gray-200 hover:border-primary/50 hover:shadow-md"
+                  } bg-white`}
+                  aria-label={`${isSelected ? "Deselect" : "Select"} media ${index + 1}`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={media.thumbnail_url || media.url}
+                    alt={`Media ${index + 1}`}
+                    className="aspect-video w-full object-cover transition-transform group-hover:scale-105"
+                    loading="lazy"
+                    onError={() => {
+                      setBrokenImages((prev) => new Set(prev).add(String(media.id)));
+                    }}
+                  />
                 {/* Selection Badge */}
                 {isSelected && (
                   <>
