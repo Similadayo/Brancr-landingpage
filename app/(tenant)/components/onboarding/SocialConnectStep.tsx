@@ -18,8 +18,11 @@ export function SocialConnectStep({
   isSubmitting: boolean;
   hasTelegramBot?: boolean;
 }) {
-  const { data: integrations = [], refetch: refetchIntegrations } = useIntegrations();
+  const { data: integrationsData, refetch: refetchIntegrations } = useIntegrations();
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
+
+  // Ensure integrations is always an array
+  const integrations = Array.isArray(integrationsData) ? integrationsData : [];
 
   // Get tenant ID from authenticated user
   const { data: userData } = useQuery({

@@ -21,7 +21,10 @@ export default function PlatformSelector({
   selectedPlatforms,
   onSelectionChange,
 }: PlatformSelectorProps) {
-  const { data: integrations = [], isLoading } = useIntegrations();
+  const { data: integrationsData, isLoading } = useIntegrations();
+
+  // Ensure integrations is always an array
+  const integrations = Array.isArray(integrationsData) ? integrationsData : [];
 
   // Create a map of platform connections
   const platformConnections = new Map<string, boolean>();
