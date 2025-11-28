@@ -20,20 +20,26 @@ import {
   ArrowUpIcon,
   CheckCircleIcon,
   XCircleIcon,
+  XIcon,
   ClockIcon,
   TagIcon,
   PaperClipIcon,
   SparklesIcon,
   ArrowRightIcon,
+  FacebookIcon,
+  InstagramIcon,
+  WhatsAppIcon,
+  TelegramIcon,
+  AllMessagesIcon,
 } from "../../components/icons";
 
 const STATUS_FILTERS = ["All", "Active", "Resolved", "Archived"];
 const PLATFORM_COLUMNS = [
-  { value: "all", label: "All", icon: "📬" },
-  { value: "facebook", label: "Facebook", icon: "📘" },
-  { value: "instagram", label: "Instagram", icon: "📷" },
-  { value: "telegram", label: "Telegram", icon: "✈️" },
-  { value: "whatsapp", label: "WhatsApp", icon: "💬" },
+  { value: "all", label: "All", Icon: AllMessagesIcon },
+  { value: "facebook", label: "Facebook", Icon: FacebookIcon },
+  { value: "instagram", label: "Instagram", Icon: InstagramIcon },
+  { value: "telegram", label: "Telegram", Icon: TelegramIcon },
+  { value: "whatsapp", label: "WhatsApp", Icon: WhatsAppIcon },
 ];
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
@@ -59,6 +65,11 @@ export default function InboxPage() {
   const [selectedConversationId, setSelectedConversationId] = useState<string>("");
   const [replyText, setReplyText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  // Responsive state management
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [contactPanelOpen, setContactPanelOpen] = useState(false);
+  const [mobileView, setMobileView] = useState<"list" | "chat" | "contact">("list");
 
   // Build filters for API
   const apiFilters = useMemo(() => {
@@ -155,7 +166,16 @@ export default function InboxPage() {
   }, [conversations, selectedConversationId]);
 
   const activeConversation = conversationDetail;
-  const messages = useMemo(() => conversationDetail?.messages ?? [], [conversationDetail?.messages]);
+  const messages = useMemo(() => {
+    const msgs = conversationDetail?.messages ?? [];
+    // Debug: Log message counts
+    if (msgs.length > 0) {
+      const incomingCount = msgs.filter(m => m.direction === "incoming").length;
+      const outgoingCount = msgs.filter(m => m.direction === "outgoing").length;
+      console.log(`[Inbox] Messages loaded: total=${msgs.length}, incoming=${incomingCount}, outgoing=${outgoingCount}`);
+    }
+    return msgs;
+  }, [conversationDetail?.messages]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -173,42 +193,59 @@ export default function InboxPage() {
     }
   };
 
+  // Handle conversation selection - switch to chat view on mobile/tablet
+  const handleConversationSelect = (id: string) => {
+    setSelectedConversationId(id);
+    // On mobile/tablet portrait, switch to chat view
+    if (typeof window !== "undefined" && window.innerWidth < 900) {
+      setMobileView("chat");
+    }
+  };
+
+  // Handle back navigation
+  const handleBack = () => {
+    if (mobileView === "contact") {
+      setMobileView("chat");
+    } else if (mobileView === "chat") {
+      setMobileView("list");
+      setSelectedConversationId("");
+    }
+  };
+
   return (
-    <div className="flex h-[calc(100vh-120px)] flex-col gap-4 overflow-hidden">
+    <div className="flex h-screen flex-col overflow-hidden sm:h-[calc(100vh-120px)] sm:gap-4">
       {/* Header */}
-      <section className="flex flex-shrink-0 flex-col gap-4">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <section className="mb-4 flex flex-shrink-0 flex-col gap-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          {/* Left: Title */}
           <div>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <InboxIcon className="w-6 h-6" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <InboxIcon className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Inbox</h1>
-                <p className="mt-1 max-w-2xl text-sm text-gray-600">
+                <h1 className="text-2xl font-semibold text-gray-900 lg:text-3xl">Inbox</h1>
+                <p className="mt-0.5 max-w-2xl text-sm text-gray-600">
                   Manage conversations across all platforms from one workspace
                 </p>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Filters and Search */}
-        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          {/* Search Bar */}
-          <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by customer name or message..."
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
+          {/* Right: Search, Status Filters, and Sort */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
+            {/* Search Bar */}
+            <div className="relative w-full sm:w-auto sm:min-w-[240px]">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search conversations..."
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
 
-          {/* Filter Row */}
-          <div className="flex flex-wrap items-center gap-3">
             {/* Status Filters */}
             <div className="flex items-center gap-2">
               <FunnelIcon className="h-4 w-4 text-gray-400" />
@@ -230,9 +267,8 @@ export default function InboxPage() {
               </div>
             </div>
 
-
             {/* Sort */}
-            <div className="ml-auto flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-gray-500">Sort:</span>
               <select
                 value={sortBy}
@@ -270,13 +306,13 @@ export default function InboxPage() {
                   setActivePlatformFilter(column.label);
                 }
               }}
-              className={`relative flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
+              className={`relative flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition-all ${
                 isSelected
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300"
+                  ? "border-primary bg-primary/5 text-primary font-bold"
+                  : "border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 hover:bg-gray-50/50"
               }`}
             >
-              <span>{column.icon}</span>
+              <column.Icon className="h-5 w-5" />
               <span>{column.label}</span>
               {unreadCount > 0 && (
                 <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-white">
@@ -293,9 +329,15 @@ export default function InboxPage() {
         })}
       </div>
 
-      <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[340px_1fr] xl:grid-cols-[360px_1fr]">
+      <div className="grid min-h-0 flex-1 gap-0 lg:gap-4 xl:grid-cols-[340px_1fr]">
         {/* Conversations List */}
-        <section className="flex flex-col rounded-3xl border border-gray-200 bg-white/70 p-4 shadow-lg shadow-primary/5">
+        <section className={`flex flex-col rounded-2xl border border-gray-200/50 bg-[#F3F4F6] p-4 shadow-sm transition-transform duration-300 lg:rounded-3xl ${
+          // Desktop: always visible
+          // Tablet landscape (900-1023px): visible
+          // Tablet portrait (768-899px): hidden when in chat/contact view
+          // Mobile: hidden when in chat/contact view
+          mobileView === "chat" || mobileView === "contact" ? "hidden md:flex" : "flex"
+        }`}>
           <div className="flex flex-shrink-0 items-center justify-between px-2">
             <h2 className="text-sm font-semibold text-gray-900">Conversations</h2>
             <span className="rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-500">
@@ -331,7 +373,7 @@ export default function InboxPage() {
                 const unread = conversation.unread_count > 0;
                 const platform = conversation.platform.toLowerCase();
                 
-                // Format relative time
+                // Format relative time - consistent format
                 const formatTime = (dateString: string) => {
                   const date = new Date(dateString);
                   const now = new Date();
@@ -344,20 +386,20 @@ export default function InboxPage() {
                   if (diffMins < 60) return `${diffMins}m ago`;
                   if (diffHours < 24) return `${diffHours}h ago`;
                   if (diffDays === 1) return "Yesterday";
-                  if (diffDays < 7) return `${diffDays}d ago`;
+                  if (diffDays < 7) return `${diffDays} days ago`;
                   return date.toLocaleDateString([], { month: "short", day: "numeric" });
                 };
                 
                 return (
                   <button
                     key={conversation.id}
-                    onClick={() => setSelectedConversationId(String(conversation.id))}
-                    className={`w-full rounded-2xl border-l-4 px-4 py-3 text-left transition ${
+                    onClick={() => handleConversationSelect(String(conversation.id))}
+                    className={`group w-full rounded-xl border-l-4 px-4 py-4 text-left transition-all duration-200 ${
                       isActive
-                        ? "border-primary bg-primary/10 shadow-sm shadow-primary/20"
+                        ? "border-primary bg-white shadow-md"
                         : unread
-                        ? "border-blue-500 bg-blue-50/50 hover:bg-blue-50"
-                        : "border-transparent hover:border-gray-200 hover:bg-gray-50"
+                        ? "border-blue-500 bg-white/80 hover:bg-white hover:shadow-sm"
+                        : "border-transparent bg-white/60 hover:bg-white hover:shadow-sm"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -368,35 +410,35 @@ export default function InboxPage() {
                             <Image
                               src={conversation.customer_avatar}
                               alt={conversation.customer_name}
-                              width={40}
-                              height={40}
-                              className="h-10 w-10 rounded-full object-cover"
+                              width={44}
+                              height={44}
+                              className="h-11 w-11 rounded-full object-cover ring-2 ring-white"
                               unoptimized
                             />
                           ) : (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-base font-semibold text-primary ring-2 ring-white">
                               {conversation.customer_name.charAt(0).toUpperCase()}
                             </div>
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 space-y-1.5">
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-semibold text-gray-900 truncate">{conversation.customer_name}</span>
                             <span
-                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest flex-shrink-0 ${
+                              className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider flex-shrink-0 ${
                                 CHANNEL_COLORS[platform] ?? "bg-gray-100 text-gray-600"
                               }`}
                             >
                               {platform}
                             </span>
                           </div>
-                          <p className="mt-1 line-clamp-1 text-xs text-gray-500">{conversation.last_message}</p>
-                          <p className="mt-1 text-[10px] text-gray-400">{formatTime(conversation.last_message_at)}</p>
+                          <p className="line-clamp-1 text-xs text-gray-600">{conversation.last_message || "No messages"}</p>
+                          <p className="text-[11px] font-medium text-gray-400">{formatTime(conversation.last_message_at)}</p>
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0">
                         {unread ? (
-                          <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-white">
+                          <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-primary px-2 text-xs font-bold text-white shadow-sm">
                             {conversation.unread_count > 99 ? "99+" : conversation.unread_count}
                           </span>
                         ) : null}
@@ -409,28 +451,41 @@ export default function InboxPage() {
           </div>
         </section>
 
-        <section className="flex min-h-0 flex-1 flex-col gap-6 rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-lg shadow-primary/5">
+        <section className={`flex min-h-0 flex-1 flex-col gap-4 rounded-2xl border border-gray-200/50 bg-white p-4 shadow-sm transition-transform duration-300 lg:gap-6 lg:rounded-3xl lg:p-6 ${
+          // Hide on mobile when in list view
+          mobileView === "list" ? "hidden md:flex" : "flex"
+        }`}>
           {activeConversation ? (
             <>
-              <header className="flex flex-shrink-0 flex-col gap-4 border-b border-gray-200 pb-4 md:flex-row md:items-center md:justify-between">
-                <div className="flex flex-wrap items-center gap-4">
+              <header className="sticky top-0 z-10 flex flex-shrink-0 flex-col gap-3 border-b border-gray-200 bg-white pb-3 shadow-sm md:gap-4 md:pb-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-3">
+                  {/* Back button for mobile/tablet */}
+                  {(mobileView === "chat" || mobileView === "contact") && (
+                    <button
+                      onClick={handleBack}
+                      className="flex-shrink-0 rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors md:hidden"
+                      aria-label="Back to conversations"
+                    >
+                      <ArrowRightIcon className="h-5 w-5 rotate-180" />
+                    </button>
+                  )}
                   {activeConversation.customer_avatar ? (
                     <Image
                       src={activeConversation.customer_avatar}
                       alt={activeConversation.customer_name}
                       width={48}
                       height={48}
-                      className="h-12 w-12 rounded-full object-cover"
+                      className="h-10 w-10 rounded-full object-cover md:h-12 md:w-12"
                       unoptimized
                     />
                   ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-base font-semibold text-primary md:h-12 md:w-12 md:text-lg">
                       {activeConversation.customer_name.charAt(0).toUpperCase()}
                     </div>
                   )}
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900">{activeConversation.customer_name}</h2>
-                    <p className="text-sm text-gray-500">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-base font-semibold text-gray-900 truncate md:text-lg">{activeConversation.customer_name}</h2>
+                    <p className="text-xs text-gray-500 md:text-sm">
                       via <span className="font-medium capitalize">{activeConversation.platform}</span> ·{" "}
                       <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
                         activeConversation.status === "active" ? "bg-blue-100 text-blue-700" :
@@ -442,19 +497,49 @@ export default function InboxPage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-gray-200 px-3 py-1 text-xs uppercase tracking-[0.3em] text-gray-500">
-                    {activeConversation.status}
-                  </span>
+                <div className="flex items-center gap-2">
+                  {/* Info button for laptop/tablet - opens contact drawer */}
+                  <button
+                    onClick={() => setContactPanelOpen(true)}
+                    className="flex-shrink-0 rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors xl:hidden"
+                    aria-label="Contact information"
+                  >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m0-4h1v1m0 0h1m-1 0v1m-1 0h-1m1 0v-1m1 0h1m-1 0v-1" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+                    </svg>
+                  </button>
+                  {/* Mobile: Info button opens contact view */}
+                  <button
+                    onClick={() => setMobileView("contact")}
+                    className="flex-shrink-0 rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors md:hidden"
+                    aria-label="Contact information"
+                  >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m0-4h1v1m0 0h1m-1 0v1m-1 0h-1m1 0v-1m1 0h1m-1 0v-1" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+                    </svg>
+                  </button>
                 </div>
               </header>
 
-              <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-                <div className="flex min-h-0 flex-col gap-4">
+              <div className="grid min-h-0 flex-1 gap-4 lg:gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+                <div className="flex min-h-0 flex-col gap-3 md:gap-4">
                   <div className="flex min-h-0 flex-1 flex-col space-y-4 overflow-y-auto rounded-2xl bg-gray-50 p-4">
                     {messages.map((message: Message) => {
                       const isIncoming = message.direction === "incoming";
                       const isOutgoing = message.direction === "outgoing";
+                      
+                      // Debug: Log if we see an outgoing message
+                      if (isOutgoing) {
+                        console.log(`[Inbox] Rendering outgoing message:`, {
+                          id: message.id,
+                          content: message.content,
+                          final_reply: message.final_reply,
+                          response_type: message.response_type,
+                          response_status: message.response_status,
+                        });
+                      }
                       
                       // Intent colors
                       const intentColors: Record<string, string> = {
@@ -481,38 +566,49 @@ export default function InboxPage() {
                           className={`flex ${isIncoming ? "justify-start" : "justify-end"}`}
                         >
                           <article
-                            className={`max-w-xl rounded-2xl border p-4 shadow-sm ${
+                            className={`max-w-xl rounded-2xl border p-4 transition-all hover:shadow-md ${
                               isIncoming
-                                ? "border-gray-200 bg-white"
+                                ? "border-gray-200/50 bg-white shadow-sm"
                                 : isOutgoing
-                                ? "border-primary/30 bg-primary/5"
-                                : "border-gray-200 bg-white"
+                                ? "border-primary/30 bg-primary/5 shadow-sm"
+                                : "border-gray-200/50 bg-white shadow-sm"
                             }`}
                           >
                             {/* AI Insights for incoming messages */}
                             {isIncoming && (message.detected_intent || message.detected_tone) && (
-                              <div className="mb-2 flex flex-wrap items-center gap-2">
+                              <div className="mb-3 flex flex-wrap items-center gap-2">
                                 {message.detected_intent && (
-                                  <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold md:px-3 md:py-1.5 md:text-xs ${
                                     intentColors[message.detected_intent] || "bg-gray-100 text-gray-600"
                                   }`}>
-                                    {message.detected_intent === "inquiry" && "💬"}
-                                    {message.detected_intent === "order" && "📦"}
-                                    {message.detected_intent === "payment" && "💳"}
-                                    {message.detected_intent === "complaint" && "⚠️"}
-                                    {message.detected_intent === "refund" && "↩️"}
-                                    {message.detected_intent === "delivery_issue" && "🚚"}
-                                    {message.detected_intent === "casual" && "💭"}
-                                    {message.detected_intent}
+                                    <span className="hidden sm:inline">
+                                      {message.detected_intent === "inquiry" && "💬"}
+                                      {message.detected_intent === "order" && "📦"}
+                                      {message.detected_intent === "payment" && "💳"}
+                                      {message.detected_intent === "complaint" && "⚠️"}
+                                      {message.detected_intent === "refund" && "↩️"}
+                                      {message.detected_intent === "delivery_issue" && "🚚"}
+                                      {message.detected_intent === "casual" && "💭"}
+                                    </span>
+                                    <span className="sm:hidden">
+                                      {message.detected_intent === "inquiry" && "💬"}
+                                      {message.detected_intent === "order" && "📦"}
+                                      {message.detected_intent === "payment" && "💳"}
+                                      {message.detected_intent === "complaint" && "⚠️"}
+                                      {message.detected_intent === "refund" && "↩️"}
+                                      {message.detected_intent === "delivery_issue" && "🚚"}
+                                      {message.detected_intent === "casual" && "💭"}
+                                    </span>
+                                    <span className="hidden xs:inline">{message.detected_intent}</span>
                                   </span>
                                 )}
                                 {message.detected_tone && (
-                                  <span className="inline-flex items-center gap-1 text-[10px] font-medium text-gray-600">
+                                  <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700">
                                     {toneIcons[message.detected_tone] || "○"} {message.detected_tone}
                                   </span>
                                 )}
                                 {message.confidence && (
-                                  <span className="text-[10px] text-gray-400">
+                                  <span className="text-xs font-medium text-gray-500">
                                     {Math.round(message.confidence * 100)}% confidence
                                   </span>
                                 )}
@@ -559,9 +655,23 @@ export default function InboxPage() {
                             </div>
                             
                             {/* Timestamp and status */}
-                            <div className="mt-2 flex items-center justify-between">
-                              <span className="text-[10px] text-gray-400">
-                                {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            <div className="mt-3 flex items-center justify-between">
+                              <span className="text-xs font-medium text-gray-500">
+                                {(() => {
+                                  const date = new Date(message.created_at);
+                                  const now = new Date();
+                                  const diffMs = now.getTime() - date.getTime();
+                                  const diffMins = Math.floor(diffMs / 60000);
+                                  const diffHours = Math.floor(diffMs / 3600000);
+                                  const diffDays = Math.floor(diffMs / 86400000);
+                                  
+                                  if (diffMins < 1) return "Just now";
+                                  if (diffMins < 60) return `${diffMins}m ago`;
+                                  if (diffHours < 24) return `${diffHours}h ago`;
+                                  if (diffDays === 1) return "Yesterday";
+                                  if (diffDays < 7) return `${diffDays} days ago`;
+                                  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
+                                })()}
                               </span>
                               {isOutgoing && message.response_status && (
                                 <span className="text-[10px] text-gray-400">
@@ -592,14 +702,14 @@ export default function InboxPage() {
                     <div ref={messagesEndRef} />
                   </div>
 
-                  <div className="flex-shrink-0 rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="flex flex-wrap gap-1.5 flex-1">
+                  <div className="flex-shrink-0 rounded-2xl border border-gray-200/50 bg-white p-4 shadow-md">
+                    <div className="mb-3 flex items-center gap-2">
+                      <div className="flex flex-wrap gap-2 flex-1">
                         {["Thanks! We'll get back to you shortly.", "Could you share more details?", "Noted. I'll update you soon."].map((q) => (
                           <button
                             key={q}
                             onClick={() => setReplyText((prev) => (prev ? prev + "\n" + q : q))}
-                            className="flex items-center gap-1 rounded border border-gray-200 bg-white px-2 py-1 text-[10px] font-semibold text-gray-600 transition hover:border-primary hover:bg-primary/5 hover:text-primary"
+                            className="flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-700 transition-all hover:border-primary hover:bg-primary/5 hover:text-primary hover:shadow-sm"
                           >
                             {q}
                           </button>
@@ -627,14 +737,14 @@ export default function InboxPage() {
                             } catch {}
                           }}
                           disabled={suggestRepliesMutation.isPending}
-                          className="flex items-center gap-1 rounded border border-primary/30 bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
+                          className="flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-all hover:bg-primary/20 hover:shadow-sm disabled:opacity-50"
                         >
-                          <SparklesIcon className="h-3 w-3" />
+                          <SparklesIcon className="h-3.5 w-3.5" />
                           {suggestRepliesMutation.isPending ? "Generating..." : "AI Suggest"}
                         </button>
                       </div>
                     </div>
-                    <div className="mt-2 flex items-end gap-2">
+                    <div className="flex items-end gap-3">
                       <textarea
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
@@ -646,15 +756,15 @@ export default function InboxPage() {
                         }}
                         disabled={sendReplyMutation.isPending || !selectedConversationId}
                         placeholder="Type your reply... (Cmd/Ctrl + Enter to send)"
-                        className="min-h-[60px] max-h-[120px] flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                        className="min-h-[56px] max-h-[140px] flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-sm text-gray-700 shadow-sm transition-all focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                       />
                       <button
                         onClick={() => void handleSendReply()}
                         disabled={sendReplyMutation.isPending || !replyText.trim() || !selectedConversationId}
-                        className="flex-shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex-shrink-0 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {sendReplyMutation.isPending ? (
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                         ) : (
                           <>
                             <span>Send</span>
@@ -666,26 +776,68 @@ export default function InboxPage() {
                   </div>
                 </div>
 
-                <aside className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                  <h3 className="text-sm font-semibold text-gray-900">Contact</h3>
-                  <div className="mt-3 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{activeConversation.customer_name}</p>
-                      <p className="text-xs text-gray-500 capitalize">{activeConversation.platform}</p>
+                {/* Drawer Overlay */}
+                {contactPanelOpen && (
+                  <div
+                    className="fixed inset-0 bg-black/50 z-40 xl:hidden"
+                    onClick={() => setContactPanelOpen(false)}
+                  />
+                )}
+
+                {/* Contact Panel - Desktop: always visible, Laptop/Tablet: drawer, Mobile: full view */}
+                <aside className={`rounded-2xl border border-gray-200/50 bg-[#F9FAFB] p-5 shadow-sm transition-transform duration-300 ${
+          // Desktop (≥1280px): always visible (xl:flex)
+          // Laptop/Tablet: drawer (hidden xl:flex, shown when contactPanelOpen)
+          // Mobile: full view when mobileView === "contact"
+          mobileView === "contact" 
+            ? "flex md:hidden" // Show as full view on mobile when in contact mode
+            : contactPanelOpen
+            ? "fixed right-0 top-0 h-full w-80 z-50 translate-x-0 overflow-y-auto xl:relative xl:h-auto xl:w-auto xl:translate-x-0 xl:overflow-visible" // Drawer open on laptop/tablet
+            : "hidden xl:flex" // Hidden on laptop/tablet, visible on desktop
+        }`}>
+                  {/* Close button for drawer */}
+                  {contactPanelOpen && (
+                    <button
+                      onClick={() => setContactPanelOpen(false)}
+                      className="absolute top-4 right-4 rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors xl:hidden"
+                      aria-label="Close contact panel"
+                    >
+                      <XIcon className="h-5 w-5" />
+                    </button>
+                  )}
+                  
+                  {/* Profile Section */}
+                  <div className="mb-6 pb-6 border-b border-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Contact</h3>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {activeConversation.customer_avatar ? (
+                          <Image
+                            src={activeConversation.customer_avatar}
+                            alt={activeConversation.customer_name}
+                            width={48}
+                            height={48}
+                            className="h-12 w-12 rounded-full object-cover ring-2 ring-white"
+                            unoptimized
+                          />
+                        ) : (
+                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-lg font-semibold text-primary ring-2 ring-white">
+                            {activeConversation.customer_name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">{activeConversation.customer_name}</p>
+                          <p className="text-xs text-gray-500 capitalize">{activeConversation.platform}</p>
+                        </div>
+                      </div>
                     </div>
-                    <span className={`rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-widest ${
-                      activeConversation.status === "active" ? "bg-blue-100 text-blue-700" :
-                      activeConversation.status === "resolved" ? "bg-green-100 text-green-700" :
-                      "bg-gray-100 text-gray-600"
-                    }`}>
-                      {activeConversation.status}
-                    </span>
                   </div>
 
-                  <div className="mt-4">
-                    <div className="flex items-center gap-2 mb-2">
+                  {/* Status Section */}
+                  <div className="mb-6 pb-6 border-b border-gray-200">
+                    <div className="flex items-center gap-2 mb-3">
                       <TagIcon className="h-4 w-4 text-gray-400" />
-                      <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Status</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Status</p>
                     </div>
                     <select
                       value={activeConversation.status}
@@ -694,7 +846,7 @@ export default function InboxPage() {
                         updateStatusMutation.mutate({ status: newStatus });
                       }}
                       aria-label="Update conversation status"
-                      className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition-all hover:border-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                     >
                       {["active", "resolved", "archived"].map((s) => (
                         <option key={s} value={s}>
@@ -702,42 +854,67 @@ export default function InboxPage() {
                         </option>
                       ))}
                     </select>
-                  </div>
-
-                  <div className="mt-4">
-                    <p className="uppercase tracking-[0.3em] text-gray-400">Tags</p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {Array.isArray(activeConversation.tags) ? activeConversation.tags.map((tag: string) => (
-                        <span
-                          key={tag}
-                          className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-gray-600"
-                        >
-                          {tag}
-                        </span>
-                      )) : null}
-                      {(!Array.isArray(activeConversation.tags) || activeConversation.tags.length === 0) ? (
-                        <span className="text-xs text-gray-500">No tags yet.</span>
-                      ) : null}
+                    <div className="mt-3">
+                      <span className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider ${
+                        activeConversation.status === "active" ? "bg-blue-100 text-blue-700" :
+                        activeConversation.status === "resolved" ? "bg-green-100 text-green-700" :
+                        "bg-gray-100 text-gray-600"
+                      }`}>
+                        {activeConversation.status}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="mt-4">
-                    <p className="uppercase tracking-[0.3em] text-gray-400">Last updated</p>
-                    <p className="mt-1 text-xs text-gray-600">
-                      {new Date(activeConversation.updated_at).toLocaleString([], {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                  {/* Tags Section */}
+                  <div className="mb-6 pb-6 border-b border-gray-200">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Tags</p>
+                    <div className="flex flex-wrap gap-2">
+                      {Array.isArray(activeConversation.tags) && activeConversation.tags.length > 0 ? activeConversation.tags.map((tag: string) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center rounded-full bg-white border border-gray-200 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-gray-700 hover:border-primary hover:bg-primary/5 transition-all"
+                        >
+                          {tag}
+                        </span>
+                      )) : (
+                        <span className="text-xs text-gray-500">No tags yet.</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Last Updated Section */}
+                  <div className="mb-6 pb-6 border-b border-gray-200">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2">Last Updated</p>
+                    <p className="text-sm text-gray-700">
+                      {(() => {
+                        const date = new Date(activeConversation.updated_at);
+                        const now = new Date();
+                        const diffMs = now.getTime() - date.getTime();
+                        const diffMins = Math.floor(diffMs / 60000);
+                        const diffHours = Math.floor(diffMs / 3600000);
+                        const diffDays = Math.floor(diffMs / 86400000);
+                        
+                        if (diffMins < 1) return "Just now";
+                        if (diffMins < 60) return `${diffMins}m ago`;
+                        if (diffHours < 24) return `${diffHours}h ago`;
+                        if (diffDays === 1) return "Yesterday";
+                        if (diffDays < 7) return `${diffDays} days ago`;
+                        return date.toLocaleString([], {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        });
+                      })()}
                     </p>
                   </div>
 
-                  <div className="mt-4">
-                    <p className="uppercase tracking-[0.3em] text-gray-400">Notes</p>
+                  {/* Notes Section */}
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Notes</p>
                     <textarea
                       placeholder="Add internal notes..."
-                      className="mt-2 w-full rounded-xl border border-gray-200 px-3 py-2 text-xs text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="min-h-[160px] w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
                       onBlur={async (e) => {
                         const value = e.target.value.trim();
                         if (value) {
@@ -747,7 +924,7 @@ export default function InboxPage() {
                         }
                       }}
                     />
-                    <p className="mt-2 text-[11px] text-gray-400">Saved on blur.</p>
+                    <p className="mt-2 text-xs text-gray-400">Saved on blur.</p>
                   </div>
                 </aside>
               </div>
