@@ -107,15 +107,15 @@ export default function TenantOverviewPage() {
 
     // Recent conversations
     conversations
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
       .slice(0, 3)
       .forEach((conv) => {
         activities.push({
           id: `conv-${conv.id}`,
           type: "conversation",
           title: "New conversation",
-          description: `${conv.contactName} on ${conv.channel}`,
-          timestamp: new Date(conv.updatedAt),
+          description: `${conv.customer_name} on ${conv.platform}`,
+          timestamp: new Date(conv.updated_at),
           icon: <InboxIcon className="w-4 h-4" />,
           href: `/app/inbox/${conv.id}`,
           color: "text-green-600 bg-green-50",
