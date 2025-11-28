@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { useScheduledPosts, useCancelScheduledPost, useUpdateScheduledPost } from "@/app/(tenant)/hooks/useScheduledPosts";
@@ -40,15 +40,23 @@ export default function CampaignsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("scheduled");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const { data: scheduledPostsData, isLoading, error } = useScheduledPosts();
+  const { data: scheduledPostsData, isLoading, error, refetch } = useScheduledPosts();
   const { data: templatesData } = useTemplates();
   
-  const scheduledPosts = Array.isArray(scheduledPostsData) ? scheduledPostsData : [];
+  const scheduledPosts = useMemo(
+    () => Array.isArray(scheduledPostsData) ? scheduledPostsData : [],
+    [scheduledPostsData]
+  );
   const templates = Array.isArray(templatesData) ? templatesData : [];
   const cancelMutation = useCancelScheduledPost();
   const [cancellingPostId, setCancellingPostId] = useState<string | null>(null);
   const [publishingPostId, setPublishingPostId] = useState<string | null>(null);
   const updateMutation = useUpdateScheduledPost();
+
+  // Refetch posts when component mounts to ensure fresh data
+  useEffect(() => {
+    void refetch();
+  }, [refetch]);
 
   // Modal state
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -223,6 +231,7 @@ export default function CampaignsPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label="Filter posts by status"
               className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
               <option value="All">All Status</option>
@@ -443,11 +452,13 @@ export default function CampaignsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">Scheduled Time</label>
+                <label htmlFor="edit-scheduled-time" className="block text-sm font-semibold text-gray-900 mb-2">Scheduled Time</label>
                 <input
+                  id="edit-scheduled-time"
                   type="datetime-local"
                   value={editScheduledAt}
                   onChange={(e) => setEditScheduledAt(e.target.value)}
+                  aria-label="Scheduled time"
                   className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
                 <p className="mt-2 text-xs text-gray-500">Times are saved in your local timezone.</p>

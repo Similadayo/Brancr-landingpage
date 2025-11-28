@@ -4,6 +4,7 @@ import { useMemo, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 import { tenantApi } from "@/lib/api";
 import MediaUploader, { type UploadedMedia } from "@/app/(tenant)/components/posting/MediaUploader";
 import MediaSelector from "@/app/(tenant)/components/posting/MediaSelector";
@@ -26,6 +27,7 @@ const STEP_LABELS: Record<Step, string> = {
 
 export default function NewPostPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState<Step>("upload");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
@@ -194,6 +196,9 @@ export default function NewPostPage() {
 
       // Clear draft on success
       localStorage.removeItem("post-draft");
+
+      // Invalidate queries to refresh the campaigns page
+      void queryClient.invalidateQueries({ queryKey: ["scheduled-posts"] });
 
       if (response.publishing_now || !scheduledAt) {
         setPublishingStatus({
