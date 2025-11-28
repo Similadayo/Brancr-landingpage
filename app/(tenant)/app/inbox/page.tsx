@@ -178,6 +178,7 @@ export default function InboxPage() {
       {/* Header */}
       <section className="mb-6 flex flex-shrink-0 flex-col gap-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          {/* Left: Title */}
           <div>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -191,24 +192,21 @@ export default function InboxPage() {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Filters and Search */}
-        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          {/* Search Bar */}
-          <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by customer name or message..."
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
+          {/* Right: Search, Status Filters, and Sort */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
+            {/* Search Bar */}
+            <div className="relative w-full sm:w-auto sm:min-w-[240px]">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search conversations..."
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
 
-          {/* Filter Row */}
-          <div className="flex flex-wrap items-center gap-3">
             {/* Status Filters */}
             <div className="flex items-center gap-2">
               <FunnelIcon className="h-4 w-4 text-gray-400" />
@@ -230,9 +228,8 @@ export default function InboxPage() {
               </div>
             </div>
 
-
             {/* Sort */}
-            <div className="ml-auto flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-gray-500">Sort:</span>
               <select
                 value={sortBy}
