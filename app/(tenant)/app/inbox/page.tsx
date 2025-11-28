@@ -160,7 +160,16 @@ export default function InboxPage() {
   }, [conversations, selectedConversationId]);
 
   const activeConversation = conversationDetail;
-  const messages = useMemo(() => conversationDetail?.messages ?? [], [conversationDetail?.messages]);
+  const messages = useMemo(() => {
+    const msgs = conversationDetail?.messages ?? [];
+    // Debug: Log message counts
+    if (msgs.length > 0) {
+      const incomingCount = msgs.filter(m => m.direction === "incoming").length;
+      const outgoingCount = msgs.filter(m => m.direction === "outgoing").length;
+      console.log(`[Inbox] Messages loaded: total=${msgs.length}, incoming=${incomingCount}, outgoing=${outgoingCount}`);
+    }
+    return msgs;
+  }, [conversationDetail?.messages]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -457,6 +466,17 @@ export default function InboxPage() {
                     {messages.map((message: Message) => {
                       const isIncoming = message.direction === "incoming";
                       const isOutgoing = message.direction === "outgoing";
+                      
+                      // Debug: Log if we see an outgoing message
+                      if (isOutgoing) {
+                        console.log(`[Inbox] Rendering outgoing message:`, {
+                          id: message.id,
+                          content: message.content,
+                          final_reply: message.final_reply,
+                          response_type: message.response_type,
+                          response_status: message.response_status,
+                        });
+                      }
                       
                       // Intent colors
                       const intentColors: Record<string, string> = {

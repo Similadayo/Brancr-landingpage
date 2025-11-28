@@ -110,21 +110,28 @@ export function useConversation(conversationId: string | null) {
           status: (response.status === "active" || response.status === "resolved" || response.status === "archived"
             ? response.status
             : "active") as ConversationDetail["status"],
-          messages: Array.isArray(response.messages) ? response.messages.map((msg) => ({
-            id: Number(msg.id),
-            direction: msg.direction,
-            message_type: msg.message_type,
-            content: msg.content,
-            detected_intent: msg.detected_intent,
-            detected_tone: msg.detected_tone,
-            confidence: msg.confidence,
-            response_type: msg.response_type,
-            response_status: msg.response_status,
-            suggested_reply: msg.suggested_reply,
-            final_reply: msg.final_reply,
-            created_at: msg.created_at,
-            metadata: msg.metadata,
-          })) : [],
+          messages: Array.isArray(response.messages) ? response.messages.map((msg) => {
+            // For outgoing messages, prefer final_reply over content
+            const displayContent = msg.direction === "outgoing" && msg.final_reply
+              ? msg.final_reply
+              : msg.content;
+            
+            return {
+              id: Number(msg.id),
+              direction: msg.direction,
+              message_type: msg.message_type,
+              content: displayContent,
+              detected_intent: msg.detected_intent,
+              detected_tone: msg.detected_tone,
+              confidence: msg.confidence,
+              response_type: msg.response_type,
+              response_status: msg.response_status,
+              suggested_reply: msg.suggested_reply,
+              final_reply: msg.final_reply || (msg.direction === "outgoing" ? displayContent : undefined),
+              created_at: msg.created_at,
+              metadata: msg.metadata,
+            };
+          }) : [],
           created_at: response.created_at,
           updated_at: response.updated_at,
         };
@@ -157,12 +164,17 @@ export function useSendReply(conversationId: string | null) {
             if (!oldData) return oldData;
             
             // Map the interaction to Message type
+            // For outgoing messages, use final_reply as content
+            const displayContent = response.interaction.direction === "outgoing" && response.interaction.final_reply
+              ? response.interaction.final_reply
+              : (response.interaction.final_reply || response.interaction.content);
+            
             const newMessage: Message = {
               id: response.interaction.id,
               direction: response.interaction.direction,
               message_type: response.interaction.message_type,
-              content: response.interaction.final_reply || response.interaction.content,
-              final_reply: response.interaction.final_reply,
+              content: displayContent,
+              final_reply: response.interaction.final_reply || (response.interaction.direction === "outgoing" ? displayContent : undefined),
               response_type: response.interaction.response_type,
               response_status: response.interaction.response_status,
               detected_intent: response.interaction.detected_intent,
@@ -172,6 +184,13 @@ export function useSendReply(conversationId: string | null) {
               created_at: response.interaction.created_at,
               metadata: response.interaction.metadata,
             };
+            
+            console.log(`[useSendReply] Adding outgoing message to cache:`, {
+              id: newMessage.id,
+              direction: newMessage.direction,
+              content: newMessage.content,
+              final_reply: newMessage.final_reply,
+            });
             
             return {
               ...oldData,
