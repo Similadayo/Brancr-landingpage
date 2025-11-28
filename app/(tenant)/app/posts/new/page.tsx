@@ -228,7 +228,7 @@ export default function NewPostPage() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [canNext, caption, selectedMediaIds, selectedPlatforms, scheduledAt, router]);
+  }, [canNext, caption, selectedMediaIds, selectedPlatforms, scheduledAt, router, queryClient]);
 
   // Keyboard shortcuts (must be after canNext and handlePublish are defined)
   useEffect(() => {
