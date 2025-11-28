@@ -88,9 +88,29 @@ export default function InboxPage() {
     return Array.isArray(conversationsData) ? conversationsData : [];
   }, [conversationsData]);
 
-  // Sort conversations - unread first, then by last_message_at
+  // Filter and sort conversations
   const sortedConversations = useMemo(() => {
-    const sorted = [...conversations];
+    // First filter by platform tab
+    let filtered = [...conversations];
+    if (activePlatformFilter !== "All") {
+      filtered = filtered.filter((conv) => 
+        conv.platform.toLowerCase() === activePlatformFilter.toLowerCase()
+      );
+    }
+    
+    // Then filter by status
+    if (activeStatusFilter !== "All") {
+      const statusMap: Record<string, string> = {
+        "Active": "active",
+        "Resolved": "resolved",
+        "Archived": "archived",
+      };
+      const statusValue = statusMap[activeStatusFilter] || activeStatusFilter.toLowerCase();
+      filtered = filtered.filter((conv) => conv.status === statusValue);
+    }
+    
+    // Then sort
+    const sorted = [...filtered];
     switch (sortBy) {
       case "newest":
         return sorted.sort((a, b) => {
@@ -119,7 +139,7 @@ export default function InboxPage() {
       default:
         return sorted;
     }
-  }, [conversations, sortBy]);
+  }, [conversations, sortBy, activePlatformFilter, activeStatusFilter]);
   
   const { data: conversationDetail } = useConversation(selectedConversationId);
   const sendReplyMutation = useSendReply(selectedConversationId);
@@ -210,22 +230,6 @@ export default function InboxPage() {
               </div>
             </div>
 
-            {/* Platform Filters - Now handled by columns */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-gray-500">Platform:</span>
-              <select
-                value={activePlatformFilter}
-                onChange={(e) => setActivePlatformFilter(e.target.value)}
-                aria-label="Filter by platform"
-                className="rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                {PLATFORM_COLUMNS.map((column) => (
-                  <option key={column.value} value={column.label}>
-                    {column.label}
-                  </option>
-                ))}
-              </select>
-            </div>
 
             {/* Sort */}
             <div className="ml-auto flex items-center gap-2">
@@ -247,33 +251,87 @@ export default function InboxPage() {
         </div>
       </section>
 
-      <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_450px]">
-        {/* Platform Columns */}
-        <section className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
-          <div className="flex flex-shrink-0 items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-900">Conversations by Platform</h2>
+      {/* Platform Tabs */}
+      <div className="flex flex-shrink-0 gap-1 border-b border-gray-200 bg-white px-1">
+        {PLATFORM_COLUMNS.map((column) => {
+          const platformConversations = column.value === "all"
+            ? sortedConversations
+            : sortedConversations.filter((conv) => conv.platform.toLowerCase() === column.value);
+          const unreadCount = platformConversations.reduce((sum, conv) => sum + conv.unread_count, 0);
+          const isSelected = activePlatformFilter === column.label || (column.value === "all" && activePlatformFilter === "All");
+          
+          return (
+            <button
+              key={column.value}
+              onClick={() => {
+                if (column.value === "all") {
+                  setActivePlatformFilter("All");
+                } else {
+                  setActivePlatformFilter(column.label);
+                }
+              }}
+              className={`relative flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
+                isSelected
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300"
+              }`}
+            >
+              <span>{column.icon}</span>
+              <span>{column.label}</span>
+              {unreadCount > 0 && (
+                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-white">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+              {column.value === "whatsapp" && unreadCount === 0 && platformConversations.length > 0 && (
+                <span className="rounded-full bg-green-500 px-1.5 py-0.5 text-[9px] font-semibold text-white">
+                  New
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[340px_1fr] xl:grid-cols-[360px_1fr]">
+        {/* Conversations List */}
+        <section className="flex flex-col rounded-3xl border border-gray-200 bg-white/70 p-4 shadow-lg shadow-primary/5">
+          <div className="flex flex-shrink-0 items-center justify-between px-2">
+            <h2 className="text-sm font-semibold text-gray-900">Conversations</h2>
             <span className="rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-500">
-              {conversations.length} total
+              {sortedConversations.length}
             </span>
           </div>
-          
-          {isLoading ? (
-            <div className="flex flex-1 items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
-            </div>
-          ) : error ? (
-            <div className="flex flex-1 items-center justify-center rounded-xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-900">
-              Failed to load conversations: {error.message}
-            </div>
-          ) : (
-            <div className="flex min-h-0 flex-1 gap-4 overflow-x-auto overflow-y-hidden pb-2">
-              {PLATFORM_COLUMNS.map((column) => {
-                // Filter conversations by platform
-                const platformConversations = column.value === "all"
-                  ? sortedConversations
-                  : sortedConversations.filter((conv) => conv.platform.toLowerCase() === column.value);
+          <div className="mt-4 min-h-0 flex-1 space-y-2 overflow-y-auto px-1 pb-2 pt-1">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+              </div>
+            ) : error ? (
+              <div className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-900">
+                Failed to load conversations: {error.message}
+              </div>
+            ) : sortedConversations.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center">
+                <InboxIcon className="mx-auto h-12 w-12 text-gray-400" />
+                <p className="mt-3 text-sm font-medium text-gray-900">
+                  {searchQuery || activeStatusFilter !== "All" || activePlatformFilter !== "All"
+                    ? "No conversations found"
+                    : "No conversations yet"}
+                </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  {searchQuery || activeStatusFilter !== "All" || activePlatformFilter !== "All"
+                    ? "Try adjusting your filters"
+                    : "Conversations will appear here when customers reach out"}
+                </p>
+              </div>
+            ) : (
+              sortedConversations.map((conversation) => {
+                const isActive = selectedConversationId === String(conversation.id);
+                const unread = conversation.unread_count > 0;
+                const platform = conversation.platform.toLowerCase();
                 
-                // Format relative time helper
+                // Format relative time
                 const formatTime = (dateString: string) => {
                   const date = new Date(dateString);
                   const now = new Date();
@@ -290,125 +348,65 @@ export default function InboxPage() {
                   return date.toLocaleDateString([], { month: "short", day: "numeric" });
                 };
                 
-                const unreadCount = platformConversations.reduce((sum, conv) => sum + conv.unread_count, 0);
-                const isSelected = activePlatformFilter === column.label;
-                
                 return (
-                  <div
-                    key={column.value}
-                    className={`flex min-w-[280px] max-w-[280px] flex-shrink-0 flex-col rounded-2xl border transition ${
-                      isSelected
-                        ? "border-primary bg-primary/5 shadow-md shadow-primary/10"
-                        : "border-gray-200 bg-white/70"
+                  <button
+                    key={conversation.id}
+                    onClick={() => setSelectedConversationId(String(conversation.id))}
+                    className={`w-full rounded-2xl border-l-4 px-4 py-3 text-left transition ${
+                      isActive
+                        ? "border-primary bg-primary/10 shadow-sm shadow-primary/20"
+                        : unread
+                        ? "border-blue-500 bg-blue-50/50 hover:bg-blue-50"
+                        : "border-transparent hover:border-gray-200 hover:bg-gray-50"
                     }`}
                   >
-                    {/* Column Header - Clickable */}
-                    <button
-                      onClick={() => {
-                        if (column.value === "all") {
-                          setActivePlatformFilter("All");
-                        } else {
-                          setActivePlatformFilter(column.label);
-                        }
-                      }}
-                      className={`flex flex-shrink-0 items-center justify-between rounded-t-2xl border-b px-4 py-3 transition ${
-                        isSelected
-                          ? "border-primary/30 bg-primary/10"
-                          : "border-gray-200 bg-gray-50/50 hover:bg-gray-100"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">{column.icon}</span>
-                        <span className="text-sm font-semibold text-gray-900">{column.label}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {unreadCount > 0 && (
-                          <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-white">
-                            {unreadCount > 99 ? "99+" : unreadCount}
-                          </span>
-                        )}
-                        <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-                          {platformConversations.length}
-                        </span>
-                      </div>
-                    </button>
-                    
-                    {/* Column Content - Scrollable */}
-                    <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
-                      {platformConversations.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-8 text-center">
-                          <p className="text-xs font-medium text-gray-500">No conversations</p>
-                          <p className="mt-1 text-[10px] text-gray-400">in this platform</p>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        {/* Avatar */}
+                        <div className="flex-shrink-0">
+                          {conversation.customer_avatar ? (
+                            <Image
+                              src={conversation.customer_avatar}
+                              alt={conversation.customer_name}
+                              width={40}
+                              height={40}
+                              className="h-10 w-10 rounded-full object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                              {conversation.customer_name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
                         </div>
-                      ) : (
-                        platformConversations.map((conversation) => {
-                          const isActive = selectedConversationId === String(conversation.id);
-                          const unread = conversation.unread_count > 0;
-                          const platform = conversation.platform.toLowerCase();
-                          
-                          return (
-                            <button
-                              key={conversation.id}
-                              onClick={() => setSelectedConversationId(String(conversation.id))}
-                              className={`w-full rounded-xl border-l-4 px-3 py-2.5 text-left transition ${
-                                isActive
-                                  ? "border-primary bg-primary/10 shadow-sm shadow-primary/20"
-                                  : unread
-                                  ? "border-blue-500 bg-blue-50/50 hover:bg-blue-50"
-                                  : "border-transparent hover:border-gray-200 hover:bg-gray-50"
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-gray-900 truncate">{conversation.customer_name}</span>
+                            <span
+                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest flex-shrink-0 ${
+                                CHANNEL_COLORS[platform] ?? "bg-gray-100 text-gray-600"
                               }`}
                             >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex items-start gap-2 flex-1 min-w-0">
-                                  {/* Avatar */}
-                                  <div className="flex-shrink-0">
-                                    {conversation.customer_avatar ? (
-                                      <Image
-                                        src={conversation.customer_avatar}
-                                        alt={conversation.customer_name}
-                                        width={32}
-                                        height={32}
-                                        className="h-8 w-8 rounded-full object-cover"
-                                        unoptimized
-                                      />
-                                    ) : (
-                                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                                        {conversation.customer_name.charAt(0).toUpperCase()}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-1.5">
-                                      <span className="text-xs font-semibold text-gray-900 truncate">
-                                        {conversation.customer_name}
-                                      </span>
-                                    </div>
-                                    <p className="mt-0.5 line-clamp-1 text-[10px] text-gray-500">
-                                      {conversation.last_message}
-                                    </p>
-                                    <p className="mt-0.5 text-[9px] text-gray-400">
-                                      {formatTime(conversation.last_message_at)}
-                                    </p>
-                                  </div>
-                                </div>
-                                <div className="text-right flex-shrink-0">
-                                  {unread ? (
-                                    <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
-                                      {conversation.unread_count > 99 ? "99+" : conversation.unread_count}
-                                    </span>
-                                  ) : null}
-                                </div>
-                              </div>
-                            </button>
-                          );
-                        })
-                      )}
+                              {platform}
+                            </span>
+                          </div>
+                          <p className="mt-1 line-clamp-1 text-xs text-gray-500">{conversation.last_message}</p>
+                          <p className="mt-1 text-[10px] text-gray-400">{formatTime(conversation.last_message_at)}</p>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        {unread ? (
+                          <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-white">
+                            {conversation.unread_count > 99 ? "99+" : conversation.unread_count}
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
+                  </button>
                 );
-              })}
-            </div>
-          )}
+              })
+            )}
+          </div>
         </section>
 
         <section className="flex min-h-0 flex-1 flex-col gap-6 rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-lg shadow-primary/5">
@@ -554,7 +552,7 @@ export default function InboxPage() {
                                   </div>
                                 ) : (
                                   <p className="whitespace-pre-line text-sm text-gray-700">
-                                    {isOutgoing && message.final_reply ? message.final_reply : message.content}
+                                    {isOutgoing ? (message.final_reply || message.content) : message.content}
                                   </p>
                                 )}
                               </div>

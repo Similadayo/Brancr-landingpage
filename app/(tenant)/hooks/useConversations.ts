@@ -146,8 +146,43 @@ export function useSendReply(conversationId: string | null) {
       }
       return tenantApi.sendReply(conversationId, { message: payload.body });
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
       toast.success("Reply sent");
+      
+      // Optimistically update the conversation cache with the new message
+      if (response.interaction) {
+        queryClient.setQueryData<ConversationDetail>(
+          ["conversation", conversationId],
+          (oldData) => {
+            if (!oldData) return oldData;
+            
+            // Map the interaction to Message type
+            const newMessage: Message = {
+              id: response.interaction.id,
+              direction: response.interaction.direction,
+              message_type: response.interaction.message_type,
+              content: response.interaction.final_reply || response.interaction.content,
+              final_reply: response.interaction.final_reply,
+              response_type: response.interaction.response_type,
+              response_status: response.interaction.response_status,
+              detected_intent: response.interaction.detected_intent,
+              detected_tone: response.interaction.detected_tone,
+              confidence: response.interaction.confidence,
+              suggested_reply: response.interaction.suggested_reply,
+              created_at: response.interaction.created_at,
+              metadata: response.interaction.metadata,
+            };
+            
+            return {
+              ...oldData,
+              messages: [...oldData.messages, newMessage],
+              updated_at: response.interaction.created_at,
+            };
+          }
+        );
+      }
+      
+      // Still invalidate to ensure we have the latest data
       void queryClient.invalidateQueries({ queryKey: ["conversation", conversationId] });
       void queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },

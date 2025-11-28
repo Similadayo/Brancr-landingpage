@@ -238,7 +238,25 @@ export const tenantApi = {
     }>(`/api/tenant/conversations/${conversationId}`),
 
   sendReply: (conversationId: string, payload: { message: string; attachments?: Array<Record<string, unknown>> }) =>
-    post<typeof payload, { success: boolean; message: string; interaction_id: number }>(`/api/tenant/conversations/${conversationId}/replies`, payload),
+    post<typeof payload, { 
+      success: boolean; 
+      message: string; 
+      interaction: {
+        id: number;
+        direction: "incoming" | "outgoing";
+        message_type: "text" | "image" | "video" | "comment";
+        content: string;
+        final_reply?: string;
+        response_type?: "auto_reply" | "escalated" | "manual";
+        response_status?: "pending" | "approved" | "sent" | "rejected";
+        created_at: string;
+        detected_intent?: string;
+        detected_tone?: string;
+        confidence?: number;
+        suggested_reply?: string;
+        metadata?: Record<string, unknown>;
+      };
+    }>(`/api/tenant/conversations/${conversationId}/replies`, payload),
 
   assignConversation: (conversationId: string, payload: { assignee_id: string | null }) =>
     patch<typeof payload, { success: boolean }>(
