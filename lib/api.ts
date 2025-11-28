@@ -193,42 +193,52 @@ export const tenantApi = {
       : "";
     return get<{
       conversations: Array<{
-        id: string;
-        contact_name: string;
-        channel: string;
-        preview: string;
-        updated_at: string;
-        unread_count: number;
-        tags: string[];
-        assignee?: string | null;
+        id: number;
+        customer_id: number;
+        customer_name: string;
+        customer_avatar?: string;
+        platform: string;
         status: string;
+        last_message: string;
+        last_message_at: string;
+        unread_count: number;
+        created_at: string;
+        updated_at: string;
+        tags?: string[];
+        assignee?: string | null;
       }>;
     }>(`/api/tenant/conversations${query}`);
   },
 
   conversation: (conversationId: string) =>
     get<{
-      conversation: {
-        id: string;
-        contact_name: string;
-        channel: string;
-        tags: string[];
-        assignee?: string | null;
-        status: string;
-        metadata?: Record<string, unknown>;
-      };
+      id: number;
+      customer_id: number;
+      customer_name: string;
+      customer_avatar?: string;
+      platform: string;
+      status: string;
       messages: Array<{
-        id: string;
-        author: "tenant" | "contact";
-        author_name?: string;
-        body: string;
-        sent_at: string;
-        attachments?: Array<Record<string, unknown>>;
+        id: number;
+        direction: "incoming" | "outgoing";
+        message_type: "text" | "image" | "video" | "comment";
+        content: string;
+        detected_intent?: string;
+        detected_tone?: string;
+        confidence?: number;
+        response_type?: "auto_reply" | "escalated" | "manual";
+        response_status?: "pending" | "approved" | "sent" | "rejected";
+        suggested_reply?: string;
+        final_reply?: string;
+        created_at: string;
+        metadata?: Record<string, unknown>;
       }>;
+      created_at: string;
+      updated_at: string;
     }>(`/api/tenant/conversations/${conversationId}`),
 
-  sendReply: (conversationId: string, payload: { body: string; attachments?: Array<Record<string, unknown>> }) =>
-    post<typeof payload, { message_id: string }>(`/api/tenant/conversations/${conversationId}/replies`, payload),
+  sendReply: (conversationId: string, payload: { message: string; attachments?: Array<Record<string, unknown>> }) =>
+    post<typeof payload, { success: boolean; message: string; interaction_id: number }>(`/api/tenant/conversations/${conversationId}/replies`, payload),
 
   assignConversation: (conversationId: string, payload: { assignee_id: string | null }) =>
     patch<typeof payload, { success: boolean }>(
@@ -236,14 +246,14 @@ export const tenantApi = {
       payload
     ),
 
-  updateConversationStatus: (conversationId: string, payload: { status: string }) =>
-    patch<typeof payload, { success: boolean }>(`/api/tenant/conversations/${conversationId}/status`, payload),
+  updateConversationStatus: (conversationId: string, payload: { status: "active" | "resolved" | "archived" }) =>
+    patch<typeof payload, { success: boolean }>(`/api/tenant/conversations/${conversationId}`, payload),
 
   updateConversation: (conversationId: string, payload: { notes?: string; tags?: string[] }) =>
     patch<typeof payload, { success: boolean }>(`/api/tenant/conversations/${conversationId}`, payload),
 
   suggestReplies: (conversationId: string) =>
-    post<undefined, { suggestions: string[] }>(`/api/tenant/conversations/${conversationId}/suggest-reply`),
+    post<undefined, { suggestions: Array<{ reply: string; tone?: string; confidence?: number }> }>(`/api/tenant/conversations/${conversationId}/suggest-replies`),
 
   campaigns: () =>
     get<{

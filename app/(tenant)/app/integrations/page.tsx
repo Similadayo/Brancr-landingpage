@@ -190,7 +190,7 @@ export default function IntegrationsPage() {
           <Link
             href="https://t.me/brancrbot"
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noreferrer"
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary/90"
           >
             Launch Telegram assistant
@@ -245,9 +245,7 @@ export default function IntegrationsPage() {
                       <p className="text-xs text-gray-400">Page: {integration.page_name}</p>
                     )}
                   </div>
-                ) : platform === "telegram" && connected && integration?.username ? (
-                  <p className="mt-2 text-xs text-gray-500">{integration.username}</p>
-                ) : connected && integration?.username && !isWhatsApp && platform !== "telegram" ? (
+                ) : connected && integration?.username && !isWhatsApp ? (
                   <p className="mt-2 text-xs text-gray-500">@{integration.username}</p>
                 ) : null}
                 {!isWhatsApp && (
@@ -290,34 +288,7 @@ export default function IntegrationsPage() {
                 )}
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {platform === "telegram" ? (
-                    // Telegram: Show different button based on connection status
-                    connected ? (
-                      <a
-                        href={integration?.username ? `https://t.me/${integration.username.replace('@', '')}` : "https://t.me/brancrbot"}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
-                      >
-                        Open bot deep link
-                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                      </a>
-                    ) : (
-                      <a
-                        href="https://t.me/brancrbot"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary"
-                      >
-                        Start from Telegram
-                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                      </a>
-                    )
-                  ) : connected && !isWhatsApp ? (
+                  {connected && !isWhatsApp ? (
                     <>
                       <button
                         onClick={() => handleVerify(platform)}
@@ -341,6 +312,15 @@ export default function IntegrationsPage() {
                     >
                       Manage Number
                     </Link>
+                  ) : platform === "telegram" ? (
+                    <a
+                      href="https://t.me/brancrbot"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
+                    >
+                      Open bot deep link
+                    </a>
                   ) : !isWhatsApp ? (
                     <button
                       onClick={() => handleConnect(platform)}

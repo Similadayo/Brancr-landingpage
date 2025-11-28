@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 import { ApiError, tenantApi } from "@/lib/api";
 
 export type Integration = {
-  id: string | number; // Telegram uses 0 (number), other platforms use string
+  id: string;
   platform: string;
   connected: boolean;
   username?: string;

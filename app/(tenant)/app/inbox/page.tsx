@@ -4,7 +4,15 @@ import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTenant } from "../../providers/TenantProvider";
-import { useConversations, useConversation, useSendReply, useUpdateConversationStatus, useUpdateConversation, useSuggestReplies } from "@/app/(tenant)/hooks/useConversations";
+import { 
+  useConversations, 
+  useConversation, 
+  useSendReply, 
+  useUpdateConversationStatus, 
+  useUpdateConversation, 
+  useSuggestReplies
+} from "@/app/(tenant)/hooks/useConversations";
+import type { Message, ConversationDetail, ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
 import {
   InboxIcon,
   MagnifyingGlassIcon,
@@ -19,7 +27,7 @@ import {
   ArrowRightIcon,
 } from "../../components/icons";
 
-const STATUS_FILTERS = ["All", "Open", "Pending", "Closed"];
+const STATUS_FILTERS = ["All", "Active", "Resolved", "Archived"];
 const PLATFORM_FILTERS = ["All", "Instagram", "Facebook", "WhatsApp", "TikTok", "Telegram"];
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
@@ -49,7 +57,13 @@ export default function InboxPage() {
   const apiFilters = useMemo(() => {
     const filters: { platform?: string; status?: string; search?: string } = {};
     if (activeStatusFilter !== "All") {
-      filters.status = activeStatusFilter.toLowerCase();
+      // Map UI filter names to API status values
+      const statusMap: Record<string, string> = {
+        "Active": "active",
+        "Resolved": "resolved",
+        "Archived": "archived",
+      };
+      filters.status = statusMap[activeStatusFilter] || activeStatusFilter.toLowerCase();
     }
     if (activePlatformFilter !== "All") {
       filters.platform = activePlatformFilter.toLowerCase();
@@ -61,22 +75,45 @@ export default function InboxPage() {
   }, [activeStatusFilter, activePlatformFilter, searchQuery]);
 
   const { data: conversationsData, isLoading, error } = useConversations(apiFilters);
-  const conversations = Array.isArray(conversationsData) ? conversationsData : [];
+  
+  // Ensure conversations is always an array
+  const conversations = useMemo(() => {
+    return Array.isArray(conversationsData) ? conversationsData : [];
+  }, [conversationsData]);
 
-  // Sort conversations
+  // Sort conversations - unread first, then by last_message_at
   const sortedConversations = useMemo(() => {
     const sorted = [...conversations];
     switch (sortBy) {
       case "newest":
-        return sorted.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+        return sorted.sort((a, b) => {
+          // Unread first
+          if (a.unread_count > 0 && b.unread_count === 0) return -1;
+          if (a.unread_count === 0 && b.unread_count > 0) return 1;
+          // Then by last_message_at
+          return new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime();
+        });
       case "oldest":
-        return sorted.sort((a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime());
+        return sorted.sort((a, b) => {
+          // Unread first
+          if (a.unread_count > 0 && b.unread_count === 0) return -1;
+          if (a.unread_count === 0 && b.unread_count > 0) return 1;
+          // Then by last_message_at
+          return new Date(a.last_message_at).getTime() - new Date(b.last_message_at).getTime();
+        });
       case "unread":
-        return sorted.sort((a, b) => (b.unreadCount > 0 ? 1 : 0) - (a.unreadCount > 0 ? 1 : 0));
+        return sorted.sort((a, b) => {
+          // Unread first
+          if (a.unread_count > 0 && b.unread_count === 0) return -1;
+          if (a.unread_count === 0 && b.unread_count > 0) return 1;
+          // Then by last_message_at
+          return new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime();
+        });
       default:
         return sorted;
     }
   }, [conversations, sortBy]);
+  
   const { data: conversationDetail } = useConversation(selectedConversationId);
   const sendReplyMutation = useSendReply(selectedConversationId);
   const updateStatusMutation = useUpdateConversationStatus(selectedConversationId);
@@ -86,17 +123,18 @@ export default function InboxPage() {
   // Set first conversation as selected when conversations load
   useEffect(() => {
     if (conversations.length > 0 && !selectedConversationId) {
-      setSelectedConversationId(conversations[0].id);
+      setSelectedConversationId(String(conversations[0].id));
     }
   }, [conversations, selectedConversationId]);
 
-  const activeConversation = conversationDetail?.conversation;
+  const activeConversation = conversationDetail;
   const messages = conversationDetail?.messages ?? [];
 
   const handleSendReply = async () => {
     if (!replyText.trim() || !selectedConversationId) return;
 
     try {
+      // @ts-expect-error - TypeScript incorrectly infers union type, but payload is correct
       await sendReplyMutation.mutateAsync({ body: replyText.trim() });
       setReplyText("");
     } catch (error) {
@@ -167,6 +205,7 @@ export default function InboxPage() {
               <select
                 value={activePlatformFilter}
                 onChange={(e) => setActivePlatformFilter(e.target.value)}
+                aria-label="Filter by platform"
                 className="rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 {PLATFORM_FILTERS.map((platform) => (
@@ -183,6 +222,7 @@ export default function InboxPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
+                aria-label="Sort conversations"
                 className="rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 {SORT_OPTIONS.map((option) => (
@@ -204,7 +244,7 @@ export default function InboxPage() {
               {conversations.length}
             </span>
           </div>
-          <div className="mt-4 space-y-2 overflow-y-auto px-1 pb-2 pt-1" style={{ maxHeight: "calc(100vh - 300px)" }}>
+          <div className="mt-4 space-y-2 overflow-y-auto px-1 pb-2 pt-1 max-h-[calc(100vh-300px)]">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
@@ -229,54 +269,77 @@ export default function InboxPage() {
               </div>
             ) : (
               sortedConversations.map((conversation) => {
-                const isActive = selectedConversationId === conversation.id;
-                const unread = conversation.unreadCount > 0;
+                const isActive = selectedConversationId === String(conversation.id);
+                const unread = conversation.unread_count > 0;
+                const platform = conversation.platform.toLowerCase();
+                
+                // Format relative time
+                const formatTime = (dateString: string) => {
+                  const date = new Date(dateString);
+                  const now = new Date();
+                  const diffMs = now.getTime() - date.getTime();
+                  const diffMins = Math.floor(diffMs / 60000);
+                  const diffHours = Math.floor(diffMs / 3600000);
+                  const diffDays = Math.floor(diffMs / 86400000);
+                  
+                  if (diffMins < 1) return "Just now";
+                  if (diffMins < 60) return `${diffMins}m ago`;
+                  if (diffHours < 24) return `${diffHours}h ago`;
+                  if (diffDays === 1) return "Yesterday";
+                  if (diffDays < 7) return `${diffDays}d ago`;
+                  return date.toLocaleDateString([], { month: "short", day: "numeric" });
+                };
+                
                 return (
                   <button
                     key={conversation.id}
-                    onClick={() => setSelectedConversationId(conversation.id)}
-                    className={`w-full rounded-2xl border px-4 py-3 text-left transition ${
+                    onClick={() => setSelectedConversationId(String(conversation.id))}
+                    className={`w-full rounded-2xl border-l-4 px-4 py-3 text-left transition ${
                       isActive
-                        ? "border-primary/40 bg-primary/10 shadow-sm shadow-primary/20"
+                        ? "border-primary bg-primary/10 shadow-sm shadow-primary/20"
+                        : unread
+                        ? "border-blue-500 bg-blue-50/50 hover:bg-blue-50"
                         : "border-transparent hover:border-gray-200 hover:bg-gray-50"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-gray-900">{conversation.contactName}</span>
-                          <span
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
-                              CHANNEL_COLORS[conversation.channel] ?? "bg-gray-100 text-gray-600"
-                            }`}
-                          >
-                            {conversation.channel}
-                          </span>
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        {/* Avatar */}
+                        <div className="flex-shrink-0">
+                          {conversation.customer_avatar ? (
+                            <Image
+                              src={conversation.customer_avatar}
+                              alt={conversation.customer_name}
+                              width={40}
+                              height={40}
+                              className="h-10 w-10 rounded-full object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                              {conversation.customer_name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
                         </div>
-                        <p className="mt-1 line-clamp-2 text-xs text-gray-500">{conversation.preview}</p>
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {Array.isArray(conversation.tags) ? conversation.tags.map((tag) => (
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-gray-900 truncate">{conversation.customer_name}</span>
                             <span
-                              key={tag}
-                              className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-gray-600"
+                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest flex-shrink-0 ${
+                                CHANNEL_COLORS[platform] ?? "bg-gray-100 text-gray-600"
+                              }`}
                             >
-                              {tag}
+                              {platform}
                             </span>
-                          )) : null}
+                          </div>
+                          <p className="mt-1 line-clamp-1 text-xs text-gray-500">{conversation.last_message}</p>
+                          <p className="mt-1 text-[10px] text-gray-400">{formatTime(conversation.last_message_at)}</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-[10px] uppercase tracking-widest text-gray-400">
-                          {conversation.updatedAt
-                            ? new Date(conversation.updatedAt).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
-                            : "--"}
-                        </p>
+                      <div className="text-right flex-shrink-0">
                         {unread ? (
-                          <span className="mt-2 inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-white">
-                            {conversation.unreadCount > 99 ? "99+" : conversation.unreadCount}
+                          <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-white">
+                            {conversation.unread_count > 99 ? "99+" : conversation.unread_count}
                           </span>
                         ) : null}
                       </div>
@@ -293,26 +356,35 @@ export default function InboxPage() {
             <>
               <header className="flex flex-col gap-4 border-b border-gray-200 pb-4 md:flex-row md:items-center md:justify-between">
                 <div className="flex flex-wrap items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
-                    {activeConversation.contactName.charAt(0).toUpperCase()}
-                  </div>
+                  {activeConversation.customer_avatar ? (
+                    <Image
+                      src={activeConversation.customer_avatar}
+                      alt={activeConversation.customer_name}
+                      width={48}
+                      height={48}
+                      className="h-12 w-12 rounded-full object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
+                      {activeConversation.customer_name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900">{activeConversation.contactName}</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">{activeConversation.customer_name}</h2>
                     <p className="text-sm text-gray-500">
-                      via {activeConversation.channel.toUpperCase()} · Assigned to{" "}
-                      <span className="font-medium text-gray-700">{tenant?.name ?? "You"}</span>
+                      via <span className="font-medium capitalize">{activeConversation.platform}</span> ·{" "}
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
+                        activeConversation.status === "active" ? "bg-blue-100 text-blue-700" :
+                        activeConversation.status === "resolved" ? "bg-green-100 text-green-700" :
+                        "bg-gray-100 text-gray-600"
+                      }`}>
+                        {activeConversation.status}
+                      </span>
                     </p>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Link
-                    href="https://t.me/brancrbot"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
-                  >
-                    Open in Telegram
-                  </Link>
                   <span className="rounded-full border border-gray-200 px-3 py-1 text-xs uppercase tracking-[0.3em] text-gray-500">
                     {activeConversation.status}
                   </span>
@@ -321,23 +393,139 @@ export default function InboxPage() {
 
               <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
                 <div className="flex flex-col gap-4">
-                  <div className="flex-1 space-y-4 overflow-y-auto rounded-2xl bg-neutral-bg p-4">
-                    {messages.map((message) => (
-                      <article
-                        key={message.id}
-                        className={`max-w-xl rounded-2xl border border-gray-200 bg-white p-4 shadow-sm ${
-                          message.author === "tenant" ? "ml-auto bg-primary/5" : ""
-                        }`}
-                      >
-                        <header className="flex items-center justify-between">
-                          <p className="text-xs font-semibold text-gray-500">{message.authorName ?? message.author}</p>
-                          <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400">
-                            {new Date(message.sentAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                          </span>
-                        </header>
-                        <p className="mt-3 whitespace-pre-line text-sm text-gray-700">{message.body}</p>
-                      </article>
-                    ))}
+                  <div className="flex-1 space-y-4 overflow-y-auto rounded-2xl bg-gray-50 p-4">
+                    {messages.map((message: Message) => {
+                      const isIncoming = message.direction === "incoming";
+                      const isOutgoing = message.direction === "outgoing";
+                      
+                      // Intent colors
+                      const intentColors: Record<string, string> = {
+                        inquiry: "bg-blue-100 text-blue-700",
+                        order: "bg-green-100 text-green-700",
+                        payment: "bg-orange-100 text-orange-700",
+                        complaint: "bg-red-100 text-red-700",
+                        refund: "bg-orange-100 text-orange-700",
+                        delivery_issue: "bg-yellow-100 text-yellow-700",
+                        casual: "bg-gray-100 text-gray-600",
+                      };
+                      
+                      // Tone indicators
+                      const toneIcons: Record<string, string> = {
+                        urgent: "⚠️",
+                        positive: "✓",
+                        neutral: "○",
+                        negative: "⚠️",
+                      };
+                      
+                      return (
+                        <div
+                          key={message.id}
+                          className={`flex ${isIncoming ? "justify-start" : "justify-end"}`}
+                        >
+                          <article
+                            className={`max-w-xl rounded-2xl border p-4 shadow-sm ${
+                              isIncoming
+                                ? "border-gray-200 bg-white"
+                                : isOutgoing
+                                ? "border-primary/30 bg-primary/5"
+                                : "border-gray-200 bg-white"
+                            }`}
+                          >
+                            {/* AI Insights for incoming messages */}
+                            {isIncoming && (message.detected_intent || message.detected_tone) && (
+                              <div className="mb-2 flex flex-wrap items-center gap-2">
+                                {message.detected_intent && (
+                                  <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                                    intentColors[message.detected_intent] || "bg-gray-100 text-gray-600"
+                                  }`}>
+                                    {message.detected_intent === "inquiry" && "💬"}
+                                    {message.detected_intent === "order" && "📦"}
+                                    {message.detected_intent === "payment" && "💳"}
+                                    {message.detected_intent === "complaint" && "⚠️"}
+                                    {message.detected_intent === "refund" && "↩️"}
+                                    {message.detected_intent === "delivery_issue" && "🚚"}
+                                    {message.detected_intent === "casual" && "💭"}
+                                    {message.detected_intent}
+                                  </span>
+                                )}
+                                {message.detected_tone && (
+                                  <span className="inline-flex items-center gap-1 text-[10px] font-medium text-gray-600">
+                                    {toneIcons[message.detected_tone] || "○"} {message.detected_tone}
+                                  </span>
+                                )}
+                                {message.confidence && (
+                                  <span className="text-[10px] text-gray-400">
+                                    {Math.round(message.confidence * 100)}% confidence
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                            
+                            {/* Response type indicator for outgoing messages */}
+                            {isOutgoing && message.response_type && (
+                              <div className="mb-2">
+                                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-gray-500">
+                                  {message.response_type === "auto_reply" && "🤖 Auto-replied"}
+                                  {message.response_type === "escalated" && "🚨 Escalated"}
+                                  {message.response_type === "manual" && "✍️ Manual reply"}
+                                </span>
+                              </div>
+                            )}
+                            
+                            {/* Message content */}
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1">
+                                {message.message_type === "image" || message.message_type === "video" ? (
+                                  <div className="space-y-2">
+                                    <Image
+                                      src={message.content}
+                                      alt="Media"
+                                      width={320}
+                                      height={240}
+                                      className="max-w-xs rounded-lg"
+                                      unoptimized
+                                      onError={(e) => {
+                                        (e.target as HTMLImageElement).style.display = "none";
+                                      }}
+                                    />
+                                    {message.metadata && typeof message.metadata === "object" && "caption" in message.metadata && (
+                                      <p className="text-sm text-gray-700">{String(message.metadata.caption)}</p>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <p className="whitespace-pre-line text-sm text-gray-700">
+                                    {isOutgoing && message.final_reply ? message.final_reply : message.content}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {/* Timestamp and status */}
+                            <div className="mt-2 flex items-center justify-between">
+                              <span className="text-[10px] text-gray-400">
+                                {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                              </span>
+                              {isOutgoing && message.response_status && (
+                                <span className="text-[10px] text-gray-400">
+                                  {message.response_status === "sent" && "✓ Sent"}
+                                  {message.response_status === "pending" && "⏳ Pending"}
+                                  {message.response_status === "approved" && "✓ Approved"}
+                                  {message.response_status === "rejected" && "❌ Rejected"}
+                                </span>
+                              )}
+                            </div>
+                            
+                            {/* Suggested reply for incoming messages */}
+                            {isIncoming && message.suggested_reply && (
+                              <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
+                                <p className="text-xs font-semibold text-primary mb-1">🤖 AI Suggested Reply:</p>
+                                <p className="text-xs text-gray-700">{message.suggested_reply}</p>
+                              </div>
+                            )}
+                          </article>
+                        </div>
+                      );
+                    })}
                     {messages.length === 0 ? (
                       <div className="rounded-xl border border-dashed border-gray-200 bg-white p-6 text-center text-sm text-gray-500">
                         No messages yet.
@@ -362,8 +550,22 @@ export default function InboxPage() {
                           onClick={async () => {
                             try {
                               const res = await suggestRepliesMutation.mutateAsync();
-                              const suggestion = res?.suggestions?.[0];
-                              if (suggestion) setReplyText((prev) => (prev ? prev + "\n" + suggestion : suggestion));
+                              const suggestions = res?.suggestions;
+                              if (Array.isArray(suggestions) && suggestions.length > 0) {
+                                // Use the first suggestion's reply field
+                                const firstSuggestion = suggestions[0];
+                                let suggestionText = "";
+                                if (typeof firstSuggestion === "string") {
+                                  suggestionText = firstSuggestion;
+                                } else if (firstSuggestion && typeof firstSuggestion === "object" && "reply" in firstSuggestion) {
+                                  suggestionText = String(firstSuggestion.reply);
+                                } else {
+                                  suggestionText = String(firstSuggestion);
+                                }
+                                if (suggestionText) {
+                                  setReplyText(suggestionText);
+                                }
+                              }
                             } catch {}
                           }}
                           disabled={suggestRepliesMutation.isPending}
@@ -418,10 +620,14 @@ export default function InboxPage() {
                   <h3 className="text-sm font-semibold text-gray-900">Contact</h3>
                   <div className="mt-3 flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{activeConversation.contactName}</p>
-                      <p className="text-xs text-gray-500 capitalize">{activeConversation.channel}</p>
+                      <p className="text-sm font-semibold text-gray-900">{activeConversation.customer_name}</p>
+                      <p className="text-xs text-gray-500 capitalize">{activeConversation.platform}</p>
                     </div>
-                    <span className="rounded-full bg-gray-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-gray-600">
+                    <span className={`rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-widest ${
+                      activeConversation.status === "active" ? "bg-blue-100 text-blue-700" :
+                      activeConversation.status === "resolved" ? "bg-green-100 text-green-700" :
+                      "bg-gray-100 text-gray-600"
+                    }`}>
                       {activeConversation.status}
                     </span>
                   </div>
@@ -433,10 +639,14 @@ export default function InboxPage() {
                     </div>
                     <select
                       value={activeConversation.status}
-                      onChange={(e) => updateStatusMutation.mutate({ status: e.target.value })}
+                      onChange={(e) => {
+                        const newStatus = e.target.value as "active" | "resolved" | "archived";
+                        updateStatusMutation.mutate({ status: newStatus });
+                      }}
+                      aria-label="Update conversation status"
                       className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                     >
-                      {["open", "pending", "closed"].map((s) => (
+                      {["active", "resolved", "archived"].map((s) => (
                         <option key={s} value={s}>
                           {s.charAt(0).toUpperCase() + s.slice(1)}
                         </option>
@@ -447,7 +657,7 @@ export default function InboxPage() {
                   <div className="mt-4">
                     <p className="uppercase tracking-[0.3em] text-gray-400">Tags</p>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {Array.isArray(activeConversation.tags) ? activeConversation.tags.map((tag) => (
+                      {Array.isArray(activeConversation.tags) ? activeConversation.tags.map((tag: string) => (
                         <span
                           key={tag}
                           className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-gray-600"
@@ -464,7 +674,7 @@ export default function InboxPage() {
                   <div className="mt-4">
                     <p className="uppercase tracking-[0.3em] text-gray-400">Last updated</p>
                     <p className="mt-1 text-xs text-gray-600">
-                      {new Date(activeConversation.updatedAt).toLocaleString([], {
+                      {new Date(activeConversation.updated_at).toLocaleString([], {
                         month: "short",
                         day: "numeric",
                         hour: "2-digit",

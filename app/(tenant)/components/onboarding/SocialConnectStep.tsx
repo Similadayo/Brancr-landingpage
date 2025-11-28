@@ -21,6 +21,9 @@ export function SocialConnectStep({
   const { data: integrationsData, refetch: refetchIntegrations } = useIntegrations();
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
 
+  // Ensure integrations is always an array
+  const integrations = Array.isArray(integrationsData) ? integrationsData : [];
+
   // Get tenant ID from authenticated user
   const { data: userData } = useQuery({
     queryKey: ['auth', 'me'],
@@ -30,18 +33,10 @@ export function SocialConnectStep({
 
   const tenantId = userData?.tenant_id;
 
-  // Ensure integrations is always an array
-  const integrations = useMemo(() => {
-    return Array.isArray(integrationsData) ? integrationsData : [];
-  }, [integrationsData]);
-
   // Check which platforms are connected
   const connectedPlatforms = useMemo(() => {
-    // Get connected platforms from integrations array (includes Telegram with id: 0)
-    const connected = integrations
-      .filter((i) => i.connected)
-      .map((i) => i.platform.toLowerCase());
-    // Also include Telegram if hasTelegramBot is true (fallback for onboarding status)
+    const connected = integrations.filter((i) => i.connected).map((i) => i.platform);
+    // Include Telegram if hasTelegramBot is true
     if (hasTelegramBot && !connected.includes('telegram')) {
       connected.push('telegram');
     }
@@ -187,11 +182,9 @@ export function SocialConnectStep({
       <div className="grid gap-4 md:grid-cols-2">
         {platforms.map((platform) => {
           // Check if platform is connected
-          // For Telegram, check both integration data and hasTelegramBot flag
-          const telegramIntegration = integrations.find((i) => i.platform === 'telegram');
           const isConnected =
             platform.id === 'telegram'
-              ? telegramIntegration?.connected || hasTelegramBot || connectedPlatforms.includes('telegram')
+              ? hasTelegramBot || connectedPlatforms.includes('telegram')
               : connectedPlatforms.includes(platform.id);
           return (
             <div
