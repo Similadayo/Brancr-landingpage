@@ -592,15 +592,14 @@ export default function InboxPage() {
                     <div ref={messagesEndRef} />
                   </div>
 
-                  <div className="flex-shrink-0 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Reply</p>
-                    <div className="mt-3 space-y-3">
-                      <div className="flex flex-wrap gap-2">
+                  <div className="flex-shrink-0 rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap gap-1.5 flex-1">
                         {["Thanks! We'll get back to you shortly.", "Could you share more details?", "Noted. I'll update you soon."].map((q) => (
                           <button
                             key={q}
                             onClick={() => setReplyText((prev) => (prev ? prev + "\n" + q : q))}
-                            className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 transition hover:border-primary hover:bg-primary/5 hover:text-primary"
+                            className="flex items-center gap-1 rounded border border-gray-200 bg-white px-2 py-1 text-[10px] font-semibold text-gray-600 transition hover:border-primary hover:bg-primary/5 hover:text-primary"
                           >
                             {q}
                           </button>
@@ -628,12 +627,14 @@ export default function InboxPage() {
                             } catch {}
                           }}
                           disabled={suggestRepliesMutation.isPending}
-                          className="flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
+                          className="flex items-center gap-1 rounded border border-primary/30 bg-primary/10 px-2 py-1 text-[10px] font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
                         >
-                          <SparklesIcon className="h-3.5 w-3.5" />
+                          <SparklesIcon className="h-3 w-3" />
                           {suggestRepliesMutation.isPending ? "Generating..." : "AI Suggest"}
                         </button>
                       </div>
+                    </div>
+                    <div className="mt-2 flex items-end gap-2">
                       <textarea
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
@@ -644,33 +645,23 @@ export default function InboxPage() {
                           }
                         }}
                         disabled={sendReplyMutation.isPending || !selectedConversationId}
-                        placeholder="Type your reply here... (Cmd/Ctrl + Enter to send)"
-                        className="min-h-[140px] w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm text-gray-700 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50"
+                        placeholder="Type your reply... (Cmd/Ctrl + Enter to send)"
+                        className="min-h-[60px] max-h-[120px] flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                       />
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
-                          <span className="rounded-lg border border-gray-200 bg-gray-50 px-2 py-1">
-                            Supports Instagram, Facebook, and WhatsApp
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => void handleSendReply()}
-                          disabled={sendReplyMutation.isPending || !replyText.trim() || !selectedConversationId}
-                          className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary/90 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-                        >
-                          {sendReplyMutation.isPending ? (
-                            <>
-                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
-                              Sending...
-                            </>
-                          ) : (
-                            <>
-                              Send Reply
-                              <ArrowUpIcon className="h-4 w-4" />
-                            </>
-                          )}
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => void handleSendReply()}
+                        disabled={sendReplyMutation.isPending || !replyText.trim() || !selectedConversationId}
+                        className="flex-shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {sendReplyMutation.isPending ? (
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                        ) : (
+                          <>
+                            <span>Send</span>
+                            <ArrowUpIcon className="h-4 w-4" />
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
                 </div>
