@@ -25,20 +25,15 @@ import {
   PaperClipIcon,
   SparklesIcon,
   ArrowRightIcon,
-  FacebookIcon,
-  InstagramIcon,
-  WhatsAppIcon,
-  TelegramIcon,
-  AllMessagesIcon,
 } from "../../components/icons";
 
 const STATUS_FILTERS = ["All", "Active", "Resolved", "Archived"];
 const PLATFORM_COLUMNS = [
-  { value: "all", label: "All", Icon: AllMessagesIcon },
-  { value: "facebook", label: "Facebook", Icon: FacebookIcon },
-  { value: "instagram", label: "Instagram", Icon: InstagramIcon },
-  { value: "telegram", label: "Telegram", Icon: TelegramIcon },
-  { value: "whatsapp", label: "WhatsApp", Icon: WhatsAppIcon },
+  { value: "all", label: "All", icon: "📬" },
+  { value: "facebook", label: "Facebook", icon: "📘" },
+  { value: "instagram", label: "Instagram", icon: "📷" },
+  { value: "telegram", label: "Telegram", icon: "✈️" },
+  { value: "whatsapp", label: "WhatsApp", icon: "💬" },
 ];
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
@@ -160,16 +155,7 @@ export default function InboxPage() {
   }, [conversations, selectedConversationId]);
 
   const activeConversation = conversationDetail;
-  const messages = useMemo(() => {
-    const msgs = conversationDetail?.messages ?? [];
-    // Debug: Log message counts
-    if (msgs.length > 0) {
-      const incomingCount = msgs.filter(m => m.direction === "incoming").length;
-      const outgoingCount = msgs.filter(m => m.direction === "outgoing").length;
-      console.log(`[Inbox] Messages loaded: total=${msgs.length}, incoming=${incomingCount}, outgoing=${outgoingCount}`);
-    }
-    return msgs;
-  }, [conversationDetail?.messages]);
+  const messages = useMemo(() => conversationDetail?.messages ?? [], [conversationDetail?.messages]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -190,9 +176,8 @@ export default function InboxPage() {
   return (
     <div className="flex h-[calc(100vh-120px)] flex-col gap-4 overflow-hidden">
       {/* Header */}
-      <section className="mb-6 flex flex-shrink-0 flex-col gap-4">
+      <section className="flex flex-shrink-0 flex-col gap-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          {/* Left: Title */}
           <div>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -206,21 +191,24 @@ export default function InboxPage() {
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Right: Search, Status Filters, and Sort */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
-            {/* Search Bar */}
-            <div className="relative w-full sm:w-auto sm:min-w-[240px]">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search conversations..."
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
+        {/* Filters and Search */}
+        <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+          {/* Search Bar */}
+          <div className="relative">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by customer name or message..."
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
 
+          {/* Filter Row */}
+          <div className="flex flex-wrap items-center gap-3">
             {/* Status Filters */}
             <div className="flex items-center gap-2">
               <FunnelIcon className="h-4 w-4 text-gray-400" />
@@ -242,8 +230,9 @@ export default function InboxPage() {
               </div>
             </div>
 
+
             {/* Sort */}
-            <div className="flex items-center gap-2">
+            <div className="ml-auto flex items-center gap-2">
               <span className="text-xs font-medium text-gray-500">Sort:</span>
               <select
                 value={sortBy}
@@ -287,7 +276,7 @@ export default function InboxPage() {
                   : "border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300"
               }`}
             >
-              <column.Icon className="h-5 w-5" />
+              <span>{column.icon}</span>
               <span>{column.label}</span>
               {unreadCount > 0 && (
                 <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-white">
@@ -466,17 +455,6 @@ export default function InboxPage() {
                     {messages.map((message: Message) => {
                       const isIncoming = message.direction === "incoming";
                       const isOutgoing = message.direction === "outgoing";
-                      
-                      // Debug: Log if we see an outgoing message
-                      if (isOutgoing) {
-                        console.log(`[Inbox] Rendering outgoing message:`, {
-                          id: message.id,
-                          content: message.content,
-                          final_reply: message.final_reply,
-                          response_type: message.response_type,
-                          response_status: message.response_status,
-                        });
-                      }
                       
                       // Intent colors
                       const intentColors: Record<string, string> = {
