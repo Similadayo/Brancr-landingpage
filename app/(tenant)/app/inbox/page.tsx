@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTenant } from "../../providers/TenantProvider";
@@ -52,6 +52,7 @@ export default function InboxPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedConversationId, setSelectedConversationId] = useState<string>("");
   const [replyText, setReplyText] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Build filters for API
   const apiFilters = useMemo(() => {
@@ -127,6 +128,11 @@ export default function InboxPage() {
     }
   }, [conversations, selectedConversationId]);
 
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   const activeConversation = conversationDetail;
   const messages = conversationDetail?.messages ?? [];
 
@@ -142,9 +148,9 @@ export default function InboxPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="flex h-[calc(100vh-120px)] flex-col gap-4 overflow-hidden">
       {/* Header */}
-      <section className="flex flex-col gap-4">
+      <section className="flex flex-shrink-0 flex-col gap-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="flex items-center gap-3">
@@ -235,15 +241,15 @@ export default function InboxPage() {
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[340px_1fr] xl:grid-cols-[360px_1fr]">
-        <section className="rounded-3xl border border-gray-200 bg-white/70 p-4 shadow-lg shadow-primary/5">
-          <div className="flex items-center justify-between px-2">
+      <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[340px_1fr] xl:grid-cols-[360px_1fr]">
+        <section className="flex flex-col rounded-3xl border border-gray-200 bg-white/70 p-4 shadow-lg shadow-primary/5">
+          <div className="flex flex-shrink-0 items-center justify-between px-2">
             <h2 className="text-sm font-semibold text-gray-900">Conversations</h2>
             <span className="rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-500">
               {conversations.length}
             </span>
           </div>
-          <div className="mt-4 space-y-2 overflow-y-auto px-1 pb-2 pt-1 max-h-[calc(100vh-300px)]">
+          <div className="mt-4 min-h-0 flex-1 space-y-2 overflow-y-auto px-1 pb-2 pt-1">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
@@ -350,10 +356,10 @@ export default function InboxPage() {
           </div>
         </section>
 
-        <section className="flex min-h-[70vh] flex-col gap-6 rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-lg shadow-primary/5">
+        <section className="flex min-h-0 flex-1 flex-col gap-6 rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-lg shadow-primary/5">
           {activeConversation ? (
             <>
-              <header className="flex flex-col gap-4 border-b border-gray-200 pb-4 md:flex-row md:items-center md:justify-between">
+              <header className="flex flex-shrink-0 flex-col gap-4 border-b border-gray-200 pb-4 md:flex-row md:items-center md:justify-between">
                 <div className="flex flex-wrap items-center gap-4">
                   {activeConversation.customer_avatar ? (
                     <Image
@@ -390,9 +396,9 @@ export default function InboxPage() {
                 </div>
               </header>
 
-              <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-                <div className="flex flex-col gap-4">
-                  <div className="flex-1 space-y-4 overflow-y-auto rounded-2xl bg-gray-50 p-4">
+              <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+                <div className="flex min-h-0 flex-col gap-4">
+                  <div className="flex min-h-0 flex-1 flex-col space-y-4 overflow-y-auto rounded-2xl bg-gray-50 p-4">
                     {messages.map((message: Message) => {
                       const isIncoming = message.direction === "incoming";
                       const isOutgoing = message.direction === "outgoing";
@@ -530,9 +536,10 @@ export default function InboxPage() {
                         No messages yet.
                       </div>
                     ) : null}
+                    <div ref={messagesEndRef} />
                   </div>
 
-                  <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                  <div className="flex-shrink-0 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
                     <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Reply</p>
                     <div className="mt-3 space-y-3">
                       <div className="flex flex-wrap gap-2">
