@@ -23,7 +23,7 @@ export default function PersonaSettingsPage() {
 
   const updateMutation = useMutation({
     mutationFn: () =>
-      tenantApi.onboardingPersona({
+      tenantApi.updatePersona({
         bot_name: form.bot_name || persona?.bot_name || "",
         tone: form.tone || persona?.tone || "",
         language: form.language || persona?.language || "English",

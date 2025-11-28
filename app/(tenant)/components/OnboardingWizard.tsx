@@ -90,6 +90,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
           response = await tenantApi.onboardingPersona(data as any);
           break;
         case 'business_details':
+          // Use onboarding endpoint during onboarding, settings endpoint for updates
           response = await tenantApi.onboardingBusinessDetails(data as any);
           break;
         case 'social_connect':

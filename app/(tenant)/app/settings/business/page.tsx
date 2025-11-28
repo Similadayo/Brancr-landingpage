@@ -22,7 +22,7 @@ export default function BusinessSettingsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: () => tenantApi.onboardingBusinessProfile({
+    mutationFn: () => tenantApi.updateBusinessProfile({
       name: form.name,
       industry: form.industry,
       description: form.description,

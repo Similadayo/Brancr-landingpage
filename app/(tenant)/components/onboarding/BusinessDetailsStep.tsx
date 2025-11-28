@@ -3,6 +3,7 @@
 import { useState, FormEvent, useEffect } from 'react';
 
 type MenuItem = {
+  id?: number; // Include ID if updating existing, omit for new
   name: string;
   category: string;
   price: string;
@@ -10,6 +11,7 @@ type MenuItem = {
 };
 
 type FAQ = {
+  id?: number; // Include ID if updating existing, omit for new
   question: string;
   answer: string;
 };

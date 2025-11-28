@@ -752,6 +752,7 @@ export const tenantApi = {
     get<{
       step: "business_profile" | "persona" | "business_details" | "social_connect";
       complete: boolean;
+      tenant_name?: string;
       business_profile?: {
         id: number;
         name: string;
@@ -770,8 +771,18 @@ export const tenantApi = {
         style_notes?: string;
       };
       business_details?: {
-        menu_items?: Array<{ name: string; category: string; price: string; description: string }>;
-        faqs?: Array<{ question: string; answer: string }>;
+        menu_items?: Array<{
+          id?: number;
+          name: string;
+          category: string;
+          price: string;
+          description: string;
+        }>;
+        faqs?: Array<{
+          id?: number;
+          question: string;
+          answer: string;
+        }>;
         keywords?: string;
         knowledge_base?: string;
       };
@@ -817,6 +828,53 @@ export const tenantApi = {
   onboardingComplete: () =>
     post<undefined, { success: boolean; message: string; redirect_to?: string }>(
       "/api/tenant/onboarding/complete"
+    ),
+
+  // Settings endpoints
+  updateBusinessProfile: (payload: {
+    name: string;
+    industry: string;
+    description: string;
+    location: string;
+    website?: string;
+    operating_hours?: string;
+  }) =>
+    put<typeof payload, { success: boolean; message?: string }>(
+      "/api/tenant/settings/business-profile",
+      payload
+    ),
+
+  updatePersona: (payload: {
+    bot_name: string;
+    tone: string;
+    language: string;
+    humor?: boolean;
+    style_notes?: string;
+  }) =>
+    put<typeof payload, { success: boolean; message?: string }>(
+      "/api/tenant/settings/persona",
+      payload
+    ),
+
+  updateBusinessDetails: (payload: {
+    menu_items?: Array<{
+      id?: number; // Include ID if updating existing, omit for new
+      name: string;
+      category: string;
+      price: string;
+      description: string;
+    }>;
+    faqs?: Array<{
+      id?: number; // Include ID if updating existing, omit for new
+      question: string;
+      answer: string;
+    }>;
+    keywords?: string;
+    knowledge_base?: string;
+  }) =>
+    put<typeof payload, { success: boolean; message?: string }>(
+      "/api/tenant/settings/business-details",
+      payload
     ),
 
   // Escalations endpoints
