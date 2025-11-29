@@ -70,6 +70,7 @@ export default function InboxPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [contactPanelOpen, setContactPanelOpen] = useState(false);
   const [mobileView, setMobileView] = useState<"list" | "chat" | "contact">("list");
+  const [activeContactTab, setActiveContactTab] = useState<"contact" | "tags" | "activity">("contact");
 
   // Build filters for API
   const apiFilters = useMemo(() => {
@@ -765,7 +766,7 @@ export default function InboxPage() {
                 )}
 
                 {/* Contact Panel - Desktop: always visible, Laptop/Tablet: drawer, Mobile: full view */}
-                <aside className={`border-l border-gray-200 bg-white px-5 py-5 transition-transform duration-300 ${
+                <aside className={`flex flex-col border-l border-gray-200 bg-white transition-transform duration-300 ${
           mobileView === "contact" 
             ? "flex md:hidden" 
             : contactPanelOpen
@@ -776,113 +777,149 @@ export default function InboxPage() {
                   {contactPanelOpen && (
                     <button
                       onClick={() => setContactPanelOpen(false)}
-                      className="absolute top-4 right-4 rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors xl:hidden"
+                      className="absolute top-4 right-4 rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors xl:hidden z-10"
                       aria-label="Close contact panel"
                     >
                       <XIcon className="h-5 w-5" />
                     </button>
                   )}
                   
-                  {/* Contact Card Section */}
-                  <div className="mb-5 pb-5 border-b border-gray-200">
-                    <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4">Contact Card</h3>
-                    <div className="flex flex-col gap-3">
-                      <div className="flex items-center gap-3">
-                        {activeConversation.customer_avatar ? (
-                          <Image
-                            src={activeConversation.customer_avatar}
-                            alt={activeConversation.customer_name}
-                            width={48}
-                            height={48}
-                            className="h-12 w-12 rounded-full object-cover"
-                            unoptimized
-                          />
-                        ) : (
-                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-base font-medium text-gray-600">
-                            {activeConversation.customer_name.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 leading-tight break-words">{activeConversation.customer_name}</p>
-                          <p className="text-xs text-gray-500 capitalize mt-0.5">{activeConversation.platform}</p>
-                        </div>
-                      </div>
-                      <select
-                        value={activeConversation.status}
-                        onChange={(e) => {
-                          const newStatus = e.target.value as "active" | "resolved" | "archived";
-                          updateStatusMutation.mutate({ status: newStatus });
-                        }}
-                        aria-label="Update conversation status"
-                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition-all hover:border-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  {/* Tabs */}
+                  <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4">
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => setActiveContactTab("contact")}
+                        className={`px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 ${
+                          activeContactTab === "contact"
+                            ? "text-gray-900 border-gray-900"
+                            : "text-gray-500 border-transparent hover:text-gray-700"
+                        }`}
                       >
-                        {["active", "resolved", "archived"].map((s) => (
-                          <option key={s} value={s}>
-                            {s.charAt(0).toUpperCase() + s.slice(1)}
-                          </option>
-                        ))}
-                      </select>
+                        Contact Card
+                      </button>
+                      <button
+                        onClick={() => setActiveContactTab("tags")}
+                        className={`px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 ${
+                          activeContactTab === "tags"
+                            ? "text-gray-900 border-gray-900"
+                            : "text-gray-500 border-transparent hover:text-gray-700"
+                        }`}
+                      >
+                        Tags & Notes
+                      </button>
+                      <button
+                        onClick={() => setActiveContactTab("activity")}
+                        className={`px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 ${
+                          activeContactTab === "activity"
+                            ? "text-gray-900 border-gray-900"
+                            : "text-gray-500 border-transparent hover:text-gray-700"
+                        }`}
+                      >
+                        Activity
+                      </button>
                     </div>
                   </div>
 
-                  {/* Tags & Notes Section - Combined */}
-                  <div className="mb-5 pb-5 border-b border-gray-200">
-                    <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4">Tags & Notes</h3>
-                    <div className="space-y-4">
-                      {/* Tags */}
-                      <div>
-                        <div className="flex flex-wrap gap-2">
-                          {Array.isArray(activeConversation.tags) && activeConversation.tags.length > 0 ? activeConversation.tags.map((tag: string) => (
-                            <span
-                              key={tag}
-                              className="inline-flex items-center rounded-full bg-white border border-gray-200 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-gray-700 hover:border-primary hover:bg-primary/5 transition-all"
-                            >
-                              {tag}
-                            </span>
-                          )) : (
-                            <span className="text-xs text-gray-500">No tags yet.</span>
+                  {/* Tab Content */}
+                  <div className="flex-1 overflow-y-auto px-5 py-5">
+                    {/* Contact Card Tab */}
+                    {activeContactTab === "contact" && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          {activeConversation.customer_avatar ? (
+                            <Image
+                              src={activeConversation.customer_avatar}
+                              alt={activeConversation.customer_name}
+                              width={48}
+                              height={48}
+                              className="h-12 w-12 rounded-full object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-base font-medium text-gray-600">
+                              {activeConversation.customer_name.charAt(0).toUpperCase()}
+                            </div>
                           )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 leading-tight break-words">{activeConversation.customer_name}</p>
+                            <p className="text-xs text-gray-500 capitalize mt-0.5">{activeConversation.platform}</p>
+                          </div>
+                        </div>
+                        <select
+                          value={activeConversation.status}
+                          onChange={(e) => {
+                            const newStatus = e.target.value as "active" | "resolved" | "archived";
+                            updateStatusMutation.mutate({ status: newStatus });
+                          }}
+                          aria-label="Update conversation status"
+                          className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition-all hover:border-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        >
+                          {["active", "resolved", "archived"].map((s) => (
+                            <option key={s} value={s}>
+                              {s.charAt(0).toUpperCase() + s.slice(1)}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {/* Tags & Notes Tab */}
+                    {activeContactTab === "tags" && (
+                      <div className="space-y-4">
+                        <div>
+                          <p className="text-xs text-gray-500 mb-3">Tags</p>
+                          <div className="flex flex-wrap gap-2">
+                            {Array.isArray(activeConversation.tags) && activeConversation.tags.length > 0 ? activeConversation.tags.map((tag: string) => (
+                              <span
+                                key={tag}
+                                className="inline-flex items-center rounded-full bg-white border border-gray-200 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-gray-700 hover:border-primary hover:bg-primary/5 transition-all"
+                              >
+                                {tag}
+                              </span>
+                            )) : (
+                              <span className="text-xs text-gray-500">No tags yet.</span>
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 mb-3">Notes</p>
+                          <textarea
+                            placeholder="Add internal notes..."
+                            className="min-h-[200px] w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                            onBlur={async (e) => {
+                              const value = e.target.value.trim();
+                              if (value) {
+                                try {
+                                  await updateConversationMutation.mutateAsync({ notes: value });
+                                } catch {}
+                              }
+                            }}
+                          />
+                          <p className="mt-1.5 text-[11px] text-gray-400">Saved on blur.</p>
                         </div>
                       </div>
-                      {/* Notes */}
-                      <div>
-                        <textarea
-                          placeholder="Add internal notes..."
-                          className="min-h-[160px] w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-                          onBlur={async (e) => {
-                            const value = e.target.value.trim();
-                            if (value) {
-                              try {
-                                await updateConversationMutation.mutateAsync({ notes: value });
-                              } catch {}
-                            }
-                          }}
-                        />
-                        <p className="mt-1.5 text-[11px] text-gray-400">Saved on blur.</p>
-                      </div>
-                    </div>
-                  </div>
+                    )}
 
-                  {/* Activity Section */}
-                  <div>
-                    <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4">Activity</h3>
-                    <div className="space-y-2.5">
-                      <div>
-                        <p className="text-xs text-gray-500 mb-1">Last updated:</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {(() => {
-                            const date = new Date(activeConversation.updated_at);
-                            return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
-                          })()}
-                        </p>
+                    {/* Activity Tab */}
+                    {activeContactTab === "activity" && (
+                      <div className="space-y-4">
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">Last updated:</p>
+                          <p className="text-sm font-medium text-gray-900">
+                            {(() => {
+                              const date = new Date(activeConversation.updated_at);
+                              return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
+                            })()}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">Joined:</p>
+                          <p className="text-sm font-medium text-gray-900">
+                            {new Date(activeConversation.created_at).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs text-gray-500 mb-1">Joined:</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {new Date(activeConversation.created_at).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}
-                        </p>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </aside>
               </div>
