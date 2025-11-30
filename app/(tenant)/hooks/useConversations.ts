@@ -157,11 +157,12 @@ export function useSendReply(conversationId: string | null) {
             if (!oldData) return oldData;
             
             // Map the interaction to Message type
+            // Backend already sets content correctly (final_reply for outgoing, content for incoming)
             const newMessage: Message = {
               id: response.interaction.id,
               direction: response.interaction.direction,
               message_type: response.interaction.message_type,
-              content: response.interaction.final_reply || response.interaction.content,
+              content: response.interaction.content, // Backend handles the logic
               final_reply: response.interaction.final_reply,
               response_type: response.interaction.response_type,
               response_status: response.interaction.response_status,
@@ -173,9 +174,16 @@ export function useSendReply(conversationId: string | null) {
               metadata: response.interaction.metadata,
             };
             
+            // Add new message and sort by created_at ascending
+            const updatedMessages = [...oldData.messages, newMessage].sort((a, b) => {
+              const dateA = new Date(a.created_at).getTime();
+              const dateB = new Date(b.created_at).getTime();
+              return dateA - dateB;
+            });
+            
             return {
               ...oldData,
-              messages: [...oldData.messages, newMessage],
+              messages: updatedMessages,
               updated_at: response.interaction.created_at,
             };
           }

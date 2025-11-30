@@ -161,6 +161,14 @@ export default function InboxPage() {
       const incomingCount = msgs.filter(m => m.direction === "incoming").length;
       const outgoingCount = msgs.filter(m => m.direction === "outgoing").length;
       console.log(`[Inbox] Messages loaded: total=${msgs.length}, incoming=${incomingCount}, outgoing=${outgoingCount}`);
+      
+      // Ensure messages are sorted by created_at ascending (oldest first)
+      const sorted = [...msgs].sort((a, b) => {
+        const dateA = new Date(a.created_at).getTime();
+        const dateB = new Date(b.created_at).getTime();
+        return dateA - dateB;
+      });
+      return sorted;
     }
     return msgs;
   }, [conversationDetail?.messages]);
@@ -545,13 +553,28 @@ export default function InboxPage() {
                               </div>
                             )}
                             
-                            {/* Response type indicator for outgoing messages */}
-                            {isOutgoing && message.response_type && (
+                            {/* Response type indicator for outgoing messages - AI vs You badge */}
+                            {isOutgoing && (
                               <div className="mb-2">
-                                <span className="inline-flex items-center gap-1 text-[9px] md:text-[10px] font-medium text-gray-500">
-                                  {message.response_type === "auto_reply" && "🤖 Auto-replied"}
-                                  {message.response_type === "escalated" && "🚨 Escalated"}
-                                  {message.response_type === "manual" && "✍️ Manual reply"}
+                                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] md:text-[10px] font-medium bg-primary/10 text-primary border border-primary/20">
+                                  {message.response_type === "auto_reply" && (
+                                    <>
+                                      <span>🤖</span>
+                                      <span>AI</span>
+                                    </>
+                                  )}
+                                  {message.response_type === "escalated" && (
+                                    <>
+                                      <span>🚨</span>
+                                      <span>Escalated</span>
+                                    </>
+                                  )}
+                                  {(message.response_type === "manual" || !message.response_type) && (
+                                    <>
+                                      <span>✍️</span>
+                                      <span>You</span>
+                                    </>
+                                  )}
                                 </span>
                               </div>
                             )}
@@ -578,7 +601,8 @@ export default function InboxPage() {
                                   </div>
                                 ) : (
                                   <p className="whitespace-pre-line text-xs md:text-sm text-gray-700 break-words">
-                                    {isOutgoing ? (message.final_reply || message.content) : message.content}
+                                    {/* Backend handles content correctly - use content directly */}
+                                    {message.content}
                                   </p>
                                 )}
                               </div>
