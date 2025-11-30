@@ -101,7 +101,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
   const stats = useMemo(() => {
     const connectedChannels = integrations?.integrations?.filter((i: any) => i.connected).length || 0;
-    const totalChannels = integrations?.integrations?.length || 4;
+    const totalChannels = 4; // Always 4 platforms: Facebook, Instagram, Telegram, WhatsApp
     const scheduledPosts = scheduledPostsData?.posts?.length || 0;
     const conversations = conversationsData?.conversations?.length || 0;
     return { connectedChannels, totalChannels, scheduledPosts, conversations };
