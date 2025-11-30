@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { authApi, tenantApi } from "@/lib/api";
 import { useTenant } from "../providers/TenantProvider";
+import { useIntegrations } from "../hooks/useIntegrations";
 import { useEffect, useRef } from "react";
 import {
   HomeIcon,
@@ -80,12 +81,9 @@ export function TenantShell({ children }: { children: ReactNode }) {
     enabled: !!tenant,
   });
 
-  // Fetch stats for header
-  const { data: integrations } = useQuery({
-    queryKey: ["integrations"],
-    queryFn: () => tenantApi.integrations(),
-    enabled: !!tenant,
-  });
+  // Fetch stats for header - use the hook to get processed integrations (includes WhatsApp)
+  const { data: integrationsData } = useIntegrations();
+  const integrations = Array.isArray(integrationsData) ? integrationsData : [];
   
   const { data: scheduledPostsData } = useQuery({
     queryKey: ["scheduled-posts"],
@@ -100,7 +98,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
   });
 
   const stats = useMemo(() => {
-    const connectedChannels = integrations?.integrations?.filter((i: any) => i.connected).length || 0;
+    const connectedChannels = integrations.filter((i) => i.connected).length;
     const totalChannels = 4; // Always 4 platforms: Facebook, Instagram, Telegram, WhatsApp
     const scheduledPosts = scheduledPostsData?.posts?.length || 0;
     const conversations = conversationsData?.conversations?.length || 0;
