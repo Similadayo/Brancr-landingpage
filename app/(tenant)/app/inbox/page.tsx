@@ -522,7 +522,7 @@ export default function InboxPage() {
                               isIncoming
                                 ? "border-gray-200/50 bg-white shadow-sm"
                                 : isOutgoing
-                                ? "border-primary/30 bg-primary/5 shadow-sm"
+                                ? "border-primary/40 bg-primary/10 shadow-md"
                                 : "border-gray-200/50 bg-white shadow-sm"
                             }`}
                           >
