@@ -276,7 +276,7 @@ export default function NewBulkUploadPage() {
           <p className="mt-2 max-w-2xl text-sm font-medium text-gray-700">
             Step {currentStepIndex + 1} of {STEPS.length}: {currentStepLabel}
           </p>
-        </div>
+          </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -285,12 +285,12 @@ export default function NewBulkUploadPage() {
           >
             Cancel
           </button>
-          <Link
-            href="/app/bulk-uploads"
-            className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-primary hover:text-primary"
-          >
-            ← Back to Bulk Uploads
-          </Link>
+        <Link
+          href="/app/bulk-uploads"
+          className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-primary hover:text-primary"
+        >
+          ← Back to Bulk Uploads
+        </Link>
         </div>
       </header>
 
@@ -495,12 +495,12 @@ export default function NewBulkUploadPage() {
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Caption Configuration</h2>
               <p className="mt-1 text-sm text-gray-600">Set captions for your posts</p>
-            </div>
+        </div>
 
             <div className="space-y-4">
               <div>
                 <label htmlFor="caption-strategy" className="block text-sm font-semibold text-gray-900 mb-2">Caption Strategy</label>
-                <select
+            <select
                   id="caption-strategy"
                   value={captionStrategy}
                   onChange={(e) => setCaptionStrategy(e.target.value as "same" | "individual" | "ai_batch")}
@@ -510,8 +510,8 @@ export default function NewBulkUploadPage() {
                   <option value="same">Same caption for all</option>
                   <option value="individual">Individual captions</option>
                   <option value="ai_batch">AI generate for all</option>
-                </select>
-              </div>
+            </select>
+          </div>
 
               {captionStrategy === "same" && (
                 <div>
@@ -652,7 +652,7 @@ export default function NewBulkUploadPage() {
                 </div>
                 <div>
                   <label htmlFor="frequency" className="block text-sm font-semibold text-gray-900 mb-2">Frequency</label>
-                  <select
+            <select
                     id="frequency"
                     value={frequency}
                     onChange={(e) => setFrequency(e.target.value as typeof frequency)}
@@ -662,9 +662,9 @@ export default function NewBulkUploadPage() {
                     <option value="daily">Daily</option>
                     <option value="every_2_days">Every 2 days</option>
                     <option value="weekly">Weekly</option>
-                  </select>
-                </div>
-              </div>
+            </select>
+          </div>
+        </div>
             )}
 
             {scheduleStrategy === "optimal" && (
@@ -755,15 +755,15 @@ export default function NewBulkUploadPage() {
           >
             ← Back
           </button>
-          <button
+        <button
             type="button"
             onClick={handleCreateBulkUpload}
             disabled={!canNext || isSubmitting}
             className="min-h-[44px] flex-1 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
           >
             {isSubmitting ? "Creating..." : "Create Bulk Upload"}
-          </button>
-        </div>
+        </button>
+      </div>
       )}
     </div>
   );

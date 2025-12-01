@@ -20,7 +20,12 @@ export function WhatsAppNumberSelector() {
   const [onboardingUrl, setOnboardingUrl] = useState<string | null>(null);
   const [onboardingWindow, setOnboardingWindow] = useState<Window | null>(null);
   const [isPolling, setIsPolling] = useState(false);
+  const [pollAttempts, setPollAttempts] = useState(0);
+  const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const popupCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const popupWindowRef = useRef<Window | null>(null);
+  const MAX_POLL_ATTEMPTS = 60; // 5 minutes (5 second intervals)
 
   // Common country codes (focusing on African countries)
   const countryCodes = [
@@ -36,8 +41,8 @@ export function WhatsAppNumberSelector() {
     { code: '+91', country: '🇮🇳 India' },
   ];
 
-  // Check connection status (with polling for pending states)
-  const { data: connectionStatus, isLoading: isLoadingStatus } = useQuery({
+  // Check connection status (manual polling will be used instead of refetchInterval)
+  const { data: connectionStatus, isLoading: isLoadingStatus, refetch: refetchStatus } = useQuery({
     queryKey: ["whatsapp-connection-status"],
     queryFn: async () => {
       try {
@@ -49,14 +54,6 @@ export function WhatsAppNumberSelector() {
     },
     retry: false,
     refetchOnWindowFocus: false,
-    // Poll every 5 seconds if status is pending
-    refetchInterval: (query) => {
-      const data = query.state.data;
-      if (data?.status === "pending_onboarding" || data?.status === "pending_verification") {
-        return 5000; // Poll every 5 seconds
-      }
-      return false;
-    },
   });
 
   // Handle callback redirect from Gupshup
@@ -82,54 +79,136 @@ export function WhatsAppNumberSelector() {
       
       // Clean URL
       window.history.replaceState({}, '', window.location.pathname);
-      setIsPolling(false);
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-        pollingIntervalRef.current = null;
-      }
+      stopPolling();
+      closePopup();
     } else if (error) {
       // Error from callback
       toast.error(`Connection failed: ${error}`);
       window.history.replaceState({}, '', window.location.pathname);
-      setIsPolling(false);
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-        pollingIntervalRef.current = null;
-      }
+      stopPolling();
+      closePopup();
     }
   }, [queryClient]);
 
-  // Handle window focus/blur to detect redirect return
-  useEffect(() => {
-    if (!onboardingWindow) return;
-
-    const handleFocus = () => {
-      // Window came back into focus - check if onboarding completed
-      if (onboardingWindow.closed) {
-        // Window was closed - check status
+  // Manual refresh mutation
+  const refreshMutation = useMutation({
+    mutationFn: () => tenantApi.whatsappRefresh(),
+    onSuccess: (data) => {
+      // Check both nested data.status and top-level status (for API compatibility)
+      const status = data.data?.status || data.status;
+      const phoneNumber = data.data?.phone_number || data.phone_number;
+      
+      if (data.success && status === 'live') {
+        stopPolling();
+        closePopup();
         void queryClient.invalidateQueries({ queryKey: ["whatsapp-connection-status"] });
-        setOnboardingWindow(null);
-      } else {
-        // Window still open - user might still be onboarding
-        // Start polling if not already
-        if (!isPolling) {
-          setIsPolling(true);
-        }
+        void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
+        void queryClient.invalidateQueries({ queryKey: ["whatsapp-current"] });
+        void queryClient.invalidateQueries({ queryKey: ["integrations"] });
+        toast.success("✅ WhatsApp connected successfully via Gupshup Partner!");
+        setLoadingMessage(null);
+        return true;
       }
-    };
+      return false;
+    },
+    onError: (error) => {
+      console.error('Refresh error:', error);
+      return false;
+    },
+  });
 
-    const handleBlur = () => {
-      // Window lost focus - user might have switched to onboarding tab
-    };
+  // Start polling for status updates
+  const startPolling = () => {
+    stopPolling();
+    setPollAttempts(0);
+    setIsPolling(true);
+    setLoadingMessage('Waiting for onboarding to complete... (this may take a few minutes)');
 
-    window.addEventListener('focus', handleFocus);
-    window.addEventListener('blur', handleBlur);
+    let attempts = 0;
 
+    pollingIntervalRef.current = setInterval(async () => {
+      attempts++;
+      setPollAttempts(attempts);
+
+      try {
+        // Check connection status
+        const result = await refetchStatus();
+        const statusData = result.data;
+
+        // ✅ SUCCESS: Status is "live" = onboarding complete!
+        if (statusData?.status === 'live' && statusData?.connected) {
+          stopPolling();
+          closePopup();
+          void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
+          void queryClient.invalidateQueries({ queryKey: ["whatsapp-current"] });
+          void queryClient.invalidateQueries({ queryKey: ["integrations"] });
+          setLoadingMessage(null);
+          toast.success("✅ WhatsApp connected successfully via Gupshup Partner!");
+          return;
+        }
+
+        // Manual refresh every 15 seconds (every 3rd poll) for faster detection
+        if (attempts % 3 === 0) {
+          await refreshMutation.mutateAsync();
+        }
+
+        // Timeout after 5 minutes
+        if (attempts >= MAX_POLL_ATTEMPTS) {
+          stopPolling();
+          setLoadingMessage(null);
+          toast.error('Onboarding is taking longer than expected. Please check the status or try refreshing.');
+        }
+      } catch (error) {
+        console.error('Polling error:', error);
+        // Continue polling on error
+      }
+    }, 5000); // Poll every 5 seconds
+
+    // Check if popup was closed manually
+    popupCheckIntervalRef.current = setInterval(() => {
+      const popup = popupWindowRef.current;
+      if (popup && popup.closed) {
+        clearInterval(popupCheckIntervalRef.current!);
+        popupCheckIntervalRef.current = null;
+        // Give it 2 seconds, then check status one more time
+        setTimeout(async () => {
+          await refreshMutation.mutateAsync();
+        }, 2000);
+      }
+    }, 2000);
+  };
+
+  // Stop polling
+  const stopPolling = () => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+    if (popupCheckIntervalRef.current) {
+      clearInterval(popupCheckIntervalRef.current);
+      popupCheckIntervalRef.current = null;
+    }
+    setIsPolling(false);
+    setPollAttempts(0);
+  };
+
+  // Close popup
+  const closePopup = () => {
+    const popup = popupWindowRef.current;
+    if (popup && !popup.closed) {
+      popup.close();
+    }
+    popupWindowRef.current = null;
+    setOnboardingWindow(null);
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
-      window.removeEventListener('focus', handleFocus);
-      window.removeEventListener('blur', handleBlur);
+      stopPolling();
+      closePopup();
     };
-  }, [onboardingWindow, isPolling, queryClient]);
+  }, []);
 
   // Connect WhatsApp mutation
   const connectMutation = useMutation({
@@ -155,12 +234,15 @@ export function WhatsAppNumberSelector() {
         );
         
         if (popupWindow) {
+          popupWindowRef.current = popupWindow;
           setOnboardingWindow(popupWindow);
-          setIsPolling(true);
           toast.success("📱 Opening Gupshup onboarding... Complete the setup in the popup window.");
           
           // Focus on popup
           popupWindow.focus();
+          
+          // Start polling for status updates
+          startPolling();
         } else {
           toast.error("Please allow popups to open the onboarding page.");
         }
@@ -214,12 +296,8 @@ export function WhatsAppNumberSelector() {
       void queryClient.invalidateQueries({ queryKey: ["integrations"] });
       void queryClient.invalidateQueries({ queryKey: ["whatsapp-connection-status"] });
       setOnboardingUrl(null);
-      setOnboardingWindow(null);
-      setIsPolling(false);
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-        pollingIntervalRef.current = null;
-      }
+      stopPolling();
+      closePopup();
     },
     onError: (error) => {
       if (error instanceof ApiError) {
@@ -377,56 +455,95 @@ export function WhatsAppNumberSelector() {
           <h3 className="text-sm font-semibold text-gray-900">Connect WhatsApp</h3>
 
           {/* Pending state UI */}
-          {isPending && (
+          {(isPending || isPolling) && (
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
               <div className="flex items-center gap-2">
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-amber-600 border-t-transparent" />
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-amber-900">
-                    {currentStatus === "pending_onboarding" 
+                    {loadingMessage || (currentStatus === "pending_onboarding" 
                       ? "Completing WhatsApp setup in Gupshup..." 
-                      : "Waiting for WhatsApp verification..."}
+                      : "Waiting for WhatsApp verification...")}
                   </p>
                   <p className="mt-1 text-xs text-amber-700">
                     {currentStatus === "pending_onboarding"
                       ? "Please complete the onboarding process in the Gupshup tab. We'll automatically detect when it's done."
                       : "Your WhatsApp number is being verified. This may take a few minutes."}
                   </p>
+                  {isPolling && pollAttempts > 0 && (
+                    <p className="mt-1 text-xs text-amber-600">
+                      Checking status... ({pollAttempts}/{MAX_POLL_ATTEMPTS})
+                    </p>
+                  )}
                 </div>
               </div>
-              {onboardingUrl && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {onboardingUrl && (
+                  <button
+                    onClick={() => {
+                      // Calculate popup dimensions (centered on screen)
+                      const width = 800;
+                      const height = 900;
+                      const left = (window.screen.width - width) / 2;
+                      const top = (window.screen.height - height) / 2;
+                      
+                      const popupFeatures = `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes,toolbar=no,menubar=no,location=no`;
+                      
+                      const popupWindow = window.open(
+                        onboardingUrl,
+                        'GupshupOnboarding',
+                        popupFeatures
+                      );
+                      
+                      if (popupWindow) {
+                        popupWindowRef.current = popupWindow;
+                        setOnboardingWindow(popupWindow);
+                        if (!isPolling) {
+                          startPolling();
+                        }
+                        popupWindow.focus();
+                      } else {
+                        toast.error("Please allow popups to open the onboarding page.");
+                      }
+                    }}
+                    className="inline-flex items-center gap-2 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
+                  >
+                    Open Gupshup Onboarding
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </button>
+                )}
                 <button
-                  onClick={() => {
-                    // Calculate popup dimensions (centered on screen)
-                    const width = 800;
-                    const height = 900;
-                    const left = (window.screen.width - width) / 2;
-                    const top = (window.screen.height - height) / 2;
-                    
-                    const popupFeatures = `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes,toolbar=no,menubar=no,location=no`;
-                    
-                    const popupWindow = window.open(
-                      onboardingUrl,
-                      'GupshupOnboarding',
-                      popupFeatures
-                    );
-                    
-                    if (popupWindow) {
-                      setOnboardingWindow(popupWindow);
-                      setIsPolling(true);
-                      popupWindow.focus();
-                    } else {
-                      toast.error("Please allow popups to open the onboarding page.");
-                    }
+                  onClick={async () => {
+                    await refreshMutation.mutateAsync();
                   }}
-                  className="mt-3 inline-flex items-center gap-2 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
+                  disabled={refreshMutation.isPending}
+                  className="inline-flex items-center gap-2 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100 disabled:opacity-50"
                 >
-                  Open Gupshup Onboarding
-                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
+                  {refreshMutation.isPending ? (
+                    <>
+                      <div className="h-3 w-3 animate-spin rounded-full border-2 border-amber-600 border-t-transparent" />
+                      Checking...
+                    </>
+                  ) : (
+                    <>
+                      Check Status Now
+                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </>
+                  )}
                 </button>
-              )}
+                {isPolling && (
+                  <button
+                    onClick={stopPolling}
+                    className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </div>
           )}
 

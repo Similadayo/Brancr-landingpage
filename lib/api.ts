@@ -775,6 +775,22 @@ export const tenantApi = {
       account_id?: number;
     }>("/api/tenant/whatsapp/connection-status"),
 
+  whatsappRefresh: () =>
+    post<undefined, {
+      success: boolean;
+      data?: {
+        status?: "live" | "pending_onboarding" | "pending_verification" | "failed";
+        waba_id?: string;
+        phone_number?: string;
+        business_id?: string;
+        phone_number_id?: string;
+        subscription_id?: string;
+      };
+      status?: "live" | "pending_onboarding" | "pending_verification" | "failed"; // Fallback for top-level status
+      phone_number?: string; // Fallback for top-level phone_number
+      message?: string;
+    }>("/api/tenant/whatsapp/refresh"),
+
   // Onboarding endpoints
   onboardingStatus: () =>
     get<{
