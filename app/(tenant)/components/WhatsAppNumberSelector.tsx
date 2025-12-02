@@ -307,7 +307,7 @@ export function WhatsAppNumberSelector() {
         <div className="connect-prompt rounded-xl border border-gray-200 bg-gray-50 p-6">
           <h2 className="text-sm font-semibold text-gray-900 mb-2">Connect WhatsApp</h2>
           <p className="text-xs text-gray-600 mb-4">
-            Connect your WhatsApp Business Account using Meta's Embedded Signup.
+            Connect your WhatsApp Business Account using Meta&apos;s Embedded Signup.
             Each tenant gets their own WhatsApp number.
           </p>
           <button 
