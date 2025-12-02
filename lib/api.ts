@@ -751,13 +751,15 @@ export const tenantApi = {
   checkWhatsAppNumber: (payload: { phone_number: string }) =>
     post<typeof payload, { ready: boolean; message?: string }>("/api/tenant/whatsapp/check-number", payload),
 
-  connectWhatsApp: (payload: { provider: "meta_embedded" }) =>
+  connectWhatsApp: (payload: { provider?: "meta_embedded" | "gupshup" | "respondio" | "auto"; phone_number?: string; channel_id?: string }) =>
     post<typeof payload, { 
       success: boolean;
-      provider: "meta_embedded";
-      onboarding_url: string;
+      provider: string;
+      onboarding_url?: string;
       message: string;
       note?: string;
+      app_id?: string; // For Gupshup
+      phone_number?: string; // For instant connections
     }>("/api/tenant/whatsapp/connect", payload),
 
   whatsappConnectionStatus: () =>
