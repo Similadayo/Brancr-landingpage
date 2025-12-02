@@ -1,47 +1,34 @@
 'use client';
 
 import { useState, useEffect, useRef } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import { tenantApi, ApiError } from "@/lib/api";
+import { tenantApi } from "@/lib/api";
+
+interface WhatsAppConnectionStatus {
+  connected: boolean;
+  provider?: string;
+  phone_number?: string;
+  phone_number_id?: string;
+  status?: string;
+}
 
 export function WhatsAppNumberSelector() {
   const queryClient = useQueryClient();
   
-  // Provider selection
-  const [provider, setProvider] = useState<"gupshup_partner" | "respondio" | "auto">("gupshup_partner");
-  
-  // Phone number input (only for Respond.io, optional for Gupshup Partner)
-  const [countryCode, setCountryCode] = useState('+234'); // Default to Nigeria
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [channelId, setChannelId] = useState('440617'); // Default channel_id for Respond.io
-  
-  // Onboarding state
+  const [loading, setLoading] = useState(false);
+  const [connected, setConnected] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [onboardingUrl, setOnboardingUrl] = useState<string | null>(null);
-  const [onboardingWindow, setOnboardingWindow] = useState<Window | null>(null);
-  const [isPolling, setIsPolling] = useState(false);
-  const [pollAttempts, setPollAttempts] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const popupRef = useRef<Window | null>(null);
   const popupCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const popupWindowRef = useRef<Window | null>(null);
-  const MAX_POLL_ATTEMPTS = 60; // 5 minutes (5 second intervals)
+  const MAX_ATTEMPTS = 60; // 5 minutes (60 * 5 seconds)
 
-  // Common country codes (focusing on African countries)
-  const countryCodes = [
-    { code: '+234', country: '🇳🇬 Nigeria' },
-    { code: '+27', country: '🇿🇦 South Africa' },
-    { code: '+254', country: '🇰🇪 Kenya' },
-    { code: '+233', country: '🇬🇭 Ghana' },
-    { code: '+256', country: '🇺🇬 Uganda' },
-    { code: '+255', country: '🇹🇿 Tanzania' },
-    { code: '+251', country: '🇪🇹 Ethiopia' },
-    { code: '+1', country: '🇺🇸 USA/Canada' },
-    { code: '+44', country: '🇬🇧 UK' },
-    { code: '+91', country: '🇮🇳 India' },
-  ];
-
-  // Check connection status (manual polling will be used instead of refetchInterval)
+  // Check connection status on mount
   const { data: connectionStatus, isLoading: isLoadingStatus, refetch: refetchStatus } = useQuery({
     queryKey: ["whatsapp-connection-status"],
     queryFn: async () => {
@@ -56,150 +43,156 @@ export function WhatsAppNumberSelector() {
     refetchOnWindowFocus: false,
   });
 
-  // Handle callback redirect from Gupshup
+  // Check initial connection status on mount
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const status = urlParams.get('status');
-    const error = urlParams.get('error');
-
-    if (status === 'live' || status === 'pending_verification') {
-      // Success or pending - refetch status
-      void queryClient.invalidateQueries({ queryKey: ["whatsapp-connection-status"] });
-      void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
-      void queryClient.invalidateQueries({ queryKey: ["whatsapp-current"] });
-      void queryClient.invalidateQueries({ queryKey: ["integrations"] });
-      
-      if (status === 'live') {
-        toast.success("✅ WhatsApp connected successfully via Gupshup Partner!");
-      } else {
-        toast.success("⏳ WhatsApp setup in progress. Verification pending...");
-      }
-      
-      // Clean URL
-      window.history.replaceState({}, '', window.location.pathname);
-      stopPolling();
-      closePopup();
-    } else if (error) {
-      // Error from callback
-      toast.error(`Connection failed: ${error}`);
-      window.history.replaceState({}, '', window.location.pathname);
-      stopPolling();
-      closePopup();
+    if (connectionStatus?.connected) {
+      setConnected(true);
+      setPhoneNumber(connectionStatus.phone_number || null);
     }
-  }, [queryClient]);
+  }, [connectionStatus]);
 
-  // Manual refresh mutation
-  const refreshMutation = useMutation({
-    mutationFn: () => tenantApi.whatsappRefresh(),
-    onSuccess: (data) => {
-      // Check both nested data.status and top-level status (for API compatibility)
-      const status = data.data?.status || data.status;
-      const phoneNumber = data.data?.phone_number || data.phone_number;
+  const connectWhatsApp = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Call backend to get Embedded Signup URL
+      const response = await tenantApi.connectWhatsApp({ provider: 'meta_embedded' });
       
-      if (data.success && status === 'live') {
-        stopPolling();
-        closePopup();
-        void queryClient.invalidateQueries({ queryKey: ["whatsapp-connection-status"] });
-        void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
-        void queryClient.invalidateQueries({ queryKey: ["whatsapp-current"] });
-        void queryClient.invalidateQueries({ queryKey: ["integrations"] });
-        toast.success("✅ WhatsApp connected successfully via Gupshup Partner!");
-        setLoadingMessage(null);
-        return true;
+      if (response.onboarding_url) {
+        setOnboardingUrl(response.onboarding_url);
+        
+        // Open Embedded Signup in popup
+        const popup = window.open(
+          response.onboarding_url,
+          'Meta WhatsApp Onboarding',
+          'width=800,height=600,scrollbars=yes,resizable=yes'
+        );
+        
+        if (!popup) {
+          throw new Error('Popup blocked. Please allow popups for this site.');
+        }
+        
+        popupRef.current = popup;
+        
+        // Start polling for completion
+        startPolling();
+      } else {
+        throw new Error('Onboarding URL not received from server');
       }
-      return false;
-    },
-    onError: (error) => {
-      console.error('Refresh error:', error);
-      return false;
-    },
-  });
+      
+    } catch (err: any) {
+      setLoading(false);
+      setError(err.message || 'Failed to connect WhatsApp');
+      toast.error(err.message || 'Failed to connect WhatsApp');
+    }
+  };
 
-  // Start polling for status updates
   const startPolling = () => {
     stopPolling();
-    setPollAttempts(0);
-    setIsPolling(true);
-    setLoadingMessage('Waiting for onboarding to complete... (this may take a few minutes)');
-
     let attempts = 0;
-
-    pollingIntervalRef.current = setInterval(async () => {
+    
+    setLoadingMessage('Waiting for Meta WhatsApp onboarding to complete...');
+    
+    pollingRef.current = setInterval(async () => {
       attempts++;
-      setPollAttempts(attempts);
-
+      
       try {
         // Check connection status
         const result = await refetchStatus();
-        const statusData = result.data;
-
-        // ✅ SUCCESS: Status is "live" = onboarding complete!
-        if (statusData?.status === 'live' && statusData?.connected) {
+        const statusData = result.data as WhatsAppConnectionStatus | undefined;
+        
+        // ✅ SUCCESS: Connection is live!
+        if (statusData?.connected && statusData?.status === 'connected') {
           stopPolling();
           closePopup();
+          setConnected(true);
+          setPhoneNumber(statusData.phone_number || null);
+          setLoading(false);
+          setOnboardingUrl(null);
+          setLoadingMessage(null);
           void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
           void queryClient.invalidateQueries({ queryKey: ["whatsapp-current"] });
           void queryClient.invalidateQueries({ queryKey: ["integrations"] });
-          setLoadingMessage(null);
-          toast.success("✅ WhatsApp connected successfully via Gupshup Partner!");
+          toast.success("✅ WhatsApp connected successfully!");
           return;
         }
-
-        // Manual refresh every 15 seconds (every 3rd poll) for faster detection
+        
+        // Manual refresh every 15 seconds (faster detection)
         if (attempts % 3 === 0) {
-          await refreshMutation.mutateAsync();
+          await refreshConnectionStatus();
         }
-
+        
         // Timeout after 5 minutes
-        if (attempts >= MAX_POLL_ATTEMPTS) {
+        if (attempts >= MAX_ATTEMPTS) {
           stopPolling();
+          setLoading(false);
+          setError('Onboarding is taking longer than expected. Please check your connection status manually.');
           setLoadingMessage(null);
-          toast.error('Onboarding is taking longer than expected. Please check the status or try refreshing.');
         }
-      } catch (error) {
-        console.error('Polling error:', error);
+        
+      } catch (err) {
+        console.error('Polling error:', err);
         // Continue polling on error
       }
     }, 5000); // Poll every 5 seconds
 
     // Check if popup was closed manually
     popupCheckIntervalRef.current = setInterval(() => {
-      const popup = popupWindowRef.current;
+      const popup = popupRef.current;
       if (popup && popup.closed) {
         clearInterval(popupCheckIntervalRef.current!);
         popupCheckIntervalRef.current = null;
         // Give it 2 seconds, then check status one more time
         setTimeout(async () => {
-          await refreshMutation.mutateAsync();
+          await refreshConnectionStatus();
         }, 2000);
       }
     }, 2000);
   };
 
-  // Stop polling
+  const refreshConnectionStatus = async () => {
+    try {
+      const result = await refetchStatus();
+      const data = result.data as WhatsAppConnectionStatus | undefined;
+      
+      if (data?.connected && data?.status === 'connected') {
+        stopPolling();
+        closePopup();
+        setConnected(true);
+        setPhoneNumber(data.phone_number || null);
+        setLoading(false);
+        setOnboardingUrl(null);
+        setLoadingMessage(null);
+        void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
+        void queryClient.invalidateQueries({ queryKey: ["whatsapp-current"] });
+        void queryClient.invalidateQueries({ queryKey: ["integrations"] });
+        toast.success("✅ WhatsApp connected successfully!");
+        return true;
+      }
+    } catch (err) {
+      console.error('Refresh error:', err);
+    }
+    return false;
+  };
+
   const stopPolling = () => {
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-      pollingIntervalRef.current = null;
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
     }
     if (popupCheckIntervalRef.current) {
       clearInterval(popupCheckIntervalRef.current);
       popupCheckIntervalRef.current = null;
     }
-    setIsPolling(false);
-    setPollAttempts(0);
+    setLoadingMessage(null);
   };
 
-  // Close popup
   const closePopup = () => {
-    const popup = popupWindowRef.current;
-    if (popup && !popup.closed) {
-      popup.close();
+    if (popupRef.current && !popupRef.current.closed) {
+      popupRef.current.close();
     }
-    popupWindowRef.current = null;
-    setOnboardingWindow(null);
+    popupRef.current = null;
   };
 
   // Cleanup on unmount
@@ -210,87 +203,17 @@ export function WhatsAppNumberSelector() {
     };
   }, []);
 
-  // Connect WhatsApp mutation
-  const connectMutation = useMutation({
-    mutationFn: (payload: { phone_number: string; provider: "gupshup_partner" | "respondio" | "auto"; channel_id?: string }) => 
-      tenantApi.connectWhatsApp(payload),
-    onSuccess: (data) => {
-      if (data.onboarding_url && data.status === "pending_onboarding") {
-        // Gupshup Partner - open onboarding URL in popup
-        setOnboardingUrl(data.onboarding_url);
-        
-        // Calculate popup dimensions (centered on screen)
-        const width = 800;
-        const height = 900;
-        const left = (window.screen.width - width) / 2;
-        const top = (window.screen.height - height) / 2;
-        
-        const popupFeatures = `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes,toolbar=no,menubar=no,location=no`;
-        
-        const popupWindow = window.open(
-          data.onboarding_url,
-          'GupshupOnboarding',
-          popupFeatures
-        );
-        
-        if (popupWindow) {
-          popupWindowRef.current = popupWindow;
-          setOnboardingWindow(popupWindow);
-          toast.success("📱 Opening Gupshup onboarding... Complete the setup in the popup window.");
-          
-          // Focus on popup
-          popupWindow.focus();
-          
-          // Start polling for status updates
-          startPolling();
-        } else {
-          toast.error("Please allow popups to open the onboarding page.");
-        }
-      } else if (data.success && data.provider === 'respondio') {
-        // Respond.io - instant connection
-        toast.success(data.message || "✅ WhatsApp connected successfully via Respond.io!");
-        void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
-        void queryClient.invalidateQueries({ queryKey: ["whatsapp-current"] });
-        void queryClient.invalidateQueries({ queryKey: ["integrations"] });
-        void queryClient.invalidateQueries({ queryKey: ["whatsapp-connection-status"] });
-        // Reset form
-        setPhoneNumber('');
-      } else {
-        toast.error(data.message || "Unexpected response from server");
-      }
-    },
-    onError: (error) => {
-      if (error instanceof ApiError) {
-        // Try to extract error message from response body
-        const errorBody = error.body || {};
-        const errorMessage = 
-          (typeof errorBody.error === 'string' ? errorBody.error : null) ||
-          (typeof errorBody.message === 'string' ? errorBody.message : null) ||
-          (typeof errorBody.detail === 'string' ? errorBody.detail : null) ||
-          error.message ||
-          `Failed to connect WhatsApp (${error.status})`;
-        
-        // Log full error details for debugging
-        console.error("WhatsApp connection error:", {
-          status: error.status,
-          statusText: error.message,
-          body: errorBody,
-          fullError: error
-        });
-        
-        toast.error(errorMessage);
-      } else {
-        console.error("WhatsApp connection error:", error);
-        toast.error("Failed to connect WhatsApp. Please try again.");
-      }
-    },
-  });
-
   // Disconnect mutation
-  const disconnectMutation = useMutation({
-    mutationFn: () => tenantApi.disconnectWhatsApp(),
-    onSuccess: () => {
+  const handleDisconnect = async () => {
+    if (!confirm("Are you sure you want to disconnect this WhatsApp number?")) {
+      return;
+    }
+    
+    try {
+      await tenantApi.disconnectWhatsApp();
       toast.success("✅ WhatsApp number disconnected");
+      setConnected(false);
+      setPhoneNumber(null);
       void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
       void queryClient.invalidateQueries({ queryKey: ["whatsapp-current"] });
       void queryClient.invalidateQueries({ queryKey: ["integrations"] });
@@ -298,68 +221,9 @@ export function WhatsAppNumberSelector() {
       setOnboardingUrl(null);
       stopPolling();
       closePopup();
-    },
-    onError: (error) => {
-      if (error instanceof ApiError) {
-        toast.error(error.message);
-      } else {
-        toast.error("Failed to disconnect. Please try again.");
-      }
-    },
-  });
-
-  const handleDisconnect = () => {
-    if (!confirm("Are you sure you want to disconnect this WhatsApp number?")) {
-      return;
+    } catch (error: any) {
+      toast.error(error.message || "Failed to disconnect. Please try again.");
     }
-    disconnectMutation.mutate();
-  };
-
-  const handleConnectWhatsApp = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // For Respond.io, phone number is required
-    if (provider === "respondio" && !phoneNumber.trim()) {
-      toast.error("Please enter a phone number for Respond.io");
-      return;
-    }
-    
-    // For Gupshup Partner, phone number is optional (can be empty)
-    let fullPhoneNumber = '';
-    if (phoneNumber.trim()) {
-      fullPhoneNumber = `${countryCode}${phoneNumber.replace(/\s+/g, '')}`;
-      if (!validatePhoneNumber(fullPhoneNumber)) {
-        toast.error("Please enter a valid phone number");
-        return;
-      }
-    }
-    
-    // Build payload - conditionally include phone_number
-    // For Gupshup Partner: phone_number is optional (omit if empty)
-    // For Respond.io/auto: phone_number is required
-    const payload: { phone_number?: string; provider: "gupshup_partner" | "respondio" | "auto"; channel_id?: string } = {
-      provider: provider,
-    };
-    
-    if (provider === "gupshup_partner") {
-      // For Gupshup Partner, only include phone_number if provided
-      if (fullPhoneNumber) {
-        payload.phone_number = fullPhoneNumber;
-      }
-    } else {
-      // For Respond.io and auto, phone_number is required
-      payload.phone_number = fullPhoneNumber;
-    }
-    
-    // Include channel_id for Respond.io
-    if (provider === "respondio" && channelId) {
-      payload.channel_id = channelId;
-    }
-    
-    // Log payload for debugging
-    console.log("Connecting WhatsApp with payload:", payload);
-    
-    connectMutation.mutate(payload as { phone_number: string; provider: "gupshup_partner" | "respondio" | "auto"; channel_id?: string });
   };
 
   // Format phone number for display
@@ -367,34 +231,6 @@ export function WhatsAppNumberSelector() {
     if (!phone) return phone;
     return phone.startsWith('+') ? phone : `+${phone}`;
   };
-
-  // Validate phone number format
-  const validatePhoneNumber = (phone: string): boolean => {
-    if (!phone) return false;
-    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-    const cleanedPhone = phone.replace(/\s+/g, '');
-    return phoneRegex.test(cleanedPhone);
-  };
-
-  // Get status badge
-  const getStatusBadge = (status?: string) => {
-    if (!status) return null;
-    const statusLower = status.toLowerCase();
-    if (statusLower === 'live') {
-      return <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">✅ Live</span>;
-    } else if (statusLower === 'pending_onboarding') {
-      return <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">⏳ Pending Onboarding</span>;
-    } else if (statusLower === 'pending_verification') {
-      return <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">⏳ Pending Verification</span>;
-    } else if (statusLower === 'failed') {
-      return <span className="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-semibold text-rose-700">❌ Failed</span>;
-    }
-    return null;
-  };
-
-  const isConnected = connectionStatus?.connected ?? false;
-  const currentStatus = connectionStatus?.status;
-  const isPending = currentStatus === "pending_onboarding" || currentStatus === "pending_verification";
 
   if (isLoadingStatus) {
     return (
@@ -405,237 +241,81 @@ export function WhatsAppNumberSelector() {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Current connection status */}
-      {isConnected ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+    <div className="whatsapp-connect-container max-w-2xl mx-auto space-y-4">
+      {error && (
+        <div className="error-banner rounded-xl border border-rose-200 bg-rose-50 p-4">
           <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-emerald-700">
-                  ✅ Connected
-                </span>
-                {connectionStatus?.provider && (
-                  <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
-                    {connectionStatus.provider === 'respondio' ? 'Respond.io' : 
-                     connectionStatus.provider === 'gupshup_partner' ? 'Gupshup Partner' : 
-                     connectionStatus.provider}
-                  </span>
-                )}
-                {currentStatus && getStatusBadge(currentStatus)}
-              </div>
-              <h3 className="mt-2 text-sm font-semibold text-emerald-900">Your WhatsApp Connection</h3>
-              {connectionStatus?.phone_number && (
-                <p className="mt-1 text-sm font-semibold text-emerald-900">
-                  Phone: {formatPhoneNumber(connectionStatus.phone_number)}
-                </p>
-              )}
-              {connectionStatus?.app_id && (
-                <p className="mt-1 text-xs text-emerald-700">
-                  App ID: {connectionStatus.app_id}
-                </p>
-              )}
-              {connectionStatus?.message && (
-                <p className="mt-1 text-xs text-emerald-700">
-                  {connectionStatus.message}
-                </p>
-              )}
-            </div>
-            <button
-              onClick={handleDisconnect}
-              disabled={disconnectMutation.isPending}
-              className="ml-4 rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-50 disabled:opacity-50"
+            <p className="text-sm text-rose-900">{error}</p>
+            <button 
+              onClick={() => setError(null)}
+              className="ml-4 text-rose-700 hover:text-rose-900"
             >
-              {disconnectMutation.isPending ? "Disconnecting..." : "Disconnect"}
+              ✕
             </button>
           </div>
         </div>
-      ) : (
-        <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-gray-900">Connect WhatsApp</h3>
+      )}
 
-          {/* Pending state UI */}
-          {(isPending || isPolling) && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-              <div className="flex items-center gap-2">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-amber-600 border-t-transparent" />
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-amber-900">
-                    {loadingMessage || (currentStatus === "pending_onboarding" 
-                      ? "Completing WhatsApp setup in Gupshup..." 
-                      : "Waiting for WhatsApp verification...")}
-                  </p>
-                  <p className="mt-1 text-xs text-amber-700">
-                    {currentStatus === "pending_onboarding"
-                      ? "Please complete the onboarding process in the Gupshup tab. We'll automatically detect when it's done."
-                      : "Your WhatsApp number is being verified. This may take a few minutes."}
-                  </p>
-                  {isPolling && pollAttempts > 0 && (
-                    <p className="mt-1 text-xs text-amber-600">
-                      Checking status... ({pollAttempts}/{MAX_POLL_ATTEMPTS})
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {onboardingUrl && (
-                  <button
-                    onClick={() => {
-                      // Calculate popup dimensions (centered on screen)
-                      const width = 800;
-                      const height = 900;
-                      const left = (window.screen.width - width) / 2;
-                      const top = (window.screen.height - height) / 2;
-                      
-                      const popupFeatures = `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes,toolbar=no,menubar=no,location=no`;
-                      
-                      const popupWindow = window.open(
-                        onboardingUrl,
-                        'GupshupOnboarding',
-                        popupFeatures
-                      );
-                      
-                      if (popupWindow) {
-                        popupWindowRef.current = popupWindow;
-                        setOnboardingWindow(popupWindow);
-                        if (!isPolling) {
-                          startPolling();
-                        }
-                        popupWindow.focus();
-                      } else {
-                        toast.error("Please allow popups to open the onboarding page.");
-                      }
-                    }}
-                    className="inline-flex items-center gap-2 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
-                  >
-                    Open Gupshup Onboarding
-                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </button>
-                )}
-                <button
-                  onClick={async () => {
-                    await refreshMutation.mutateAsync();
-                  }}
-                  disabled={refreshMutation.isPending}
-                  className="inline-flex items-center gap-2 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100 disabled:opacity-50"
-                >
-                  {refreshMutation.isPending ? (
-                    <>
-                      <div className="h-3 w-3 animate-spin rounded-full border-2 border-amber-600 border-t-transparent" />
-                      Checking...
-                    </>
-                  ) : (
-                    <>
-                      Check Status Now
-                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                    </>
-                  )}
-                </button>
-                {isPolling && (
-                  <button
-                    onClick={stopPolling}
-                    className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
-            </div>
+      {loading && (
+        <div className="loading-state rounded-xl border border-amber-200 bg-amber-50 p-6 text-center">
+          <div className="spinner mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-amber-200 border-t-amber-600"></div>
+          <p className="text-sm font-semibold text-amber-900">
+            {loadingMessage || 'Waiting for Meta WhatsApp onboarding to complete...'}
+          </p>
+          <p className="mt-2 text-xs text-amber-700">
+            Complete the steps in the popup window. This may take a few minutes.
+          </p>
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            <button 
+              onClick={stopPolling} 
+              className="btn-secondary rounded-lg border border-amber-300 bg-white px-4 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={refreshConnectionStatus} 
+              className="btn-primary rounded-lg border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"
+            >
+              Check Status Now
+            </button>
+          </div>
+        </div>
+      )}
+
+      {connected && (
+        <div className="success-state rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center">
+          <div className="success-icon text-3xl mb-2">✅</div>
+          <h3 className="text-sm font-semibold text-emerald-900">WhatsApp Connected!</h3>
+          {phoneNumber && (
+            <p className="mt-2 text-sm font-semibold text-emerald-900">
+              Phone Number: <strong>{formatPhoneNumber(phoneNumber)}</strong>
+            </p>
           )}
+          <p className="mt-2 text-xs text-emerald-700">
+            Your WhatsApp Business Account is ready to receive messages.
+          </p>
+          <button
+            onClick={handleDisconnect}
+            className="mt-4 rounded-lg border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-50"
+          >
+            Disconnect
+          </button>
+        </div>
+      )}
 
-          {/* Connect form */}
-          {!isPending && (
-            <div className="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
-              <div>
-                <h4 className="text-sm font-semibold text-gray-900">📱 Connect Your WhatsApp Number</h4>
-                <p className="mt-1 text-xs text-gray-600">
-                  Choose a provider and connect your WhatsApp Business number.
-                </p>
-              </div>
-
-              <form onSubmit={handleConnectWhatsApp} className="space-y-3">
-                {/* Provider selector */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Provider</label>
-                  <select
-                    value={provider}
-                    onChange={(e) => setProvider(e.target.value as "gupshup_partner" | "respondio" | "auto")}
-                    aria-label="WhatsApp provider"
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white"
-                  >
-                    <option value="gupshup_partner">Gupshup Partner (Recommended)</option>
-                    <option value="respondio">Respond.io</option>
-                    <option value="auto">Auto (Let us choose)</option>
-                  </select>
-                  <p className="mt-1 text-xs text-gray-500">
-                    {provider === "gupshup_partner" && "Phone number selection happens in Gupshup UI. Phone number is optional here."}
-                    {provider === "respondio" && "Instant connection. Phone number required."}
-                    {provider === "auto" && "We'll automatically select the best available provider."}
-                  </p>
-                </div>
-
-                {/* Phone number input (required for Respond.io, optional for Gupshup Partner) */}
-                {(provider === "respondio" || provider === "auto") && (
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Phone Number</label>
-                    <div className="flex gap-2">
-                      <select
-                        value={countryCode}
-                        onChange={(e) => setCountryCode(e.target.value)}
-                        aria-label="Country code"
-                        className="w-32 rounded-lg border border-gray-200 px-2 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white"
-                      >
-                        {countryCodes.map((cc) => (
-                          <option key={cc.code} value={cc.code}>
-                            {cc.code} {cc.country}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        type="tel"
-                        value={phoneNumber}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (/^[\d\s\-]*$/.test(value)) {
-                            setPhoneNumber(value);
-                          }
-                        }}
-                        placeholder="8123456789"
-                        required={provider === "respondio"}
-                        className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Channel ID for Respond.io */}
-                {provider === "respondio" && (
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Channel ID (Optional)</label>
-                    <input
-                      type="text"
-                      value={channelId}
-                      onChange={(e) => setChannelId(e.target.value)}
-                      placeholder="440617"
-                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                    />
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={connectMutation.isPending || (provider === "respondio" && !phoneNumber.trim())}
-                  className="w-full rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
-                >
-                  {connectMutation.isPending ? "Connecting..." : provider === "gupshup_partner" ? "Continue to Gupshup" : "Connect WhatsApp"}
-                </button>
-              </form>
-            </div>
-          )}
+      {!loading && !connected && (
+        <div className="connect-prompt rounded-xl border border-gray-200 bg-gray-50 p-6">
+          <h2 className="text-sm font-semibold text-gray-900 mb-2">Connect WhatsApp</h2>
+          <p className="text-xs text-gray-600 mb-4">
+            Connect your WhatsApp Business Account using Meta's Embedded Signup.
+            Each tenant gets their own WhatsApp number.
+          </p>
+          <button 
+            onClick={connectWhatsApp} 
+            className="btn-primary w-full rounded-lg border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/20"
+          >
+            Connect WhatsApp
+          </button>
         </div>
       )}
 
