@@ -7,10 +7,14 @@ import { tenantApi } from "@/lib/api";
 
 interface WhatsAppConnectionStatus {
   connected: boolean;
-  provider?: string;
+  provider?: "meta_embedded" | "respondio" | "gupshup_partner" | string;
   phone_number?: string;
   phone_number_id?: string;
-  status?: string;
+  external_id?: string; // Backend returns this for meta_embedded
+  status?: "connected" | "not_connected" | "pending_onboarding" | "pending_verification" | "live" | "failed";
+  message?: string;
+  channel_id?: string; // For respondio
+  app_id?: string; // For gupshup_partner
 }
 
 export function WhatsAppNumberSelector() {
@@ -26,6 +30,7 @@ export function WhatsAppNumberSelector() {
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const popupRef = useRef<Window | null>(null);
   const popupCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const messageHandlerRef = useRef<((event: MessageEvent) => void) | null>(null);
   const MAX_ATTEMPTS = 60; // 5 minutes (60 * 5 seconds)
 
   // Check connection status on mount
@@ -45,9 +50,14 @@ export function WhatsAppNumberSelector() {
 
   // Check initial connection status on mount
   useEffect(() => {
-    if (connectionStatus?.connected) {
-      setConnected(true);
-      setPhoneNumber(connectionStatus.phone_number || null);
+    if (connectionStatus) {
+      if (connectionStatus.connected) {
+        setConnected(true);
+        setPhoneNumber(connectionStatus.phone_number || null);
+      } else {
+        setConnected(false);
+        setPhoneNumber(null);
+      }
     }
   }, [connectionStatus]);
 
@@ -59,27 +69,52 @@ export function WhatsAppNumberSelector() {
       // Call backend to get Embedded Signup URL
       const response = await tenantApi.connectWhatsApp({ provider: 'meta_embedded' });
       
-      if (response.onboarding_url) {
-        setOnboardingUrl(response.onboarding_url);
-        
-        // Open Embedded Signup in popup
-        const popup = window.open(
-          response.onboarding_url,
-          'Meta WhatsApp Onboarding',
-          'width=800,height=600,scrollbars=yes,resizable=yes'
-        );
-        
-        if (!popup) {
-          throw new Error('Popup blocked. Please allow popups for this site.');
-        }
-        
-        popupRef.current = popup;
-        
-        // Start polling for completion
-        startPolling();
-      } else {
+      // Verify response structure
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to start WhatsApp connection');
+      }
+      
+      if (!response.onboarding_url) {
         throw new Error('Onboarding URL not received from server');
       }
+      
+      setOnboardingUrl(response.onboarding_url);
+      
+      // Open Embedded Signup in popup
+      const popup = window.open(
+        response.onboarding_url,
+        'Meta WhatsApp Onboarding',
+        'width=800,height=600,scrollbars=yes,resizable=yes'
+      );
+      
+      if (!popup) {
+        throw new Error('Popup blocked. Please allow popups for this site.');
+      }
+      
+      popupRef.current = popup;
+      
+      // Listen for postMessage from popup (if Meta sends completion message)
+      const messageHandler = (event: MessageEvent) => {
+        // Verify origin for security (adjust to your domain)
+        if (event.data?.type === 'whatsapp_onboarding_complete') {
+          if (messageHandlerRef.current) {
+            window.removeEventListener('message', messageHandlerRef.current);
+            messageHandlerRef.current = null;
+          }
+          stopPolling();
+          closePopup();
+          // Poll for final status
+          setTimeout(async () => {
+            await refreshConnectionStatus();
+          }, 1000);
+        }
+      };
+      
+      messageHandlerRef.current = messageHandler;
+      window.addEventListener('message', messageHandler);
+      
+      // Start polling for completion
+      startPolling();
       
     } catch (err: any) {
       setLoading(false);
@@ -98,12 +133,22 @@ export function WhatsAppNumberSelector() {
       attempts++;
       
       try {
-        // Check connection status
         const result = await refetchStatus();
         const statusData = result.data as WhatsAppConnectionStatus | undefined;
         
+        if (!statusData) {
+          // No data yet, continue polling
+          if (attempts >= MAX_ATTEMPTS) {
+            stopPolling();
+            setLoading(false);
+            setError('Unable to verify connection status. Please check manually.');
+            setLoadingMessage(null);
+          }
+          return;
+        }
+        
         // ✅ SUCCESS: Connection is live!
-        if (statusData?.connected && statusData?.status === 'connected') {
+        if (statusData.connected) {
           stopPolling();
           closePopup();
           setConnected(true);
@@ -118,6 +163,11 @@ export function WhatsAppNumberSelector() {
           return;
         }
         
+        // Handle pending states (optional - show progress)
+        if (statusData.status === "pending_onboarding" || statusData.status === "pending_verification") {
+          setLoadingMessage(`Onboarding in progress... (${attempts * 5}s)`);
+        }
+        
         // Manual refresh every 15 seconds (faster detection)
         if (attempts % 3 === 0) {
           await refreshConnectionStatus();
@@ -129,11 +179,15 @@ export function WhatsAppNumberSelector() {
           setLoading(false);
           setError('Onboarding is taking longer than expected. Please check your connection status manually.');
           setLoadingMessage(null);
+          toast.error('Onboarding timeout. Please refresh the page to check status.');
         }
         
       } catch (err) {
         console.error('Polling error:', err);
-        // Continue polling on error
+        // Continue polling on error, but show warning after many failures
+        if (attempts >= 10 && attempts % 5 === 0) {
+          toast.error('Having trouble checking status. Please refresh the page.');
+        }
       }
     }, 5000); // Poll every 5 seconds
 
@@ -156,7 +210,8 @@ export function WhatsAppNumberSelector() {
       const result = await refetchStatus();
       const data = result.data as WhatsAppConnectionStatus | undefined;
       
-      if (data?.connected && data?.status === 'connected') {
+      // ✅ Simplified check - just check connected flag
+      if (data?.connected) {
         stopPolling();
         closePopup();
         setConnected(true);
@@ -200,6 +255,11 @@ export function WhatsAppNumberSelector() {
     return () => {
       stopPolling();
       closePopup();
+      // Remove message listener if it exists
+      if (messageHandlerRef.current) {
+        window.removeEventListener('message', messageHandlerRef.current);
+        messageHandlerRef.current = null;
+      }
     };
   }, []);
 
@@ -310,12 +370,21 @@ export function WhatsAppNumberSelector() {
             Connect your WhatsApp Business Account using Meta&apos;s Embedded Signup.
             Each tenant gets their own WhatsApp number.
           </p>
-          <button 
-            onClick={connectWhatsApp} 
-            className="btn-primary w-full rounded-lg border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/20"
-          >
-            Connect WhatsApp
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={connectWhatsApp} 
+              className="btn-primary flex-1 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/20"
+            >
+              Connect WhatsApp
+            </button>
+            <button 
+              onClick={() => refetchStatus()} 
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              title="Refresh connection status"
+            >
+              🔄
+            </button>
+          </div>
         </div>
       )}
 

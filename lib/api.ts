@@ -753,19 +753,24 @@ export const tenantApi = {
 
   connectWhatsApp: (payload: { provider: "meta_embedded" }) =>
     post<typeof payload, { 
+      success: boolean;
+      provider: "meta_embedded";
       onboarding_url: string;
       message: string;
+      note?: string;
     }>("/api/tenant/whatsapp/connect", payload),
 
   whatsappConnectionStatus: () =>
     get<{
       connected: boolean;
-      provider?: "meta_embedded" | "none";
+      provider?: "meta_embedded" | "respondio" | "gupshup_partner" | "none";
       phone_number?: string;
       phone_number_id?: string;
-      status?: "connected" | "pending_onboarding" | "pending_verification" | "failed";
+      external_id?: string; // For meta_embedded
+      status?: "connected" | "not_connected" | "pending_onboarding" | "pending_verification" | "failed" | "live";
       message?: string;
-      account_id?: number;
+      channel_id?: string; // For respondio
+      app_id?: string; // For gupshup_partner
     }>("/api/tenant/whatsapp/connection-status"),
 
   whatsappRefresh: () =>
