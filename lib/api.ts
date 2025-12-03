@@ -1032,6 +1032,161 @@ export const tenantApi = {
       avg_response_time: string;
     }>(`/api/tenant/escalations/stats${query}`);
   },
+
+  // TikTok API endpoints
+  tiktokVideos: (params?: { max_count?: number; cursor?: string }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+        ).toString()}`
+      : "";
+    return get<{
+      videos: Array<{
+        video_id: string;
+        title?: string;
+        description?: string;
+        cover_image_url?: string;
+        duration?: number;
+        create_time?: number;
+        publish_time?: number;
+        status?: string;
+        statistics?: {
+          view_count?: number;
+          like_count?: number;
+          comment_count?: number;
+          share_count?: number;
+        };
+      }>;
+      cursor?: string;
+      has_more?: boolean;
+    }>(`/api/tenant/tiktok/videos${query}`);
+  },
+
+  tiktokVideo: (videoId: string) =>
+    get<{
+      video_id: string;
+      title?: string;
+      description?: string;
+      cover_image_url?: string;
+      duration?: number;
+      create_time?: number;
+      publish_time?: number;
+      status?: string;
+      statistics?: {
+        view_count?: number;
+        like_count?: number;
+        comment_count?: number;
+        share_count?: number;
+      };
+      video_url?: string;
+      embed_html?: string;
+    }>(`/api/tenant/tiktok/videos/${videoId}`),
+
+  tiktokVideoStatus: (publishId: string) =>
+    get<{
+      publish_id: string;
+      status: "processing" | "published" | "failed";
+      video_id?: string;
+      failure_reason?: string;
+    }>(`/api/tenant/tiktok/videos/status/${publishId}`),
+
+  deleteTiktokVideo: (videoId: string) =>
+    apiFetch<{ success: boolean; message?: string }>(`/api/tenant/tiktok/videos/${videoId}`, {
+      method: "DELETE",
+    }),
+
+  tiktokVideoAnalytics: (videoId: string) =>
+    get<{
+      video_id: string;
+      analytics: {
+        views?: number;
+        likes?: number;
+        comments?: number;
+        shares?: number;
+        play_time?: number;
+        average_watch_time?: number;
+        traffic_source?: Array<{
+          source: string;
+          count: number;
+        }>;
+        audience_territory?: Array<{
+          territory: string;
+          count: number;
+        }>;
+      };
+      period?: {
+        start_date: string;
+        end_date: string;
+      };
+    }>(`/api/tenant/tiktok/videos/${videoId}/analytics`),
+
+  tiktokAnalytics: (params?: { start_date?: string; end_date?: string }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+        ).toString()}`
+      : "";
+    return get<{
+      total_views: number;
+      total_likes: number;
+      total_comments: number;
+      total_shares: number;
+      total_videos: number;
+      average_engagement_rate?: number;
+      period: {
+        start_date: string;
+        end_date: string;
+      };
+      top_videos?: Array<{
+        video_id: string;
+        title?: string;
+        views: number;
+        likes: number;
+        comments: number;
+        shares: number;
+      }>;
+    }>(`/api/tenant/tiktok/analytics${query}`);
+  },
+
+  tiktokComments: (videoId: string, params?: { max_count?: number; cursor?: string }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+        ).toString()}`
+      : "";
+    return get<{
+      comments: Array<{
+        comment_id: string;
+        video_id: string;
+        text: string;
+        user: {
+          user_id: string;
+          username?: string;
+          display_name?: string;
+          avatar_url?: string;
+        };
+        like_count?: number;
+        reply_count?: number;
+        create_time: number;
+        is_pinned?: boolean;
+        is_author_replied?: boolean;
+      }>;
+      cursor?: string;
+      has_more?: boolean;
+    }>(`/api/tenant/tiktok/videos/${videoId}/comments${query}`);
+  },
+
+  replyToTiktokComment: (videoId: string, commentId: string, payload: { text: string }) =>
+    post<typeof payload, {
+      success: boolean;
+      message?: string;
+      reply?: {
+        comment_id: string;
+        video_id: string;
+        text: string;
+        create_time: number;
+      };
+    }>(`/api/tenant/tiktok/videos/${videoId}/comments/${commentId}/reply`, payload),
 };
 
  
