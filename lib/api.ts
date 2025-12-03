@@ -791,6 +791,20 @@ export const tenantApi = {
       message?: string;
     }>("/api/tenant/whatsapp/refresh"),
 
+  whatsappRefreshStatus: () =>
+    post<undefined, {
+      connected: boolean;
+      provider?: "meta_embedded" | "respondio" | "gupshup_partner" | "none";
+      phone_number?: string;
+      phone_number_id?: string;
+      external_id?: string;
+      status?: "connected" | "not_connected" | "pending_onboarding" | "pending_verification" | "live" | "failed";
+      message?: string;
+      channel_id?: string;
+      app_id?: string;
+      updated: boolean; // Indicates if status was updated
+    }>("/api/tenant/whatsapp/refresh-status"),
+
   // Onboarding endpoints
   onboardingStatus: () =>
     get<{

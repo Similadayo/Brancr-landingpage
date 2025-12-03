@@ -232,8 +232,36 @@ export function WhatsAppNumberSelector() {
         }
         
         // Manual refresh every 15 seconds (faster detection)
+        // For Gupshup, use refresh-status endpoint to get latest from Gupshup API
         if (attempts % 3 === 0) {
-          await refreshConnectionStatus();
+          if (selectedProvider === 'gupshup' && statusData?.status === 'pending_onboarding') {
+            // Use refresh-status endpoint for Gupshup when stuck in pending
+            try {
+              const refreshResponse = await tenantApi.whatsappRefreshStatus();
+              if (refreshResponse.connected || refreshResponse.status === 'live') {
+                // Status updated - stop polling and handle success
+                stopPolling();
+                closePopup();
+                setConnected(true);
+                setPhoneNumber(refreshResponse.phone_number || null);
+                setLoading(false);
+                setOnboardingUrl(null);
+                setLoadingMessage(null);
+                void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
+                void queryClient.invalidateQueries({ queryKey: ["whatsapp-current"] });
+                void queryClient.invalidateQueries({ queryKey: ["integrations"] });
+                toast.success("✅ WhatsApp connected successfully!");
+                return;
+              }
+            } catch (refreshErr) {
+              console.warn('Refresh-status error during polling:', refreshErr);
+              // Fall back to regular refresh
+              await refreshConnectionStatus();
+            }
+          } else {
+            // For other providers or non-pending states, use regular refresh
+            await refreshConnectionStatus();
+          }
         }
         
         // Timeout after 5 minutes
@@ -261,8 +289,13 @@ export function WhatsAppNumberSelector() {
         clearInterval(popupCheckIntervalRef.current!);
         popupCheckIntervalRef.current = null;
         // Give it 2 seconds, then check status one more time
+        // For Gupshup, use refresh-status endpoint
         setTimeout(async () => {
-          await refreshConnectionStatus();
+          if (selectedProvider === 'gupshup') {
+            await refreshWhatsAppStatus();
+          } else {
+            await refreshConnectionStatus();
+          }
         }, 2000);
       }
     }, 2000);
@@ -292,6 +325,53 @@ export function WhatsAppNumberSelector() {
       console.error('Refresh error:', err);
     }
     return false;
+  };
+
+  // New function to refresh status from Gupshup (calls GetAppDetails)
+  const refreshWhatsAppStatus = async () => {
+    try {
+      toast.loading('Refreshing WhatsApp status...', { id: 'refresh-status' });
+      
+      const response = await tenantApi.whatsappRefreshStatus();
+      
+      // Update local state with refreshed data
+      if (response.connected) {
+        setConnected(true);
+        setPhoneNumber(response.phone_number || null);
+        setLoading(false);
+        setOnboardingUrl(null);
+        setLoadingMessage(null);
+        void queryClient.invalidateQueries({ queryKey: ["whatsapp-connection-status"] });
+        void queryClient.invalidateQueries({ queryKey: ["whatsapp-numbers"] });
+        void queryClient.invalidateQueries({ queryKey: ["whatsapp-current"] });
+        void queryClient.invalidateQueries({ queryKey: ["integrations"] });
+        
+        if (response.updated) {
+          toast.success("✅ WhatsApp status updated and connected!", { id: 'refresh-status' });
+        } else {
+          toast.success("✅ WhatsApp is connected!", { id: 'refresh-status' });
+        }
+      } else {
+        // Not connected yet
+        if (response.updated) {
+          toast.success(`Status updated: ${response.status || 'pending'}`, { id: 'refresh-status' });
+        } else {
+          toast.success(`Current status: ${response.status || 'pending'}`, { id: 'refresh-status' });
+        }
+        
+        // If status is still pending, show appropriate message
+        if (response.status === 'pending_onboarding' || response.status === 'pending_verification') {
+          setLoadingMessage(`Status: ${response.status}. Please complete the onboarding process...`);
+        }
+      }
+      
+      // Refetch to update the query cache
+      await refetchStatus();
+      
+    } catch (err: any) {
+      console.error('Refresh status error:', err);
+      toast.error(err.message || 'Failed to refresh status', { id: 'refresh-status' });
+    }
   };
 
   const stopPolling = () => {
@@ -396,7 +476,14 @@ export function WhatsAppNumberSelector() {
               Cancel
             </button>
             <button 
-              onClick={refreshConnectionStatus} 
+              onClick={async () => {
+                // Use refresh-status for Gupshup, regular refresh for others
+                if (selectedProvider === 'gupshup') {
+                  await refreshWhatsAppStatus();
+                } else {
+                  await refreshConnectionStatus();
+                }
+              }}
               className="btn-primary rounded-lg border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"
             >
               Check Status Now
@@ -460,10 +547,27 @@ export function WhatsAppNumberSelector() {
               <p className="text-xs font-semibold text-amber-800">
                 ⏳ Onboarding in progress. Please complete the setup in the popup window.
               </p>
+              {connectionStatus.provider === 'gupshup_partner' && (
+                <button
+                  onClick={refreshWhatsAppStatus}
+                  className="mt-2 w-full rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
+                >
+                  🔄 Refresh Status from Gupshup
+                </button>
+              )}
             </div>
           )}
           
-          <div className="mt-4 text-center">
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            {connectionStatus?.provider === 'gupshup_partner' && (
+              <button
+                onClick={refreshWhatsAppStatus}
+                className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100"
+                title="Refresh status from Gupshup API"
+              >
+                🔄 Refresh Status
+              </button>
+            )}
             <button
               onClick={handleDisconnect}
               className="rounded-lg border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-50"
@@ -471,6 +575,20 @@ export function WhatsAppNumberSelector() {
               Disconnect
             </button>
           </div>
+        </div>
+      )}
+
+      {!loading && !connected && connectionStatus && !connectionStatus.connected && connectionStatus.status === 'pending_onboarding' && connectionStatus.provider === 'gupshup_partner' && (
+        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <p className="text-xs font-semibold text-amber-900 mb-2">
+            ⏳ Onboarding in progress. Status may be stuck.
+          </p>
+          <button
+            onClick={refreshWhatsAppStatus}
+            className="w-full rounded-lg border border-amber-300 bg-white px-4 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
+          >
+            🔄 Refresh Status from Gupshup
+          </button>
         </div>
       )}
 
