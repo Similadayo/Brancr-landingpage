@@ -39,6 +39,7 @@ export default function CampaignsPage() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<Tab>("scheduled");
   const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [platformFilter, setPlatformFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const { data: scheduledPostsData, isLoading, error, refetch } = useScheduledPosts();
   const { data: templatesData } = useTemplates();
@@ -104,6 +105,13 @@ export default function CampaignsPage() {
       posts = posts.filter((post) => post.status === statusFilter.toLowerCase());
     }
 
+    // Apply platform filter
+    if (platformFilter !== "All") {
+      posts = posts.filter((post) =>
+        post.platforms.some((p) => p.toLowerCase() === platformFilter.toLowerCase())
+      );
+    }
+
     // Apply search
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -122,7 +130,7 @@ export default function CampaignsPage() {
       }
       return new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime();
     });
-  }, [activeTab, scheduled, published, drafts, statusFilter, searchQuery]);
+  }, [activeTab, scheduled, published, drafts, statusFilter, platformFilter, searchQuery]);
 
   const handleCancel = (postId: string, postName: string) => {
     if (confirm(`Are you sure you want to cancel "${postName}"? This cannot be undone.`)) {
@@ -225,9 +233,9 @@ export default function CampaignsPage() {
             className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
-        {activeTab === "scheduled" && (
-          <div className="flex items-center gap-2">
-            <FunnelIcon className="h-4 w-4 text-gray-400" />
+        <div className="flex items-center gap-2">
+          <FunnelIcon className="h-4 w-4 text-gray-400" />
+          {activeTab === "scheduled" && (
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -238,8 +246,22 @@ export default function CampaignsPage() {
               <option value="scheduled">Scheduled</option>
               <option value="posting">Posting</option>
             </select>
-          </div>
-        )}
+          )}
+          <select
+            value={platformFilter}
+            onChange={(e) => setPlatformFilter(e.target.value)}
+            aria-label="Filter posts by platform"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            <option value="All">All Platforms</option>
+            <option value="facebook">Facebook</option>
+            <option value="instagram">Instagram</option>
+            <option value="tiktok">TikTok</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="telegram">Telegram</option>
+            <option value="youtube">YouTube</option>
+          </select>
+        </div>
       </div>
 
       {/* Posts List */}
@@ -312,14 +334,21 @@ export default function CampaignsPage() {
                           <p className="mt-1 line-clamp-2 text-sm text-gray-600">{post.caption || "No caption"}</p>
                           <div className="mt-2 flex flex-wrap items-center gap-3">
                             <div className="flex flex-wrap gap-1">
-                              {post.platforms.map((platform) => (
-                                <span
-                                  key={platform}
-                                  className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 capitalize"
-                                >
-                                  {platform}
-                                </span>
-                              ))}
+                              {post.platforms.map((platform) => {
+                                const isTikTok = platform.toLowerCase() === 'tiktok';
+                                return (
+                                  <span
+                                    key={platform}
+                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${
+                                      isTikTok
+                                        ? 'bg-black text-white'
+                                        : 'bg-gray-100 text-gray-700'
+                                    }`}
+                                  >
+                                    {isTikTok ? '🎵' : ''} {platform}
+                                  </span>
+                                );
+                              })}
                             </div>
                             <span className="flex items-center gap-1 text-xs text-gray-500">
                               <ClockIcon className="h-3.5 w-3.5" />

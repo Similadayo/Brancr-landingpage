@@ -5,7 +5,7 @@ import { tenantApi } from '@/lib/api';
 import {
   ChartIcon,
   EyeIcon,
-  VideoCameraIcon,
+  ImageIcon,
 } from '../../../components/icons';
 
 export default function TikTokAnalyticsPage() {
@@ -75,7 +75,7 @@ export default function TikTokAnalyticsPage() {
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-              <VideoCameraIcon className="h-6 w-6" />
+              <ImageIcon className="h-6 w-6" />
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total Videos</p>

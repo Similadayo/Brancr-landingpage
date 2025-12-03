@@ -250,7 +250,7 @@ export default function NewPostPage() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [canNext, caption, selectedMediaIds, selectedPlatforms, scheduledAt, router, queryClient]);
+  }, [canNext, caption, selectedMediaIds, selectedPlatforms, scheduledAt, router, queryClient, tiktokDisableDuet, tiktokDisableStitch, tiktokDisableComment, tiktokScheduleTime]);
 
   // Keyboard shortcuts (must be after canNext and handlePublish are defined)
   useEffect(() => {
