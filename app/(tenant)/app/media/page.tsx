@@ -75,13 +75,79 @@ export default function MediaLibraryPage() {
 
   async function handleUpload(files: FileList | null) {
     if (!files || files.length === 0) return;
-    const form = new FormData();
-    Array.from(files).forEach((file) => {
-      form.append("file", file);
+    
+    // Validate files before upload
+    const fileArray = Array.from(files);
+    const validFiles: File[] = [];
+    const errors: string[] = [];
+    
+    fileArray.forEach((file) => {
+      // Check file type
+      const isImage = file.type.startsWith('image/');
+      const isVideo = file.type.startsWith('video/');
+      
+      if (!isImage && !isVideo) {
+        errors.push(`${file.name}: Invalid file type. Only images and videos are supported.`);
+        return;
+      }
+      
+      // Check file size (50MB limit for videos, 10MB for images)
+      const maxSize = isVideo ? 50 * 1024 * 1024 : 10 * 1024 * 1024; // 50MB for videos, 10MB for images
+      if (file.size > maxSize) {
+        const maxSizeMB = isVideo ? 50 : 10;
+        errors.push(`${file.name}: File too large. Maximum size is ${maxSizeMB}MB.`);
+        return;
+      }
+      
+      validFiles.push(file);
     });
-    await uploadMutation.mutateAsync(form);
-    setIsUploadOpen(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    
+    // Show errors if any
+    if (errors.length > 0) {
+      errors.forEach((error) => toast.error(error));
+      // Still try to upload valid files
+      if (validFiles.length === 0) {
+        return; // No valid files to upload
+      }
+    }
+    
+    if (validFiles.length === 0) {
+      toast.error('No valid files to upload');
+      return;
+    }
+    
+    // Create FormData with valid files
+    const form = new FormData();
+    validFiles.forEach((file) => {
+      form.append("file", file);
+      // Log file info for debugging
+      console.log(`Uploading ${file.type.startsWith('video/') ? 'video' : 'image'}: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+    });
+    
+    try {
+      await uploadMutation.mutateAsync(form);
+      setIsUploadOpen(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      
+      // Show success message with file count
+      if (validFiles.length > 0) {
+        const videoCount = validFiles.filter(f => f.type.startsWith('video/')).length;
+        const imageCount = validFiles.filter(f => f.type.startsWith('image/')).length;
+        let message = 'Media uploaded successfully';
+        if (videoCount > 0 && imageCount > 0) {
+          message = `${imageCount} image(s) and ${videoCount} video(s) uploaded`;
+        } else if (videoCount > 0) {
+          message = `${videoCount} video(s) uploaded successfully`;
+        } else {
+          message = `${imageCount} image(s) uploaded successfully`;
+        }
+        toast.success(message);
+      }
+    } catch (error: any) {
+      // Error handling is done in the mutation, but log for debugging
+      console.error('Upload error:', error);
+      // Don't close modal on error so user can retry
+    }
   }
 
   // Close bulk actions when no items selected
@@ -129,16 +195,26 @@ export default function MediaLibraryPage() {
         </div>
         <div className="flex items-center gap-2">
           <FunnelIcon className="h-4 w-4 text-gray-400" />
-          <select
-            value={type || ""}
-            onChange={(e) => setType(e.target.value || undefined)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          >
-            <option value="">All Types</option>
-            <option value="image">Images</option>
-            <option value="video">Videos</option>
-            <option value="carousel">Carousels</option>
-          </select>
+            <select
+              value={type || ""}
+              onChange={(e) => setType(e.target.value || undefined)}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="">All Types</option>
+              <option value="image">Images</option>
+              <option value="video">Videos</option>
+              <option value="carousel">Carousels</option>
+            </select>
+            <button
+              onClick={() => {
+                setType(undefined);
+                setQuery("");
+              }}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary"
+              title="Clear filters"
+            >
+              Clear
+            </button>
         </div>
         <div className="flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1">
           <button
