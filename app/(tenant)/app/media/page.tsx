@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "react-hot-toast";
 import { useMedia, useUploadMedia, useDeleteMedia, useUpdateMedia } from "@/app/(tenant)/hooks/useMedia";
 import {
   ImageIcon,
