@@ -636,6 +636,11 @@ export const tenantApi = {
     media_ids: number[]; // Array of media asset IDs
     platforms: string[]; // Required: At least one platform
     scheduled_at?: string | null; // "now", RFC3339 date, or null for immediate publishing
+    // TikTok-specific options
+    tiktok_disable_duet?: boolean;
+    tiktok_disable_stitch?: boolean;
+    tiktok_disable_comment?: boolean;
+    tiktok_schedule_time?: string; // RFC3339 format, TikTok-specific schedule
   }) => post<typeof payload, {
     id: number;
     status: "scheduled" | "posting" | "posted" | "failed";

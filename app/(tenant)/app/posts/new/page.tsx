@@ -12,6 +12,7 @@ import CaptionEditor from "@/app/(tenant)/components/posting/CaptionEditor";
 import PlatformSelector from "@/app/(tenant)/components/posting/PlatformSelector";
 import SchedulePicker from "@/app/(tenant)/components/posting/SchedulePicker";
 import PostReview from "@/app/(tenant)/components/posting/PostReview";
+import TikTokOptions from "@/app/(tenant)/components/posting/TikTokOptions";
 
 type Step = "upload" | "media" | "caption" | "platforms" | "schedule" | "review";
 
@@ -44,6 +45,12 @@ export default function NewPostPage() {
   const [isAIGenerated, setIsAIGenerated] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [scheduledAt, setScheduledAt] = useState<string | null>(null);
+  
+  // TikTok-specific options
+  const [tiktokDisableDuet, setTiktokDisableDuet] = useState(false);
+  const [tiktokDisableStitch, setTiktokDisableStitch] = useState(false);
+  const [tiktokDisableComment, setTiktokDisableComment] = useState(false);
+  const [tiktokScheduleTime, setTiktokScheduleTime] = useState<string | null>(null);
 
   // Auto-save draft to localStorage
   useEffect(() => {
@@ -165,6 +172,10 @@ export default function NewPostPage() {
         scheduled_at?: string | null;
         caption?: string;
         name?: string;
+        tiktok_disable_duet?: boolean;
+        tiktok_disable_stitch?: boolean;
+        tiktok_disable_comment?: boolean;
+        tiktok_schedule_time?: string;
       } = {
         media_ids: mediaIds,
         platforms: selectedPlatforms,
@@ -188,6 +199,17 @@ export default function NewPostPage() {
       // Add optional name
       if (caption.trim()) {
         payload.name = caption.split("\n")[0]?.slice(0, 50) || "Post";
+      }
+
+      // Add TikTok-specific options if TikTok is selected
+      if (selectedPlatforms.includes("tiktok")) {
+        if (tiktokDisableDuet) payload.tiktok_disable_duet = true;
+        if (tiktokDisableStitch) payload.tiktok_disable_stitch = true;
+        if (tiktokDisableComment) payload.tiktok_disable_comment = true;
+        if (tiktokScheduleTime) {
+          const local = new Date(tiktokScheduleTime);
+          payload.tiktok_schedule_time = new Date(local.getTime() - local.getTimezoneOffset() * 60000).toISOString();
+        }
       }
 
       setPublishingStatus({ status: "publishing" });
@@ -389,11 +411,27 @@ export default function NewPostPage() {
         )}
 
         {step === "schedule" && (
-          <SchedulePicker
-            value={scheduledAt}
-            onChange={setScheduledAt}
-            selectedPlatforms={selectedPlatforms}
-          />
+          <div className="space-y-6">
+            <SchedulePicker
+              value={scheduledAt}
+              onChange={setScheduledAt}
+              selectedPlatforms={selectedPlatforms}
+            />
+            
+            {/* TikTok-specific options */}
+            {selectedPlatforms.includes("tiktok") && (
+              <TikTokOptions
+                disableDuet={tiktokDisableDuet}
+                disableStitch={tiktokDisableStitch}
+                disableComment={tiktokDisableComment}
+                scheduleTime={tiktokScheduleTime}
+                onDisableDuetChange={setTiktokDisableDuet}
+                onDisableStitchChange={setTiktokDisableStitch}
+                onDisableCommentChange={setTiktokDisableComment}
+                onScheduleTimeChange={setTiktokScheduleTime}
+              />
+            )}
+          </div>
         )}
 
         {step === "review" && (
