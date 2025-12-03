@@ -27,7 +27,7 @@ export default function MediaLibraryPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [selectedMediaIds, setSelectedMediaIds] = useState<string[]>([]);
-  const [previewMedia, setPreviewMedia] = useState<{ id: string; url: string } | null>(null);
+  const [previewMedia, setPreviewMedia] = useState<{ id: string; url: string; type?: string } | null>(null);
   const [isBulkActionOpen, setIsBulkActionOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -370,13 +370,23 @@ export default function MediaLibraryPage() {
                   onClick={() => toggleMedia(asset.id)}
                 >
                   <div className="relative aspect-video overflow-hidden bg-gray-50">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={asset.thumbnail_url || asset.url}
-                      alt={asset.caption || `Media ${index + 1}`}
-                      className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                      loading="lazy"
-                    />
+                    {asset.type === 'video' ? (
+                      <video
+                        src={asset.url}
+                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        muted
+                        playsInline
+                        preload="metadata"
+                      />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={asset.thumbnail_url || asset.url}
+                        alt={asset.caption || `Media ${index + 1}`}
+                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    )}
                     {/* Selection Badge */}
                     {isSelected && (
                       <>
@@ -398,15 +408,21 @@ export default function MediaLibraryPage() {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        const previewUrl = (asset.thumbnail_url || asset.url || "") as string;
+                        const previewUrl = (asset.url || asset.thumbnail_url || "") as string;
                         if (previewUrl) {
-                          setPreviewMedia({ id: String(asset.id), url: previewUrl });
+                          setPreviewMedia({ id: String(asset.id), url: previewUrl, type: asset.type });
                         }
                       }}
                       className="absolute left-2 bottom-2 rounded-full bg-black/70 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 backdrop-blur-sm"
                       aria-label="Preview media"
                     >
-                      <EyeIcon className="h-4 w-4" />
+                      {asset.type === 'video' ? (
+                        <svg className="h-4 w-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      ) : (
+                        <EyeIcon className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                   <div className="space-y-2 p-3">
@@ -474,13 +490,23 @@ export default function MediaLibraryPage() {
                   className="relative h-20 w-20 shrink-0 cursor-pointer overflow-hidden rounded-lg"
                   onClick={() => toggleMedia(asset.id)}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={asset.thumbnail_url || asset.url}
-                    alt={asset.caption || "Media"}
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                  />
+                  {asset.type === 'video' ? (
+                    <video
+                      src={asset.url}
+                      className="h-full w-full object-cover"
+                      muted
+                      playsInline
+                      preload="metadata"
+                    />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={asset.thumbnail_url || asset.url}
+                      alt={asset.caption || "Media"}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  )}
                   {isSelected && (
                     <div className="absolute inset-0 flex items-center justify-center bg-primary/20">
                       <CheckCircleIcon className="h-6 w-6 text-primary" />
@@ -510,14 +536,20 @@ export default function MediaLibraryPage() {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      const previewUrl = (asset.thumbnail_url || asset.url || "") as string;
+                      const previewUrl = (asset.url || asset.thumbnail_url || "") as string;
                       if (previewUrl) {
-                        setPreviewMedia({ id: String(asset.id), url: previewUrl });
+                        setPreviewMedia({ id: String(asset.id), url: previewUrl, type: asset.type });
                       }
                     }}
                     className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
                   >
-                    <EyeIcon className="h-3.5 w-3.5" />
+                    {asset.type === 'video' ? (
+                      <svg className="h-3.5 w-3.5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    ) : (
+                      <EyeIcon className="h-3.5 w-3.5" />
+                    )}
                     Preview
                   </button>
                   <button
@@ -547,13 +579,22 @@ export default function MediaLibraryPage() {
           onClick={() => setPreviewMedia(null)}
         >
           <div className="relative max-h-[90vh] max-w-4xl">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={previewMedia.url}
-              alt="Preview"
-              className="max-h-[90vh] rounded-2xl"
-              onClick={(e) => e.stopPropagation()}
-            />
+            {previewMedia.type === 'video' ? (
+              <video
+                src={previewMedia.url}
+                controls
+                className="max-h-[90vh] rounded-2xl"
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={previewMedia.url}
+                alt="Preview"
+                className="max-h-[90vh] rounded-2xl"
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
             <button
               type="button"
               onClick={() => setPreviewMedia(null)}
