@@ -42,12 +42,17 @@ export default function PostReview({
 
   // Get selected media assets (combine uploaded and existing)
   const allMedia = [
-    ...uploadedMedia.map((m) => ({
-      id: m.id,
-      url: m.url,
-      thumbnail_url: m.thumbnail_url || m.url,
-      type: "image" as const,
-    })),
+    ...uploadedMedia.map((m) => {
+      // Try to infer type from URL extension
+      const url = m.url.toLowerCase();
+      const isVideo = url.includes('.mp4') || url.includes('.mov') || url.includes('.webm') || url.includes('.avi') || url.includes('.mkv');
+      return {
+        id: m.id,
+        url: m.url,
+        thumbnail_url: m.thumbnail_url || m.url,
+        type: (isVideo ? "video" : "image") as "image" | "video" | "carousel",
+      };
+    }),
     ...allAssets,
   ];
   const selectedMedia = allMedia.filter((asset) => selectedMediaIds.includes(String(asset.id)));
@@ -80,12 +85,22 @@ export default function PostReview({
                     key={media.id}
                     className="relative min-w-[200px] flex-shrink-0 overflow-hidden rounded-xl border border-gray-200"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={media.thumbnail_url || media.url}
-                      alt={`Media ${idx + 1}`}
-                      className="aspect-video w-full object-cover"
-                    />
+                    {media.type === 'video' ? (
+                      <video
+                        src={media.url}
+                        className="aspect-video w-full object-cover"
+                        muted
+                        playsInline
+                        preload="metadata"
+                      />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={media.thumbnail_url || media.url}
+                        alt={`Media ${idx + 1}`}
+                        className="aspect-video w-full object-cover"
+                      />
+                    )}
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1">
                       <p className="text-[10px] font-semibold uppercase text-white">
                         {media.type} • {idx + 1}/{selectedMedia.length}
@@ -101,12 +116,22 @@ export default function PostReview({
                     key={media.id}
                     className="relative overflow-hidden rounded-xl border border-gray-200"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={media.thumbnail_url || media.url}
-                      alt="media preview"
-                      className="aspect-video w-full object-cover"
-                    />
+                    {media.type === 'video' ? (
+                      <video
+                        src={media.url}
+                        className="aspect-video w-full object-cover"
+                        controls
+                        muted
+                        playsInline
+                      />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={media.thumbnail_url || media.url}
+                        alt="media preview"
+                        className="aspect-video w-full object-cover"
+                      />
+                    )}
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1">
                       <p className="text-[10px] font-semibold uppercase text-white">{media.type}</p>
                     </div>
