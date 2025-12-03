@@ -14,25 +14,41 @@ export default function MediaSelector({
   onSelectionChange,
   uploadedMedia = [],
 }: MediaSelectorProps) {
+  // Fetch all media types (images, videos, carousels) - no type filter
   const { data: assets = [], isLoading } = useMedia();
   const [previewMedia, setPreviewMedia] = useState<{ id: string; url: string } | null>(null);
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
 
   // Combine uploaded media with existing assets
+  // Note: uploadedMedia doesn't have type info, so we infer from URL or default to image
   const allMedia = [
-    ...uploadedMedia.map((m) => ({
-      id: m.id,
-      url: m.url,
-      thumbnail_url: m.thumbnail_url || m.url,
-      type: "image" as const,
-      created_at: new Date().toISOString(),
-    })),
+    ...uploadedMedia.map((m) => {
+      // Try to infer type from URL extension
+      const url = m.url.toLowerCase();
+      const isVideo = url.includes('.mp4') || url.includes('.mov') || url.includes('.webm') || url.includes('.avi') || url.includes('.mkv');
+      return {
+        id: m.id,
+        url: m.url,
+        thumbnail_url: m.thumbnail_url || m.url,
+        type: (isVideo ? "video" : "image") as "image" | "video" | "carousel",
+        created_at: new Date().toISOString(),
+      };
+    }),
     ...assets.map((asset) => ({
       ...asset,
       url: asset.url || asset.urls?.[0] || "",
       thumbnail_url: asset.thumbnail_url || asset.urls?.[0] || "",
     })),
   ];
+  
+  // Debug: Log media types to help diagnose (only in development)
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    const videoCount = allMedia.filter(m => m.type === 'video').length;
+    const imageCount = allMedia.filter(m => m.type === 'image').length;
+    if (videoCount > 0 || imageCount > 0) {
+      console.log(`[MediaSelector] Total: ${allMedia.length} (${imageCount} images, ${videoCount} videos)`);
+    }
+  }
 
   const toggleMedia = (mediaId: string | number) => {
     const idStr = String(mediaId);
@@ -132,16 +148,39 @@ export default function MediaSelector({
                   } bg-white`}
                   aria-label={`${isSelected ? "Deselect" : "Select"} media ${index + 1}`}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={media.thumbnail_url || media.url}
-                    alt={`Media ${index + 1}`}
-                    className="aspect-video w-full object-cover transition-transform group-hover:scale-105"
-                    loading="lazy"
-                    onError={() => {
-                      setBrokenImages((prev) => new Set(prev).add(String(media.id)));
-                    }}
-                  />
+                  {media.type === 'video' ? (
+                    <div className="relative aspect-video w-full bg-gray-900">
+                      <video
+                        src={media.url}
+                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        muted
+                        playsInline
+                        preload="metadata"
+                        onError={() => {
+                          setBrokenImages((prev) => new Set(prev).add(String(media.id)));
+                        }}
+                      />
+                      {/* Play button overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-lg">
+                          <svg className="h-6 w-6 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={media.thumbnail_url || media.url}
+                      alt={`Media ${index + 1}`}
+                      className="aspect-video w-full object-cover transition-transform group-hover:scale-105"
+                      loading="lazy"
+                      onError={() => {
+                        setBrokenImages((prev) => new Set(prev).add(String(media.id)));
+                      }}
+                    />
+                  )}
                 {/* Selection Badge */}
                 {isSelected && (
                   <>
@@ -165,7 +204,10 @@ export default function MediaSelector({
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    const previewUrl = (media.thumbnail_url || media.url || "") as string;
+                    // For videos, use the video URL; for images, use thumbnail or URL
+                    const previewUrl = media.type === 'video' 
+                      ? (media.url || "") 
+                      : (media.thumbnail_url || media.url || "");
                     if (previewUrl) {
                       setPreviewMedia({ id: String(media.id), url: previewUrl });
                     }
@@ -173,10 +215,16 @@ export default function MediaSelector({
                   className="absolute left-2 bottom-2 rounded-full bg-black/70 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 backdrop-blur-sm"
                   aria-label="Preview media"
                 >
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
+                  {media.type === 'video' ? (
+                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  ) : (
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
                 </button>
               </button>
             </div>
@@ -191,13 +239,27 @@ export default function MediaSelector({
           onClick={() => setPreviewMedia(null)}
         >
           <div className="relative max-h-[90vh] max-w-4xl">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={previewMedia.url}
-              alt="Preview"
-              className="max-h-[90vh] rounded-2xl"
-              onClick={(e) => e.stopPropagation()}
-            />
+            {(() => {
+              const media = allMedia.find((m) => String(m.id) === previewMedia.id);
+              const isVideo = media?.type === 'video';
+              
+              return isVideo ? (
+                <video
+                  src={previewMedia.url}
+                  controls
+                  className="max-h-[90vh] rounded-2xl"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={previewMedia.url}
+                  alt="Preview"
+                  className="max-h-[90vh] rounded-2xl"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              );
+            })()}
             <button
               type="button"
               onClick={() => setPreviewMedia(null)}
