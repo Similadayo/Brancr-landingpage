@@ -240,7 +240,10 @@ export default function MenuItemsPage() {
             setEditingItem(null);
           }}
           onCreate={createMutation.mutateAsync}
-          onUpdate={(payload) => editingItem && updateMutation.mutateAsync({ menuItemId: editingItem.id, payload })}
+          onUpdate={(payload) => {
+            if (!editingItem) return Promise.reject(new Error('No item selected'));
+            return updateMutation.mutateAsync({ menuItemId: editingItem.id, payload });
+          }}
         />
       )}
     </div>

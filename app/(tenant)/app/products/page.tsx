@@ -256,7 +256,10 @@ export default function ProductsPage() {
             setEditingProduct(null);
           }}
           onCreate={createMutation.mutateAsync}
-          onUpdate={(payload) => editingProduct && updateMutation.mutateAsync({ productId: editingProduct.id, payload })}
+          onUpdate={(payload) => {
+            if (!editingProduct) return Promise.reject(new Error('No product selected'));
+            return updateMutation.mutateAsync({ productId: editingProduct.id, payload });
+          }}
         />
       )}
     </div>

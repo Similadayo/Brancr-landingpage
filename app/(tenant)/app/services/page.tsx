@@ -225,7 +225,10 @@ export default function ServicesPage() {
             setEditingService(null);
           }}
           onCreate={createMutation.mutateAsync}
-          onUpdate={(payload) => editingService && updateMutation.mutateAsync({ serviceId: editingService.id, payload })}
+          onUpdate={(payload) => {
+            if (!editingService) return Promise.reject(new Error('No service selected'));
+            return updateMutation.mutateAsync({ serviceId: editingService.id, payload });
+          }}
         />
       )}
     </div>
