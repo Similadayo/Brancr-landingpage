@@ -6,6 +6,7 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { tenantApi, ApiError } from '@/lib/api';
+import { useTenantIndustry } from '../hooks/useIndustry';
 import { IndustryStep } from './onboarding/IndustryStep';
 import { BusinessProfileStep } from './onboarding/BusinessProfileStep';
 import { PersonaStep } from './onboarding/PersonaStep';
@@ -67,6 +68,9 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     retry: false,
   });
 
+  // Load tenant industry separately
+  const { data: tenantIndustry } = useTenantIndustry();
+
   // Update current step and saved data when status loads
   useEffect(() => {
     if (onboardingStatus) {
@@ -76,13 +80,13 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       
       // Load saved data for pre-filling forms
       setSavedData({
-        industry: onboardingStatus.industry_id ? { industry_id: onboardingStatus.industry_id } : undefined,
+        industry: tenantIndustry?.industry_id ? { industry_id: tenantIndustry.industry_id } : undefined,
         business_profile: onboardingStatus.business_profile,
         persona: onboardingStatus.persona,
         business_details: onboardingStatus.business_details,
       });
     }
-  }, [onboardingStatus, initialStep]);
+  }, [onboardingStatus, tenantIndustry, initialStep]);
 
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
