@@ -327,7 +327,7 @@ function ServiceFormModal({
               <label className="block text-sm font-semibold text-gray-700">Pricing Type *</label>
               <select
                 value={formData.pricing_type}
-                onChange={(e) => setFormData({ ...formData, pricing_type: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, pricing_type: e.target.value as "hourly" | "fixed" | "package" })}
                 className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 <option value="hourly">Hourly</option>
