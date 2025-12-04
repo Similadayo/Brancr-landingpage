@@ -183,7 +183,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       case 'industry':
         return (
           <IndustryStep
-            onComplete={handleStepComplete}
+            onComplete={(data) => handleStepComplete('industry', data)}
             isLoading={isSubmitting}
             savedData={savedData.industry}
           />
