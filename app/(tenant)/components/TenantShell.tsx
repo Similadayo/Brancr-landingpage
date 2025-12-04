@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { authApi, tenantApi } from "@/lib/api";
 import { useTenant } from "../providers/TenantProvider";
 import { useIntegrations } from "../hooks/useIntegrations";
+import { useTenantIndustry } from "../hooks/useIndustry";
 import { useEffect, useRef } from "react";
 import {
   HomeIcon,
@@ -87,6 +88,9 @@ export function TenantShell({ children }: { children: ReactNode }) {
     enabled: !!tenant,
   });
 
+  // Fetch tenant industry for conditional navigation
+  const { data: tenantIndustry } = useTenantIndustry();
+
   // Fetch stats for header - use the hook to get processed integrations (includes WhatsApp)
   const { data: integrationsData } = useIntegrations();
   const integrations = Array.isArray(integrationsData) ? integrationsData : [];
@@ -129,6 +133,21 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
   const CORE_NAV_ITEMS = useMemo(() => getCoreNavItems(navBadges), [navBadges]);
 
+  // Industry-based navigation items
+  const industryNavItems = useMemo(() => {
+    const items: NavItem[] = [];
+    if (tenantIndustry?.capabilities.has_products) {
+      items.push({ label: "Products", href: "/app/products", icon: <PackageIcon className="w-5 h-5" /> });
+    }
+    if (tenantIndustry?.capabilities.has_menu) {
+      items.push({ label: "Menu Items", href: "/app/menu-items", icon: <PackageIcon className="w-5 h-5" /> });
+    }
+    if (tenantIndustry?.capabilities.has_services) {
+      items.push({ label: "Services", href: "/app/services", icon: <PackageIcon className="w-5 h-5" /> });
+    }
+    return items;
+  }, [tenantIndustry]);
+
   // Settings items including conditional Onboarding Summary
   const settingsNavItems = useMemo(() => {
     const items = [...SETTINGS_NAV_ITEMS_BASE];
@@ -147,7 +166,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   const currentNav = useMemo(() => {
-    const allItems = [...CORE_NAV_ITEMS, ...TIKTOK_NAV_ITEMS, MEDIA_NAV_ITEM, BULK_UPLOADS_NAV_ITEM, ...settingsNavItems];
+    const allItems = [...CORE_NAV_ITEMS, ...industryNavItems, ...TIKTOK_NAV_ITEMS, MEDIA_NAV_ITEM, BULK_UPLOADS_NAV_ITEM, ...settingsNavItems];
     const matched = allItems.reduce<NavItem | undefined>((best, item) => {
       const overviewMatch = item.href === "/app" && (pathname === "/app" || pathname === "/app/");
       const specificMatch =
@@ -163,7 +182,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
     }, undefined);
 
     return matched ?? CORE_NAV_ITEMS[0];
-  }, [pathname, settingsNavItems]);
+  }, [pathname, settingsNavItems, industryNavItems]);
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -275,6 +294,16 @@ export function TenantShell({ children }: { children: ReactNode }) {
         })}
         
         {/* TikTok Section */}
+        {/* Industry-based navigation items */}
+        {industryNavItems.length > 0 && (
+          <>
+            {industryNavItems.map((item) => {
+              const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              return renderNavItem(item, compact, isActive);
+            })}
+          </>
+        )}
+
         {TIKTOK_NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
           return renderNavItem(item, compact, isActive);

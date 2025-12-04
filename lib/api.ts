@@ -1192,6 +1192,360 @@ export const tenantApi = {
         create_time: number;
       };
     }>(`/api/tenant/tiktok/videos/${videoId}/comments/${commentId}/reply`, payload),
+
+  // Industry management endpoints
+  getIndustries: () =>
+    get<{
+      industries: Array<{
+        id: number;
+        name: string;
+        category: string;
+        description: string;
+        has_products: boolean;
+        has_menu: boolean;
+        has_services: boolean;
+      }>;
+    }>("/api/tenant/industries"),
+
+  getTenantIndustry: () =>
+    get<{
+      industry_id: number;
+      industry_name: string;
+      capabilities: {
+        has_products: boolean;
+        has_menu: boolean;
+        has_services: boolean;
+      };
+    }>("/api/tenant/industry"),
+
+  setTenantIndustry: (payload: { industry_id: number }) =>
+    post<typeof payload, {
+      success: boolean;
+      industry: {
+        id: number;
+        name: string;
+        category: string;
+        description: string;
+        has_products: boolean;
+        has_menu: boolean;
+        has_services: boolean;
+      };
+    }>("/api/tenant/industry", payload),
+
+  // Product management endpoints (E-commerce)
+  products: (params?: { category?: string; search?: string; limit?: number }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+        ).toString()}`
+      : "";
+    return get<{
+      products: Array<{
+        id: number;
+        name: string;
+        description?: string;
+        price: number;
+        currency: string;
+        category?: string;
+        stock_count?: number;
+        availability: "in_stock" | "out_of_stock" | "low_stock";
+        is_active: boolean;
+        variants?: Record<string, string[]>;
+        tags?: string[];
+        images?: string[];
+        created_at: string;
+        updated_at: string;
+      }>;
+    }>(`/api/tenant/products${query}`);
+  },
+
+  createProduct: (payload: {
+    name: string;
+    description?: string;
+    price: number;
+    currency?: string;
+    category?: string;
+    stock_count?: number;
+    variants?: Record<string, string[]>;
+    tags?: string[];
+    images?: string[];
+  }) =>
+    post<typeof payload, {
+      success: boolean;
+      product: {
+        id: number;
+        name: string;
+        description?: string;
+        price: number;
+        currency: string;
+        category?: string;
+        stock_count?: number;
+        availability: "in_stock" | "out_of_stock" | "low_stock";
+        is_active: boolean;
+        variants?: Record<string, string[]>;
+        tags?: string[];
+        images?: string[];
+        created_at: string;
+        updated_at: string;
+      };
+    }>("/api/tenant/products", payload),
+
+  updateProduct: (productId: number, payload: {
+    name?: string;
+    description?: string;
+    price?: number;
+    currency?: string;
+    category?: string;
+    stock_count?: number;
+    availability?: "in_stock" | "out_of_stock" | "low_stock";
+    is_active?: boolean;
+    variants?: Record<string, string[]>;
+    tags?: string[];
+    images?: string[];
+  }) =>
+    put<typeof payload, {
+      success: boolean;
+      product: {
+        id: number;
+        name: string;
+        description?: string;
+        price: number;
+        currency: string;
+        category?: string;
+        stock_count?: number;
+        availability: "in_stock" | "out_of_stock" | "low_stock";
+        is_active: boolean;
+        variants?: Record<string, string[]>;
+        tags?: string[];
+        images?: string[];
+        created_at: string;
+        updated_at: string;
+      };
+    }>(`/api/tenant/products/${productId}`, payload),
+
+  deleteProduct: (productId: number) =>
+    del<{ success: boolean; message?: string }>(`/api/tenant/products/${productId}`),
+
+  // Menu item management endpoints (Restaurants)
+  menuItems: (params?: { category?: string; search?: string; limit?: number }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+        ).toString()}`
+      : "";
+    return get<{
+      menu_items: Array<{
+        id: number;
+        name: string;
+        description?: string;
+        price: number;
+        currency: string;
+        category?: string;
+        preparation_time?: number;
+        dietary_info?: string[];
+        spice_level?: "mild" | "medium" | "hot" | "very_hot";
+        availability: "available" | "unavailable" | "limited";
+        is_active: boolean;
+        images?: string[];
+        created_at: string;
+        updated_at: string;
+      }>;
+    }>(`/api/tenant/menu-items${query}`);
+  },
+
+  createMenuItem: (payload: {
+    name: string;
+    description?: string;
+    price: number;
+    currency?: string;
+    category?: string;
+    preparation_time?: number;
+    dietary_info?: string[];
+    spice_level?: "mild" | "medium" | "hot" | "very_hot";
+    images?: string[];
+  }) =>
+    post<typeof payload, {
+      success: boolean;
+      menu_item: {
+        id: number;
+        name: string;
+        description?: string;
+        price: number;
+        currency: string;
+        category?: string;
+        preparation_time?: number;
+        dietary_info?: string[];
+        spice_level?: "mild" | "medium" | "hot" | "very_hot";
+        availability: "available" | "unavailable" | "limited";
+        is_active: boolean;
+        images?: string[];
+        created_at: string;
+        updated_at: string;
+      };
+    }>("/api/tenant/menu-items", payload),
+
+  updateMenuItem: (menuItemId: number, payload: {
+    name?: string;
+    description?: string;
+    price?: number;
+    currency?: string;
+    category?: string;
+    preparation_time?: number;
+    dietary_info?: string[];
+    spice_level?: "mild" | "medium" | "hot" | "very_hot";
+    availability?: "available" | "unavailable" | "limited";
+    is_active?: boolean;
+    images?: string[];
+  }) =>
+    put<typeof payload, {
+      success: boolean;
+      menu_item: {
+        id: number;
+        name: string;
+        description?: string;
+        price: number;
+        currency: string;
+        category?: string;
+        preparation_time?: number;
+        dietary_info?: string[];
+        spice_level?: "mild" | "medium" | "hot" | "very_hot";
+        availability: "available" | "unavailable" | "limited";
+        is_active: boolean;
+        images?: string[];
+        created_at: string;
+        updated_at: string;
+      };
+    }>(`/api/tenant/menu-items/${menuItemId}`, payload),
+
+  deleteMenuItem: (menuItemId: number) =>
+    del<{ success: boolean; message?: string }>(`/api/tenant/menu-items/${menuItemId}`),
+
+  // Service management endpoints (Consultants/Agencies)
+  services: (params?: { category?: string; search?: string; limit?: number }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+        ).toString()}`
+      : "";
+    return get<{
+      services: Array<{
+        id: number;
+        name: string;
+        description?: string;
+        pricing: {
+          type: "hourly" | "fixed" | "package";
+          rate?: number;
+        };
+        packages?: Array<{
+          name: string;
+          price: number;
+          duration: string;
+          description?: string;
+        }>;
+        duration?: string;
+        deliverables?: string[];
+        category?: string;
+        is_active: boolean;
+        created_at: string;
+        updated_at: string;
+      }>;
+    }>(`/api/tenant/services${query}`);
+  },
+
+  createService: (payload: {
+    name: string;
+    description?: string;
+    pricing: {
+      type: "hourly" | "fixed" | "package";
+      rate?: number;
+    };
+    packages?: Array<{
+      name: string;
+      price: number;
+      duration: string;
+      description?: string;
+    }>;
+    duration?: string;
+    deliverables?: string[];
+    category?: string;
+  }) =>
+    post<typeof payload, {
+      success: boolean;
+      service: {
+        id: number;
+        name: string;
+        description?: string;
+        pricing: {
+          type: "hourly" | "fixed" | "package";
+          rate?: number;
+        };
+        packages?: Array<{
+          name: string;
+          price: number;
+          duration: string;
+          description?: string;
+        }>;
+        duration?: string;
+        deliverables?: string[];
+        category?: string;
+        is_active: boolean;
+        created_at: string;
+        updated_at: string;
+      };
+    }>("/api/tenant/services", payload),
+
+  updateService: (serviceId: number, payload: {
+    name?: string;
+    description?: string;
+    pricing?: {
+      type: "hourly" | "fixed" | "package";
+      rate?: number;
+    };
+    packages?: Array<{
+      name: string;
+      price: number;
+      duration: string;
+      description?: string;
+    }>;
+    duration?: string;
+    deliverables?: string[];
+    category?: string;
+    is_active?: boolean;
+  }) =>
+    put<typeof payload, {
+      success: boolean;
+      service: {
+        id: number;
+        name: string;
+        description?: string;
+        pricing: {
+          type: "hourly" | "fixed" | "package";
+          rate?: number;
+        };
+        packages?: Array<{
+          name: string;
+          price: number;
+          duration: string;
+          description?: string;
+        }>;
+        duration?: string;
+        deliverables?: string[];
+        category?: string;
+        is_active: boolean;
+        created_at: string;
+        updated_at: string;
+      };
+    }>(`/api/tenant/services/${serviceId}`, payload),
+
+  deleteService: (serviceId: number) =>
+    del<{ success: boolean; message?: string }>(`/api/tenant/services/${serviceId}`),
+
+  // Onboarding industry step
+  onboardingIndustry: (payload: { industry_id: number }) =>
+    post<typeof payload, { success: boolean; message: string; next_step: string }>(
+      "/api/tenant/onboarding/industry",
+      payload
+    ),
 };
 
  

@@ -6,14 +6,21 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { tenantApi, ApiError } from '@/lib/api';
+import { IndustryStep } from './onboarding/IndustryStep';
 import { BusinessProfileStep } from './onboarding/BusinessProfileStep';
 import { PersonaStep } from './onboarding/PersonaStep';
 import { BusinessDetailsStep } from './onboarding/BusinessDetailsStep';
 import { SocialConnectStep } from './onboarding/SocialConnectStep';
 
-type OnboardingStep = 'business_profile' | 'persona' | 'business_details' | 'social_connect';
+type OnboardingStep = 'industry' | 'business_profile' | 'persona' | 'business_details' | 'social_connect';
 
 const STEPS: Array<{ id: OnboardingStep; title: string; description: string; icon: string }> = [
+  {
+    id: 'industry',
+    title: 'Industry Selection',
+    description: 'Choose your business type',
+    icon: '🏭',
+  },
   {
     id: 'business_profile',
     title: 'Business Profile',
@@ -43,10 +50,11 @@ const STEPS: Array<{ id: OnboardingStep; title: string; description: string; ico
 export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>(initialStep || 'business_profile');
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>(initialStep || 'industry');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<Set<OnboardingStep>>(new Set());
   const [savedData, setSavedData] = useState<{
+    industry?: any;
     business_profile?: any;
     persona?: any;
     business_details?: any;
@@ -63,11 +71,12 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
   useEffect(() => {
     if (onboardingStatus) {
       // Set current step from status (backend knows the current step)
-      const stepFromStatus = onboardingStatus.step || initialStep || 'business_profile';
+      const stepFromStatus = onboardingStatus.step || initialStep || 'industry';
       setCurrentStep(stepFromStatus);
       
       // Load saved data for pre-filling forms
       setSavedData({
+        industry: onboardingStatus.industry_id ? { industry_id: onboardingStatus.industry_id } : undefined,
         business_profile: onboardingStatus.business_profile,
         persona: onboardingStatus.persona,
         business_details: onboardingStatus.business_details,
@@ -83,6 +92,9 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     try {
       let response;
       switch (step) {
+        case 'industry':
+          response = await tenantApi.onboardingIndustry(data as any);
+          break;
         case 'business_profile':
           response = await tenantApi.onboardingBusinessProfile(data as any);
           break;
@@ -164,6 +176,14 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     }
 
     switch (currentStep) {
+      case 'industry':
+        return (
+          <IndustryStep
+            onComplete={handleStepComplete}
+            isLoading={isSubmitting}
+            savedData={savedData.industry}
+          />
+        );
       case 'business_profile':
         return (
           <BusinessProfileStep
