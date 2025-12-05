@@ -1,19 +1,29 @@
 'use client';
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useTenant } from "../../providers/TenantProvider";
-import { useConversations } from "@/app/(tenant)/hooks/useConversations";
-import type { ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
+import { 
+  useConversations, 
+  useConversation, 
+  useSendReply, 
+  useUpdateConversationStatus, 
+  useUpdateConversation, 
+  useSuggestReplies
+} from "@/app/(tenant)/hooks/useConversations";
+import type { Message, ConversationDetail, ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
 import {
   InboxIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
+  ArrowUpIcon,
+  PaperClipIcon,
   FacebookIcon,
   InstagramIcon,
   WhatsAppIcon,
   TelegramIcon,
   AllMessagesIcon,
+  PlusIcon,
 } from "../../components/icons";
 
 const STATUS_FILTERS = ["All", "Unsigned", "Assigned", "Resolved"];
@@ -22,6 +32,10 @@ export default function InboxPage() {
   const { tenant } = useTenant();
   const [activeStatusFilter, setActiveStatusFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedConversationId, setSelectedConversationId] = useState<string>("");
+  const [replyText, setReplyText] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [mobileView, setMobileView] = useState<"list" | "chat">("list");
 
   // Build filters for API
   const apiFilters = useMemo(() => {
@@ -55,6 +69,51 @@ export default function InboxPage() {
       return new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime();
     });
   }, [conversations]);
+  
+  const { data: conversationDetail } = useConversation(selectedConversationId);
+  const sendReplyMutation = useSendReply(selectedConversationId);
+  const updateStatusMutation = useUpdateConversationStatus(selectedConversationId);
+  const updateConversationMutation = useUpdateConversation(selectedConversationId);
+
+  useEffect(() => {
+    if (conversations.length > 0 && !selectedConversationId) {
+      setSelectedConversationId(String(conversations[0].id));
+    }
+  }, [conversations, selectedConversationId]);
+
+  const activeConversation = conversationDetail;
+  const messages = useMemo(() => {
+    const msgs = conversationDetail?.messages ?? [];
+    if (msgs.length > 0) {
+      return [...msgs].sort((a, b) => {
+        const dateA = new Date(a.created_at).getTime();
+        const dateB = new Date(b.created_at).getTime();
+        return dateA - dateB;
+      });
+    }
+    return msgs;
+  }, [conversationDetail?.messages]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSendReply = async () => {
+    if (!replyText.trim() || !selectedConversationId) return;
+    try {
+      await sendReplyMutation.mutateAsync({ body: replyText.trim() });
+      setReplyText("");
+    } catch (error) {
+      // Error is handled by the hook
+    }
+  };
+
+  const handleConversationSelect = (id: string) => {
+    setSelectedConversationId(id);
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setMobileView("chat");
+    }
+  };
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -69,45 +128,17 @@ export default function InboxPage() {
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays === 1) return "Yesterday";
     if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
     return date.toLocaleDateString([], { month: "short", day: "numeric" });
   };
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-white w-full">
-      {/* Top Header Bar */}
-      <header className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2.5 md:px-4 md:py-3">
-        <div className="flex items-center justify-between">
-          <h1 className="text-base md:text-lg font-semibold text-gray-900">Inbox</h1>
-          <div className="flex items-center gap-2 md:gap-3">
-            <div className="relative hidden md:block">
-              <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search"
-                className="w-64 rounded-lg border border-gray-200 bg-gray-50 pl-8 pr-3 py-2 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-            <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-            </button>
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
-                {tenant?.name?.charAt(0).toUpperCase() || "U"}
-              </div>
-              <span className="hidden md:inline text-sm font-medium text-gray-700">CS Niki Ayu</span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content - Conversation List Only */}
-      <div className="flex min-h-0 flex-1 w-full overflow-hidden">
-        <section className="flex flex-col w-full bg-white">
+      {/* Main Content - Three Panel Layout */}
+      <div className="grid min-h-0 flex-1 gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-x-hidden">
+        {/* Left Panel - Conversation List */}
+        <section className={`flex flex-col border-r border-gray-200 bg-white transition-transform duration-300 overflow-x-hidden ${
+          mobileView === "chat" ? "hidden md:flex" : "flex"
+        }`}>
           {/* Tabs */}
           <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
             <div className="flex gap-1">
@@ -172,6 +203,7 @@ export default function InboxPage() {
             ) : (
               <div className="divide-y divide-gray-100">
                 {sortedConversations.map((conversation) => {
+                  const isActive = selectedConversationId === String(conversation.id);
                   const unread = conversation.unread_count > 0;
                   const platform = conversation.platform.toLowerCase();
                   
@@ -185,7 +217,12 @@ export default function InboxPage() {
                   return (
                     <button
                       key={conversation.id}
-                      className="group w-full px-3 py-3 text-left transition-colors hover:bg-gray-50"
+                      onClick={() => handleConversationSelect(String(conversation.id))}
+                      className={`group w-full px-3 py-3 text-left transition-colors ${
+                        isActive
+                          ? "bg-blue-50 border-l-4 border-primary"
+                          : "hover:bg-gray-50"
+                      }`}
                     >
                       <div className="flex items-start gap-3">
                         {/* Avatar */}
@@ -230,6 +267,349 @@ export default function InboxPage() {
             )}
           </div>
         </section>
+
+        {/* Center Panel - Chat Conversation */}
+        <section className={`flex min-h-0 flex-1 flex-col bg-white border-r border-gray-200 transition-transform duration-300 overflow-x-hidden ${
+          mobileView === "list" ? "hidden md:flex" : "flex"
+        }`}>
+          {activeConversation ? (
+            <>
+              {/* Chat Header */}
+              <header className="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 py-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  {/* Back button - Mobile only */}
+                  {mobileView === "chat" && (
+                    <button
+                      onClick={() => setMobileView("list")}
+                      className="flex-shrink-0 rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors md:hidden"
+                      aria-label="Back to conversations"
+                    >
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                  )}
+                  {activeConversation.customer_avatar ? (
+                    <Image
+                      src={activeConversation.customer_avatar}
+                      alt={activeConversation.customer_name}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-full object-cover flex-shrink-0"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-medium text-primary flex-shrink-0">
+                      {activeConversation.customer_name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-base font-semibold text-gray-900 truncate">{activeConversation.customer_name}</h2>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      {(() => {
+                        const platform = activeConversation.platform.toLowerCase();
+                        const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
+                                           platform === "instagram" ? InstagramIcon :
+                                           platform === "facebook" ? FacebookIcon :
+                                           platform === "telegram" ? TelegramIcon :
+                                           AllMessagesIcon;
+                        return (
+                          <>
+                            <PlatformIcon className="h-4 w-4 text-gray-600" />
+                            <span className="text-xs text-gray-500 capitalize">{activeConversation.platform}</span>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    </svg>
+                  </button>
+                  <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                    </svg>
+                  </button>
+                  <button className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    Case Close X
+                  </button>
+                </div>
+              </header>
+
+              {/* Messages */}
+              <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-gray-50">
+                {/* Date separator */}
+                {messages.length > 0 && (
+                  <div className="px-4 py-2 text-center">
+                    <span className="text-xs text-gray-500">
+                      {new Date(messages[0].created_at).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })}
+                    </span>
+                  </div>
+                )}
+                
+                <div className="flex-1 space-y-4 px-4 py-4">
+                  {messages.map((message: Message) => {
+                    const isIncoming = message.direction === "incoming";
+                    const isOutgoing = message.direction === "outgoing";
+                    
+                    return (
+                      <div
+                        key={message.id}
+                        className={`flex ${isIncoming ? "justify-start" : "justify-end"}`}
+                      >
+                        <div
+                          className={`max-w-[75%] rounded-2xl px-4 py-3 ${
+                            isIncoming
+                              ? "bg-white"
+                              : "bg-primary text-white"
+                          }`}
+                        >
+                          {message.message_type === "image" || message.message_type === "video" ? (
+                            <div className="space-y-2">
+                              <Image
+                                src={message.content}
+                                alt="Media"
+                                width={320}
+                                height={240}
+                                className="max-w-full rounded-lg"
+                                unoptimized
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = "none";
+                                }}
+                              />
+                              {message.metadata && typeof message.metadata === "object" && "caption" in message.metadata && (
+                                <p className={`text-sm ${isOutgoing ? "text-white" : "text-gray-700"}`}>
+                                  {String(message.metadata.caption)}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <p className={`text-sm whitespace-pre-wrap break-words ${
+                              isOutgoing ? "text-white" : "text-gray-700"
+                            }`}>
+                              {message.content}
+                            </p>
+                          )}
+                          <div className={`mt-2 text-xs ${
+                            isOutgoing ? "text-white/70" : "text-gray-500"
+                          }`}>
+                            {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {messages.length === 0 && (
+                    <div className="flex items-center justify-center h-full">
+                      <p className="text-sm text-gray-500">No messages yet</p>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              </div>
+
+              {/* Message Input */}
+              <div className="sticky bottom-0 flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3">
+                <div className="flex items-end gap-2">
+                  <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                    <PaperClipIcon className="h-5 w-5" />
+                  </button>
+                  <textarea
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                        e.preventDefault();
+                        void handleSendReply();
+                      }
+                    }}
+                    disabled={sendReplyMutation.isPending || !selectedConversationId}
+                    placeholder="Type message here.."
+                    className="min-h-[44px] max-h-[120px] flex-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-700 transition-all focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                  />
+                  <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => void handleSendReply()}
+                    disabled={sendReplyMutation.isPending || !replyText.trim() || !selectedConversationId}
+                    className="flex-shrink-0 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px]"
+                  >
+                    {sendReplyMutation.isPending ? (
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    ) : (
+                      <>
+                        <span>Send</span>
+                        <ArrowUpIcon className="h-4 w-4" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center text-gray-500 px-4">
+              <InboxIcon className="h-12 w-12 text-gray-400" />
+              <p className="text-sm">Select a conversation to view messages</p>
+            </div>
+          )}
+        </section>
+
+        {/* Right Panel - Chat Details */}
+        <aside className={`hidden md:flex flex-col border-l border-gray-200 bg-white transition-transform duration-300 ${
+          mobileView === "list" ? "hidden" : ""
+        }`}>
+          {activeConversation ? (
+            <>
+              {/* Header */}
+              <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
+                <h3 className="text-sm font-semibold text-gray-900">Chat Details</h3>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto px-4 py-4">
+                {/* Contact Profile */}
+                <div className="mb-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    {activeConversation.customer_avatar ? (
+                      <Image
+                        src={activeConversation.customer_avatar}
+                        alt={activeConversation.customer_name}
+                        width={48}
+                        height={48}
+                        className="h-12 w-12 rounded-full object-cover flex-shrink-0"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-base font-medium text-gray-600 flex-shrink-0">
+                        {activeConversation.customer_name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900">{activeConversation.customer_name}</p>
+                      <p className="text-xs text-gray-500">+62 989-289-929</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mb-4">
+                    <button className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white hover:bg-primary/90 transition-colors">
+                      Call
+                    </button>
+                    <button className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+                      Chat
+                    </button>
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="mb-6">
+                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Contact Information</h4>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Status:</span>
+                      <select
+                        value={activeConversation.status}
+                        onChange={(e) => {
+                          const newStatus = e.target.value as "active" | "resolved" | "archived";
+                          updateStatusMutation.mutate({ status: newStatus });
+                        }}
+                        className="text-gray-900 font-medium border-0 bg-transparent focus:outline-none cursor-pointer"
+                      >
+                        <option value="active">Assigned</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="archived">Archived</option>
+                      </select>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Start chat:</span>
+                      <span className="text-gray-900 font-medium">
+                        {new Date(activeConversation.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Country:</span>
+                      <span className="text-gray-900 font-medium">Yordania</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Add Tag */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Add tag</h4>
+                    <button className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                      <PlusIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {Array.isArray(activeConversation.tags) && activeConversation.tags.length > 0 ? (
+                      activeConversation.tags.map((tag: string) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700"
+                        >
+                          {tag}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-xs text-gray-500">No tags</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Assigned by */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Assigned by</h4>
+                    <button className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                      <PlusIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
+                        NA
+                      </div>
+                      <span className="text-xs text-gray-700">CS Niki Ayu</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
+                        GB
+                      </div>
+                      <span className="text-xs text-gray-700">CS Geeburn</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Add Note */}
+                <div>
+                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Add Note</h4>
+                  <textarea
+                    placeholder="Type your note here.."
+                    className="min-h-[120px] w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                    onBlur={async (e) => {
+                      const value = e.target.value.trim();
+                      if (value) {
+                        try {
+                          await updateConversationMutation.mutateAsync({ notes: value });
+                        } catch {}
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-1 items-center justify-center">
+              <p className="text-sm text-gray-500">Select a conversation</p>
+            </div>
+          )}
+        </aside>
       </div>
     </div>
   );
