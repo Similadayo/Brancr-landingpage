@@ -28,6 +28,7 @@ import {
   MenuIcon,
   ChevronLeftIcon,
   ExternalLinkIcon,
+  CreditCardIcon,
 } from "./icons";
 import { CommandPalette } from "./CommandPalette";
 
@@ -44,6 +45,7 @@ const getCoreNavItems = (badges?: { inbox?: number; escalations?: number }): Nav
   { label: "Inbox", href: "/app/inbox", icon: <InboxIcon className="w-5 h-5" />, badge: badges?.inbox },
   { label: "Escalations", href: "/app/escalations", icon: <AlertIcon className="w-5 h-5" />, badge: badges?.escalations },
   { label: "Campaigns", href: "/app/campaigns", icon: <RocketIcon className="w-5 h-5" /> },
+  { label: "Orders", href: "/app/orders", icon: <PackageIcon className="w-5 h-5" /> },
   { label: "Calendar", href: "/app/calendar", icon: <CalendarIcon className="w-5 h-5" /> },
 ];
 
@@ -61,6 +63,8 @@ const BULK_UPLOADS_NAV_ITEM: NavItem = { label: "Bulk Uploads", href: "/app/bulk
 const SETTINGS_NAV_ITEMS_BASE: NavItem[] = [
   { label: "Integrations", href: "/app/integrations", icon: <LinkIcon className="w-5 h-5" /> },
   { label: "Analytics", href: "/app/analytics", icon: <ChartIcon className="w-5 h-5" /> },
+  { label: "Payment Accounts", href: "/app/settings/payment-accounts", icon: <CreditCardIcon className="w-5 h-5" /> },
+  { label: "Notifications", href: "/app/settings/notifications", icon: <AlertIcon className="w-5 h-5" /> },
   { label: "Settings", href: "/app/settings", icon: <SettingsIcon className="w-5 h-5" /> },
 ];
 const ONBOARDING_SUMMARY_ITEM: NavItem = { label: "Onboarding Summary", href: "/app/settings/onboarding", icon: <ClipboardIcon className="w-5 h-5" /> };

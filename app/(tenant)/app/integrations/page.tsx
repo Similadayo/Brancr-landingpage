@@ -6,9 +6,8 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useIntegrations, useVerifyIntegration, useDisconnectIntegration } from "@/app/(tenant)/hooks/useIntegrations";
 import { WhatsAppNumberSelector } from "@/app/(tenant)/components/WhatsAppNumberSelector";
-import { authApi } from '@/lib/api';
+import { authApi, tenantApi } from '@/lib/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || 'https://api.brancr.com';
 
 const STATUS_MAP: Record<
   "connected" | "pending" | "action_required" | "not_connected",
@@ -107,16 +106,23 @@ export default function IntegrationsPage() {
       let oauthUrl = '';
 
       if (platform === 'facebook' || platform === 'instagram') {
-        // Meta platforms (Facebook, Instagram)
-        const platformsParam = platforms || platform;
-        oauthUrl = `${API_BASE_URL}/api/oauth/meta/start?tenant_id=${tenantId}&platforms=${platformsParam}&success_redirect=${encodeURIComponent(successRedirect)}`;
-      } else if (platform === 'tiktok') {
-        // TikTok
-        oauthUrl = `${API_BASE_URL}/api/oauth/tiktok/start?tenant_id=${tenantId}&success_redirect=${encodeURIComponent(successRedirect)}`;
-      } else {
-        // For Telegram, use the existing link behavior
-        return;
-      }
+      // Meta platforms (Facebook, Instagram)
+      const platformsParam = platforms || platform;
+      oauthUrl = tenantApi.getMetaOAuthUrl({
+        tenant_id: tenantId,
+        platforms: platformsParam,
+        success_redirect: successRedirect,
+      });
+    } else if (platform === 'tiktok') {
+      // TikTok
+      oauthUrl = tenantApi.getTikTokOAuthUrl({
+        tenant_id: tenantId,
+        success_redirect: successRedirect,
+      });
+    } else {
+      // For Telegram, use the existing link behavior
+      return;
+    }
 
       // Redirect to OAuth
       if (typeof window !== 'undefined') {

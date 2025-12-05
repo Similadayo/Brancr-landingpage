@@ -5,9 +5,7 @@ import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useIntegrations } from '@/app/(tenant)/hooks/useIntegrations';
-import { authApi } from '@/lib/api';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || 'https://api.brancr.com';
+import { authApi, tenantApi } from '@/lib/api';
 
 export function SocialConnectStep({
   onComplete,
@@ -108,10 +106,17 @@ export function SocialConnectStep({
       if (platform === 'facebook' || platform === 'instagram') {
         // Meta platforms (Facebook, Instagram)
         const platformsParam = platforms || platform;
-        oauthUrl = `${API_BASE_URL}/api/oauth/meta/start?tenant_id=${tenantId}&platforms=${platformsParam}&success_redirect=${encodeURIComponent(successRedirect)}`;
+        oauthUrl = tenantApi.getMetaOAuthUrl({
+          tenant_id: tenantId,
+          platforms: platformsParam,
+          success_redirect: successRedirect,
+        });
       } else if (platform === 'tiktok') {
         // TikTok
-        oauthUrl = `${API_BASE_URL}/api/oauth/tiktok/start?tenant_id=${tenantId}&success_redirect=${encodeURIComponent(successRedirect)}`;
+        oauthUrl = tenantApi.getTikTokOAuthUrl({
+          tenant_id: tenantId,
+          success_redirect: successRedirect,
+        });
       } else {
         // For WhatsApp and Telegram, use the existing link behavior
         return;

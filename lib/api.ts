@@ -1546,6 +1546,451 @@ export const tenantApi = {
       "/api/tenant/onboarding/industry",
       payload
     ),
+
+  // Payment Account Management endpoints
+  paymentAccounts: () =>
+    get<{
+      payment_accounts: Array<{
+        id: number;
+        account_type: "bank" | "mobile_money" | "cash";
+        bank_name?: string;
+        account_number?: string;
+        account_name: string;
+        provider?: string;
+        phone_number?: string;
+        description?: string;
+        is_default: boolean;
+        is_active: boolean;
+        created_at: string;
+        updated_at: string;
+      }>;
+    }>("/api/tenant/payment-accounts"),
+
+  paymentAccount: (accountId: number) =>
+    get<{
+      id: number;
+      account_type: "bank" | "mobile_money" | "cash";
+      bank_name?: string;
+      account_number?: string;
+      account_name: string;
+      provider?: string;
+      phone_number?: string;
+      description?: string;
+      is_default: boolean;
+      is_active: boolean;
+      created_at: string;
+      updated_at: string;
+    }>(`/api/tenant/payment-accounts/${accountId}`),
+
+  createPaymentAccount: (payload: {
+    account_type: "bank" | "mobile_money" | "cash";
+    bank_name?: string;
+    account_number?: string;
+    account_name: string;
+    provider?: string;
+    phone_number?: string;
+    description?: string;
+    is_default?: boolean;
+  }) =>
+    post<typeof payload, {
+      success: boolean;
+      payment_account: {
+        id: number;
+        account_type: "bank" | "mobile_money" | "cash";
+        bank_name?: string;
+        account_number?: string;
+        account_name: string;
+        provider?: string;
+        phone_number?: string;
+        description?: string;
+        is_default: boolean;
+        is_active: boolean;
+        created_at: string;
+        updated_at: string;
+      };
+    }>("/api/tenant/payment-accounts", payload),
+
+  updatePaymentAccount: (accountId: number, payload: {
+    bank_name?: string;
+    account_number?: string;
+    account_name?: string;
+    provider?: string;
+    phone_number?: string;
+    description?: string;
+    is_default?: boolean;
+    is_active?: boolean;
+  }) =>
+    put<typeof payload, {
+      success: boolean;
+      payment_account: {
+        id: number;
+        account_type: "bank" | "mobile_money" | "cash";
+        bank_name?: string;
+        account_number?: string;
+        account_name: string;
+        provider?: string;
+        phone_number?: string;
+        description?: string;
+        is_default: boolean;
+        is_active: boolean;
+        created_at: string;
+        updated_at: string;
+      };
+    }>(`/api/tenant/payment-accounts/${accountId}`, payload),
+
+  deletePaymentAccount: (accountId: number) =>
+    del<{ success: boolean; message?: string }>(`/api/tenant/payment-accounts/${accountId}`),
+
+  setDefaultPaymentAccount: (accountId: number) =>
+    put<undefined, { success: boolean; message?: string }>(`/api/tenant/payment-accounts/${accountId}/set-default`),
+
+  // Order Management endpoints
+  orders: (params?: { status?: string; platform?: string; limit?: number; offset?: number }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+        ).toString()}`
+      : "";
+    return get<{
+      orders: Array<{
+        id: number;
+        order_number: string;
+        payment_reference: string;
+        customer_name: string;
+        customer_phone?: string;
+        customer_email?: string;
+        total_amount: number;
+        currency: string;
+        status: "pending" | "confirmed" | "processing" | "completed" | "cancelled";
+        platform: string;
+        items: Array<{
+          name: string;
+          quantity: number;
+          unit_price: number;
+          total_price: number;
+        }>;
+        created_at: string;
+        updated_at: string;
+      }>;
+      count: number;
+    }>(`/api/tenant/orders${query}`);
+  },
+
+  order: (orderId: number) =>
+    get<{
+      id: number;
+      order_number: string;
+      payment_reference: string;
+      customer_name: string;
+      customer_phone?: string;
+      customer_email?: string;
+      total_amount: number;
+      currency: string;
+      status: "pending" | "confirmed" | "processing" | "completed" | "cancelled";
+      platform: string;
+      items: Array<{
+        name: string;
+        quantity: number;
+        unit_price: number;
+        total_price: number;
+      }>;
+      payment_instructions?: string;
+      notes?: string;
+      created_at: string;
+      updated_at: string;
+    }>(`/api/tenant/orders/${orderId}`),
+
+  updateOrder: (orderId: number, payload: {
+    status?: "pending" | "confirmed" | "processing" | "completed" | "cancelled";
+    notes?: string;
+  }) =>
+    put<typeof payload, {
+      success: boolean;
+      order: {
+        id: number;
+        order_number: string;
+        payment_reference: string;
+        customer_name: string;
+        customer_phone?: string;
+        customer_email?: string;
+        total_amount: number;
+        currency: string;
+        status: "pending" | "confirmed" | "processing" | "completed" | "cancelled";
+        platform: string;
+        items: Array<{
+          name: string;
+          quantity: number;
+          unit_price: number;
+          total_price: number;
+        }>;
+        payment_instructions?: string;
+        notes?: string;
+        created_at: string;
+        updated_at: string;
+      };
+    }>(`/api/tenant/orders/${orderId}`, payload),
+
+  confirmOrderPayment: (orderId: number, payload: {
+    payment_reference: string;
+    notes?: string;
+  }) =>
+    put<typeof payload, {
+      success: boolean;
+      message?: string;
+      order: {
+        id: number;
+        status: "confirmed" | "processing" | "completed";
+        payment_verified: boolean;
+      };
+    }>(`/api/tenant/orders/${orderId}/confirm-payment`, payload),
+
+  orderStats: () =>
+    get<{
+      total_orders: number;
+      pending_orders: number;
+      completed_orders: number;
+      total_revenue: number;
+      average_order_value: number;
+      currency: string;
+    }>("/api/tenant/orders/stats"),
+
+  // Payment Verification endpoints
+  payments: (params?: { status?: string; verification_status?: string; limit?: number; offset?: number }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+        ).toString()}`
+      : "";
+    return get<{
+      payments: Array<{
+        id: number;
+        order_id: number;
+        order_number: string;
+        payment_reference: string;
+        amount: number;
+        currency: string;
+        status: "pending" | "verified" | "confirmed" | "disputed";
+        verification_status: "pending" | "verified" | "disputed";
+        customer_name: string;
+        customer_phone?: string;
+        created_at: string;
+        verified_at?: string;
+      }>;
+      count: number;
+    }>(`/api/tenant/payments${query}`);
+  },
+
+  payment: (paymentId: number) =>
+    get<{
+      id: number;
+      order_id: number;
+      order_number: string;
+      payment_reference: string;
+      amount: number;
+      currency: string;
+      status: "pending" | "verified" | "confirmed" | "disputed";
+      verification_status: "pending" | "verified" | "disputed";
+      customer_name: string;
+      customer_phone?: string;
+      payment_method?: string;
+      transaction_id?: string;
+      notes?: string;
+      created_at: string;
+      verified_at?: string;
+      disputed_at?: string;
+    }>(`/api/tenant/payments/${paymentId}`),
+
+  verifyPayment: (paymentId: number, payload: {
+    transaction_id?: string;
+    notes?: string;
+  }) =>
+    put<typeof payload, {
+      success: boolean;
+      message?: string;
+      payment: {
+        id: number;
+        verification_status: "verified";
+        verified_at: string;
+      };
+    }>(`/api/tenant/payments/${paymentId}/verify`, payload),
+
+  disputePayment: (paymentId: number, payload: {
+    reason?: string;
+    notes?: string;
+  }) =>
+    put<typeof payload, {
+      success: boolean;
+      message?: string;
+      payment: {
+        id: number;
+        verification_status: "disputed";
+        disputed_at: string;
+      };
+    }>(`/api/tenant/payments/${paymentId}/dispute`, payload),
+
+  // Portal Token Management
+  generatePortalToken: (orderId: number) =>
+    get<{
+      portal_token: string;
+      portal_url: string;
+      expires_at?: string;
+      message?: string;
+    }>(`/api/tenant/orders/${orderId}/portal-token`),
+
+  // Receipt Management
+  generateReceipt: (paymentId: number) =>
+    post<undefined, {
+      success: boolean;
+      receipt_id: string;
+      receipt_url: string;
+      message?: string;
+    }>(`/api/tenant/payments/${paymentId}/generate-receipt`),
+
+  // Notification Settings
+  getNotificationSettings: () =>
+    get<{
+      email_notifications: {
+        enabled: boolean;
+        order_status_changes: boolean;
+        payment_confirmations: boolean;
+        receipt_generated: boolean;
+      };
+      webhook: {
+        enabled: boolean;
+        url: string;
+        events: string[];
+        secret?: string;
+      };
+    }>("/api/tenant/settings/notifications"),
+
+  updateNotificationSettings: (payload: {
+    email_notifications?: {
+      enabled?: boolean;
+      order_status_changes?: boolean;
+      payment_confirmations?: boolean;
+      receipt_generated?: boolean;
+    };
+    webhook?: {
+      enabled?: boolean;
+      url?: string;
+      events?: string[];
+      secret?: string;
+    };
+  }) =>
+    put<typeof payload, {
+      success: boolean;
+      message?: string;
+    }>("/api/tenant/settings/notifications", payload),
+
+  testNotifications: () =>
+    post<undefined, {
+      email_sent: boolean;
+      webhook_sent: boolean;
+      message?: string;
+    }>("/api/tenant/settings/notifications/test"),
+
+  // Customer Portal APIs (Public - no auth required)
+  portalOrder: (token: string) =>
+    get<{
+      order: {
+        id: number;
+        order_number: string;
+        payment_reference: string;
+        status: "pending" | "confirmed" | "processing" | "completed" | "cancelled";
+        total_amount: number;
+        currency: string;
+        items: Array<{
+          name: string;
+          quantity: number;
+          unit_price: number;
+          total_price: number;
+        }>;
+        customer_name: string;
+        customer_phone?: string;
+        customer_email?: string;
+        platform: string;
+        created_at: string;
+        confirmed_at?: string;
+        completed_at?: string;
+      };
+      payment: {
+        id: number;
+        payment_reference: string;
+        amount: number;
+        currency: string;
+        payment_method?: string;
+        status: string;
+        receipt_id?: string;
+        receipt_url?: string;
+        created_at: string;
+      };
+      business: {
+        name: string;
+        email: string;
+        phone: string;
+        location?: string;
+      };
+    }>(`/api/portal/order?token=${token}`),
+
+  portalReceipt: (token: string) =>
+    apiFetch<Blob | string>(`/api/portal/receipt?token=${token}`, {
+      parseJson: false,
+    }),
+
+  portalOrders: (token: string) =>
+    get<{
+      orders: Array<{
+        id: number;
+        order_number: string;
+        payment_reference: string;
+        status: string;
+        total_amount: number;
+        currency: string;
+        items: Array<{
+          name: string;
+          quantity: number;
+          unit_price: number;
+          total_price: number;
+        }>;
+        created_at: string;
+        confirmed_at?: string;
+        completed_at?: string;
+      }>;
+      count: number;
+    }>(`/api/portal/orders?token=${token}`),
+
+  // OAuth Endpoints (redirect-based, return URLs for window.location)
+  getMetaOAuthUrl: (params: {
+    tenant_id: number;
+    platforms?: string; // Comma-separated: "instagram,facebook" or single "instagram"
+    platform?: string; // Alternative to platforms (single platform)
+    success_redirect?: string;
+    page_id?: string;
+    instagram_id?: string;
+    business_id?: string;
+    phone_number_id?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('tenant_id', params.tenant_id.toString());
+    if (params.platforms) queryParams.append('platforms', params.platforms);
+    if (params.platform) queryParams.append('platform', params.platform);
+    if (params.success_redirect) queryParams.append('success_redirect', params.success_redirect);
+    if (params.page_id) queryParams.append('page_id', params.page_id);
+    if (params.instagram_id) queryParams.append('instagram_id', params.instagram_id);
+    if (params.business_id) queryParams.append('business_id', params.business_id);
+    if (params.phone_number_id) queryParams.append('phone_number_id', params.phone_number_id);
+    return `${API_BASE_URL}/api/oauth/meta/start?${queryParams.toString()}`;
+  },
+
+  getTikTokOAuthUrl: (params: {
+    tenant_id: number;
+    success_redirect?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('tenant_id', params.tenant_id.toString());
+    if (params.success_redirect) queryParams.append('success_redirect', params.success_redirect);
+    return `${API_BASE_URL}/api/oauth/tiktok/start?${queryParams.toString()}`;
+  },
 };
 
  
