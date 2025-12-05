@@ -223,10 +223,10 @@ export default function OrderDetailPage() {
                 <div key={idx} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0">
                   <div>
                     <p className="text-sm font-medium text-gray-900">{item.name}</p>
-                    <p className="text-xs text-gray-500">Qty: {item.quantity} × {order.currency} {item.unit_price.toLocaleString()}</p>
+                    <p className="text-xs text-gray-500">Qty: {item.quantity} × {order.currency} {(item.unit_price ?? 0).toLocaleString()}</p>
                   </div>
                   <p className="text-sm font-semibold text-gray-900">
-                    {order.currency} {item.total_price.toLocaleString()}
+                    {order.currency} {(item.total_price ?? 0).toLocaleString()}
                   </p>
                 </div>
               ))}
@@ -234,7 +234,7 @@ export default function OrderDetailPage() {
             <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
               <span className="text-lg font-semibold text-gray-900">Total</span>
               <span className="text-xl font-bold text-gray-900">
-                {order.currency} {order.total_amount.toLocaleString()}
+                {order.currency} {(order.total_amount ?? 0).toLocaleString()}
               </span>
             </div>
           </div>

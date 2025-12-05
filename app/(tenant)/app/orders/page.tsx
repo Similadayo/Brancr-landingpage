@@ -62,7 +62,7 @@ export default function OrdersPage() {
             <div className="flex flex-col gap-1">
               <p className="font-semibold">New Order Created!</p>
               <p className="text-sm">{order.order_number} - {order.customer_name}</p>
-              <p className="text-sm">Amount: {order.currency} {order.total_amount.toLocaleString()}</p>
+              <p className="text-sm">Amount: {order.currency} {(order.total_amount ?? 0).toLocaleString()}</p>
               <Link
                 href={`/app/orders/${order.id}`}
                 onClick={() => toast.dismiss(t.id)}
@@ -178,7 +178,7 @@ export default function OrdersPage() {
           <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <p className="text-sm text-gray-600">Total Revenue</p>
             <p className="mt-1 text-2xl font-bold text-gray-900">
-              {stats.currency} {stats.total_revenue.toLocaleString()}
+              {stats.currency} {(stats.total_revenue ?? 0).toLocaleString()}
             </p>
           </div>
         </div>
@@ -320,7 +320,7 @@ export default function OrdersPage() {
                   </div>
                   <div className="ml-4 text-right">
                     <p className="text-lg font-bold text-gray-900">
-                      {order.currency} {order.total_amount.toLocaleString()}
+                      {order.currency} {(order.total_amount ?? 0).toLocaleString()}
                     </p>
                     <p className="mt-1 text-xs text-gray-500">
                       {new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
