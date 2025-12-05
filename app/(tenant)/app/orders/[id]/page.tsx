@@ -295,7 +295,7 @@ export default function OrderDetailPage() {
               receiptId={(order as any).receipt_id}
               receiptUrl={(order as any).receipt_url}
               orderId={order.id}
-              canGenerate={order.status !== "pending"}
+              canGenerate={true}
             />
           )}
 
