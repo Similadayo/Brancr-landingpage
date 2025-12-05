@@ -132,9 +132,9 @@ export default function InboxPage() {
   };
 
   return (
-    <div className="h-screen overflow-hidden bg-white w-full">
+    <div className="h-[calc(100vh-120px)] -mx-4 -mt-6 -mb-8 overflow-hidden bg-white w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] md:-mx-6">
       {/* Main Content - Three Panel Layout */}
-      <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full">
+      <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
         {/* Left Panel - Conversation List */}
         <section className={`flex flex-col h-full border-r border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
           mobileView === "chat" ? "hidden md:flex" : "flex"
@@ -275,7 +275,7 @@ export default function InboxPage() {
           {activeConversation ? (
             <>
               {/* Chat Header - Fixed */}
-              <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3">
+              <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 z-10">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back button - Mobile only */}
                   {mobileView === "chat" && (
@@ -351,7 +351,7 @@ export default function InboxPage() {
                   </div>
                 )}
                 
-                <div className="space-y-4 px-4 py-4">
+                <div className="space-y-4 px-4 py-4 pb-4">
                   {messages.map((message: Message) => {
                     const isIncoming = message.direction === "incoming";
                     const isOutgoing = message.direction === "outgoing";
@@ -413,7 +413,7 @@ export default function InboxPage() {
               </div>
 
               {/* Message Input - Fixed */}
-              <div className="flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3">
+              <div className="flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3 z-10">
                 <div className="flex items-end gap-2">
                   <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                     <PaperClipIcon className="h-5 w-5" />
