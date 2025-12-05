@@ -79,7 +79,7 @@ export default function OrderDetailPage() {
     }
   };
 
-  const handleStatusUpdate = async (newStatus: string) => {
+  const handleStatusUpdate = async (newStatus: "pending" | "confirmed" | "processing" | "completed" | "cancelled") => {
     try {
       await updateMutation.mutateAsync({ orderId, payload: { status: newStatus } });
     } catch (error) {
@@ -118,6 +118,7 @@ export default function OrderDetailPage() {
         <button
           onClick={() => router.push("/app/orders")}
           className="rounded-lg border border-gray-200 bg-white p-2 text-gray-600 transition hover:border-primary hover:text-primary"
+          aria-label="Back to orders"
         >
           <ChevronLeftIcon className="h-5 w-5" />
         </button>
@@ -275,7 +276,7 @@ export default function OrderDetailPage() {
                 <label className="mb-2 block text-sm font-semibold text-gray-700">Update Status</label>
                 <select
                   value={order.status}
-                  onChange={(e) => handleStatusUpdate(e.target.value)}
+                  onChange={(e) => handleStatusUpdate(e.target.value as "pending" | "confirmed" | "processing" | "completed" | "cancelled")}
                   className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="pending">Pending</option>
@@ -314,6 +315,7 @@ export default function OrderDetailPage() {
                 type="button"
                 onClick={() => setShowConfirmModal(false)}
                 className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                aria-label="Close modal"
               >
                 <XIcon className="h-5 w-5" />
               </button>
@@ -341,11 +343,13 @@ export default function OrderDetailPage() {
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700">Notes (Optional)</label>
+                <label htmlFor="payment-notes" className="block text-sm font-semibold text-gray-700">Notes (Optional)</label>
                 <textarea
+                  id="payment-notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
+                  placeholder="Additional notes about the payment..."
                   className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>

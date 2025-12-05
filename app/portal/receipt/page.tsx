@@ -1,12 +1,12 @@
 'use client';
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { tenantApi } from "@/lib/api";
 import { XIcon, ArrowUpTrayIcon } from "@/app/(tenant)/components/icons";
 import Link from "next/link";
 
-export default function CustomerPortalReceiptPage() {
+function CustomerPortalReceiptPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
@@ -174,6 +174,18 @@ export default function CustomerPortalReceiptPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function CustomerPortalReceiptPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+      </div>
+    }>
+      <CustomerPortalReceiptPageContent />
+    </Suspense>
   );
 }
 

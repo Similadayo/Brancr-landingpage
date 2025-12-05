@@ -1,12 +1,13 @@
 'use client';
 
 import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
 import { usePortalOrder } from "@/app/(tenant)/hooks/usePortal";
 import { CopyToClipboard } from "@/app/(tenant)/components/CopyToClipboard";
 import { PackageIcon, XIcon, CheckCircleIcon, ClockIcon } from "@/app/(tenant)/components/icons";
 import Link from "next/link";
 
-export default function CustomerPortalOrderPage() {
+function CustomerPortalOrderPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
@@ -187,6 +188,18 @@ export default function CustomerPortalOrderPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CustomerPortalOrderPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+      </div>
+    }>
+      <CustomerPortalOrderPageContent />
+    </Suspense>
   );
 }
 
