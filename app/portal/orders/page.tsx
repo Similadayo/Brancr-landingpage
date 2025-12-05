@@ -60,7 +60,7 @@ export default function CustomerPortalOrdersPage() {
           <div className="rounded-xl border-2 border-dashed border-gray-200 bg-white p-16 text-center">
             <PackageIcon className="mx-auto h-16 w-16 text-gray-400" />
             <p className="mt-4 text-lg font-semibold text-gray-900">No orders found</p>
-            <p className="mt-2 text-sm text-gray-600">You don't have any orders yet.</p>
+            <p className="mt-2 text-sm text-gray-600">You don&apos;t have any orders yet.</p>
           </div>
         ) : (
           <div className="space-y-4">

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useGenerateReceipt } from '../hooks/useReceipts';
-import { PackageIcon, ArrowUpTrayIcon, XIcon } from './icons';
+import { PackageIcon, ArrowUpTrayIcon, XIcon, CheckCircleIcon } from './icons';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 
