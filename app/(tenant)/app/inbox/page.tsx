@@ -132,9 +132,9 @@ export default function InboxPage() {
   };
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-white w-full">
+    <div className="h-screen overflow-hidden bg-white w-full">
       {/* Main Content - Three Panel Layout */}
-      <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
+      <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full">
         {/* Left Panel - Conversation List */}
         <section className={`flex flex-col h-full border-r border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
           mobileView === "chat" ? "hidden md:flex" : "flex"
@@ -274,8 +274,8 @@ export default function InboxPage() {
         }`}>
           {activeConversation ? (
             <>
-              {/* Chat Header */}
-              <header className="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 py-3">
+              {/* Chat Header - Fixed */}
+              <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back button - Mobile only */}
                   {mobileView === "chat" && (
@@ -340,8 +340,8 @@ export default function InboxPage() {
                 </div>
               </header>
 
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto bg-gray-50">
+              {/* Messages - Scrollable */}
+              <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0">
                 {/* Date separator */}
                 {messages.length > 0 && (
                   <div className="px-4 py-2 text-center">
@@ -404,7 +404,7 @@ export default function InboxPage() {
                     );
                   })}
                   {messages.length === 0 && (
-                    <div className="flex items-center justify-center h-full">
+                    <div className="flex items-center justify-center py-12">
                       <p className="text-sm text-gray-500">No messages yet</p>
                     </div>
                   )}
@@ -412,8 +412,8 @@ export default function InboxPage() {
                 </div>
               </div>
 
-              {/* Message Input */}
-              <div className="sticky bottom-0 flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3">
+              {/* Message Input - Fixed */}
+              <div className="flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3">
                 <div className="flex items-end gap-2">
                   <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                     <PaperClipIcon className="h-5 w-5" />
@@ -467,12 +467,12 @@ export default function InboxPage() {
         }`}>
           {activeConversation ? (
             <>
-              {/* Header */}
+              {/* Header - Fixed */}
               <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
                 <h3 className="text-sm font-semibold text-gray-900">Chat Details</h3>
               </div>
 
-              {/* Content */}
+              {/* Content - Scrollable */}
               <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
                 {/* Contact Profile */}
                 <div className="mb-6">
