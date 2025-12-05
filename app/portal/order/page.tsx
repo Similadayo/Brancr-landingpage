@@ -56,17 +56,17 @@ function CustomerPortalOrderPageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-4xl px-4 py-8">
+      <div className="mx-auto max-w-4xl px-4 py-4 sm:py-8">
         {/* Header */}
-        <div className="mb-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h1 className="text-2xl font-bold text-gray-900">{business.name}</h1>
+        <div className="mb-4 sm:mb-8 rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{business.name}</h1>
           {business.location && <p className="mt-1 text-sm text-gray-600">{business.location}</p>}
         </div>
 
         {/* Order Details */}
-        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">Order Details</h2>
+        <div className="mb-4 sm:mb-6 rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
+          <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Order Details</h2>
             <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(order.status)}`}>
               {order.status}
             </span>

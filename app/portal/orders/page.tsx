@@ -54,8 +54,8 @@ function CustomerPortalOrdersPageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-4xl px-4 py-8">
-        <h1 className="mb-8 text-3xl font-bold text-gray-900">Your Orders</h1>
+      <div className="mx-auto max-w-4xl px-4 py-4 sm:py-8">
+        <h1 className="mb-4 sm:mb-8 text-2xl sm:text-3xl font-bold text-gray-900">Your Orders</h1>
 
         {orders.length === 0 ? (
           <div className="rounded-xl border-2 border-dashed border-gray-200 bg-white p-16 text-center">
@@ -69,30 +69,30 @@ function CustomerPortalOrdersPageContent() {
               <Link
                 key={order.id}
                 href={`/portal/order?token=${token}&order=${order.id}`}
-                className="block rounded-xl border-2 border-gray-200 bg-white p-6 transition hover:border-primary/50 hover:shadow-md"
+                className="block rounded-xl border-2 border-gray-200 bg-white p-4 sm:p-6 transition hover:border-primary/50 hover:shadow-md active:scale-[0.98]"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-lg font-semibold text-gray-900">{order.order_number}</h3>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">{order.order_number}</h3>
                       <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${getStatusColor(order.status)}`}>
                         {order.status}
                       </span>
                     </div>
                     <div className="mt-2 space-y-1">
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs sm:text-sm text-gray-600 break-all">
                         Payment Ref: <span className="font-mono font-medium">{order.payment_reference}</span>
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs sm:text-sm text-gray-600">
                         Items: <span className="font-medium">{order.items.length} item(s)</span>
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs sm:text-sm text-gray-600">
                         Created: <span className="font-medium">{new Date(order.created_at).toLocaleDateString()}</span>
                       </p>
                     </div>
                   </div>
-                  <div className="ml-4 text-right">
-                    <p className="text-lg font-bold text-gray-900">
+                  <div className="flex-shrink-0 text-left sm:text-right">
+                    <p className="text-base sm:text-lg font-bold text-gray-900">
                       {order.currency} {order.total_amount.toLocaleString()}
                     </p>
                   </div>

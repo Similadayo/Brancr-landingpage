@@ -10,6 +10,8 @@ import { useIntegrations } from "@/app/(tenant)/hooks/useIntegrations";
 import { useConversations } from "@/app/(tenant)/hooks/useConversations";
 import { useEscalations, useEscalationStats } from "@/app/(tenant)/hooks/useEscalations";
 import { useMedia } from "@/app/(tenant)/hooks/useMedia";
+import { useOrders } from "@/app/(tenant)/hooks/useOrders";
+import { usePayments } from "@/app/(tenant)/hooks/usePayments";
 import {
   RocketIcon,
   UserGroupIcon,
@@ -25,7 +27,10 @@ import {
   CheckCircleIcon,
   FireIcon,
   ImageIcon,
+  PackageIcon,
+  CurrencyDollarIcon,
 } from "../components/icons";
+import { OrderCard, PaymentCard } from "../components/cards";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -46,6 +51,8 @@ export default function TenantOverviewPage() {
   const { data: escalationsData } = useEscalations({ limit: 5 });
   const { data: escalationStatsData } = useEscalationStats();
   const { data: mediaData } = useMedia({ limit: 5 });
+  const { data: ordersData } = useOrders({ limit: 5 });
+  const { data: paymentsData } = usePayments({ limit: 5 });
 
   // Ensure all data is arrays
   const scheduledPosts = Array.isArray(scheduledPostsData) ? scheduledPostsData : [];
@@ -53,6 +60,8 @@ export default function TenantOverviewPage() {
   const conversations = Array.isArray(conversationsData) ? conversationsData : [];
   const escalations = escalationsData?.escalations || [];
   const mediaItems = mediaData || [];
+  const orders = ordersData?.orders || [];
+  const payments = paymentsData?.payments || [];
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -284,6 +293,81 @@ export default function TenantOverviewPage() {
           </div>
         </div>
       </div>
+
+      {/* Orders & Payments Stats */}
+      {(orders.length > 0 || payments.length > 0) && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+          {/* Recent Orders */}
+          {orders.length > 0 && (
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Recent Orders</h2>
+                  <p className="mt-0.5 text-xs text-gray-500">Latest orders</p>
+                </div>
+                <Link
+                  href="/app/orders"
+                  className="inline-flex items-center text-xs font-semibold text-primary hover:text-primary/80 transition"
+                >
+                  View all
+                  <ArrowRightIcon className="ml-1 h-3 w-3" />
+                </Link>
+              </div>
+              <div className="space-y-2">
+                {orders.slice(0, 3).map((order) => (
+                  <OrderCard
+                    key={order.id}
+                    id={order.id}
+                    order_number={order.order_number}
+                    status={order.status}
+                    total_amount={order.total_amount}
+                    currency={order.currency}
+                    created_at={order.created_at}
+                    items_count={order.items.length}
+                    payment_reference={order.payment_reference}
+                    isAutoCreated={order.is_auto_created}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Recent Payments */}
+          {payments.length > 0 && (
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Recent Payments</h2>
+                  <p className="mt-0.5 text-xs text-gray-500">Latest payments</p>
+                </div>
+                <Link
+                  href="/app/payments"
+                  className="inline-flex items-center text-xs font-semibold text-primary hover:text-primary/80 transition"
+                >
+                  View all
+                  <ArrowRightIcon className="ml-1 h-3 w-3" />
+                </Link>
+              </div>
+              <div className="space-y-2">
+                {payments.slice(0, 3).map((payment) => (
+                  <PaymentCard
+                    key={payment.id}
+                    id={payment.id}
+                    amount={payment.amount}
+                    currency={payment.currency}
+                    status={payment.status === 'verified' || payment.status === 'confirmed' ? 'verified' : payment.status === 'pending' ? 'pending' : payment.status === 'disputed' ? 'disputed' : 'failed'}
+                    payment_method={payment.payment_method}
+                    payment_reference={payment.payment_reference}
+                    created_at={payment.created_at}
+                    order_id={payment.order_id}
+                    order_number={payment.order_number}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Main Content Grid */}
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
