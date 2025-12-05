@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { PackageIcon, CurrencyDollarIcon } from '../icons';
+import { PackageIcon } from '../icons';
 
 type ProductCardProps = {
   id: number;

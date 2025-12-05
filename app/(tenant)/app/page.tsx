@@ -28,7 +28,6 @@ import {
   FireIcon,
   ImageIcon,
   PackageIcon,
-  CurrencyDollarIcon,
 } from "../components/icons";
 import { OrderCard, PaymentCard } from "../components/cards";
 

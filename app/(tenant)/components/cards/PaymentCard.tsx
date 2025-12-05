@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { CurrencyDollarIcon, CheckCircleIcon, XCircleIcon, ClockIcon } from '../icons';
+import { CheckCircleIcon, XCircleIcon, ClockIcon } from '../icons';
 
 type PaymentCardProps = {
   id: number;
