@@ -134,9 +134,9 @@ export default function InboxPage() {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-white w-full">
       {/* Main Content - Three Panel Layout */}
-      <div className="grid min-h-0 flex-1 gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-x-hidden">
+      <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
         {/* Left Panel - Conversation List */}
-        <section className={`flex flex-col border-r border-gray-200 bg-white transition-transform duration-300 overflow-x-hidden ${
+        <section className={`flex flex-col h-full border-r border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
           mobileView === "chat" ? "hidden md:flex" : "flex"
         }`}>
           {/* Tabs */}
@@ -177,7 +177,7 @@ export default function InboxPage() {
           </div>
           
           {/* Conversation List */}
-          <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
@@ -269,7 +269,7 @@ export default function InboxPage() {
         </section>
 
         {/* Center Panel - Chat Conversation */}
-        <section className={`flex min-h-0 flex-1 flex-col bg-white border-r border-gray-200 transition-transform duration-300 overflow-x-hidden ${
+        <section className={`flex h-full flex-col bg-white border-r border-gray-200 transition-transform duration-300 overflow-hidden ${
           mobileView === "list" ? "hidden md:flex" : "flex"
         }`}>
           {activeConversation ? (
@@ -341,7 +341,7 @@ export default function InboxPage() {
               </header>
 
               {/* Messages */}
-              <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-gray-50">
+              <div className="flex-1 overflow-y-auto bg-gray-50">
                 {/* Date separator */}
                 {messages.length > 0 && (
                   <div className="px-4 py-2 text-center">
@@ -351,7 +351,7 @@ export default function InboxPage() {
                   </div>
                 )}
                 
-                <div className="flex-1 space-y-4 px-4 py-4">
+                <div className="space-y-4 px-4 py-4">
                   {messages.map((message: Message) => {
                     const isIncoming = message.direction === "incoming";
                     const isOutgoing = message.direction === "outgoing";
@@ -462,7 +462,7 @@ export default function InboxPage() {
         </section>
 
         {/* Right Panel - Chat Details */}
-        <aside className={`hidden md:flex flex-col border-l border-gray-200 bg-white transition-transform duration-300 ${
+        <aside className={`hidden md:flex flex-col h-full border-l border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
           mobileView === "list" ? "hidden" : ""
         }`}>
           {activeConversation ? (
@@ -473,7 +473,7 @@ export default function InboxPage() {
               </div>
 
               {/* Content */}
-              <div className="flex-1 overflow-y-auto px-4 py-4">
+              <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
                 {/* Contact Profile */}
                 <div className="mb-6">
                   <div className="flex items-center gap-3 mb-4">
