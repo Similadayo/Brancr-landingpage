@@ -147,61 +147,73 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <header className="flex flex-col gap-3 sm:gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <PackageIcon className="w-6 h-6" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <PackageIcon className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Orders</h1>
-            <p className="mt-1 text-sm text-gray-600">Manage customer orders from sales conversations</p>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl lg:text-4xl">Orders</h1>
+            <p className="mt-0.5 text-xs text-gray-600 sm:mt-1 sm:text-sm">Manage customer orders from sales conversations</p>
           </div>
         </div>
       </header>
 
       {/* Stats */}
       {stats && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <p className="text-sm text-gray-600">Total Orders</p>
-            <p className="mt-1 text-2xl font-bold text-gray-900">{stats.total_orders}</p>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-4">
+            <div className="absolute right-0 top-0 h-12 w-12 -translate-y-3 translate-x-3 rounded-full bg-blue-50 transition-transform group-hover:scale-150 sm:h-16 sm:w-16 sm:-translate-y-4 sm:translate-x-4" />
+            <div className="relative">
+              <p className="text-xs text-gray-600 sm:text-sm">Total Orders</p>
+              <p className="mt-1 text-xl font-bold text-gray-900 sm:text-2xl">{stats.total_orders}</p>
+            </div>
           </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <p className="text-sm text-gray-600">Pending</p>
-            <p className="mt-1 text-2xl font-bold text-yellow-600">{stats.pending_orders}</p>
+          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-4">
+            <div className="absolute right-0 top-0 h-12 w-12 -translate-y-3 translate-x-3 rounded-full bg-yellow-50 transition-transform group-hover:scale-150 sm:h-16 sm:w-16 sm:-translate-y-4 sm:translate-x-4" />
+            <div className="relative">
+              <p className="text-xs text-gray-600 sm:text-sm">Pending</p>
+              <p className="mt-1 text-xl font-bold text-yellow-600 sm:text-2xl">{stats.pending_orders}</p>
+            </div>
           </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <p className="text-sm text-gray-600">Completed</p>
-            <p className="mt-1 text-2xl font-bold text-green-600">{stats.completed_orders}</p>
+          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-4">
+            <div className="absolute right-0 top-0 h-12 w-12 -translate-y-3 translate-x-3 rounded-full bg-green-50 transition-transform group-hover:scale-150 sm:h-16 sm:w-16 sm:-translate-y-4 sm:translate-x-4" />
+            <div className="relative">
+              <p className="text-xs text-gray-600 sm:text-sm">Completed</p>
+              <p className="mt-1 text-xl font-bold text-green-600 sm:text-2xl">{stats.completed_orders}</p>
+            </div>
           </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <p className="text-sm text-gray-600">Total Revenue</p>
-            <p className="mt-1 text-2xl font-bold text-gray-900">
-              {stats.currency} {(stats.total_revenue ?? 0).toLocaleString()}
-            </p>
+          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-4 col-span-2 lg:col-span-1">
+            <div className="absolute right-0 top-0 h-12 w-12 -translate-y-3 translate-x-3 rounded-full bg-purple-50 transition-transform group-hover:scale-150 sm:h-16 sm:w-16 sm:-translate-y-4 sm:translate-x-4" />
+            <div className="relative">
+              <p className="text-xs text-gray-600 sm:text-sm">Total Revenue</p>
+              <p className="mt-1 text-xl font-bold text-gray-900 sm:text-2xl">
+                {stats.currency} {(stats.total_revenue ?? 0).toLocaleString()}
+              </p>
+            </div>
           </div>
         </div>
       )}
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:p-4">
         <div className="relative flex-1">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:h-5 sm:w-5" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by order number, customer name, or payment reference..."
-            className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+            placeholder="Search orders..."
+            className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 sm:pl-10 sm:pr-4 sm:py-2.5"
           />
         </div>
         <div className="flex items-center gap-2">
-          <FunnelIcon className="h-4 w-4 text-gray-400" />
+          <FunnelIcon className="h-4 w-4 shrink-0 text-gray-400" />
           <select
             value={statusFilter || ""}
             onChange={(e) => setStatusFilter(e.target.value || undefined)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
           >
             <option value="">All Status</option>
             <option value="pending">Pending</option>
@@ -213,7 +225,7 @@ export default function OrdersPage() {
           <select
             value={platformFilter || ""}
             onChange={(e) => setPlatformFilter(e.target.value || undefined)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
           >
             <option value="">All Platforms</option>
             <option value="whatsapp">WhatsApp</option>
@@ -227,7 +239,7 @@ export default function OrdersPage() {
               setPlatformFilter(undefined);
               setQuery("");
             }}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary active:scale-95"
           >
             Clear
           </button>
@@ -250,13 +262,13 @@ export default function OrdersPage() {
           <p className="mt-3 text-sm font-semibold text-rose-900">Failed to load orders</p>
         </div>
       ) : filteredOrders.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-16 text-center">
-          <PackageIcon className="mx-auto h-16 w-16 text-gray-400" />
-          <p className="mt-4 text-lg font-semibold text-gray-900">No orders found</p>
-          <p className="mt-2 text-sm text-gray-600">Orders will appear here when customers commit to purchase.</p>
+        <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-8 text-center sm:p-16">
+          <PackageIcon className="mx-auto h-12 w-12 text-gray-400 sm:h-16 sm:w-16" />
+          <p className="mt-4 text-base font-semibold text-gray-900 sm:text-lg">No orders found</p>
+          <p className="mt-2 text-xs text-gray-600 sm:text-sm">Orders will appear here when customers commit to purchase.</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {filteredOrders.map((order) => {
             const isNew = isNewOrder(order);
             const autoCreated = isAutoCreated(order);
@@ -264,34 +276,34 @@ export default function OrdersPage() {
               <Link
                 key={order.id}
                 href={`/app/orders/${order.id}`}
-                className={`block rounded-xl border-2 p-4 transition hover:shadow-md ${
+                className={`group block rounded-xl border-2 p-3 transition hover:border-primary/30 hover:shadow-md active:scale-[0.98] sm:p-4 ${
                   isNew
-                    ? "border-primary/50 bg-primary/5 animate-in fade-in slide-in-from-left-2"
-                    : "border-gray-200 bg-white hover:border-primary/50"
+                    ? "border-primary/50 bg-primary/5"
+                    : "border-gray-200 bg-white"
                 }`}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-lg font-semibold text-gray-900">{order.order_number}</h3>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                      <h3 className="text-base font-semibold text-gray-900 sm:text-lg">{order.order_number}</h3>
                       {autoCreated && (
-                        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                        <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700 sm:px-2 sm:text-xs">
                           Auto-created
                         </span>
                       )}
                       {isNew && (
-                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700 animate-pulse">
+                        <span className="rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-semibold text-green-700 sm:px-2 sm:text-xs">
                           New
                         </span>
                       )}
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${getStatusColor(order.status)}`}>
+                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold sm:px-2 sm:text-xs ${getStatusColor(order.status)}`}>
                         {order.status}
                       </span>
-                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600 capitalize">
+                      <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600 capitalize sm:px-2 sm:text-xs">
                         {order.platform}
                       </span>
                     </div>
-                    <div className="mt-3">
+                    <div className="mt-2 sm:mt-3">
                       <div
                         onClick={(e) => e.preventDefault()}
                         className="mb-2"
@@ -300,34 +312,36 @@ export default function OrdersPage() {
                           text={order.payment_reference}
                           label="Payment Ref:"
                           showLabel={true}
-                          className="text-sm"
+                          className="text-xs sm:text-sm"
                         />
                       </div>
                     </div>
-                    <div className="mt-2 space-y-1">
-                      <p className="text-sm text-gray-600">
+                    <div className="mt-2 space-y-0.5 sm:space-y-1">
+                      <p className="text-xs text-gray-600 sm:text-sm">
                         Customer: <span className="font-medium">{order.customer_name}</span>
                       </p>
                       {order.customer_phone && (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-xs text-gray-600 sm:text-sm">
                           Phone: <span className="font-medium">{order.customer_phone}</span>
                         </p>
                       )}
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs text-gray-600 sm:text-sm">
                         Items: <span className="font-medium">{order.items.length} item(s)</span>
                       </p>
                     </div>
                   </div>
-                  <div className="ml-4 text-right">
-                    <p className="text-lg font-bold text-gray-900">
+                  <div className="flex items-center justify-between border-t border-gray-100 pt-2 sm:ml-4 sm:flex-col sm:items-end sm:border-0 sm:pt-0">
+                    <p className="text-base font-bold text-gray-900 sm:text-lg">
                       {order.currency} {(order.total_amount ?? 0).toLocaleString()}
                     </p>
-                    <p className="mt-1 text-xs text-gray-500">
-                      {new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                    </p>
-                    <p className="mt-1 text-xs text-gray-400">
-                      {new Date(order.created_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
-                    </p>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500">
+                        {new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {new Date(order.created_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </Link>

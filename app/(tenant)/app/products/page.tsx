@@ -58,26 +58,26 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <header className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <PackageIcon className="w-6 h-6" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <PackageIcon className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Products</h1>
-            <p className="mt-1 text-sm text-gray-600">Manage your product catalog</p>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl lg:text-4xl">Products</h1>
+            <p className="mt-0.5 text-xs text-gray-600 sm:mt-1 sm:text-sm">Manage your product catalog</p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {selectedProductIds.length > 0 && (
             <button
               onClick={handleBulkDelete}
-              className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100"
+              className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm"
             >
-              <TrashIcon className="w-4 h-4" />
-              Delete Selected ({selectedProductIds.length})
+              <TrashIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              Delete ({selectedProductIds.length})
             </button>
           )}
           <button
@@ -85,32 +85,32 @@ export default function ProductsPage() {
               setEditingProduct(null);
               setIsCreateModalOpen(true);
             }}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm sm:shadow-md"
           >
-            <PlusIcon className="w-4 h-4" />
+            <PlusIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Add Product
           </button>
         </div>
       </header>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:p-4">
         <div className="relative flex-1">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:h-5 sm:w-5" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search products..."
-            className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 sm:pl-10 sm:pr-4 sm:py-2.5"
           />
         </div>
         <div className="flex items-center gap-2">
-          <FunnelIcon className="h-4 w-4 text-gray-400" />
+          <FunnelIcon className="h-4 w-4 shrink-0 text-gray-400" />
           <select
             value={category || ""}
             onChange={(e) => setCategory(e.target.value || undefined)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
           >
             <option value="">All Categories</option>
             {categories.map((cat) => (
@@ -124,7 +124,7 @@ export default function ProductsPage() {
               setCategory(undefined);
               setQuery("");
             }}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary active:scale-95"
           >
             Clear
           </button>
@@ -147,73 +147,71 @@ export default function ProductsPage() {
           <p className="mt-3 text-sm font-semibold text-rose-900">Failed to load products</p>
         </div>
       ) : products.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-16 text-center">
-          <PackageIcon className="mx-auto h-16 w-16 text-gray-400" />
-          <p className="mt-4 text-lg font-semibold text-gray-900">No products found</p>
-          <p className="mt-2 text-sm text-gray-600">Add your first product to get started.</p>
+        <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-8 text-center sm:p-16">
+          <PackageIcon className="mx-auto h-12 w-12 text-gray-400 sm:h-16 sm:w-16" />
+          <p className="mt-4 text-base font-semibold text-gray-900 sm:text-lg">No products found</p>
+          <p className="mt-2 text-xs text-gray-600 sm:text-sm">Add your first product to get started.</p>
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 sm:mt-6 sm:px-6 sm:py-3 sm:text-sm sm:shadow-md"
           >
-            <PlusIcon className="w-4 h-4" />
+            <PlusIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Add Product
           </button>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {products.map((product) => {
             const isSelected = selectedProductIds.includes(product.id);
             return (
               <div
                 key={product.id}
-                className={`relative rounded-xl border-2 transition-all ${
+                className={`group relative overflow-hidden rounded-xl border-2 transition-all ${
                   isSelected
-                    ? "border-primary bg-primary/5 ring-4 ring-primary/20"
-                    : "border-gray-200 bg-white hover:border-primary/50 hover:shadow-md"
+                    ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                    : "border-gray-200 bg-white hover:border-primary/30 hover:shadow-md"
                 }`}
               >
                 <div
-                  className="absolute left-2 top-2 cursor-pointer"
+                  className="absolute left-2 top-2 z-10 cursor-pointer"
                   onClick={() => toggleSelect(product.id)}
                 >
                   {isSelected ? (
-                    <CheckCircleIcon className="h-6 w-6 text-primary" />
+                    <CheckCircleIcon className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
                   ) : (
-                    <div className="h-6 w-6 rounded-full border-2 border-gray-300" />
+                    <div className="h-5 w-5 rounded-full border-2 border-gray-300 bg-white transition group-hover:border-primary sm:h-6 sm:w-6" />
                   )}
                 </div>
 
-                <div className="p-4">
+                <div className="p-3 sm:p-4">
                   <div className="mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">{product.name}</h3>
+                    <h3 className="text-base font-semibold text-gray-900 line-clamp-1 sm:text-lg">{product.name}</h3>
                     {product.category && (
-                      <p className="text-xs text-gray-500 uppercase tracking-wider">{product.category}</p>
+                      <p className="mt-0.5 text-xs text-gray-500 uppercase tracking-wider">{product.category}</p>
                     )}
                   </div>
 
                   {product.description && (
-                    <p className="mb-3 line-clamp-2 text-sm text-gray-600">{product.description}</p>
+                    <p className="mb-2 line-clamp-2 text-xs text-gray-600 sm:mb-3 sm:text-sm">{product.description}</p>
                   )}
 
-                  <div className="mb-3 flex items-center justify-between">
-                    <div>
-                      <p className="text-lg font-bold text-gray-900">
-                        {product.currency} {product.price.toLocaleString()}
+                  <div className="mb-2 sm:mb-3">
+                    <p className="text-base font-bold text-gray-900 sm:text-lg">
+                      {product.currency} {product.price.toLocaleString()}
+                    </p>
+                    {product.stock_count !== undefined && (
+                      <p className="mt-0.5 text-xs text-gray-500">
+                        Stock: {product.stock_count} {product.availability === "in_stock" ? "✅" : "❌"}
                       </p>
-                      {product.stock_count !== undefined && (
-                        <p className="text-xs text-gray-500">
-                          Stock: {product.stock_count} {product.availability === "in_stock" ? "✅" : "❌"}
-                        </p>
-                      )}
-                    </div>
+                    )}
                   </div>
 
                   {product.tags && product.tags.length > 0 && (
-                    <div className="mb-3 flex flex-wrap gap-1">
+                    <div className="mb-2 flex flex-wrap gap-1 sm:mb-3">
                       {product.tags.slice(0, 3).map((tag) => (
                         <span
                           key={tag}
-                          className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600"
+                          className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600"
                         >
                           {tag}
                         </span>
@@ -221,20 +219,20 @@ export default function ProductsPage() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-2">
                     <button
                       onClick={() => {
                         setEditingProduct(product);
                         setIsCreateModalOpen(true);
                       }}
-                      className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition"
+                      className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition active:scale-95"
                     >
                       <PencilIcon className="h-3 w-3" />
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(product.id)}
-                      className="flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700 transition"
+                      className="flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700 transition active:scale-95"
                     >
                       <TrashIcon className="h-3 w-3" />
                       Delete
@@ -315,13 +313,14 @@ function ProductFormModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-xl">
+      <div className="w-full max-w-2xl rounded-xl border border-gray-200 bg-white p-4 shadow-xl sm:p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">{product ? "Edit Product" : "Add Product"}</h2>
+          <h2 className="text-base font-semibold text-gray-900 sm:text-lg">{product ? "Edit Product" : "Add Product"}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+            className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 active:scale-95"
+            aria-label="Close modal"
           >
             <XIcon className="h-5 w-5" />
           </button>
@@ -410,18 +409,18 @@ function ProductFormModal({
             />
           </div>
 
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex flex-col-reverse items-stretch gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+              className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary active:scale-95"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 disabled:opacity-50 sm:shadow-md"
             >
               {isSubmitting ? "Saving..." : product ? "Update" : "Create"}
             </button>

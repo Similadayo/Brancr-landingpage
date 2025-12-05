@@ -112,59 +112,68 @@ export default function PaymentsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <header className="flex flex-col gap-3 sm:gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <CreditCardIcon className="w-6 h-6" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <CreditCardIcon className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Payment Verification</h1>
-            <p className="mt-1 text-sm text-gray-600">Verify and manage customer payments</p>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl lg:text-4xl">Payment Verification</h1>
+            <p className="mt-0.5 text-xs text-gray-600 sm:mt-1 sm:text-sm">Verify and manage customer payments</p>
           </div>
         </div>
       </header>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-600">Total Payments</p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">{count}</p>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-4">
+          <div className="absolute right-0 top-0 h-12 w-12 -translate-y-3 translate-x-3 rounded-full bg-blue-50 transition-transform group-hover:scale-150 sm:h-16 sm:w-16 sm:-translate-y-4 sm:translate-x-4" />
+          <div className="relative">
+            <p className="text-xs text-gray-600 sm:text-sm">Total Payments</p>
+            <p className="mt-1 text-xl font-bold text-gray-900 sm:text-2xl">{count}</p>
+          </div>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-600">Pending Verification</p>
-          <p className="mt-1 text-2xl font-bold text-yellow-600">
-            {payments.filter((p) => p.verification_status === "pending").length}
-          </p>
+        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-4">
+          <div className="absolute right-0 top-0 h-12 w-12 -translate-y-3 translate-x-3 rounded-full bg-yellow-50 transition-transform group-hover:scale-150 sm:h-16 sm:w-16 sm:-translate-y-4 sm:translate-x-4" />
+          <div className="relative">
+            <p className="text-xs text-gray-600 sm:text-sm">Pending Verification</p>
+            <p className="mt-1 text-xl font-bold text-yellow-600 sm:text-2xl">
+              {payments.filter((p) => p.verification_status === "pending").length}
+            </p>
+          </div>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-600">Verified</p>
-          <p className="mt-1 text-2xl font-bold text-green-600">
-            {payments.filter((p) => p.verification_status === "verified").length}
-          </p>
+        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-4">
+          <div className="absolute right-0 top-0 h-12 w-12 -translate-y-3 translate-x-3 rounded-full bg-green-50 transition-transform group-hover:scale-150 sm:h-16 sm:w-16 sm:-translate-y-4 sm:translate-x-4" />
+          <div className="relative">
+            <p className="text-xs text-gray-600 sm:text-sm">Verified</p>
+            <p className="mt-1 text-xl font-bold text-green-600 sm:text-2xl">
+              {payments.filter((p) => p.verification_status === "verified").length}
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:p-4">
         <div className="relative flex-1">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:h-5 sm:w-5" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by payment reference, order number, or customer name..."
-            className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+            placeholder="Search payments..."
+            className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 sm:pl-10 sm:pr-4 sm:py-2.5"
           />
         </div>
         <div className="flex items-center gap-2">
-          <FunnelIcon className="h-4 w-4 text-gray-400" />
+          <FunnelIcon className="h-4 w-4 shrink-0 text-gray-400" />
           <select
             value={verificationFilter || ""}
             onChange={(e) => setVerificationFilter(e.target.value || undefined)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
           >
-            <option value="">All Verification Status</option>
+            <option value="">All Verification</option>
             <option value="pending">Pending</option>
             <option value="verified">Verified</option>
             <option value="disputed">Disputed</option>
@@ -172,7 +181,7 @@ export default function PaymentsPage() {
           <select
             value={statusFilter || ""}
             onChange={(e) => setStatusFilter(e.target.value || undefined)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
           >
             <option value="">All Status</option>
             <option value="pending">Pending</option>
@@ -186,7 +195,7 @@ export default function PaymentsPage() {
               setVerificationFilter(undefined);
               setQuery("");
             }}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary active:scale-95"
           >
             Clear
           </button>
@@ -209,43 +218,43 @@ export default function PaymentsPage() {
           <p className="mt-3 text-sm font-semibold text-rose-900">Failed to load payments</p>
         </div>
       ) : filteredPayments.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-16 text-center">
-          <CreditCardIcon className="mx-auto h-16 w-16 text-gray-400" />
-          <p className="mt-4 text-lg font-semibold text-gray-900">No payments found</p>
-          <p className="mt-2 text-sm text-gray-600">Payments will appear here when customers make payments.</p>
+        <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-8 text-center sm:p-16">
+          <CreditCardIcon className="mx-auto h-12 w-12 text-gray-400 sm:h-16 sm:w-16" />
+          <p className="mt-4 text-base font-semibold text-gray-900 sm:text-lg">No payments found</p>
+          <p className="mt-2 text-xs text-gray-600 sm:text-sm">Payments will appear here when customers make payments.</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {filteredPayments.map((payment) => (
             <div
               key={payment.id}
-              className="rounded-xl border-2 border-gray-200 bg-white p-4 transition hover:border-primary/50 hover:shadow-md"
+              className="group rounded-xl border-2 border-gray-200 bg-white p-3 transition hover:border-primary/30 hover:shadow-md sm:p-4"
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-semibold text-gray-900">{payment.order_number}</h3>
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${getStatusColor(payment.status)}`}>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <h3 className="text-base font-semibold text-gray-900 sm:text-lg">{payment.order_number}</h3>
+                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold sm:px-2 sm:text-xs ${getStatusColor(payment.status)}`}>
                       {payment.status}
                     </span>
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${getVerificationStatusColor(payment.verification_status)}`}>
+                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold sm:px-2 sm:text-xs ${getVerificationStatusColor(payment.verification_status)}`}>
                       {payment.verification_status}
                     </span>
                   </div>
-                  <div className="mt-2 space-y-1">
-                    <p className="text-sm text-gray-600">
+                  <div className="mt-2 space-y-0.5 sm:space-y-1">
+                    <p className="text-xs text-gray-600 sm:text-sm">
                       Customer: <span className="font-medium">{payment.customer_name}</span>
                     </p>
                     {payment.customer_phone && (
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs text-gray-600 sm:text-sm">
                         Phone: <span className="font-medium">{payment.customer_phone}</span>
                       </p>
                     )}
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs text-gray-600 sm:text-sm">
                       Payment Ref: <span className="font-mono font-medium">{payment.payment_reference}</span>
                     </p>
                     {payment.transaction_id && (
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs text-gray-600 sm:text-sm">
                         Transaction ID: <span className="font-mono font-medium">{payment.transaction_id}</span>
                       </p>
                     )}
@@ -256,21 +265,23 @@ export default function PaymentsPage() {
                     )}
                   </div>
                 </div>
-                <div className="ml-4 text-right">
-                  <p className="text-lg font-bold text-gray-900">
-                    {payment.currency} {payment.amount.toLocaleString()}
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    {new Date(payment.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                  </p>
+                <div className="flex items-center justify-between border-t border-gray-100 pt-2 sm:ml-4 sm:flex-col sm:items-end sm:border-0 sm:pt-0">
+                  <div className="text-left sm:text-right">
+                    <p className="text-base font-bold text-gray-900 sm:text-lg">
+                      {payment.currency} {payment.amount.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(payment.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </p>
+                  </div>
                   {payment.verification_status === "pending" && (
-                    <div className="mt-3 flex flex-col gap-2">
+                    <div className="flex gap-2 sm:mt-3 sm:flex-col">
                       <button
                         onClick={() => {
                           setSelectedPayment(payment);
                           setShowVerifyModal(true);
                         }}
-                        className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-green-700"
+                        className="rounded-lg bg-green-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-green-700 active:scale-95 sm:px-3"
                       >
                         Verify
                       </button>
@@ -279,7 +290,7 @@ export default function PaymentsPage() {
                           setSelectedPayment(payment);
                           setShowDisputeModal(true);
                         }}
-                        className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
+                        className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 active:scale-95 sm:px-3"
                       >
                         Dispute
                       </button>
@@ -295,9 +306,9 @@ export default function PaymentsPage() {
       {/* Verify Payment Modal */}
       {showVerifyModal && selectedPayment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-xl">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 shadow-xl sm:p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Verify Payment</h2>
+              <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Verify Payment</h2>
               <button
                 type="button"
                 onClick={() => {
@@ -306,7 +317,8 @@ export default function PaymentsPage() {
                   setVerifyNotes("");
                   setTransactionId("");
                 }}
-                className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 active:scale-95"
+                aria-label="Close modal"
               >
                 <XIcon className="h-5 w-5" />
               </button>
@@ -340,7 +352,7 @@ export default function PaymentsPage() {
                   className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
-              <div className="flex items-center justify-end gap-3">
+              <div className="flex flex-col-reverse items-stretch gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -349,14 +361,14 @@ export default function PaymentsPage() {
                     setVerifyNotes("");
                     setTransactionId("");
                   }}
-                  className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                  className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary active:scale-95"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleVerify}
                   disabled={verifyMutation.isPending}
-                  className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
+                  className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700 active:scale-95 disabled:opacity-50 sm:shadow-md"
                 >
                   {verifyMutation.isPending ? "Verifying..." : "Verify Payment"}
                 </button>
@@ -369,9 +381,9 @@ export default function PaymentsPage() {
       {/* Dispute Payment Modal */}
       {showDisputeModal && selectedPayment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-xl">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-4 shadow-xl sm:p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Dispute Payment</h2>
+              <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Dispute Payment</h2>
               <button
                 type="button"
                 onClick={() => {
@@ -379,7 +391,8 @@ export default function PaymentsPage() {
                   setSelectedPayment(null);
                   setDisputeReason("");
                 }}
-                className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 active:scale-95"
+                aria-label="Close modal"
               >
                 <XIcon className="h-5 w-5" />
               </button>
@@ -402,7 +415,7 @@ export default function PaymentsPage() {
                   className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
-              <div className="flex items-center justify-end gap-3">
+              <div className="flex flex-col-reverse items-stretch gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -410,14 +423,14 @@ export default function PaymentsPage() {
                     setSelectedPayment(null);
                     setDisputeReason("");
                   }}
-                  className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                  className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary active:scale-95"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDispute}
                   disabled={disputeMutation.isPending || !disputeReason.trim()}
-                  className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+                  className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 active:scale-95 disabled:opacity-50 sm:shadow-md"
                 >
                   {disputeMutation.isPending ? "Processing..." : "Mark as Disputed"}
                 </button>
