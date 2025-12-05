@@ -132,7 +132,7 @@ export default function InboxPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-120px)] -mx-4 -mt-6 -mb-8 overflow-hidden bg-white w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] md:-mx-6">
+    <div className="h-[calc(100vh-120px)] -mx-4 -mt-2 -mb-8 overflow-hidden bg-white w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] md:-mx-6">
       {/* Main Content - Three Panel Layout */}
       <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
         {/* Left Panel - Conversation List */}
@@ -324,12 +324,18 @@ export default function InboxPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                  <button 
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    aria-label="Favorite conversation"
+                  >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                     </svg>
                   </button>
-                  <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                  <button 
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    aria-label="More options"
+                  >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                     </svg>
@@ -415,7 +421,10 @@ export default function InboxPage() {
               {/* Message Input - Fixed */}
               <div className="flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3 z-10">
                 <div className="flex items-end gap-2">
-                  <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                  <button 
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    aria-label="Attach file"
+                  >
                     <PaperClipIcon className="h-5 w-5" />
                   </button>
                   <textarea
@@ -431,7 +440,10 @@ export default function InboxPage() {
                     placeholder="Type message here.."
                     className="min-h-[44px] max-h-[120px] flex-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-700 transition-all focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                   />
-                  <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                  <button 
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    aria-label="Add emoji"
+                  >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -542,7 +554,10 @@ export default function InboxPage() {
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Add tag</h4>
-                    <button className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                    <button 
+                      className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      aria-label="Add tag"
+                    >
                       <PlusIcon className="h-4 w-4" />
                     </button>
                   </div>
@@ -566,7 +581,10 @@ export default function InboxPage() {
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Assigned by</h4>
-                    <button className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                    <button 
+                      className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      aria-label="Add assignee"
+                    >
                       <PlusIcon className="h-4 w-4" />
                     </button>
                   </div>
