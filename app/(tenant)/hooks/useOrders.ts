@@ -84,7 +84,7 @@ export function useOrderStats() {
 export function useUpdateOrder() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ orderId, payload }: { orderId: number; payload: { status?: string; notes?: string } }) => {
+    mutationFn: async ({ orderId, payload }: { orderId: number; payload: { status?: "pending" | "confirmed" | "processing" | "completed" | "cancelled"; notes?: string } }) => {
       return tenantApi.updateOrder(orderId, payload);
     },
     onSuccess: (_, variables) => {
