@@ -31,6 +31,11 @@ import {
   WhatsAppIcon,
   TelegramIcon,
   AllMessagesIcon,
+  CalendarIcon,
+  UserGroupIcon,
+  SettingsIcon,
+  PlusIcon,
+  MenuIcon,
 } from "../../components/icons";
 
 const STATUS_FILTERS = ["All", "Active", "Resolved", "Archived"];
@@ -219,124 +224,128 @@ export default function InboxPage() {
     return date.toLocaleDateString([], { month: "short", day: "numeric" });
   };
 
-  // MOBILE-FIRST: Base styles are for mobile, then enhance with md:, lg:, xl:
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#F9FAFB] w-full">
-      {/* Header - Mobile First: Compact, then enhance for larger screens */}
-      <header className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2.5 md:px-4 md:py-3 lg:px-6 lg:py-4">
-        <div className="w-full">
-          {/* Title Row - Mobile: Stack, Desktop: Side by side */}
-          <div className="mb-2 flex flex-col gap-2 md:mb-3 md:flex-row md:items-center md:justify-between">
-            <h1 className="text-lg font-semibold text-gray-900 md:text-xl lg:text-[1.4rem]">Inbox</h1>
-            <div className="flex items-center gap-2 w-full md:w-auto">
-              {/* Search - Mobile: Full width, Desktop: Fixed width */}
-              <div className="relative flex-1 md:flex-none md:min-w-[200px]">
-                <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 md:left-3" />
-                <input
-                  type="search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search..."
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-8 pr-2 py-2 text-xs text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 md:pl-9 md:pr-3 md:py-2 md:text-sm"
-                />
-              </div>
-              {/* Sort - Mobile: Compact, Desktop: Standard */}
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                aria-label="Sort conversations"
-                className="rounded-lg border border-gray-200 bg-white px-2 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 md:px-3 md:text-sm flex-shrink-0"
-              >
-                {SORT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+    <div className="flex h-screen flex-col overflow-hidden bg-gray-50 w-full">
+      {/* Top Header Bar - Simplified */}
+      <header className="hidden md:flex flex-shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 py-3">
+        <div className="flex items-center gap-3">
+          <h1 className="text-base font-semibold text-gray-900">Inbox</h1>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search"
+              className="w-64 rounded-lg border border-gray-200 bg-gray-50 pl-8 pr-3 py-2 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
           </div>
+          <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
+              {tenant?.name?.charAt(0).toUpperCase() || "U"}
+            </div>
+            <span className="text-sm font-medium text-gray-700">CS Niki Ayu</span>
+          </div>
+        </div>
+      </header>
+      
+      {/* Mobile Header */}
+      <header className="md:hidden flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2.5">
+        <div className="flex items-center justify-between">
+          <h1 className="text-base font-semibold text-gray-900">Inbox</h1>
+          <button
+            onClick={() => setMobileView(mobileView === "list" ? "chat" : "list")}
+            className="p-2 text-gray-600"
+          >
+            <MenuIcon className="h-5 w-5" />
+          </button>
+        </div>
+      </header>
 
-          {/* Status Filters - Mobile: Wrap, Desktop: Row */}
-          <div className="mb-2 flex flex-wrap items-center gap-1.5 md:gap-2">
-            <span className="text-[10px] md:text-xs font-medium text-gray-500 whitespace-nowrap flex-shrink-0">Status:</span>
-            <div className="flex flex-wrap gap-1 md:gap-1.5 flex-1 min-w-0">
-              {STATUS_FILTERS.map((filter) => (
+      {/* Main Content - Three Panel Layout */}
+      <div className="grid min-h-0 flex-1 gap-0 grid-cols-1 md:grid-cols-[60px_320px_1fr] xl:grid-cols-[60px_380px_1fr_320px] w-full overflow-x-hidden">
+        {/* Left Sidebar - Dark Blue Navigation */}
+        <aside className="hidden md:flex flex-col items-center gap-2 bg-[#1E3A8A] py-4 px-2 border-r border-blue-900/20">
+          <button className="w-10 h-10 rounded-lg flex items-center justify-center text-white/80 hover:bg-white/10 hover:text-white transition-colors">
+            <InboxIcon className="w-5 h-5" />
+          </button>
+          <button className="w-10 h-10 rounded-lg flex items-center justify-center text-white/80 hover:bg-white/10 hover:text-white transition-colors">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+            </svg>
+          </button>
+          <button className="w-10 h-10 rounded-lg flex items-center justify-center text-white/80 hover:bg-white/10 hover:text-white transition-colors">
+            <CalendarIcon className="w-5 h-5" />
+          </button>
+          <button className="w-10 h-10 rounded-lg flex items-center justify-center text-white/80 hover:bg-white/10 hover:text-white transition-colors">
+            <UserGroupIcon className="w-5 h-5" />
+          </button>
+          <div className="flex-1" />
+          <button className="w-10 h-10 rounded-lg flex items-center justify-center text-white/80 hover:bg-white/10 hover:text-white transition-colors">
+            <SettingsIcon className="w-5 h-5" />
+          </button>
+        </aside>
+
+        {/* Conversations List */}
+        <section className={`hidden md:flex flex-col border-r border-gray-200 bg-white transition-transform duration-300 overflow-x-hidden ${
+          mobileView === "chat" || mobileView === "contact" ? "hidden" : ""
+        }`}>
+          {/* Tabs */}
+          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
+            <div className="flex gap-1">
+              {["All", "Unsigned", "Assigned", "Resolved"].map((tab) => (
                 <button
-                  key={filter}
-                  onClick={() => setActiveStatusFilter(filter)}
-                  className={`rounded-lg border px-2 py-1 text-[10px] md:px-2.5 md:py-1 md:text-xs font-medium transition whitespace-nowrap flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center ${
-                    activeStatusFilter === filter
-                      ? "border-primary bg-primary text-white shadow-sm"
-                      : "border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary"
+                  key={tab}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                    activeStatusFilter === tab || (tab === "All" && activeStatusFilter === "All")
+                      ? "bg-primary text-white"
+                      : "text-gray-600 hover:bg-gray-100"
                   }`}
+                  onClick={() => {
+                    if (tab === "All") setActiveStatusFilter("All");
+                    else if (tab === "Unsigned") setActiveStatusFilter("Active");
+                    else if (tab === "Assigned") setActiveStatusFilter("Active");
+                    else setActiveStatusFilter("Resolved");
+                  }}
                 >
-                  {filter}
+                  {tab}
                 </button>
               ))}
             </div>
           </div>
-
-          {/* Platform Tabs - Mobile: Horizontal scroll, Desktop: Row */}
-          <div className="flex items-center gap-1 overflow-x-auto pb-1 -mx-3 px-3 md:-mx-4 md:px-4 lg:-mx-6 lg:px-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {PLATFORM_COLUMNS.map((column) => {
-              const platformConversations = column.value === "all"
-                ? sortedConversations
-                : sortedConversations.filter((conv) => conv.platform.toLowerCase() === column.value);
-              const unreadCount = platformConversations.reduce((sum, conv) => sum + conv.unread_count, 0);
-              const isSelected = activePlatformFilter === column.label || (column.value === "all" && activePlatformFilter === "All");
-              
-              return (
-                <button
-                  key={column.value}
-                  onClick={() => {
-                    if (column.value === "all") {
-                      setActivePlatformFilter("All");
-                    } else {
-                      setActivePlatformFilter(column.label);
-                    }
-                  }}
-                  className={`relative flex items-center gap-1 rounded-lg border px-2 py-1.5 text-[10px] md:gap-1.5 md:px-2.5 md:py-1.5 md:text-xs font-medium transition-all flex-shrink-0 min-h-[44px] ${
-                    isSelected
-                      ? "border-primary bg-primary/10 text-primary font-semibold"
-                      : "border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary"
-                  }`}
-                >
-                  <column.Icon className="h-3.5 w-3.5 md:h-4 md:w-4 flex-shrink-0" />
-                  <span className="whitespace-nowrap">{column.label}</span>
-                  {unreadCount > 0 && (
-                    <span className="inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-white md:h-5 md:min-w-[20px] md:px-1.5 md:text-[10px]">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+          
+          {/* Search */}
+          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
+            <div className="relative">
+              <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by name"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-8 pr-8 py-2 text-xs text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+              <FunnelIcon className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            </div>
           </div>
-        </div>
-      </header>
-
-      {/* Main Content - Mobile: Single column, Desktop: Grid */}
-      <div className="grid min-h-0 flex-1 gap-0 lg:grid-cols-[320px_1fr] xl:grid-cols-[380px_1fr] w-full overflow-x-hidden">
-        {/* Conversations List - Mobile: Full width, Desktop: Fixed width */}
-        <section className={`flex flex-col border-r-0 lg:border-r border-gray-200 bg-[#F3F4F6] transition-transform duration-300 overflow-x-hidden w-full ${
-          mobileView === "chat" || mobileView === "contact" ? "hidden md:flex" : "flex"
-        }`}>
-          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5 lg:px-6 lg:py-3">
-            <h2 className="text-xs md:text-sm font-semibold text-gray-900">
-              Conversations <span className="ml-1 md:ml-2 text-[10px] md:text-xs font-normal text-gray-500">({sortedConversations.length})</span>
-            </h2>
-          </div>
-          <div className="min-h-0 flex-1 space-y-1 overflow-y-auto px-2 py-2 md:px-3 md:py-2 lg:px-4 lg:py-3">
+          <div className="min-h-0 flex-1 overflow-y-auto">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
               </div>
             ) : error ? (
-              <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 md:p-6 text-center text-xs md:text-sm text-rose-900">
+              <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 md:p-6 text-center text-xs md:text-sm text-rose-900 m-3">
                 Failed to load conversations: {error.message}
               </div>
             ) : sortedConversations.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 md:p-8 text-center">
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 md:p-8 text-center m-3">
                 <InboxIcon className="mx-auto h-10 w-10 md:h-12 md:w-12 text-gray-400" />
                 <p className="mt-3 text-xs md:text-sm font-medium text-gray-900">
                   {searchQuery || activeStatusFilter !== "All" || activePlatformFilter !== "All"
@@ -350,78 +359,82 @@ export default function InboxPage() {
                 </p>
               </div>
             ) : (
-              sortedConversations.map((conversation) => {
-                const isActive = selectedConversationId === String(conversation.id);
-                const unread = conversation.unread_count > 0;
-                const platform = conversation.platform.toLowerCase();
-                
-                return (
-                  <button
-                    key={conversation.id}
-                    onClick={() => handleConversationSelect(String(conversation.id))}
-                    className={`group w-full min-h-[72px] md:min-h-[76px] rounded-lg border border-[#E5E7EB] bg-white px-2.5 py-2 md:px-3 md:py-2.5 lg:px-4 lg:py-3 text-left transition-all duration-200 ${
-                      isActive
-                        ? "border-primary bg-primary/5 shadow-sm"
-                        : "hover:border-gray-300 hover:bg-[#F8FAFC]"
-                    }`}
-                  >
-                    <div className="flex items-start gap-2 md:gap-2.5 lg:gap-3">
-                      {/* Avatar - Mobile: Smaller, Desktop: Standard */}
-                      <div className="flex-shrink-0">
-                        {conversation.customer_avatar ? (
-                          <Image
-                            src={conversation.customer_avatar}
-                            alt={conversation.customer_name}
-                            width={40}
-                            height={40}
-                            className="h-9 w-9 rounded-full object-cover md:h-10 md:w-10"
-                            unoptimized
-                          />
-                        ) : (
-                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-xs font-medium text-primary md:h-10 md:w-10 md:text-sm">
-                            {conversation.customer_name.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 md:gap-2 mb-1">
-                          <span className="text-xs md:text-sm font-medium text-gray-900 truncate">{conversation.customer_name}</span>
-                          {unread && (
-                            <span className="inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-semibold text-white md:h-5 md:min-w-[20px] md:px-1.5 md:text-[10px]">
-                              {conversation.unread_count > 99 ? "99+" : conversation.unread_count}
-                            </span>
+              <div className="divide-y divide-gray-100">
+                {sortedConversations.map((conversation) => {
+                  const isActive = selectedConversationId === String(conversation.id);
+                  const unread = conversation.unread_count > 0;
+                  const platform = conversation.platform.toLowerCase();
+                  
+                  // Get platform icon
+                  const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
+                                     platform === "instagram" ? InstagramIcon :
+                                     platform === "facebook" ? FacebookIcon :
+                                     platform === "telegram" ? TelegramIcon :
+                                     AllMessagesIcon;
+                  
+                  return (
+                    <button
+                      key={conversation.id}
+                      onClick={() => handleConversationSelect(String(conversation.id))}
+                      className={`group w-full px-3 py-3 text-left transition-colors ${
+                        isActive
+                          ? "bg-blue-50 border-l-4 border-primary"
+                          : "hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        {/* Avatar */}
+                        <div className="flex-shrink-0 relative">
+                          {conversation.customer_avatar ? (
+                            <Image
+                              src={conversation.customer_avatar}
+                              alt={conversation.customer_name}
+                              width={48}
+                              height={48}
+                              className="h-12 w-12 rounded-full object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-medium text-primary">
+                              {conversation.customer_name.charAt(0).toUpperCase()}
+                            </div>
                           )}
+                          {/* Platform icon badge */}
+                          <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white border-2 border-white">
+                            <PlatformIcon className="h-3 w-3 text-gray-600" />
+                          </div>
                         </div>
-                        <div className="mb-1">
-                          <span
-                            className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider md:px-2 md:text-[10px] ${
-                              CHANNEL_COLORS[platform] ?? "bg-gray-100 text-gray-600"
-                            }`}
-                          >
-                            {platform}
-                          </span>
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium text-gray-900 truncate">{conversation.customer_name}</span>
+                            <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                              {unread && (
+                                <span className="inline-flex h-2 w-2 rounded-full bg-blue-600" />
+                              )}
+                              <span className="text-xs text-gray-500">{formatTime(conversation.last_message_at)}</span>
+                            </div>
+                          </div>
+                          <p className="line-clamp-1 text-sm text-gray-600">{conversation.last_message || "No messages"}</p>
                         </div>
-                        <p className="line-clamp-1 text-[11px] text-[#6B7280] mb-0.5 md:text-[12px] lg:text-[13px]">{conversation.last_message || "No messages"}</p>
-                        <p className="text-[9px] text-gray-400 text-right md:text-[10px] lg:text-[11px]">{formatTime(conversation.last_message_at)}</p>
                       </div>
-                    </div>
-                  </button>
-                );
-              })
+                    </button>
+                  );
+                })}
+              </div>
             )}
           </div>
         </section>
 
-        {/* Chat Panel - Mobile: Full screen, Desktop: Side by side */}
-        <section className={`flex min-h-0 flex-1 flex-col bg-white transition-transform duration-300 overflow-x-hidden w-full ${
-          mobileView === "list" ? "hidden md:flex" : "flex"
+        {/* Chat Panel */}
+        <section className={`hidden md:flex min-h-0 flex-1 flex-col bg-white transition-transform duration-300 overflow-x-hidden ${
+          mobileView === "list" ? "hidden" : ""
         }`}>
           {activeConversation ? (
             <>
-              {/* Chat Header - Mobile: Compact, Desktop: Standard */}
-              <header className="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between border-b border-gray-200 bg-white px-3 py-2.5 md:px-4 md:py-2.5 lg:px-6 lg:py-3 shadow-sm">
-                <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+              {/* Chat Header */}
+              <header className="sticky top-0 z-10 flex flex-shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 py-3 shadow-sm">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back button - Mobile only */}
                   {(mobileView === "chat" || mobileView === "contact") && (
                     <button
@@ -438,59 +451,57 @@ export default function InboxPage() {
                       alt={activeConversation.customer_name}
                       width={40}
                       height={40}
-                      className="h-9 w-9 rounded-full object-cover md:h-10 md:w-10 flex-shrink-0"
+                      className="h-10 w-10 rounded-full object-cover flex-shrink-0"
                       unoptimized
                     />
                   ) : (
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-xs font-medium text-primary md:h-10 md:w-10 md:text-sm flex-shrink-0">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-medium text-primary flex-shrink-0">
                       {activeConversation.customer_name.charAt(0).toUpperCase()}
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h2 className="text-sm md:text-base lg:text-[1.1rem] font-medium text-gray-900 truncate">{activeConversation.customer_name}</h2>
-                    <p className="text-[10px] md:text-xs text-gray-500 truncate">
-                      via <span className="font-medium capitalize">{activeConversation.platform}</span> ·{" "}
-                      <span className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] md:px-2 md:text-[10px] font-medium uppercase ${
-                        activeConversation.status === "active" ? "bg-blue-100 text-blue-700" :
-                        activeConversation.status === "resolved" ? "bg-green-100 text-green-700" :
-                        "bg-gray-100 text-gray-600"
-                      }`}>
-                        {activeConversation.status}
-                      </span>
-                    </p>
+                    <h2 className="text-base font-semibold text-gray-900 truncate">{activeConversation.customer_name}</h2>
                   </div>
-                </div>
-                <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
-                  {/* Info button - Tablet/Laptop */}
-                  <button
-                    onClick={() => setContactPanelOpen(true)}
-                    className="flex-shrink-0 rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors xl:hidden min-h-[44px] min-w-[44px] flex items-center justify-center"
-                    aria-label="Contact information"
-                  >
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m0-4h1v1m0 0h1m-1 0v1m-1 0h-1m1 0v-1m1 0h1m-1 0v-1" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
-                    </svg>
-                  </button>
-                  {/* Info button - Mobile */}
-                  <button
-                    onClick={() => setMobileView("contact")}
-                    className="flex-shrink-0 rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center"
-                    aria-label="Contact information"
-                  >
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m0-4h1v1m0 0h1m-1 0v1m-1 0h-1m1 0v-1m1 0h1m-1 0v-1" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
-                    </svg>
-                  </button>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {/* Platform icon */}
+                    {(() => {
+                      const platform = activeConversation.platform.toLowerCase();
+                      const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
+                                         platform === "instagram" ? InstagramIcon :
+                                         platform === "facebook" ? FacebookIcon :
+                                         platform === "telegram" ? TelegramIcon :
+                                         AllMessagesIcon;
+                      return <PlatformIcon className="h-5 w-5 text-gray-600" />;
+                    })()}
+                    <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                      </svg>
+                    </button>
+                    <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                      </svg>
+                    </button>
+                    <button className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                      Case Close X
+                    </button>
+                  </div>
                 </div>
               </header>
 
               {/* Chat Content - Mobile: Single column, Desktop: Grid with sidebar */}
               <div className="grid min-h-0 flex-1 gap-0 xl:grid-cols-[1fr_320px] w-full">
-                <div className="flex min-h-0 flex-col w-full">
-                  {/* Messages - Mobile: Compact padding, Desktop: Standard */}
-                  <div className="flex min-h-0 flex-1 flex-col space-y-2.5 md:space-y-3.5 overflow-y-auto px-3 py-3 md:px-4 md:py-3 lg:px-6 lg:py-4">
+                <div className="flex min-h-0 flex-col w-full bg-gray-50">
+                  {/* Date separator */}
+                  <div className="px-4 py-2 text-center">
+                    <span className="text-xs text-gray-500">
+                      {new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })}
+                    </span>
+                  </div>
+                  
+                  {/* Messages */}
+                  <div className="flex min-h-0 flex-1 flex-col space-y-4 overflow-y-auto px-4 py-4">
                     {messages.map((message: Message) => {
                       const isIncoming = message.direction === "incoming";
                       const isOutgoing = message.direction === "outgoing";
@@ -518,12 +529,12 @@ export default function InboxPage() {
                           className={`flex ${isIncoming ? "justify-start" : "justify-end"}`}
                         >
                           <article
-                            className={`max-w-[85%] md:max-w-[75%] lg:max-w-[660px] rounded-xl border p-3 md:p-4 transition-all ${
+                            className={`max-w-[75%] rounded-2xl p-3 transition-all ${
                               isIncoming
-                                ? "border-gray-200/50 bg-white shadow-sm"
+                                ? "bg-white"
                                 : isOutgoing
-                                ? "border-primary/40 bg-primary/10 shadow-md"
-                                : "border-gray-200/50 bg-white shadow-sm"
+                                ? "bg-primary text-white"
+                                : "bg-white"
                             }`}
                           >
                             {/* AI Insights for incoming messages */}
@@ -600,41 +611,25 @@ export default function InboxPage() {
                                     )}
                                   </div>
                                 ) : (
-                                  <p className="whitespace-pre-line text-xs md:text-sm text-gray-700 break-words">
-                                    {/* Backend handles content correctly - use content directly */}
+                                  <p className={`whitespace-pre-line text-sm break-words ${
+                                    isOutgoing ? "text-white" : "text-gray-700"
+                                  }`}>
                                     {message.content}
                                   </p>
                                 )}
                               </div>
                             </div>
                             
-                            {/* Timestamp and status */}
-                            <div className="mt-2 md:mt-3 flex items-center justify-between">
-                              <span className="text-[10px] md:text-xs font-medium text-gray-500">
+                            {/* Timestamp */}
+                            <div className="mt-2 flex items-center justify-end">
+                              <span className={`text-xs ${
+                                isOutgoing ? "text-white/70" : "text-gray-500"
+                              }`}>
                                 {(() => {
                                   const date = new Date(message.created_at);
-                                  const now = new Date();
-                                  const diffMs = now.getTime() - date.getTime();
-                                  const diffMins = Math.floor(diffMs / 60000);
-                                  const diffHours = Math.floor(diffMs / 3600000);
-                                  const diffDays = Math.floor(diffMs / 86400000);
-                                  
-                                  if (diffMins < 1) return "Just now";
-                                  if (diffMins < 60) return `${diffMins}m ago`;
-                                  if (diffHours < 24) return `${diffHours}h ago`;
-                                  if (diffDays === 1) return "Yesterday";
-                                  if (diffDays < 7) return `${diffDays} days ago`;
                                   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
                                 })()}
                               </span>
-                              {isOutgoing && message.response_status && (
-                                <span className="text-[9px] md:text-[10px] text-gray-400">
-                                  {message.response_status === "sent" && "✓ Sent"}
-                                  {message.response_status === "pending" && "⏳ Pending"}
-                                  {message.response_status === "approved" && "✓ Approved"}
-                                  {message.response_status === "rejected" && "❌ Rejected"}
-                                </span>
-                              )}
                             </div>
                             
                             {/* Suggested reply for incoming messages */}
@@ -658,51 +653,12 @@ export default function InboxPage() {
                     <div ref={messagesEndRef} />
                   </div>
 
-                  {/* Composer - Mobile: Sticky bottom, Desktop: Standard */}
-                  <div className="sticky bottom-0 flex-shrink-0 border-t border-gray-200 bg-white px-3 py-2.5 md:px-4 md:py-3 lg:px-6 lg:py-4 shadow-[0_-1px_3px_rgba(0,0,0,0.08)]">
-                    {/* Quick replies - Mobile: Horizontal scroll, Desktop: Row */}
-                    <div className="mb-2 md:mb-3 flex items-center gap-1.5 md:gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                      <div className="flex gap-1.5 md:gap-2 min-w-max">
-                        {["Thanks! We'll get back to you shortly.", "Could you share more details?", "Noted. I'll update you soon."].map((q) => (
-                          <button
-                            key={q}
-                            onClick={() => setReplyText((prev) => (prev ? prev + "\n" + q : q))}
-                            className="flex-shrink-0 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-[10px] md:px-3 md:py-1.5 md:text-xs font-medium text-gray-700 transition-all hover:border-primary hover:bg-primary/5 hover:text-primary min-h-[44px]"
-                          >
-                            {q}
-                          </button>
-                        ))}
-                        <button
-                          onClick={async () => {
-                            try {
-                              const res = await suggestRepliesMutation.mutateAsync();
-                              const suggestions = res?.suggestions;
-                              if (Array.isArray(suggestions) && suggestions.length > 0) {
-                                const firstSuggestion = suggestions[0];
-                                let suggestionText = "";
-                                if (typeof firstSuggestion === "string") {
-                                  suggestionText = firstSuggestion;
-                                } else if (firstSuggestion && typeof firstSuggestion === "object" && "reply" in firstSuggestion) {
-                                  suggestionText = String(firstSuggestion.reply);
-                                } else {
-                                  suggestionText = String(firstSuggestion);
-                                }
-                                if (suggestionText) {
-                                  setReplyText(suggestionText);
-                                }
-                              }
-                            } catch {}
-                          }}
-                          disabled={suggestRepliesMutation.isPending}
-                          className="flex-shrink-0 items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1.5 text-[10px] md:px-3 md:py-1.5 md:text-xs font-semibold text-primary transition-all hover:bg-primary/20 disabled:opacity-50 min-h-[44px]"
-                        >
-                          <SparklesIcon className="h-3 w-3 md:h-3.5 md:w-3.5" />
-                          <span className="hidden sm:inline">{suggestRepliesMutation.isPending ? "Generating..." : "AI Suggest"}</span>
-                          <span className="sm:hidden">{suggestRepliesMutation.isPending ? "..." : "AI"}</span>
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex items-end gap-2 md:gap-3">
+                  {/* Composer */}
+                  <div className="sticky bottom-0 flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3">
+                    <div className="flex items-end gap-2">
+                      <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                        <PaperClipIcon className="h-5 w-5" />
+                      </button>
                       <textarea
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
@@ -713,19 +669,24 @@ export default function InboxPage() {
                           }
                         }}
                         disabled={sendReplyMutation.isPending || !selectedConversationId}
-                        placeholder="Type your reply..."
-                        className="min-h-[44px] md:min-h-[52px] max-h-[120px] md:max-h-[140px] flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 md:px-4 md:py-3 text-xs md:text-sm text-gray-700 shadow-sm transition-all focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                        placeholder="Type message here.."
+                        className="min-h-[44px] max-h-[120px] flex-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-700 transition-all focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                       />
+                      <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </button>
                       <button
                         onClick={() => void handleSendReply()}
                         disabled={sendReplyMutation.isPending || !replyText.trim() || !selectedConversationId}
-                        className="flex-shrink-0 inline-flex items-center gap-1.5 md:gap-2 rounded-full bg-primary px-4 py-2.5 md:px-5 md:py-3 text-xs md:text-sm font-semibold text-white shadow-md transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] min-w-[44px] md:min-w-auto"
+                        className="flex-shrink-0 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px]"
                       >
                         {sendReplyMutation.isPending ? (
-                          <div className="h-4 w-4 md:h-5 md:w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                         ) : (
                           <>
-                            <span className="hidden sm:inline">Send</span>
+                            <span>Send</span>
                             <ArrowUpIcon className="h-4 w-4" />
                           </>
                         )}
@@ -734,7 +695,7 @@ export default function InboxPage() {
                   </div>
                 </div>
 
-                {/* Contact Panel - Mobile: Full view, Tablet: Drawer, Desktop: Sidebar */}
+                {/* Contact Panel - Right Sidebar */}
                 {contactPanelOpen && (
                   <div
                     className="fixed inset-0 bg-black/50 z-40 xl:hidden"
@@ -742,7 +703,7 @@ export default function InboxPage() {
                   />
                 )}
 
-                <aside className={`flex flex-col border-l-0 xl:border-l border-gray-200 bg-white transition-transform duration-300 ${
+                <aside className={`flex flex-col border-l border-gray-200 bg-white transition-transform duration-300 ${
           mobileView === "contact" 
             ? "flex md:hidden" 
             : contactPanelOpen
@@ -759,139 +720,141 @@ export default function InboxPage() {
                     </button>
                   )}
                   
-                  {/* Tabs */}
-                  <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 md:px-4">
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => setActiveContactTab("contact")}
-                        className={`px-3 py-2.5 md:px-4 md:py-3 text-[10px] md:text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 min-h-[44px] ${
-                          activeContactTab === "contact"
-                            ? "text-gray-900 border-gray-900"
-                            : "text-gray-500 border-transparent hover:text-gray-700"
-                        }`}
-                      >
-                        Contact Card
-                      </button>
-                      <button
-                        onClick={() => setActiveContactTab("tags")}
-                        className={`px-3 py-2.5 md:px-4 md:py-3 text-[10px] md:text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 min-h-[44px] ${
-                          activeContactTab === "tags"
-                            ? "text-gray-900 border-gray-900"
-                            : "text-gray-500 border-transparent hover:text-gray-700"
-                        }`}
-                      >
-                        Tags & Notes
-                      </button>
-                      <button
-                        onClick={() => setActiveContactTab("activity")}
-                        className={`px-3 py-2.5 md:px-4 md:py-3 text-[10px] md:text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 min-h-[44px] ${
-                          activeContactTab === "activity"
-                            ? "text-gray-900 border-gray-900"
-                            : "text-gray-500 border-transparent hover:text-gray-700"
-                        }`}
-                      >
-                        Activity
-                      </button>
-                    </div>
+                  {/* Header */}
+                  <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3 flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-gray-900">Chat Details</h3>
+                    <button className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                      </svg>
+                    </button>
                   </div>
 
-                  {/* Tab Content */}
-                  <div className="flex-1 overflow-y-auto px-4 py-4 md:px-5 md:py-5">
-                    {activeContactTab === "contact" && (
-                      <div className="space-y-3 md:space-y-4">
-                        <div className="flex items-center gap-2 md:gap-3">
-                          {activeConversation.customer_avatar ? (
-                            <Image
-                              src={activeConversation.customer_avatar}
-                              alt={activeConversation.customer_name}
-                              width={48}
-                              height={48}
-                              className="h-10 w-10 md:h-12 md:w-12 rounded-full object-cover flex-shrink-0"
-                              unoptimized
-                            />
-                          ) : (
-                            <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full bg-gray-100 text-sm md:text-base font-medium text-gray-600 flex-shrink-0">
-                              {activeConversation.customer_name.charAt(0).toUpperCase()}
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs md:text-sm font-medium text-gray-900 leading-tight break-words">{activeConversation.customer_name}</p>
-                            <p className="text-[10px] md:text-xs text-gray-500 capitalize mt-0.5">{activeConversation.platform}</p>
-                          </div>
-                        </div>
-                        <select
-                          value={activeConversation.status}
-                          onChange={(e) => {
-                            const newStatus = e.target.value as "active" | "resolved" | "archived";
-                            updateStatusMutation.mutate({ status: newStatus });
-                          }}
-                          aria-label="Update conversation status"
-                          className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs md:text-sm font-medium text-gray-700 transition-all hover:border-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[44px]"
-                        >
-                          {["active", "resolved", "archived"].map((s) => (
-                            <option key={s} value={s}>
-                              {s.charAt(0).toUpperCase() + s.slice(1)}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
-                    {activeContactTab === "tags" && (
-                      <div className="space-y-3 md:space-y-4">
-                        <div>
-                          <p className="text-[10px] md:text-xs text-gray-500 mb-2 md:mb-3">Tags</p>
-                          <div className="flex flex-wrap gap-1.5 md:gap-2">
-                            {Array.isArray(activeConversation.tags) && activeConversation.tags.length > 0 ? activeConversation.tags.map((tag: string) => (
-                              <span
-                                key={tag}
-                                className="inline-flex items-center rounded-full bg-white border border-gray-200 px-2 py-1 text-[10px] md:px-2.5 md:py-1 md:text-[11px] font-medium uppercase tracking-wider text-gray-700 hover:border-primary hover:bg-primary/5 transition-all"
-                              >
-                                {tag}
-                              </span>
-                            )) : (
-                              <span className="text-[10px] md:text-xs text-gray-500">No tags yet.</span>
-                            )}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-[10px] md:text-xs text-gray-500 mb-2 md:mb-3">Notes</p>
-                          <textarea
-                            placeholder="Add internal notes..."
-                            className="min-h-[160px] md:min-h-[200px] w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs md:text-sm text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-                            onBlur={async (e) => {
-                              const value = e.target.value.trim();
-                              if (value) {
-                                try {
-                                  await updateConversationMutation.mutateAsync({ notes: value });
-                                } catch {}
-                              }
-                            }}
+                  {/* Content */}
+                  <div className="flex-1 overflow-y-auto px-4 py-4">
+                    {/* Contact Information */}
+                    <div className="mb-6">
+                      <div className="flex items-center gap-3 mb-4">
+                        {activeConversation.customer_avatar ? (
+                          <Image
+                            src={activeConversation.customer_avatar}
+                            alt={activeConversation.customer_name}
+                            width={48}
+                            height={48}
+                            className="h-12 w-12 rounded-full object-cover flex-shrink-0"
+                            unoptimized
                           />
-                          <p className="mt-1.5 text-[10px] md:text-[11px] text-gray-400">Saved on blur.</p>
+                        ) : (
+                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-base font-medium text-gray-600 flex-shrink-0">
+                            {activeConversation.customer_name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900">{activeConversation.customer_name}</p>
+                          <p className="text-xs text-gray-500">+62 989-289-929</p>
                         </div>
                       </div>
-                    )}
+                      <div className="flex gap-2 mb-4">
+                        <button className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white hover:bg-primary/90 transition-colors">
+                          Call
+                        </button>
+                        <button className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+                          Chat
+                        </button>
+                      </div>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Status:</span>
+                          <select
+                            value={activeConversation.status}
+                            onChange={(e) => {
+                              const newStatus = e.target.value as "active" | "resolved" | "archived";
+                              updateStatusMutation.mutate({ status: newStatus });
+                            }}
+                            className="text-gray-900 font-medium border-0 bg-transparent focus:outline-none"
+                          >
+                            <option value="active">Assigned</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="archived">Archived</option>
+                          </select>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Start chat:</span>
+                          <span className="text-gray-900 font-medium">
+                            {new Date(activeConversation.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Country:</span>
+                          <span className="text-gray-900 font-medium">Yordania</span>
+                        </div>
+                      </div>
+                    </div>
 
-                    {activeContactTab === "activity" && (
-                      <div className="space-y-3 md:space-y-4">
-                        <div>
-                          <p className="text-[10px] md:text-xs text-gray-500 mb-1">Last updated:</p>
-                          <p className="text-xs md:text-sm font-medium text-gray-900">
-                            {(() => {
-                              const date = new Date(activeConversation.updated_at);
-                              return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
-                            })()}
-                          </p>
+                    {/* Add Tag */}
+                    <div className="mb-6">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Add tag</p>
+                        <button className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                          <PlusIcon className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {Array.isArray(activeConversation.tags) && activeConversation.tags.length > 0 ? activeConversation.tags.map((tag: string) => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700"
+                          >
+                            {tag}
+                          </span>
+                        )) : (
+                          <span className="text-xs text-gray-500">No tags</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Assigned By */}
+                    <div className="mb-6">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Assigned by</p>
+                        <button className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                          <PlusIcon className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
+                            NA
+                          </div>
+                          <span className="text-xs text-gray-700">CS Niki Ayu</span>
                         </div>
-                        <div>
-                          <p className="text-[10px] md:text-xs text-gray-500 mb-1">Joined:</p>
-                          <p className="text-xs md:text-sm font-medium text-gray-900">
-                            {new Date(activeConversation.created_at).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}
-                          </p>
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
+                            GB
+                          </div>
+                          <span className="text-xs text-gray-700">CS Geeburn</span>
                         </div>
                       </div>
-                    )}
+                    </div>
+
+                    {/* Add Note */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Add Note</p>
+                      </div>
+                      <textarea
+                        placeholder="Type your note here.."
+                        className="min-h-[120px] w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                        onBlur={async (e) => {
+                          const value = e.target.value.trim();
+                          if (value) {
+                            try {
+                              await updateConversationMutation.mutateAsync({ notes: value });
+                            } catch {}
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 </aside>
               </div>
