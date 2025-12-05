@@ -1,9 +1,9 @@
 'use client';
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { usePortalOrder } from "../../../(tenant)/hooks/usePortal";
-import { CopyToClipboard } from "../../../(tenant)/components/CopyToClipboard";
-import { PackageIcon, XIcon, CheckCircleIcon, ClockIcon } from "../../../(tenant)/components/icons";
+import { usePortalOrder } from "@/app/(tenant)/hooks/usePortal";
+import { CopyToClipboard } from "@/app/(tenant)/components/CopyToClipboard";
+import { PackageIcon, XIcon, CheckCircleIcon, ClockIcon } from "@/app/(tenant)/components/icons";
 import Link from "next/link";
 
 export default function CustomerPortalOrderPage() {

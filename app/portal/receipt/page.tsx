@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { tenantApi } from "@/lib/api";
-import { XIcon, ArrowUpTrayIcon } from "../../../(tenant)/components/icons";
+import { XIcon, ArrowUpTrayIcon } from "@/app/(tenant)/components/icons";
 import Link from "next/link";
 
 export default function CustomerPortalReceiptPage() {

@@ -2,8 +2,8 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { usePortalOrders } from "../../../(tenant)/hooks/usePortal";
-import { PackageIcon, XIcon } from "../../../(tenant)/components/icons";
+import { usePortalOrders } from "@/app/(tenant)/hooks/usePortal";
+import { PackageIcon, XIcon } from "@/app/(tenant)/components/icons";
 
 export default function CustomerPortalOrdersPage() {
   const searchParams = useSearchParams();
