@@ -50,7 +50,30 @@ export type ConversationDetail = {
   assignee?: string | null;
 };
 
-// Removed fallback data - use empty arrays/objects instead
+// Helper function to detect if a conversation name looks like an AI response
+const isAIMessageName = (name: string): boolean => {
+  if (!name || name.length < 10) return false;
+  const lowerName = name.toLowerCase();
+  // Common AI response patterns
+  const aiPatterns = [
+    "here to help",
+    "how can i help",
+    "we'd love to",
+    "we offer",
+    "we don't have",
+    "tell me",
+    "i'll give you",
+    "would you like",
+    "do you prefer",
+    "great to hear",
+    "we sell",
+    "if you'd like",
+    "i'm here to help",
+    "hi! how can i help",
+    "great — we'd love",
+  ];
+  return aiPatterns.some(pattern => lowerName.includes(pattern)) || name.length > 60;
+};
 
 export function useConversations(filters?: { platform?: string; status?: string; search?: string; limit?: number }) {
   return useQuery<ConversationSummary[], Error>({
@@ -66,24 +89,16 @@ export function useConversations(filters?: { platform?: string; status?: string;
         // Map conversations and handle customer names
         const mappedConversations = conversations.map((conversation) => {
           // Backend returns customer_name from customer.DisplayName
-          // Use it directly, but handle edge cases
-          let customerName = conversation.customer_name;
+          // Use it directly from the API response
+          let customerName = conversation.customer_name?.trim() || "";
           const platform = (conversation.platform ?? "whatsapp").toLowerCase();
           
-          // Check if customer_name looks like an AI response (common issue)
-          // If it's a long sentence that looks like a message, it's probably misassigned
-          if (customerName && customerName.length > 50 && customerName.includes(" ")) {
-            // This is likely an AI response being used as the name - treat as empty
-            customerName = "";
-          }
-          
-          // If customer_name is empty, "Unknown contact", or looks like an AI message, show fallback
-          if (!customerName || customerName.trim() === "" || customerName === "Unknown contact") {
+          // Only use fallback if customer_name is truly empty or "Unknown contact"
+          // Trust the backend to provide correct names
+          if (!customerName || customerName === "" || customerName === "Unknown contact") {
             if (platform === "instagram") {
-              // For Instagram, try to use customer_id as fallback, or generic name
-              customerName = conversation.customer_id 
-                ? `Instagram User #${conversation.customer_id}` 
-                : "Instagram User";
+              // For Instagram, show a generic fallback
+              customerName = "Instagram User";
             } else {
               customerName = "Unknown contact";
             }
@@ -109,7 +124,7 @@ export function useConversations(filters?: { platform?: string; status?: string;
         });
         
         // For Instagram, ensure we group by customer_id + platform
-        // This is a safety measure in case backend still returns duplicates
+        // Always prefer the real customer conversation over AI-only ones
         const groupedConversations = new Map<string, ConversationSummary>();
         
         for (const conv of mappedConversations) {
@@ -122,21 +137,21 @@ export function useConversations(filters?: { platform?: string; status?: string;
               // First conversation for this customer
               groupedConversations.set(key, conv);
             } else {
-              // Merge: keep the conversation with the most recent message
-              // Prefer conversations that have customer messages (not just AI responses)
-              const existingTime = new Date(existing.last_message_at).getTime();
-              const currentTime = new Date(conv.last_message_at).getTime();
+              // Merge: Always prefer the conversation with the real customer name
+              const existingIsAI = isAIMessageName(existing.customer_name);
+              const currentIsAI = isAIMessageName(conv.customer_name);
               
-              // Check if either conversation name looks like an AI response
-              const existingIsAI = existing.customer_name.length > 50 || existing.customer_name.includes("help") || existing.customer_name.includes("ready");
-              const currentIsAI = conv.customer_name.length > 50 || conv.customer_name.includes("help") || conv.customer_name.includes("ready");
-              
-              // Prefer the conversation that doesn't look like an AI response
+              // Always prefer the conversation that doesn't look like an AI response
               if (currentIsAI && !existingIsAI) {
                 // Keep existing (it's the real customer conversation)
+                // Merge unread counts and use the most recent message time
+                const existingTime = new Date(existing.last_message_at).getTime();
+                const currentTime = new Date(conv.last_message_at).getTime();
                 groupedConversations.set(key, {
                   ...existing,
                   unread_count: existing.unread_count + conv.unread_count,
+                  last_message_at: currentTime > existingTime ? conv.last_message_at : existing.last_message_at,
+                  last_message: currentTime > existingTime ? conv.last_message : existing.last_message,
                 });
               } else if (!currentIsAI && existingIsAI) {
                 // Use current (it's the real customer conversation)
@@ -144,18 +159,36 @@ export function useConversations(filters?: { platform?: string; status?: string;
                   ...conv,
                   unread_count: existing.unread_count + conv.unread_count,
                 });
-              } else if (currentTime > existingTime) {
-                // Both are similar, use the more recent one
-                groupedConversations.set(key, {
-                  ...conv,
-                  unread_count: existing.unread_count + conv.unread_count,
-                });
+              } else if (!currentIsAI && !existingIsAI) {
+                // Both are real customer names, use the more recent one
+                const existingTime = new Date(existing.last_message_at).getTime();
+                const currentTime = new Date(conv.last_message_at).getTime();
+                if (currentTime > existingTime) {
+                  groupedConversations.set(key, {
+                    ...conv,
+                    unread_count: existing.unread_count + conv.unread_count,
+                  });
+                } else {
+                  groupedConversations.set(key, {
+                    ...existing,
+                    unread_count: existing.unread_count + conv.unread_count,
+                  });
+                }
               } else {
-                // Keep existing
-                groupedConversations.set(key, {
-                  ...existing,
-                  unread_count: existing.unread_count + conv.unread_count,
-                });
+                // Both look like AI responses - use the more recent one
+                const existingTime = new Date(existing.last_message_at).getTime();
+                const currentTime = new Date(conv.last_message_at).getTime();
+                if (currentTime > existingTime) {
+                  groupedConversations.set(key, {
+                    ...conv,
+                    unread_count: existing.unread_count + conv.unread_count,
+                  });
+                } else {
+                  groupedConversations.set(key, {
+                    ...existing,
+                    unread_count: existing.unread_count + conv.unread_count,
+                  });
+                }
               }
             }
           } else {
@@ -164,7 +197,19 @@ export function useConversations(filters?: { platform?: string; status?: string;
           }
         }
         
-        return Array.from(groupedConversations.values());
+        // Filter out ALL conversations that have AI response names (AI-only chats)
+        // Only show conversations with real customer names
+        const filteredConversations = Array.from(groupedConversations.values()).filter((conv) => {
+          // For Instagram, completely hide conversations with AI response names
+          if (conv.platform === "instagram") {
+            return !isAIMessageName(conv.customer_name);
+          }
+          
+          // For other platforms, show all conversations
+          return true;
+        });
+        
+        return filteredConversations;
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
           return [];
@@ -190,23 +235,15 @@ export function useConversation(conversationId: string | null) {
         const platform = (response.platform ?? "whatsapp").toLowerCase();
         
         // Backend returns customer_name from customer.DisplayName
-        // Use it directly, but handle edge cases
-        let customerName = response.customer_name;
+        // Use it directly from the API response
+        let customerName = response.customer_name?.trim() || "";
         
-        // Check if customer_name looks like an AI response (common issue)
-        // If it's a long sentence that looks like a message, it's probably misassigned
-        if (customerName && customerName.length > 50 && customerName.includes(" ")) {
-          // This is likely an AI response being used as the name - treat as empty
-          customerName = "";
-        }
-        
-        // If customer_name is empty, "Unknown contact", or looks like an AI message, show fallback
-        if (!customerName || customerName.trim() === "" || customerName === "Unknown contact") {
+        // Only use fallback if customer_name is truly empty or "Unknown contact"
+        // Trust the backend to provide correct names
+        if (!customerName || customerName === "" || customerName === "Unknown contact") {
           if (platform === "instagram") {
-            // For Instagram, try to use customer_id as fallback, or generic name
-            customerName = response.customer_id 
-              ? `Instagram User #${response.customer_id}` 
-              : "Instagram User";
+            // For Instagram, show a generic fallback
+            customerName = "Instagram User";
           } else {
             customerName = "Unknown contact";
           }
@@ -389,4 +426,3 @@ export function useSuggestReplies(conversationId: string | null) {
     },
   });
 }
-
