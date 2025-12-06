@@ -12,6 +12,10 @@ import { useEscalations, useEscalationStats } from "@/app/(tenant)/hooks/useEsca
 import { useMedia } from "@/app/(tenant)/hooks/useMedia";
 import { useOrders } from "@/app/(tenant)/hooks/useOrders";
 import { usePayments } from "@/app/(tenant)/hooks/usePayments";
+import { useProducts } from "@/app/(tenant)/hooks/useProducts";
+import { useMenuItems } from "@/app/(tenant)/hooks/useMenuItems";
+import { useServices } from "@/app/(tenant)/hooks/useServices";
+import { useTenantIndustry } from "@/app/(tenant)/hooks/useIndustry";
 import {
   RocketIcon,
   UserGroupIcon,
@@ -37,6 +41,7 @@ function cn(...classes: Array<string | false | null | undefined>) {
 
 export default function TenantOverviewPage() {
   const { tenant } = useTenant();
+  const { data: tenantIndustry } = useTenantIndustry();
   
   // Fetch all dashboard data
   const { data: overviewData } = useQuery({
@@ -52,6 +57,15 @@ export default function TenantOverviewPage() {
   const { data: mediaData } = useMedia({ limit: 5 });
   const { data: ordersData } = useOrders({ limit: 5 });
   const { data: paymentsData } = usePayments({ limit: 5 });
+  
+  // Industry-specific data
+  const { data: productsData } = useProducts({ limit: 5 });
+  const { data: menuItemsData } = useMenuItems({ limit: 5 });
+  const { data: servicesData } = useServices({ limit: 5 });
+  
+  const products = productsData || [];
+  const menuItems = menuItemsData || [];
+  const services = servicesData || [];
 
   // Ensure all data is arrays
   const scheduledPosts = Array.isArray(scheduledPostsData) ? scheduledPostsData : [];
@@ -454,6 +468,36 @@ export default function TenantOverviewPage() {
           <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
             <h2 className="text-base font-semibold text-gray-900 mb-3 sm:mb-4 sm:text-lg">Quick Actions</h2>
             <div className="space-y-2">
+              {/* Industry-specific actions */}
+              {tenantIndustry?.capabilities.has_products && (
+                <Link
+                  href="/app/products"
+                  className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-95 sm:justify-start"
+                >
+                  <PackageIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span>Add Product</span>
+                </Link>
+              )}
+              {tenantIndustry?.capabilities.has_menu && (
+                <Link
+                  href="/app/menu-items"
+                  className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-95 sm:justify-start"
+                >
+                  <PackageIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span>Add Menu Item</span>
+                </Link>
+              )}
+              {tenantIndustry?.capabilities.has_services && (
+                <Link
+                  href="/app/services"
+                  className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-95 sm:justify-start"
+                >
+                  <PackageIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span>Add Service</span>
+                </Link>
+              )}
+              
+              {/* General actions */}
               <Link
                 href="/app/posts/new"
                 className="flex w-full items-center justify-center gap-3 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 sm:justify-start sm:shadow-md"
@@ -477,6 +521,115 @@ export default function TenantOverviewPage() {
               </Link>
             </div>
           </div>
+
+          {/* Recent Items - Industry Specific */}
+          {(tenantIndustry?.capabilities.has_products || tenantIndustry?.capabilities.has_menu || tenantIndustry?.capabilities.has_services) && (
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Recent Items</h2>
+              </div>
+              <div className="space-y-2">
+                {tenantIndustry?.capabilities.has_products && products.length > 0 && (
+                  <div>
+                    <Link
+                      href="/app/products"
+                      className="mb-2 flex items-center justify-between text-xs font-semibold text-gray-700 hover:text-primary transition"
+                    >
+                      <span>Recent Products</span>
+                      <ArrowRightIcon className="h-3 w-3" />
+                    </Link>
+                    <div className="space-y-1.5">
+                      {products.slice(0, 3).map((product) => (
+                        <Link
+                          key={product.id}
+                          href="/app/products"
+                          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2 transition hover:border-primary/50 hover:bg-primary/5"
+                        >
+                          <PackageIcon className="h-4 w-4 text-gray-400" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-medium text-gray-900 truncate">{product.name}</p>
+                            <p className="text-[10px] text-gray-500">
+                              {product.currency} {product.price.toLocaleString()}
+                            </p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {tenantIndustry?.capabilities.has_menu && menuItems.length > 0 && (
+                  <div className={products.length > 0 ? "mt-4" : ""}>
+                    <Link
+                      href="/app/menu-items"
+                      className="mb-2 flex items-center justify-between text-xs font-semibold text-gray-700 hover:text-primary transition"
+                    >
+                      <span>Recent Menu Items</span>
+                      <ArrowRightIcon className="h-3 w-3" />
+                    </Link>
+                    <div className="space-y-1.5">
+                      {menuItems.slice(0, 3).map((item) => (
+                        <Link
+                          key={item.id}
+                          href="/app/menu-items"
+                          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2 transition hover:border-primary/50 hover:bg-primary/5"
+                        >
+                          <PackageIcon className="h-4 w-4 text-gray-400" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-medium text-gray-900 truncate">{item.name}</p>
+                            <p className="text-[10px] text-gray-500">
+                              {item.currency} {item.price.toLocaleString()}
+                            </p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {tenantIndustry?.capabilities.has_services && services.length > 0 && (
+                  <div className={(products.length > 0 || menuItems.length > 0) ? "mt-4" : ""}>
+                    <Link
+                      href="/app/services"
+                      className="mb-2 flex items-center justify-between text-xs font-semibold text-gray-700 hover:text-primary transition"
+                    >
+                      <span>Recent Services</span>
+                      <ArrowRightIcon className="h-3 w-3" />
+                    </Link>
+                    <div className="space-y-1.5">
+                      {services.slice(0, 3).map((service) => (
+                        <Link
+                          key={service.id}
+                          href="/app/services"
+                          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2 transition hover:border-primary/50 hover:bg-primary/5"
+                        >
+                          <PackageIcon className="h-4 w-4 text-gray-400" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-medium text-gray-900 truncate">{service.name}</p>
+                            <p className="text-[10px] text-gray-500">
+                              {service.pricing.type === 'hourly' && service.pricing.rate
+                                ? `₦${service.pricing.rate}/hr`
+                                : service.pricing.type === 'fixed'
+                                ? 'Fixed Price'
+                                : 'Package-based'}
+                            </p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {(products.length === 0 && menuItems.length === 0 && services.length === 0) && (
+                  <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-4 text-center">
+                    <PackageIcon className="mx-auto h-6 w-6 text-gray-400" />
+                    <p className="mt-2 text-xs font-medium text-gray-900">No items yet</p>
+                    <p className="mt-1 text-xs text-gray-500">Add your first item to get started</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Upcoming Posts */}
           <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">

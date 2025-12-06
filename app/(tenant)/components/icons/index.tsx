@@ -411,6 +411,20 @@ export const ArrowRightIcon = ({ className = "w-5 h-5", size }: IconProps) => (
   </svg>
 );
 
+export const ArrowLeftIcon = ({ className = "w-5 h-5", size }: IconProps) => (
+  <svg
+    className={className}
+    width={size || 20}
+    height={size || 20}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+  </svg>
+);
+
 export const CheckCircleIcon = ({ className = "w-5 h-5", size }: IconProps) => (
   <svg
     className={className}
@@ -499,6 +513,20 @@ export const ArrowUpIcon = ({ className = "w-5 h-5", size }: IconProps) => (
     strokeWidth={2}
   >
     <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+  </svg>
+);
+
+export const ArrowDownIcon = ({ className = "w-5 h-5", size }: IconProps) => (
+  <svg
+    className={className}
+    width={size || 20}
+    height={size || 20}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
   </svg>
 );
 

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useMemo } from "react";
-import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct, type Product } from "../../hooks/useProducts";
+import Link from "next/link";
+import { useProducts, useDeleteProduct, type Product } from "../../hooks/useProducts";
 import {
   PackageIcon,
   MagnifyingGlassIcon,
@@ -14,20 +15,64 @@ import {
 } from "../../components/icons";
 import { toast } from "react-hot-toast";
 
+type SortOption = 'name' | 'price' | 'stock' | 'date';
+type AvailabilityFilter = 'all' | 'in_stock' | 'out_of_stock' | 'low_stock';
+type StatusFilter = 'all' | 'active' | 'inactive';
+
 export default function ProductsPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string | undefined>(undefined);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [availability, setAvailability] = useState<AvailabilityFilter>('all');
+  const [status, setStatus] = useState<StatusFilter>('all');
+  const [sortBy, setSortBy] = useState<SortOption>('date');
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedProductIds, setSelectedProductIds] = useState<number[]>([]);
+  const itemsPerPage = 20;
 
-  const { data: products = [], isLoading, error } = useProducts({
+  const { data: allProducts = [], isLoading, error } = useProducts({
     search: query || undefined,
     category: category || undefined,
   });
 
-  const createMutation = useCreateProduct();
-  const updateMutation = useUpdateProduct();
+  // Filter and sort products
+  const products = useMemo(() => {
+    let filtered = [...allProducts];
+
+    // Filter by availability
+    if (availability !== 'all') {
+      filtered = filtered.filter((p) => p.availability === availability);
+    }
+
+    // Filter by status
+    if (status !== 'all') {
+      filtered = filtered.filter((p) => (status === 'active') === p.is_active);
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'price':
+          return a.price - b.price;
+        case 'stock':
+          return (a.stock_count ?? 0) - (b.stock_count ?? 0);
+        case 'date':
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+    });
+
+    return filtered;
+  }, [allProducts, availability, status, sortBy]);
+
+  // Pagination
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return products.slice(start, start + itemsPerPage);
+  }, [products, currentPage, itemsPerPage]);
+
   const deleteMutation = useDeleteProduct();
 
   const categories = useMemo(() => {
@@ -80,53 +125,87 @@ export default function ProductsPage() {
               Delete ({selectedProductIds.length})
             </button>
           )}
-          <button
-            onClick={() => {
-              setEditingProduct(null);
-              setIsCreateModalOpen(true);
-            }}
+          <Link
+            href="/app/products/new"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm sm:shadow-md"
           >
             <PlusIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Add Product
-          </button>
+          </Link>
         </div>
       </header>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:p-4">
-        <div className="relative flex-1">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:h-5 sm:w-5" />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search products..."
-            className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 sm:pl-10 sm:pr-4 sm:py-2.5"
-          />
+      <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:h-5 sm:w-5" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search products..."
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 sm:pl-10 sm:pr-4 sm:py-2.5"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <FunnelIcon className="h-4 w-4 shrink-0 text-gray-400" />
+            <select
+              value={category || ""}
+              onChange={(e) => setCategory(e.target.value || undefined)}
+              className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
+            >
+              <option value="">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <FunnelIcon className="h-4 w-4 shrink-0 text-gray-400" />
+        <div className="flex flex-wrap items-center gap-2">
           <select
-            value={category || ""}
-            onChange={(e) => setCategory(e.target.value || undefined)}
-            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
+            value={availability}
+            onChange={(e) => setAvailability(e.target.value as AvailabilityFilter)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
           >
-            <option value="">All Categories</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
+            <option value="all">All Availability</option>
+            <option value="in_stock">In Stock</option>
+            <option value="out_of_stock">Out of Stock</option>
+            <option value="low_stock">Low Stock</option>
+          </select>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as StatusFilter)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
+          >
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortOption)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
+          >
+            <option value="date">Sort by Date</option>
+            <option value="name">Sort by Name</option>
+            <option value="price">Sort by Price</option>
+            <option value="stock">Sort by Stock</option>
           </select>
           <button
             onClick={() => {
               setCategory(undefined);
               setQuery("");
+              setAvailability('all');
+              setStatus('all');
+              setSortBy('date');
+              setCurrentPage(1);
             }}
             className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary active:scale-95"
           >
-            Clear
+            Clear All
           </button>
         </div>
       </div>
@@ -151,17 +230,18 @@ export default function ProductsPage() {
           <PackageIcon className="mx-auto h-12 w-12 text-gray-400 sm:h-16 sm:w-16" />
           <p className="mt-4 text-base font-semibold text-gray-900 sm:text-lg">No products found</p>
           <p className="mt-2 text-xs text-gray-600 sm:text-sm">Add your first product to get started.</p>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
+          <Link
+            href="/app/products/new"
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 sm:mt-6 sm:px-6 sm:py-3 sm:text-sm sm:shadow-md"
           >
             <PlusIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Add Product
-          </button>
+          </Link>
         </div>
       ) : (
-        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {products.map((product) => {
+        <>
+          <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {paginatedProducts.map((product) => {
             const isSelected = selectedProductIds.includes(product.id);
             return (
               <div
@@ -220,16 +300,13 @@ export default function ProductsPage() {
                   )}
 
                   <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-2">
-                    <button
-                      onClick={() => {
-                        setEditingProduct(product);
-                        setIsCreateModalOpen(true);
-                      }}
+                    <Link
+                      href={`/app/products/${product.id}/edit`}
                       className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition active:scale-95"
                     >
                       <PencilIcon className="h-3 w-3" />
                       Edit
-                    </button>
+                    </Link>
                     <button
                       onClick={() => handleDelete(product.id)}
                       className="flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700 transition active:scale-95"
@@ -242,191 +319,32 @@ export default function ProductsPage() {
               </div>
             );
           })}
-        </div>
-      )}
-
-      {/* Create/Edit Modal */}
-      {(isCreateModalOpen || editingProduct) && (
-        <ProductFormModal
-          product={editingProduct}
-          onClose={() => {
-            setIsCreateModalOpen(false);
-            setEditingProduct(null);
-          }}
-          onCreate={createMutation.mutateAsync}
-          onUpdate={(payload) => {
-            if (!editingProduct) return Promise.reject(new Error('No product selected'));
-            return updateMutation.mutateAsync({ productId: editingProduct.id, payload });
-          }}
-        />
-      )}
-    </div>
-  );
-}
-
-function ProductFormModal({
-  product,
-  onClose,
-  onCreate,
-  onUpdate,
-}: {
-  product: Product | null;
-  isEdit?: boolean;
-  onClose: () => void;
-  onCreate: (payload: any) => Promise<any>;
-  onUpdate: (payload: any) => Promise<any>;
-}) {
-  const [formData, setFormData] = useState({
-    name: product?.name || "",
-    description: product?.description || "",
-    price: product?.price || 0,
-    currency: product?.currency || "NGN",
-    category: product?.category || "",
-    stock_count: product?.stock_count || 0,
-    tags: product?.tags?.join(", ") || "",
-  });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const payload = {
-        ...formData,
-        tags: formData.tags ? formData.tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
-      };
-
-      if (product) {
-        await onUpdate(payload);
-      } else {
-        await onCreate(payload);
-      }
-      onClose();
-    } catch (error) {
-      console.error("Form submission error:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-2xl rounded-xl border border-gray-200 bg-white p-4 shadow-xl sm:p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-gray-900 sm:text-lg">{product ? "Edit Product" : "Add Product"}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 active:scale-95"
-            aria-label="Close modal"
-          >
-            <XIcon className="h-5 w-5" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">Product Name *</label>
-            <input
-              type="text"
-              required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">Description</label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              rows={3}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Price *</label>
-              <input
-                type="number"
-                required
-                min="0"
-                step="0.01"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Currency</label>
-              <select
-                value={formData.currency}
-                onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <option value="NGN">NGN</option>
-                <option value="USD">USD</option>
-                <option value="GBP">GBP</option>
-                <option value="EUR">EUR</option>
-              </select>
+                Previous
+              </button>
+              <span className="px-3 py-2 text-xs font-medium text-gray-700">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Category</label>
-              <input
-                type="text"
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Stock Count</label>
-              <input
-                type="number"
-                min="0"
-                value={formData.stock_count}
-                onChange={(e) => setFormData({ ...formData, stock_count: parseInt(e.target.value) || 0 })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">Tags (comma-separated)</label>
-            <input
-              type="text"
-              value={formData.tags}
-              onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-              placeholder="electronics, computers, laptops"
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div className="flex flex-col-reverse items-stretch gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary active:scale-95"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 disabled:opacity-50 sm:shadow-md"
-            >
-              {isSubmitting ? "Saving..." : product ? "Update" : "Create"}
-            </button>
-          </div>
-        </form>
-      </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

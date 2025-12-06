@@ -21,12 +21,16 @@ import {
   PlusIcon,
   SparklesIcon,
   ChartBarIcon,
+  BuildingOfficeIcon,
 } from "../../components/icons";
+import { IndustrySelector } from "../../components/IndustrySelector";
+import { useTenantIndustry } from "../../hooks/useIndustry";
 
-type TabKey = "profile" | "notifications" | "team" | "billing";
+type TabKey = "profile" | "industry" | "notifications" | "team" | "billing";
 
 const TABS: Array<{ key: TabKey; label: string; icon: React.ReactNode }> = [
   { key: "profile", label: "Business Profile", icon: <UserIcon className="w-4 h-4" /> },
+  { key: "industry", label: "Industry", icon: <BuildingOfficeIcon className="w-4 h-4" /> },
   { key: "notifications", label: "Notifications", icon: <BellIcon className="w-4 h-4" /> },
   { key: "team", label: "Team", icon: <UsersIcon className="w-4 h-4" /> },
   { key: "billing", label: "Billing & Plan", icon: <CreditCardIcon className="w-4 h-4" /> },
@@ -39,6 +43,7 @@ export default function SettingsPage() {
   const teamQuery = useTeamMembers();
   const billingQuery = useBilling();
   const usageQuery = useUsage();
+  const { data: tenantIndustry } = useTenantIndustry();
   
   // Fetch business profile data
   const { data: onboardingData, isLoading: isLoadingProfile } = useQuery({
@@ -216,6 +221,60 @@ export default function SettingsPage() {
               </>
             )}
           </form>
+        );
+      case "industry":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Current Industry</h3>
+              {tenantIndustry ? (
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 mb-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-base font-semibold text-gray-900">{tenantIndustry.industry_name}</p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {tenantIndustry.capabilities.has_products && (
+                          <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                            Products
+                          </span>
+                        )}
+                        {tenantIndustry.capabilities.has_menu && (
+                          <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                            Menu Items
+                          </span>
+                        )}
+                        {tenantIndustry.capabilities.has_services && (
+                          <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
+                            Services
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <CheckCircleIcon className="h-6 w-6 text-primary" />
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 mb-6">
+                  <p className="text-sm text-gray-600">No industry selected yet.</p>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Industry</h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Select a different industry to change your workspace capabilities. This will update which sections (Products, Menu Items, Services) are available in your navigation.
+              </p>
+              <IndustrySelector
+                showDescription={true}
+                allowChange={true}
+                onSelect={(industryId) => {
+                  toast.success("Industry updated successfully");
+                  void queryClient.invalidateQueries({ queryKey: ["tenant-industry"] });
+                }}
+              />
+            </div>
+          </div>
         );
       case "notifications":
         return (
@@ -444,6 +503,7 @@ export default function SettingsPage() {
     isLoadingProfile,
     profileForm,
     updateProfileMutation,
+    tenantIndustry,
   ]);
 
   return (

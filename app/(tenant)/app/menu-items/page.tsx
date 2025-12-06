@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useMemo } from "react";
-import { useMenuItems, useCreateMenuItem, useUpdateMenuItem, useDeleteMenuItem, type MenuItem } from "../../hooks/useMenuItems";
+import Link from "next/link";
+import { useMenuItems, useDeleteMenuItem, type MenuItem } from "../../hooks/useMenuItems";
 import {
   PackageIcon,
   MagnifyingGlassIcon,
@@ -13,20 +14,83 @@ import {
   CheckCircleIcon,
 } from "../../components/icons";
 
+type SortOption = 'name' | 'price' | 'category' | 'preparation_time' | 'date';
+type AvailabilityFilter = 'all' | 'available' | 'unavailable' | 'limited';
+type StatusFilter = 'all' | 'active' | 'inactive';
+type SpiceLevelFilter = 'all' | 'mild' | 'medium' | 'hot' | 'very_hot';
+
+const DIETARY_OPTIONS = [
+  'Vegetarian',
+  'Vegan',
+  'Gluten-free',
+  'Dairy-free',
+  'Nut-free',
+  'Halal',
+  'Kosher',
+] as const;
+
 export default function MenuItemsPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string | undefined>(undefined);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [availability, setAvailability] = useState<AvailabilityFilter>('all');
+  const [status, setStatus] = useState<StatusFilter>('all');
+  const [spiceLevel, setSpiceLevel] = useState<SpiceLevelFilter>('all');
+  const [sortBy, setSortBy] = useState<SortOption>('date');
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const itemsPerPage = 20;
 
-  const { data: items = [], isLoading, error } = useMenuItems({
+  const { data: allItems = [], isLoading, error } = useMenuItems({
     search: query || undefined,
     category: category || undefined,
   });
 
-  const createMutation = useCreateMenuItem();
-  const updateMutation = useUpdateMenuItem();
+  // Filter and sort menu items
+  const items = useMemo(() => {
+    let filtered = [...allItems];
+
+    // Filter by availability
+    if (availability !== 'all') {
+      filtered = filtered.filter((item) => item.availability === availability);
+    }
+
+    // Filter by status
+    if (status !== 'all') {
+      filtered = filtered.filter((item) => (status === 'active') === item.is_active);
+    }
+
+    // Filter by spice level
+    if (spiceLevel !== 'all') {
+      filtered = filtered.filter((item) => item.spice_level === spiceLevel);
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'price':
+          return a.price - b.price;
+        case 'category':
+          return (a.category || '').localeCompare(b.category || '');
+        case 'preparation_time':
+          return (a.preparation_time || 0) - (b.preparation_time || 0);
+        case 'date':
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+    });
+
+    return filtered;
+  }, [allItems, availability, status, spiceLevel, sortBy]);
+
+  // Pagination
+  const totalPages = Math.ceil(items.length / itemsPerPage);
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return items.slice(start, start + itemsPerPage);
+  }, [items, currentPage, itemsPerPage]);
+
   const deleteMutation = useDeleteMenuItem();
 
   const categories = useMemo(() => {
@@ -76,52 +140,99 @@ export default function MenuItemsPage() {
               Delete Selected ({selectedIds.length})
             </button>
           )}
-          <button
-            onClick={() => {
-              setEditingItem(null);
-              setIsCreateModalOpen(true);
-            }}
+          <Link
+            href="/app/menu-items/new"
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
           >
             <PlusIcon className="w-4 h-4" />
             Add Menu Item
-          </button>
+          </Link>
         </div>
       </header>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search menu items..."
-            className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
+      <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search menu items..."
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <FunnelIcon className="h-4 w-4 text-gray-400" />
+            <select
+              value={category || ""}
+              onChange={(e) => setCategory(e.target.value || undefined)}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <FunnelIcon className="h-4 w-4 text-gray-400" />
+        <div className="flex flex-wrap items-center gap-2">
           <select
-            value={category || ""}
-            onChange={(e) => setCategory(e.target.value || undefined)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            value={availability}
+            onChange={(e) => setAvailability(e.target.value as AvailabilityFilter)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
           >
-            <option value="">All Categories</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
+            <option value="all">All Availability</option>
+            <option value="available">Available</option>
+            <option value="unavailable">Unavailable</option>
+            <option value="limited">Limited</option>
+          </select>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as StatusFilter)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
+          >
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          <select
+            value={spiceLevel}
+            onChange={(e) => setSpiceLevel(e.target.value as SpiceLevelFilter)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
+          >
+            <option value="all">All Spice Levels</option>
+            <option value="mild">Mild</option>
+            <option value="medium">Medium</option>
+            <option value="hot">Hot</option>
+            <option value="very_hot">Very Hot</option>
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortOption)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
+          >
+            <option value="date">Sort by Date</option>
+            <option value="name">Sort by Name</option>
+            <option value="price">Sort by Price</option>
+            <option value="category">Sort by Category</option>
+            <option value="preparation_time">Sort by Prep Time</option>
           </select>
           <button
             onClick={() => {
               setCategory(undefined);
               setQuery("");
+              setAvailability('all');
+              setStatus('all');
+              setSpiceLevel('all');
+              setSortBy('date');
+              setCurrentPage(1);
             }}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary sm:text-sm"
           >
-            Clear
+            Clear All
           </button>
         </div>
       </div>
@@ -144,17 +255,18 @@ export default function MenuItemsPage() {
         <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-16 text-center">
           <PackageIcon className="mx-auto h-16 w-16 text-gray-400" />
           <p className="mt-4 text-lg font-semibold text-gray-900">No menu items found</p>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
+          <Link
+            href="/app/menu-items/new"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
           >
             <PlusIcon className="w-4 h-4" />
             Add Menu Item
-          </button>
+          </Link>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {items.map((item) => {
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {paginatedItems.map((item) => {
             const isSelected = selectedIds.includes(item.id);
             return (
               <div
@@ -207,16 +319,13 @@ export default function MenuItemsPage() {
                   )}
 
                   <div className="flex items-center justify-between gap-2">
-                    <button
-                      onClick={() => {
-                        setEditingItem(item);
-                        setIsCreateModalOpen(true);
-                      }}
+                    <Link
+                      href={`/app/menu-items/${item.id}/edit`}
                       className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition"
                     >
                       <PencilIcon className="h-3 w-3" />
                       Edit
-                    </button>
+                    </Link>
                     <button
                       onClick={() => handleDelete(item.id)}
                       className="flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700 transition"
@@ -229,200 +338,32 @@ export default function MenuItemsPage() {
               </div>
             );
           })}
-        </div>
-      )}
+          </div>
 
-      {(isCreateModalOpen || editingItem) && (
-        <MenuItemFormModal
-          item={editingItem}
-          onClose={() => {
-            setIsCreateModalOpen(false);
-            setEditingItem(null);
-          }}
-          onCreate={createMutation.mutateAsync}
-          onUpdate={(payload) => {
-            if (!editingItem) return Promise.reject(new Error('No item selected'));
-            return updateMutation.mutateAsync({ menuItemId: editingItem.id, payload });
-          }}
-        />
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <span className="px-3 py-2 text-xs font-medium text-gray-700">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 }
-
-function MenuItemFormModal({
-  item,
-  onClose,
-  onCreate,
-  onUpdate,
-}: {
-  item: MenuItem | null;
-  onClose: () => void;
-  onCreate: (payload: any) => Promise<any>;
-  onUpdate: (payload: any) => Promise<any>;
-}) {
-  const [formData, setFormData] = useState({
-    name: item?.name || "",
-    description: item?.description || "",
-    price: item?.price || 0,
-    currency: item?.currency || "NGN",
-    category: item?.category || "",
-    preparation_time: item?.preparation_time || 0,
-    dietary_info: item?.dietary_info?.join(", ") || "",
-    spice_level: item?.spice_level || "mild",
-  });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const payload = {
-        ...formData,
-        dietary_info: formData.dietary_info ? formData.dietary_info.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
-      };
-
-      if (item) {
-        await onUpdate(payload);
-      } else {
-        await onCreate(payload);
-      }
-      onClose();
-    } catch (error) {
-      console.error("Form submission error:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">{item ? "Edit Menu Item" : "Add Menu Item"}</h2>
-          <button type="button" onClick={onClose} className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
-            <XIcon className="h-5 w-5" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">Name *</label>
-            <input
-              type="text"
-              required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">Description</label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              rows={3}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Price *</label>
-              <input
-                type="number"
-                required
-                min="0"
-                step="0.01"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Currency</label>
-              <select
-                value={formData.currency}
-                onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="NGN">NGN</option>
-                <option value="USD">USD</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Category</label>
-              <input
-                type="text"
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                placeholder="Main, Appetizer, Dessert..."
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Preparation Time (minutes)</label>
-              <input
-                type="number"
-                min="0"
-                value={formData.preparation_time}
-                onChange={(e) => setFormData({ ...formData, preparation_time: parseInt(e.target.value) || 0 })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Spice Level</label>
-              <select
-                value={formData.spice_level}
-                onChange={(e) => setFormData({ ...formData, spice_level: e.target.value as any })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="mild">Mild</option>
-                <option value="medium">Medium</option>
-                <option value="hot">Hot</option>
-                <option value="very_hot">Very Hot</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Dietary Info (comma-separated)</label>
-              <input
-                type="text"
-                value={formData.dietary_info}
-                onChange={(e) => setFormData({ ...formData, dietary_info: e.target.value })}
-                placeholder="vegetarian, gluten-free"
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50"
-            >
-              {isSubmitting ? "Saving..." : item ? "Update" : "Create"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-

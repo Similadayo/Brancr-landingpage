@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useMemo } from "react";
-import { useServices, useCreateService, useUpdateService, useDeleteService, type Service } from "../../hooks/useServices";
+import Link from "next/link";
+import { useServices, useDeleteService, type Service } from "../../hooks/useServices";
 import {
   PackageIcon,
   MagnifyingGlassIcon,
@@ -13,20 +14,68 @@ import {
   CheckCircleIcon,
 } from "../../components/icons";
 
+type SortOption = 'name' | 'price' | 'duration' | 'category' | 'date';
+type PricingTypeFilter = 'all' | 'hourly' | 'fixed' | 'package';
+type StatusFilter = 'all' | 'active' | 'inactive';
+
 export default function ServicesPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string | undefined>(undefined);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingService, setEditingService] = useState<Service | null>(null);
+  const [pricingType, setPricingType] = useState<PricingTypeFilter>('all');
+  const [status, setStatus] = useState<StatusFilter>('all');
+  const [sortBy, setSortBy] = useState<SortOption>('date');
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const itemsPerPage = 20;
 
-  const { data: services = [], isLoading, error } = useServices({
+  const { data: allServices = [], isLoading, error } = useServices({
     search: query || undefined,
     category: category || undefined,
   });
 
-  const createMutation = useCreateService();
-  const updateMutation = useUpdateService();
+  // Filter and sort services
+  const services = useMemo(() => {
+    let filtered = [...allServices];
+
+    // Filter by pricing type
+    if (pricingType !== 'all') {
+      filtered = filtered.filter((s) => s.pricing.type === pricingType);
+    }
+
+    // Filter by status
+    if (status !== 'all') {
+      filtered = filtered.filter((s) => (status === 'active') === s.is_active);
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'price':
+          const aPrice = a.pricing.rate || (a.packages?.[0]?.price || 0);
+          const bPrice = b.pricing.rate || (b.packages?.[0]?.price || 0);
+          return aPrice - bPrice;
+        case 'category':
+          return (a.category || '').localeCompare(b.category || '');
+        case 'duration':
+          return (a.duration || '').localeCompare(b.duration || '');
+        case 'date':
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+    });
+
+    return filtered;
+  }, [allServices, pricingType, status, sortBy]);
+
+  // Pagination
+  const totalPages = Math.ceil(services.length / itemsPerPage);
+  const paginatedServices = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return services.slice(start, start + itemsPerPage);
+  }, [services, currentPage, itemsPerPage]);
+
   const deleteMutation = useDeleteService();
 
   const categories = useMemo(() => {
@@ -60,44 +109,88 @@ export default function ServicesPage() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => {
-              setEditingService(null);
-              setIsCreateModalOpen(true);
-            }}
+          <Link
+            href="/app/services/new"
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
           >
             <PlusIcon className="w-4 h-4" />
             Add Service
-          </button>
+          </Link>
         </div>
       </header>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search services..."
-            className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
+      <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search services..."
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <FunnelIcon className="h-4 w-4 text-gray-400" />
+            <select
+              value={category || ""}
+              onChange={(e) => setCategory(e.target.value || undefined)}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <FunnelIcon className="h-4 w-4 text-gray-400" />
+        <div className="flex flex-wrap items-center gap-2">
           <select
-            value={category || ""}
-            onChange={(e) => setCategory(e.target.value || undefined)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            value={pricingType}
+            onChange={(e) => setPricingType(e.target.value as PricingTypeFilter)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
           >
-            <option value="">All Categories</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
+            <option value="all">All Pricing Types</option>
+            <option value="hourly">Hourly</option>
+            <option value="fixed">Fixed</option>
+            <option value="package">Package</option>
           </select>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as StatusFilter)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
+          >
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortOption)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
+          >
+            <option value="date">Sort by Date</option>
+            <option value="name">Sort by Name</option>
+            <option value="price">Sort by Price</option>
+            <option value="category">Sort by Category</option>
+            <option value="duration">Sort by Duration</option>
+          </select>
+          <button
+            onClick={() => {
+              setCategory(undefined);
+              setQuery("");
+              setPricingType('all');
+              setStatus('all');
+              setSortBy('date');
+              setCurrentPage(1);
+            }}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary sm:text-sm"
+          >
+            Clear All
+          </button>
         </div>
       </div>
 
@@ -119,17 +212,18 @@ export default function ServicesPage() {
         <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-16 text-center">
           <PackageIcon className="mx-auto h-16 w-16 text-gray-400" />
           <p className="mt-4 text-lg font-semibold text-gray-900">No services found</p>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
+          <Link
+            href="/app/services/new"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
           >
             <PlusIcon className="w-4 h-4" />
             Add Service
-          </button>
+          </Link>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {services.map((service) => {
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {paginatedServices.map((service) => {
             const isSelected = selectedIds.includes(service.id);
             return (
               <div
@@ -192,16 +286,13 @@ export default function ServicesPage() {
                   )}
 
                   <div className="flex items-center justify-between gap-2">
-                    <button
-                      onClick={() => {
-                        setEditingService(service);
-                        setIsCreateModalOpen(true);
-                      }}
+                    <Link
+                      href={`/app/services/${service.id}/edit`}
                       className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition"
                     >
                       <PencilIcon className="h-3 w-3" />
                       Edit
-                    </button>
+                    </Link>
                     <button
                       onClick={() => handleDelete(service.id)}
                       className="flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700 transition"
@@ -214,193 +305,32 @@ export default function ServicesPage() {
               </div>
             );
           })}
-        </div>
-      )}
-
-      {(isCreateModalOpen || editingService) && (
-        <ServiceFormModal
-          service={editingService}
-          onClose={() => {
-            setIsCreateModalOpen(false);
-            setEditingService(null);
-          }}
-          onCreate={createMutation.mutateAsync}
-          onUpdate={(payload) => {
-            if (!editingService) return Promise.reject(new Error('No service selected'));
-            return updateMutation.mutateAsync({ serviceId: editingService.id, payload });
-          }}
-        />
-      )}
-    </div>
-  );
-}
-
-function ServiceFormModal({
-  service,
-  onClose,
-  onCreate,
-  onUpdate,
-}: {
-  service: Service | null;
-  onClose: () => void;
-  onCreate: (payload: any) => Promise<any>;
-  onUpdate: (payload: any) => Promise<any>;
-}) {
-  const [formData, setFormData] = useState({
-    name: service?.name || "",
-    description: service?.description || "",
-    pricing_type: service?.pricing.type || "hourly",
-    pricing_rate: service?.pricing.rate || 0,
-    duration: service?.duration || "",
-    category: service?.category || "",
-    deliverables: service?.deliverables?.join(", ") || "",
-    packages: service?.packages || [],
-  });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const payload = {
-        name: formData.name,
-        description: formData.description,
-        pricing: {
-          type: formData.pricing_type as "hourly" | "fixed" | "package",
-          rate: formData.pricing_type === "hourly" ? formData.pricing_rate : undefined,
-        },
-        packages: formData.packages.length > 0 ? formData.packages : undefined,
-        duration: formData.duration,
-        category: formData.category,
-        deliverables: formData.deliverables ? formData.deliverables.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
-      };
-
-      if (service) {
-        await onUpdate(payload);
-      } else {
-        await onCreate(payload);
-      }
-      onClose();
-    } catch (error) {
-      console.error("Form submission error:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">{service ? "Edit Service" : "Add Service"}</h2>
-          <button type="button" onClick={onClose} className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
-            <XIcon className="h-5 w-5" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">Service Name *</label>
-            <input
-              type="text"
-              required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">Description</label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              rows={3}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Pricing Type *</label>
-              <select
-                value={formData.pricing_type}
-                onChange={(e) => setFormData({ ...formData, pricing_type: e.target.value as "hourly" | "fixed" | "package" })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <option value="hourly">Hourly</option>
-                <option value="fixed">Fixed</option>
-                <option value="package">Package</option>
-              </select>
+                Previous
+              </button>
+              <span className="px-3 py-2 text-xs font-medium text-gray-700">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
             </div>
-            {formData.pricing_type === "hourly" && (
-              <div>
-                <label className="block text-sm font-semibold text-gray-700">Rate (NGN/hour)</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.pricing_rate}
-                  onChange={(e) => setFormData({ ...formData, pricing_rate: parseFloat(e.target.value) || 0 })}
-                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Duration</label>
-              <input
-                type="text"
-                value={formData.duration}
-                onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                placeholder="1 hour, 2 weeks..."
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Category</label>
-              <input
-                type="text"
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">Deliverables (comma-separated)</label>
-            <input
-              type="text"
-              value={formData.deliverables}
-              onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })}
-              placeholder="Report, Strategy, Consultation..."
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div className="flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50"
-            >
-              {isSubmitting ? "Saving..." : service ? "Update" : "Create"}
-            </button>
-          </div>
-        </form>
-      </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
-
