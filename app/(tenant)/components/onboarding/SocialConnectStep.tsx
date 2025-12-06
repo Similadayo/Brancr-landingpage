@@ -33,7 +33,17 @@ export function SocialConnectStep({
 
   // Check which platforms are connected
   const connectedPlatforms = useMemo(() => {
-    const connected = integrations.filter((i) => i.connected).map((i) => i.platform);
+    const connected = integrations.filter((i) => i.connected).map((i) => {
+      // For Instagram, check login method to determine which option is connected
+      if (i.platform === 'instagram') {
+        const loginMethod = i.login_method || (i.metadata as any)?.login_method;
+        if (loginMethod === 'instagram_login') {
+          return 'instagram_login';
+        }
+        return 'instagram'; // Default to Facebook Login
+      }
+      return i.platform;
+    });
     // Include Telegram if hasTelegramBot is true
     if (hasTelegramBot && !connected.includes('telegram')) {
       connected.push('telegram');
@@ -65,6 +75,16 @@ export function SocialConnectStep({
       icon: '📸',
       href: '/app/integrations#instagram',
       external: false,
+      loginMethod: 'meta', // Uses Meta OAuth (Facebook Login)
+    },
+    {
+      id: 'instagram_login',
+      name: 'Instagram Login',
+      description: 'Connect directly with Instagram (no Facebook Page required)',
+      icon: '📸',
+      href: '/app/integrations#instagram',
+      external: false,
+      loginMethod: 'instagram_login', // Uses Instagram Login OAuth
     },
     {
       id: 'facebook',
@@ -73,6 +93,7 @@ export function SocialConnectStep({
       icon: '👥',
       href: '/app/integrations#facebook',
       external: false,
+      loginMethod: 'meta', // Uses Meta OAuth (Facebook Login)
     },
     {
       id: 'tiktok',
@@ -98,13 +119,19 @@ export function SocialConnectStep({
     try {
       // Construct success redirect URL (redirect back to onboarding page)
       const successRedirect = typeof window !== 'undefined' 
-        ? `${window.location.origin}/app/onboarding`
-        : '/app/onboarding';
+        ? `${window.location.origin}/app/onboarding?platform=${platform}&status=success`
+        : `/app/onboarding?platform=${platform}&status=success`;
 
       let oauthUrl = '';
 
-      if (platform === 'facebook' || platform === 'instagram') {
-        // Meta platforms (Facebook, Instagram)
+      if (platform === 'instagram_login') {
+        // Instagram Login (separate OAuth flow)
+        oauthUrl = tenantApi.getInstagramOAuthUrl({
+          tenant_id: tenantId,
+          success_redirect: successRedirect,
+        });
+      } else if (platform === 'facebook' || platform === 'instagram') {
+        // Meta platforms (Facebook Login, Instagram via Facebook)
         const platformsParam = platforms || platform;
         oauthUrl = tenantApi.getMetaOAuthUrl({
           tenant_id: tenantId,
@@ -141,6 +168,9 @@ export function SocialConnectStep({
     const status = urlParams.get('status');
     const message = urlParams.get('message');
     const platform = urlParams.get('platform');
+    const error = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
+    const errorReason = urlParams.get('error_reason');
 
     if (status === 'success') {
       // Show success message
@@ -151,9 +181,19 @@ export function SocialConnectStep({
       // Clean URL
       window.history.replaceState({}, '', window.location.pathname);
       setIsConnecting(null);
-    } else if (status === 'error') {
-      // Show error message
-      toast.error(`Connection failed: ${message || 'Unknown error'}`);
+    } else if (status === 'error' || error) {
+      // Handle OAuth errors
+      let errorMessage = message || 'Unknown error';
+      
+      if (error === 'access_denied' || errorReason === 'user_denied') {
+        errorMessage = 'Connection cancelled. You can try again when ready.';
+      } else if (errorDescription) {
+        errorMessage = errorDescription;
+      } else if (error) {
+        errorMessage = `Connection failed: ${error}`;
+      }
+      
+      toast.error(errorMessage);
       // Clean URL
       window.history.replaceState({}, '', window.location.pathname);
       setIsConnecting(null);
@@ -206,16 +246,31 @@ export function SocialConnectStep({
                     {platform.icon}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-bold text-gray-900">{platform.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-bold text-gray-900">{platform.name}</h3>
+                      {platform.id === 'instagram_login' && (
+                        <span className="inline-flex items-center rounded-full bg-blue-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-blue-700">
+                          No Page Required
+                        </span>
+                      )}
+                    </div>
                     <p className="mt-1 text-xs text-gray-600">{platform.description}</p>
                   </div>
                 </div>
                 {isConnected && (
-                  <div className="flex items-center gap-1.5 rounded-full bg-emerald-500 px-2.5 py-1 shadow-sm">
-                    <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span className="text-[10px] font-bold text-white">Connected</span>
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="flex items-center gap-1.5 rounded-full bg-emerald-500 px-2.5 py-1 shadow-sm">
+                      <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-[10px] font-bold text-white">Connected</span>
+                    </div>
+                    {platform.id === 'instagram' && isConnected && (
+                      <span className="text-[9px] font-medium text-gray-500">via Facebook</span>
+                    )}
+                    {platform.id === 'instagram_login' && isConnected && (
+                      <span className="text-[9px] font-medium text-gray-500">via Instagram</span>
+                    )}
                   </div>
                 )}
               </div>

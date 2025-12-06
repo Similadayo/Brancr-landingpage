@@ -1991,6 +1991,16 @@ export const tenantApi = {
     if (params.success_redirect) queryParams.append('success_redirect', params.success_redirect);
     return `${API_BASE_URL}/api/oauth/tiktok/start?${queryParams.toString()}`;
   },
+
+  getInstagramOAuthUrl: (params: {
+    tenant_id: number;
+    success_redirect?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('tenant_id', params.tenant_id.toString());
+    if (params.success_redirect) queryParams.append('success_redirect', params.success_redirect);
+    return `${API_BASE_URL}/api/oauth/instagram/start?${queryParams.toString()}`;
+  },
 };
 
  

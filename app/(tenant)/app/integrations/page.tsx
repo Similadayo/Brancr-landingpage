@@ -89,7 +89,7 @@ export default function IntegrationsPage() {
   }, [disconnectMutation]);
 
   // Handle OAuth connection
-  const handleConnect = useCallback((platform: string, platforms?: string) => {
+  const handleConnect = useCallback((platform: string, platforms?: string, useInstagramLogin = false) => {
     if (!tenantId) {
       toast.error('Please login first');
       return;
@@ -100,29 +100,35 @@ export default function IntegrationsPage() {
     try {
       // Construct success redirect URL (redirect back to integrations page)
       const successRedirect = typeof window !== 'undefined' 
-        ? `${window.location.origin}/app/integrations`
-        : '/app/integrations';
+        ? `${window.location.origin}/app/integrations?platform=${platform}&status=success`
+        : `/app/integrations?platform=${platform}&status=success`;
 
       let oauthUrl = '';
 
-      if (platform === 'facebook' || platform === 'instagram') {
-      // Meta platforms (Facebook, Instagram)
-      const platformsParam = platforms || platform;
-      oauthUrl = tenantApi.getMetaOAuthUrl({
-        tenant_id: tenantId,
-        platforms: platformsParam,
-        success_redirect: successRedirect,
-      });
-    } else if (platform === 'tiktok') {
-      // TikTok
-      oauthUrl = tenantApi.getTikTokOAuthUrl({
-        tenant_id: tenantId,
-        success_redirect: successRedirect,
-      });
-    } else {
-      // For Telegram, use the existing link behavior
-      return;
-    }
+      if (platform === 'instagram' && useInstagramLogin) {
+        // Instagram Login (separate OAuth flow)
+        oauthUrl = tenantApi.getInstagramOAuthUrl({
+          tenant_id: tenantId,
+          success_redirect: successRedirect,
+        });
+      } else if (platform === 'facebook' || platform === 'instagram') {
+        // Meta platforms (Facebook Login, Instagram via Facebook)
+        const platformsParam = platforms || platform;
+        oauthUrl = tenantApi.getMetaOAuthUrl({
+          tenant_id: tenantId,
+          platforms: platformsParam,
+          success_redirect: successRedirect,
+        });
+      } else if (platform === 'tiktok') {
+        // TikTok
+        oauthUrl = tenantApi.getTikTokOAuthUrl({
+          tenant_id: tenantId,
+          success_redirect: successRedirect,
+        });
+      } else {
+        // For Telegram, use the existing link behavior
+        return;
+      }
 
       // Redirect to OAuth
       if (typeof window !== 'undefined') {
@@ -143,6 +149,9 @@ export default function IntegrationsPage() {
     const status = urlParams.get('status');
     const message = urlParams.get('message');
     const platform = urlParams.get('platform');
+    const error = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
+    const errorReason = urlParams.get('error_reason');
 
     if (status === 'success') {
       // Show success message
@@ -153,9 +162,19 @@ export default function IntegrationsPage() {
       // Clean URL
       window.history.replaceState({}, '', window.location.pathname);
       setIsConnecting(null);
-    } else if (status === 'error') {
-      // Show error message
-      toast.error(`Connection failed: ${message || 'Unknown error'}`);
+    } else if (status === 'error' || error) {
+      // Handle OAuth errors
+      let errorMessage = message || 'Unknown error';
+      
+      if (error === 'access_denied' || errorReason === 'user_denied') {
+        errorMessage = 'Connection cancelled. You can try again when ready.';
+      } else if (errorDescription) {
+        errorMessage = errorDescription;
+      } else if (error) {
+        errorMessage = `Connection failed: ${error}`;
+      }
+      
+      toast.error(errorMessage);
       // Clean URL
       window.history.replaceState({}, '', window.location.pathname);
       setIsConnecting(null);
@@ -184,6 +203,9 @@ export default function IntegrationsPage() {
           <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Social & Messaging Connections</h1>
           <p className="mt-2 max-w-2xl text-sm text-gray-600">
             Link Meta, TikTok, and Telegram accounts to automate content, messaging, and analytics in Brancr.
+          </p>
+          <p className="mt-2 max-w-2xl text-xs text-gray-500">
+            <strong>Instagram:</strong> Use Instagram Login to connect without a Facebook Page, or connect via Facebook Login if you have a Facebook Page.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -231,6 +253,16 @@ export default function IntegrationsPage() {
                         Brancr-Managed
                       </span>
                     )}
+                    {platform === "instagram" && connected && integration?.login_method === 'instagram_login' && (
+                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-blue-700">
+                        Instagram Login
+                      </span>
+                    )}
+                    {platform === "instagram" && connected && integration?.login_method === 'facebook_login' && (
+                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-gray-700">
+                        Facebook Login
+                      </span>
+                    )}
                   </div>
                   <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-widest ${status.badge}`}>
                     {isWhatsApp && !connected ? "No Number Assigned" : status.label}
@@ -249,6 +281,11 @@ export default function IntegrationsPage() {
                     ) : null}
                     {integration?.page_name && (
                       <p className="text-xs text-gray-400">Page: {integration.page_name}</p>
+                    )}
+                    {integration?.login_method && (
+                      <p className="text-xs text-gray-400">
+                        Login: {integration.login_method === 'instagram_login' ? 'Instagram Login' : 'Facebook Login'}
+                      </p>
                     )}
                   </div>
                 ) : connected && integration?.username && !isWhatsApp ? (
@@ -296,20 +333,60 @@ export default function IntegrationsPage() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   {connected && !isWhatsApp ? (
                     <>
-                      <button
-                        onClick={() => handleVerify(platform)}
-                        disabled={verifyMutation.isPending}
-                        className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary disabled:opacity-50"
-                      >
-                        {verifyMutation.isPending ? "Verifying..." : "Verify"}
-                      </button>
-                      <button
-                        onClick={() => handleDisconnect(platform)}
-                        disabled={isDisconnecting || disconnectMutation.isPending}
-                        className="inline-flex items-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
-                      >
-                        {isDisconnecting ? "Disconnecting..." : "Disconnect"}
-                      </button>
+                      {platform === "instagram" ? (
+                        // Instagram: Show reconnect options with both methods
+                        <div className="flex flex-col gap-2 w-full">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleVerify(platform)}
+                              disabled={verifyMutation.isPending}
+                              className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary disabled:opacity-50"
+                            >
+                              {verifyMutation.isPending ? "Verifying..." : "Verify"}
+                            </button>
+                            <button
+                              onClick={() => handleDisconnect(platform)}
+                              disabled={isDisconnecting || disconnectMutation.isPending}
+                              className="inline-flex items-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
+                            >
+                              {isDisconnecting ? "Disconnecting..." : "Disconnect"}
+                            </button>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleConnect(platform, undefined, false)}
+                              disabled={isConnecting === platform || !tenantId}
+                              className="flex-1 inline-flex items-center justify-center gap-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              Reconnect (Facebook)
+                            </button>
+                            <button
+                              onClick={() => handleConnect(platform, undefined, true)}
+                              disabled={isConnecting === platform || !tenantId}
+                              className="flex-1 inline-flex items-center justify-center gap-1 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              Reconnect (Instagram)
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleVerify(platform)}
+                            disabled={verifyMutation.isPending}
+                            className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary disabled:opacity-50"
+                          >
+                            {verifyMutation.isPending ? "Verifying..." : "Verify"}
+                          </button>
+                          <button
+                            onClick={() => handleDisconnect(platform)}
+                            disabled={isDisconnecting || disconnectMutation.isPending}
+                            className="inline-flex items-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
+                          >
+                            {isDisconnecting ? "Disconnecting..." : "Disconnect"}
+                          </button>
+                        </>
+                      )}
                     </>
                   ) : isWhatsApp && connected ? (
                     <Link
@@ -328,28 +405,81 @@ export default function IntegrationsPage() {
                       Open bot deep link
                     </a>
                   ) : !isWhatsApp ? (
-                    <button
-                      onClick={() => handleConnect(platform)}
-                      disabled={isConnecting === platform || !tenantId}
-                      className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-200 disabled:hover:bg-white"
-                    >
-                      {isConnecting === platform ? (
-                        <>
-                          <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Connecting...
-                        </>
-                      ) : (
-                        <>
-                          Connect
-                          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                          </svg>
-                        </>
-                      )}
-                    </button>
+                    platform === "instagram" && !connected ? (
+                      // Instagram: Show both connection options
+                      <div className="flex flex-col gap-2">
+                        <button
+                          onClick={() => handleConnect(platform, undefined, false)}
+                          disabled={isConnecting === platform || !tenantId}
+                          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-200 disabled:hover:bg-white"
+                        >
+                          {isConnecting === platform ? (
+                            <>
+                              <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Connecting...
+                            </>
+                          ) : (
+                            <>
+                              Connect with Facebook
+                              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                              </svg>
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => handleConnect(platform, undefined, true)}
+                          disabled={isConnecting === platform || !tenantId}
+                          className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-blue-200 disabled:hover:bg-blue-50"
+                        >
+                          {isConnecting === platform ? (
+                            <>
+                              <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Connecting...
+                            </>
+                          ) : (
+                            <>
+                              Connect with Instagram Login
+                              <span className="inline-flex items-center rounded-full bg-blue-200 px-1.5 py-0.5 text-[9px] font-semibold text-blue-800">
+                                No Page Required
+                              </span>
+                              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                              </svg>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleConnect(platform)}
+                        disabled={isConnecting === platform || !tenantId}
+                        className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-200 disabled:hover:bg-white"
+                      >
+                        {isConnecting === platform ? (
+                          <>
+                            <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Connecting...
+                          </>
+                        ) : (
+                          <>
+                            Connect
+                            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                          </>
+                        )}
+                      </button>
+                    )
                   ) : null}
                 </div>
               </div>

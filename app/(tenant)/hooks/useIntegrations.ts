@@ -15,6 +15,8 @@ export type Integration = {
   page_id?: string;
   mode?: string;
   expires_at?: string;
+  login_method?: 'facebook_login' | 'instagram_login' | null | string; // How the account was connected
+  metadata?: Record<string, unknown>; // Additional metadata including login method details
   created_at: string;
   updated_at: string;
 };
