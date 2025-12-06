@@ -599,26 +599,6 @@ export function WhatsAppNumberSelector() {
           </p>
           
           <form onSubmit={(e) => { e.preventDefault(); connectWhatsApp(); }} className="space-y-4">
-            {/* Phone number input (optional) */}
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Phone Number (Optional)</label>
-              <input
-                type="tel"
-                value={phoneNumberInput}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^[\d\s\-+]*$/.test(value)) {
-                    setPhoneNumberInput(value);
-                  }
-                }}
-                placeholder="+1234567890 (optional)"
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-              <p className="mt-1 text-xs text-gray-500">
-                Leave empty to select phone number during connection.
-              </p>
-            </div>
-            
             <div className="flex gap-2">
               <button 
                 type="submit"
