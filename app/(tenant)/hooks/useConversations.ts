@@ -62,23 +62,78 @@ export function useConversations(filters?: { platform?: string; status?: string;
         if (!Array.isArray(conversations)) {
           return [];
         }
-        return conversations.map((conversation) => ({
-          id: Number(conversation.id),
-          customer_id: conversation.customer_id,
-          customer_name: conversation.customer_name || "Unknown contact",
-          customer_avatar: conversation.customer_avatar,
-          platform: (conversation.platform ?? "whatsapp") as ConversationSummary["platform"],
-          status: (conversation.status === "active" || conversation.status === "resolved" || conversation.status === "archived" 
-            ? conversation.status 
-            : "active") as ConversationSummary["status"],
-          last_message: conversation.last_message || "",
-          last_message_at: conversation.last_message_at || conversation.updated_at,
-          unread_count: conversation.unread_count ?? 0,
-          created_at: conversation.created_at,
-          updated_at: conversation.updated_at,
-          tags: conversation.tags || [],
-          assignee: conversation.assignee ?? null,
-        }));
+        
+        // Map conversations with proper customer name handling
+        const mappedConversations = conversations.map((conversation) => {
+          // Handle customer name: prefer display_name, then username, then customer_name, then fallback
+          const customer = (conversation as any).customer;
+          const customerName = customer?.display_name || 
+                              customer?.username || 
+                              conversation.customer_name || 
+                              "Unknown contact";
+          
+          return {
+            id: Number(conversation.id),
+            customer_id: conversation.customer_id,
+            customer_name: customerName,
+            customer_avatar: conversation.customer_avatar || customer?.avatar,
+            platform: (conversation.platform ?? "whatsapp") as ConversationSummary["platform"],
+            status: (conversation.status === "active" || conversation.status === "resolved" || conversation.status === "archived" 
+              ? conversation.status 
+              : "active") as ConversationSummary["status"],
+            last_message: conversation.last_message || "",
+            last_message_at: conversation.last_message_at || conversation.updated_at,
+            unread_count: conversation.unread_count ?? 0,
+            created_at: conversation.created_at,
+            updated_at: conversation.updated_at,
+            tags: conversation.tags || [],
+            assignee: conversation.assignee ?? null,
+          };
+        });
+        
+        // For Instagram, group by customer_id + platform to ensure one conversation per customer
+        // Backend now uses CustomerID as PlatformThreadID for Instagram, but we deduplicate here
+        // to handle any edge cases where multiple conversations might exist for the same customer
+        const groupedConversations = new Map<string, ConversationSummary>();
+        
+        for (const conv of mappedConversations) {
+          if (conv.platform === "instagram") {
+            // Use customer_id + platform as the key for Instagram
+            // This ensures one conversation per customer, regardless of thread_id
+            const key = `${conv.customer_id}-${conv.platform}`;
+            const existing = groupedConversations.get(key);
+            
+            if (!existing) {
+              // First conversation for this customer
+              groupedConversations.set(key, conv);
+            } else {
+              // Merge: keep the conversation with the most recent message
+              // The conversation ID we keep should be the one that fetches all messages for this customer
+              const existingTime = new Date(existing.last_message_at).getTime();
+              const currentTime = new Date(conv.last_message_at).getTime();
+              
+              if (currentTime > existingTime) {
+                // Current conversation is more recent, merge unread counts
+                // Use the more recent conversation ID (backend should return all messages for this customer_id)
+                groupedConversations.set(key, {
+                  ...conv,
+                  unread_count: existing.unread_count + conv.unread_count,
+                });
+              } else {
+                // Existing conversation is more recent, just merge unread counts
+                groupedConversations.set(key, {
+                  ...existing,
+                  unread_count: existing.unread_count + conv.unread_count,
+                });
+              }
+            }
+          } else {
+            // For other platforms, use id as key (normal behavior)
+            groupedConversations.set(String(conv.id), conv);
+          }
+        }
+        
+        return Array.from(groupedConversations.values());
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
           return [];
@@ -101,11 +156,19 @@ export function useConversation(conversationId: string | null) {
       }
       try {
         const response = await tenantApi.conversation(conversationId);
+        
+        // Handle customer name: prefer display_name, then username, then customer_name, then fallback
+        const customer = (response as any).customer;
+        const customerName = customer?.display_name || 
+                            customer?.username || 
+                            response.customer_name || 
+                            "Unknown contact";
+        
         return {
           id: Number(response.id),
           customer_id: response.customer_id,
-          customer_name: response.customer_name || "Unknown contact",
-          customer_avatar: response.customer_avatar,
+          customer_name: customerName,
+          customer_avatar: response.customer_avatar || customer?.avatar,
           platform: response.platform,
           status: (response.status === "active" || response.status === "resolved" || response.status === "archived"
             ? response.status
