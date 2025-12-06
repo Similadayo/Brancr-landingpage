@@ -162,7 +162,7 @@ export function WhatsAppNumberSelector() {
       
       // Handle specific error codes
       if (err.body?.error === 'gupshup_not_configured') {
-        setError('Gupshup is not configured. Please contact support.');
+        setError('WhatsApp connection is not configured. Please contact support.');
       } else if (err.body?.error === 'already_connected') {
         setError('WhatsApp is already connected. Please disconnect first.');
       } else {
@@ -177,8 +177,7 @@ export function WhatsAppNumberSelector() {
     stopPolling();
     let attempts = 0;
     
-    const providerName = selectedProvider === 'gupshup' ? 'Gupshup' : selectedProvider === 'meta_embedded' ? 'Meta' : 'WhatsApp';
-    setLoadingMessage(`Waiting for ${providerName} WhatsApp onboarding to complete...`);
+    setLoadingMessage(`Waiting for WhatsApp onboarding to complete...`);
     
     pollingRef.current = setInterval(async () => {
       attempts++;
@@ -463,7 +462,7 @@ export function WhatsAppNumberSelector() {
         <div className="loading-state rounded-xl border border-amber-200 bg-amber-50 p-6 text-center">
           <div className="spinner mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-amber-200 border-t-amber-600"></div>
           <p className="text-sm font-semibold text-amber-900">
-            {loadingMessage || 'Waiting for Meta WhatsApp onboarding to complete...'}
+            {loadingMessage || 'Waiting for WhatsApp onboarding to complete...'}
           </p>
           <p className="mt-2 text-xs text-amber-700">
             Complete the steps in the popup window. This may take a few minutes.
@@ -511,7 +510,7 @@ export function WhatsAppNumberSelector() {
           {connectionStatus?.provider === 'gupshup_partner' && (
             <div className="mt-4 p-3 bg-emerald-100 border border-emerald-200 rounded-lg">
               <p className="text-xs font-semibold text-emerald-800">
-                ✅ Connected via Gupshup Partner
+                ✅ Connected
               </p>
               {connectionStatus.app_id && (
                 <p className="mt-1 text-xs text-emerald-700">
@@ -552,7 +551,7 @@ export function WhatsAppNumberSelector() {
                   onClick={refreshWhatsAppStatus}
                   className="mt-2 w-full rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
                 >
-                  🔄 Refresh Status from Gupshup
+                  🔄 Refresh Status
                 </button>
               )}
             </div>
@@ -563,7 +562,7 @@ export function WhatsAppNumberSelector() {
               <button
                 onClick={refreshWhatsAppStatus}
                 className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100"
-                title="Refresh status from Gupshup API"
+                title="Refresh status"
               >
                 🔄 Refresh Status
               </button>
@@ -587,7 +586,7 @@ export function WhatsAppNumberSelector() {
             onClick={refreshWhatsAppStatus}
             className="w-full rounded-lg border border-amber-300 bg-white px-4 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
           >
-            🔄 Refresh Status from Gupshup
+            🔄 Refresh Status
           </button>
         </div>
       )}
@@ -596,95 +595,37 @@ export function WhatsAppNumberSelector() {
         <div className="connect-prompt rounded-xl border border-gray-200 bg-gray-50 p-6">
           <h2 className="text-sm font-semibold text-gray-900 mb-2">Connect WhatsApp</h2>
           <p className="text-xs text-gray-600 mb-4">
-            Choose a provider to connect your WhatsApp Business Account.
-            Each tenant gets their own WhatsApp number.
+            Connect your WhatsApp Business Account. Each tenant gets their own WhatsApp number.
           </p>
           
           <form onSubmit={(e) => { e.preventDefault(); connectWhatsApp(); }} className="space-y-4">
-            {/* Provider selection */}
+            {/* Phone number input (optional) */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">WhatsApp Provider</label>
-              <select 
-                value={selectedProvider} 
-                onChange={(e) => setSelectedProvider(e.target.value as 'gupshup' | 'meta_embedded' | 'respondio')}
-                aria-label="WhatsApp provider"
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-white"
-              >
-                <option value="gupshup">Gupshup Partner (Recommended)</option>
-                <option value="meta_embedded">Meta Embedded Signup</option>
-                <option value="respondio">Respond.io</option>
-              </select>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Phone Number (Optional)</label>
+              <input
+                type="tel"
+                value={phoneNumberInput}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^[\d\s\-+]*$/.test(value)) {
+                    setPhoneNumberInput(value);
+                  }
+                }}
+                placeholder="+1234567890 (optional)"
+                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              />
               <p className="mt-1 text-xs text-gray-500">
-                {selectedProvider === 'gupshup' && 'Phone number selection happens in Gupshup UI. Phone number is optional here.'}
-                {selectedProvider === 'meta_embedded' && 'Connect using Meta&apos;s Embedded Signup flow.'}
-                {selectedProvider === 'respondio' && 'Instant connection. Phone number required.'}
+                Leave empty to select phone number during connection.
               </p>
             </div>
-
-            {/* Phone number input for Respond.io */}
-            {selectedProvider === 'respondio' && (
-              <>
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Phone Number <span className="text-rose-600">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    value={phoneNumberInput}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (/^[\d\s\-+]*$/.test(value)) {
-                        setPhoneNumberInput(value);
-                      }
-                    }}
-                    placeholder="+1234567890"
-                    required
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Channel ID (Optional)</label>
-                  <input
-                    type="text"
-                    value={channelId}
-                    onChange={(e) => setChannelId(e.target.value)}
-                    placeholder="440617"
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                </div>
-              </>
-            )}
-
-            {/* Phone number input for Gupshup (optional) */}
-            {selectedProvider === 'gupshup' && (
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Phone Number (Optional)</label>
-                <input
-                  type="tel"
-                  value={phoneNumberInput}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^[\d\s\-+]*$/.test(value)) {
-                      setPhoneNumberInput(value);
-                    }
-                  }}
-                  placeholder="+1234567890 (optional)"
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  Leave empty to select phone number in Gupshup UI.
-                </p>
-              </div>
-            )}
             
             <div className="flex gap-2">
               <button 
                 type="submit"
-                disabled={loading || (selectedProvider === 'respondio' && !phoneNumberInput.trim())}
+                disabled={loading}
                 className="btn-primary flex-1 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
               >
-                {selectedProvider === 'gupshup' ? 'Continue to Gupshup' : selectedProvider === 'meta_embedded' ? 'Continue to Meta' : 'Connect WhatsApp'}
+                Connect to WhatsApp
               </button>
               <button 
                 type="button"
