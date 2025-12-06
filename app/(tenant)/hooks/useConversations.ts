@@ -63,18 +63,27 @@ export function useConversations(filters?: { platform?: string; status?: string;
           return [];
         }
         
-        // Map conversations - backend already groups by customer_id + platform for Instagram
-        // Just handle customer name display with fallback
-        return conversations.map((conversation) => {
+        // Map conversations and handle customer names
+        const mappedConversations = conversations.map((conversation) => {
           // Backend returns customer_name from customer.DisplayName
-          // Use it directly, with a fallback if empty
+          // Use it directly, but handle edge cases
           let customerName = conversation.customer_name;
+          const platform = (conversation.platform ?? "whatsapp").toLowerCase();
           
-          // If customer_name is empty or "Unknown contact", show a better fallback
+          // Check if customer_name looks like an AI response (common issue)
+          // If it's a long sentence that looks like a message, it's probably misassigned
+          if (customerName && customerName.length > 50 && customerName.includes(" ")) {
+            // This is likely an AI response being used as the name - treat as empty
+            customerName = "";
+          }
+          
+          // If customer_name is empty, "Unknown contact", or looks like an AI message, show fallback
           if (!customerName || customerName.trim() === "" || customerName === "Unknown contact") {
-            const platform = (conversation.platform ?? "whatsapp").toLowerCase();
             if (platform === "instagram") {
-              customerName = "Instagram User";
+              // For Instagram, try to use customer_id as fallback, or generic name
+              customerName = conversation.customer_id 
+                ? `Instagram User #${conversation.customer_id}` 
+                : "Instagram User";
             } else {
               customerName = "Unknown contact";
             }
@@ -85,7 +94,7 @@ export function useConversations(filters?: { platform?: string; status?: string;
             customer_id: conversation.customer_id,
             customer_name: customerName,
             customer_avatar: conversation.customer_avatar,
-            platform: (conversation.platform ?? "whatsapp") as ConversationSummary["platform"],
+            platform: platform as ConversationSummary["platform"],
             status: (conversation.status === "active" || conversation.status === "resolved" || conversation.status === "archived" 
               ? conversation.status 
               : "active") as ConversationSummary["status"],
@@ -98,6 +107,64 @@ export function useConversations(filters?: { platform?: string; status?: string;
             assignee: conversation.assignee ?? null,
           };
         });
+        
+        // For Instagram, ensure we group by customer_id + platform
+        // This is a safety measure in case backend still returns duplicates
+        const groupedConversations = new Map<string, ConversationSummary>();
+        
+        for (const conv of mappedConversations) {
+          if (conv.platform === "instagram") {
+            // Group Instagram conversations by customer_id + platform
+            const key = `${conv.customer_id}-${conv.platform}`;
+            const existing = groupedConversations.get(key);
+            
+            if (!existing) {
+              // First conversation for this customer
+              groupedConversations.set(key, conv);
+            } else {
+              // Merge: keep the conversation with the most recent message
+              // Prefer conversations that have customer messages (not just AI responses)
+              const existingTime = new Date(existing.last_message_at).getTime();
+              const currentTime = new Date(conv.last_message_at).getTime();
+              
+              // Check if either conversation name looks like an AI response
+              const existingIsAI = existing.customer_name.length > 50 || existing.customer_name.includes("help") || existing.customer_name.includes("ready");
+              const currentIsAI = conv.customer_name.length > 50 || conv.customer_name.includes("help") || conv.customer_name.includes("ready");
+              
+              // Prefer the conversation that doesn't look like an AI response
+              if (currentIsAI && !existingIsAI) {
+                // Keep existing (it's the real customer conversation)
+                groupedConversations.set(key, {
+                  ...existing,
+                  unread_count: existing.unread_count + conv.unread_count,
+                });
+              } else if (!currentIsAI && existingIsAI) {
+                // Use current (it's the real customer conversation)
+                groupedConversations.set(key, {
+                  ...conv,
+                  unread_count: existing.unread_count + conv.unread_count,
+                });
+              } else if (currentTime > existingTime) {
+                // Both are similar, use the more recent one
+                groupedConversations.set(key, {
+                  ...conv,
+                  unread_count: existing.unread_count + conv.unread_count,
+                });
+              } else {
+                // Keep existing
+                groupedConversations.set(key, {
+                  ...existing,
+                  unread_count: existing.unread_count + conv.unread_count,
+                });
+              }
+            }
+          } else {
+            // For other platforms, use id as key (normal behavior)
+            groupedConversations.set(String(conv.id), conv);
+          }
+        }
+        
+        return Array.from(groupedConversations.values());
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
           return [];
@@ -120,16 +187,26 @@ export function useConversation(conversationId: string | null) {
       }
       try {
         const response = await tenantApi.conversation(conversationId);
+        const platform = (response.platform ?? "whatsapp").toLowerCase();
         
         // Backend returns customer_name from customer.DisplayName
-        // Use it directly, with a fallback if empty
+        // Use it directly, but handle edge cases
         let customerName = response.customer_name;
         
-        // If customer_name is empty or "Unknown contact", show a better fallback
+        // Check if customer_name looks like an AI response (common issue)
+        // If it's a long sentence that looks like a message, it's probably misassigned
+        if (customerName && customerName.length > 50 && customerName.includes(" ")) {
+          // This is likely an AI response being used as the name - treat as empty
+          customerName = "";
+        }
+        
+        // If customer_name is empty, "Unknown contact", or looks like an AI message, show fallback
         if (!customerName || customerName.trim() === "" || customerName === "Unknown contact") {
-          const platform = (response.platform ?? "whatsapp").toLowerCase();
           if (platform === "instagram") {
-            customerName = "Instagram User";
+            // For Instagram, try to use customer_id as fallback, or generic name
+            customerName = response.customer_id 
+              ? `Instagram User #${response.customer_id}` 
+              : "Instagram User";
           } else {
             customerName = "Unknown contact";
           }
