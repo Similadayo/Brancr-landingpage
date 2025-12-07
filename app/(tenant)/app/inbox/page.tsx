@@ -31,6 +31,7 @@ const STATUS_FILTERS = ["All", "Unsigned", "Assigned", "Resolved"];
 export default function InboxPage() {
   const { tenant } = useTenant();
   const [activeStatusFilter, setActiveStatusFilter] = useState<string>("All");
+  const [activePlatformFilter, setActivePlatformFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedConversationId, setSelectedConversationId] = useState<string>("");
   const [replyText, setReplyText] = useState("");
@@ -39,7 +40,7 @@ export default function InboxPage() {
 
   // Build filters for API
   const apiFilters = useMemo(() => {
-    const filters: { status?: string; search?: string } = {};
+    const filters: { status?: string; search?: string; platform?: string } = {};
     if (activeStatusFilter !== "All") {
       const statusMap: Record<string, string> = {
         "Unsigned": "active",
@@ -48,17 +49,32 @@ export default function InboxPage() {
       };
       filters.status = statusMap[activeStatusFilter] || activeStatusFilter.toLowerCase();
     }
+    if (activePlatformFilter !== "All") {
+      filters.platform = activePlatformFilter.toLowerCase();
+    }
     if (searchQuery.trim()) {
       filters.search = searchQuery.trim();
     }
     return filters;
-  }, [activeStatusFilter, searchQuery]);
+  }, [activeStatusFilter, activePlatformFilter, searchQuery]);
 
   const { data: conversationsData, isLoading, error } = useConversations(apiFilters);
   
   const conversations = useMemo(() => {
     return Array.isArray(conversationsData) ? conversationsData : [];
   }, [conversationsData]);
+
+  // Get available platforms from conversations
+  const availablePlatforms = useMemo(() => {
+    if (!conversations || conversations.length === 0) return [];
+    const platforms = new Set<string>();
+    conversations.forEach((conv) => {
+      if (conv.platform) {
+        platforms.add(conv.platform.toLowerCase());
+      }
+    });
+    return Array.from(platforms).sort();
+  }, [conversations]);
 
   // Sort conversations by last message time
   const sortedConversations = useMemo(() => {
@@ -139,7 +155,7 @@ export default function InboxPage() {
         <section className={`flex flex-col h-full border-r border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
           mobileView === "chat" ? "hidden md:flex" : "flex"
         }`}>
-          {/* Tabs */}
+          {/* Status Tabs */}
           <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
             <div className="flex gap-1">
               {STATUS_FILTERS.map((tab) => {
@@ -160,6 +176,48 @@ export default function InboxPage() {
               })}
             </div>
           </div>
+          
+          {/* Platform Filters */}
+          {availablePlatforms.length > 0 && (
+            <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
+              <div className="flex gap-1 flex-wrap">
+                <button
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                    activePlatformFilter === "All"
+                      ? "bg-primary text-white"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                  onClick={() => setActivePlatformFilter("All")}
+                >
+                  All
+                </button>
+                {availablePlatforms.map((platform) => {
+                  const isActive = activePlatformFilter.toLowerCase() === platform.toLowerCase();
+                  const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
+                                     platform === "instagram" ? InstagramIcon :
+                                     platform === "facebook" ? FacebookIcon :
+                                     platform === "telegram" ? TelegramIcon :
+                                     AllMessagesIcon;
+                  const platformName = platform.charAt(0).toUpperCase() + platform.slice(1);
+                  
+                  return (
+                    <button
+                      key={platform}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
+                        isActive
+                          ? "bg-primary text-white"
+                          : "text-gray-600 hover:bg-gray-100"
+                      }`}
+                      onClick={() => setActivePlatformFilter(platform)}
+                    >
+                      <PlatformIcon className="h-3.5 w-3.5" />
+                      {platformName}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           
           {/* Search */}
           <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
