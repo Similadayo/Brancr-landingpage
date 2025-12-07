@@ -159,18 +159,18 @@ export default function InboxPage() {
 
   const handleConversationSelect = (id: string) => {
     setSelectedConversationId(id);
-    
+
     // Mark conversation as read when opened
     const conversationId = Number(id);
     if (conversationId && !readConversationIds.has(conversationId)) {
       setReadConversationIds((prev) => new Set([...prev, conversationId]));
-      
+
       // Optimistically update the conversation cache to set unread_count to 0
       queryClient.setQueryData<ConversationSummary[]>(
         ["conversations", apiFilters],
         (oldData) => {
           if (!oldData || !Array.isArray(oldData)) return oldData;
-          
+
           return oldData.map((conv) => {
             if (Number(conv.id) === conversationId) {
               return { ...conv, unread_count: 0 };
@@ -184,12 +184,11 @@ export default function InboxPage() {
       void queryClient.invalidateQueries({ queryKey: ["conversations"] });
     }
     
+    // Switch to chat view on mobile
     if (typeof window !== "undefined" && window.innerWidth < 768) {
       setMobileView("chat");
-    } else {
-      // On desktop, show all panels
-      setMobileView("list");
     }
+    // On desktop, keep showing all panels (mobileView stays "list")
   };
 
   const formatTime = (dateString: string) => {
@@ -209,19 +208,19 @@ export default function InboxPage() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="flex flex-col h-screen md:h-auto md:space-y-4 sm:space-y-6 overflow-hidden -mx-4 md:mx-0">
       {/* Header */}
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <header className="flex-shrink-0 flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-4 py-4 md:px-0 md:py-0">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Inbox</h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 lg:text-4xl">Inbox</h1>
+          <p className="mt-1 md:mt-2 text-xs md:text-sm text-gray-600">
             Respond to messages, set up automations and more.
           </p>
         </div>
       </header>
 
       {/* Platform Filters */}
-      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+      <div className="flex-shrink-0 rounded-xl border border-gray-200 bg-white p-3 md:p-4 md:shadow-sm sm:p-6 mx-4 md:mx-0 mb-2 md:mb-0">
         <div className="flex gap-2 overflow-x-auto pb-1">
             <button
               className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
@@ -277,7 +276,7 @@ export default function InboxPage() {
       </div>
 
       {/* Main Content - Three Panel Layout */}
-      <div className="grid gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] h-[calc(100vh-280px)] sm:h-[calc(100vh-300px)] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="flex-1 min-h-0 grid gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm mx-4 md:mx-0 h-full">
         {/* Left Panel - Conversation List */}
         <section className={`flex flex-col h-full border-r border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
           (mobileView === "chat" || mobileView === "analytics") ? "hidden md:flex" : "flex"
