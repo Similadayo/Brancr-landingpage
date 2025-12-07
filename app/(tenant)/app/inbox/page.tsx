@@ -206,18 +206,20 @@ export default function InboxPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-120px)] -mx-4 -mt-2 -mb-8 overflow-hidden bg-white w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] md:-mx-6">
-      {/* Top Header with Platform Filters */}
-      <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3 md:px-6">
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">Inbox</h1>
-              <p className="text-sm text-gray-600 mt-0.5">Respond to messages, set up automations and more.</p>
-            </div>
-          </div>
-          {/* Platform Filters - Top Navigation - Always show all platforms */}
-          <div className="flex gap-2 overflow-x-auto pb-1">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
+      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Inbox</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Respond to messages, set up automations and more.
+          </p>
+        </div>
+      </header>
+
+      {/* Platform Filters */}
+      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="flex gap-2 overflow-x-auto pb-1">
             <button
               className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
                 activePlatformFilter === "All"
@@ -268,18 +270,17 @@ export default function InboxPage() {
                 </button>
               );
             })}
-          </div>
         </div>
       </div>
-      
+
       {/* Main Content - Three Panel Layout */}
-      <div className="grid h-[calc(100%-120px)] gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
+      <div className="grid gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] h-[calc(100vh-280px)] sm:h-[calc(100vh-300px)] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         {/* Left Panel - Conversation List */}
         <section className={`flex flex-col h-full border-r border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
           mobileView === "chat" ? "hidden md:flex" : "flex"
         }`}>
           {/* Status Tabs */}
-          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
+          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
             <div className="flex gap-1">
               {STATUS_FILTERS.map((tab) => {
                 const isActive = activeStatusFilter === tab || (tab === "All" && activeStatusFilter === "All");
@@ -301,7 +302,7 @@ export default function InboxPage() {
           </div>
           
           {/* Search */}
-          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
+          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
             <div className="relative">
               <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <input
@@ -414,7 +415,7 @@ export default function InboxPage() {
           {activeConversation ? (
             <>
               {/* Chat Header - Fixed */}
-              <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 z-10">
+              <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 sm:px-6 z-10">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back button - Mobile only */}
                   {mobileView === "chat" && (
@@ -489,7 +490,7 @@ export default function InboxPage() {
               <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0">
                 {/* Date separator */}
                 {messages.length > 0 && (
-                  <div className="px-4 py-2 text-center">
+                  <div className="px-4 py-2 text-center sm:px-6">
                     <span className="text-xs text-gray-500">
                       {new Date(messages[0].created_at).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })}
                     </span>
@@ -568,7 +569,7 @@ export default function InboxPage() {
               </div>
 
               {/* Message Input - Fixed */}
-              <div className="flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3 z-10">
+              <div className="flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3 sm:px-6 z-10">
                 <div className="flex items-end gap-2">
                   <button 
                     className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -629,12 +630,12 @@ export default function InboxPage() {
           {activeConversation ? (
             <>
               {/* Header - Fixed */}
-              <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
-                <h3 className="text-sm font-semibold text-gray-900">Platform Analytics</h3>
+              <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
+                <h3 className="text-sm font-semibold text-gray-900 sm:text-base">Platform Analytics</h3>
               </div>
 
               {/* Content - Scrollable */}
-              <div className="flex-1 overflow-y-auto min-h-0 py-4">
+              <div className="flex-1 overflow-y-auto min-h-0 py-4 px-4 sm:px-6">
                 <PlatformAnalytics platform={activeConversation.platform} />
               </div>
             </>
