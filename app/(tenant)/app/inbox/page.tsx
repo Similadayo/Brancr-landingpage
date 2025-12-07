@@ -64,16 +64,25 @@ export default function InboxPage() {
     return Array.isArray(conversationsData) ? conversationsData : [];
   }, [conversationsData]);
 
-  // Get available platforms from conversations
+  // Get available platforms from conversations with unread counts
   const availablePlatforms = useMemo(() => {
     if (!conversations || conversations.length === 0) return [];
-    const platforms = new Set<string>();
+    const platformMap = new Map<string, number>();
     conversations.forEach((conv) => {
       if (conv.platform) {
-        platforms.add(conv.platform.toLowerCase());
+        const platform = conv.platform.toLowerCase();
+        const currentCount = platformMap.get(platform) || 0;
+        platformMap.set(platform, currentCount + (conv.unread_count || 0));
       }
     });
-    return Array.from(platforms).sort();
+    return Array.from(platformMap.entries())
+      .map(([platform, unreadCount]) => ({ platform, unreadCount }))
+      .sort((a, b) => a.platform.localeCompare(b.platform));
+  }, [conversations]);
+
+  // Calculate total unread count
+  const totalUnreadCount = useMemo(() => {
+    return conversations.reduce((sum, conv) => sum + (conv.unread_count || 0), 0);
   }, [conversations]);
 
   // Sort conversations by last message time
@@ -182,36 +191,50 @@ export default function InboxPage() {
             <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
               <div className="flex gap-1 flex-wrap">
                 <button
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 relative ${
                     activePlatformFilter === "All"
-                      ? "bg-primary text-white"
-                      : "text-gray-600 hover:bg-gray-100"
+                      ? "bg-blue-100 text-gray-900"
+                      : "bg-white text-gray-600 hover:bg-gray-50"
                   }`}
                   onClick={() => setActivePlatformFilter("All")}
                 >
-                  All
+                  All messages
+                  {totalUnreadCount > 0 && (
+                    <span className="inline-flex items-center justify-center min-w-[18px] h-4 px-1 rounded-full bg-red-500 text-[10px] font-semibold text-white">
+                      {totalUnreadCount}
+                    </span>
+                  )}
                 </button>
-                {availablePlatforms.map((platform) => {
+                {availablePlatforms.map(({ platform, unreadCount }) => {
                   const isActive = activePlatformFilter.toLowerCase() === platform.toLowerCase();
                   const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
                                      platform === "instagram" ? InstagramIcon :
                                      platform === "facebook" ? FacebookIcon :
                                      platform === "telegram" ? TelegramIcon :
                                      AllMessagesIcon;
-                  const platformName = platform.charAt(0).toUpperCase() + platform.slice(1);
+                  const platformName = platform === "whatsapp" ? "WhatsApp" :
+                                     platform === "instagram" ? "Instagram" :
+                                     platform === "facebook" ? "Messenger" :
+                                     platform === "telegram" ? "Telegram" :
+                                     platform.charAt(0).toUpperCase() + platform.slice(1);
                   
                   return (
                     <button
                       key={platform}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 relative ${
                         isActive
-                          ? "bg-primary text-white"
-                          : "text-gray-600 hover:bg-gray-100"
+                          ? "bg-blue-100 text-gray-900"
+                          : "bg-white text-gray-600 hover:bg-gray-50"
                       }`}
                       onClick={() => setActivePlatformFilter(platform)}
                     >
                       <PlatformIcon className="h-3.5 w-3.5" />
                       {platformName}
+                      {unreadCount > 0 && (
+                        <span className="inline-flex items-center justify-center min-w-[18px] h-4 px-1 rounded-full bg-red-500 text-[10px] font-semibold text-white">
+                          {unreadCount}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
