@@ -27,6 +27,7 @@ import {
 } from "../../components/icons";
 
 const STATUS_FILTERS = ["All", "Unsigned", "Assigned", "Resolved"];
+const ALL_PLATFORMS = ['whatsapp', 'instagram', 'facebook', 'telegram', 'tiktok', 'email'];
 
 export default function InboxPage() {
   const { tenant } = useTenant();
@@ -65,19 +66,37 @@ export default function InboxPage() {
   }, [conversationsData]);
 
   // Get available platforms from conversations with unread counts
+  // Always show all platforms, even if they have no conversations
   const availablePlatforms = useMemo(() => {
-    if (!conversations || conversations.length === 0) return [];
     const platformMap = new Map<string, number>();
-    conversations.forEach((conv) => {
-      if (conv.platform) {
-        const platform = conv.platform.toLowerCase();
-        const currentCount = platformMap.get(platform) || 0;
-        platformMap.set(platform, currentCount + (conv.unread_count || 0));
-      }
+    
+    // Initialize all platforms with 0 unread
+    ALL_PLATFORMS.forEach((platform) => {
+      platformMap.set(platform, 0);
     });
+    
+    // Update with actual unread counts from conversations
+    if (conversations && conversations.length > 0) {
+      conversations.forEach((conv) => {
+        if (conv.platform) {
+          const platform = conv.platform.toLowerCase();
+          const currentCount = platformMap.get(platform) || 0;
+          platformMap.set(platform, currentCount + (conv.unread_count || 0));
+        }
+      });
+    }
+    
     return Array.from(platformMap.entries())
       .map(([platform, unreadCount]) => ({ platform, unreadCount }))
-      .sort((a, b) => a.platform.localeCompare(b.platform));
+      .sort((a, b) => {
+        // Keep order: whatsapp, instagram, facebook, telegram, tiktok, email
+        const orderA = ALL_PLATFORMS.indexOf(a.platform);
+        const orderB = ALL_PLATFORMS.indexOf(b.platform);
+        if (orderA !== -1 && orderB !== -1) return orderA - orderB;
+        if (orderA !== -1) return -1;
+        if (orderB !== -1) return 1;
+        return a.platform.localeCompare(b.platform);
+      });
   }, [conversations]);
 
   // Calculate total unread count
@@ -167,59 +186,59 @@ export default function InboxPage() {
               <p className="text-sm text-gray-600 mt-0.5">Respond to messages, set up automations and more.</p>
             </div>
           </div>
-          {/* Platform Filters - Top Navigation */}
-          {availablePlatforms.length > 0 && (
-            <div className="flex gap-1 overflow-x-auto pb-1">
-              <button
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap ${
-                  activePlatformFilter === "All"
-                    ? "bg-blue-100 text-gray-900"
-                    : "bg-white text-gray-600 hover:bg-gray-50"
-                }`}
-                onClick={() => setActivePlatformFilter("All")}
-              >
-                All messages
-                {totalUnreadCount > 0 && (
-                  <span className="inline-flex items-center justify-center min-w-[18px] h-4 px-1 rounded-full bg-red-500 text-[10px] font-semibold text-white">
-                    {totalUnreadCount}
-                  </span>
-                )}
-              </button>
-              {availablePlatforms.map(({ platform, unreadCount }) => {
-                const isActive = activePlatformFilter.toLowerCase() === platform.toLowerCase();
-                const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
-                                   platform === "instagram" ? InstagramIcon :
-                                   platform === "facebook" ? FacebookIcon :
-                                   platform === "telegram" ? TelegramIcon :
-                                   AllMessagesIcon;
-                const platformName = platform === "whatsapp" ? "WhatsApp" :
-                                   platform === "instagram" ? "Instagram" :
-                                   platform === "facebook" ? "Messenger" :
-                                   platform === "telegram" ? "Telegram" :
-                                   platform.charAt(0).toUpperCase() + platform.slice(1);
-                
-                return (
-                  <button
-                    key={platform}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 relative whitespace-nowrap ${
-                      isActive
-                        ? "bg-blue-100 text-gray-900"
-                        : "bg-white text-gray-600 hover:bg-gray-50"
-                    }`}
-                    onClick={() => setActivePlatformFilter(platform)}
-                  >
-                    <PlatformIcon className="h-3.5 w-3.5" />
-                    {platformName}
-                    {unreadCount > 0 && (
-                      <span className="inline-flex items-center justify-center min-w-[18px] h-4 px-1 rounded-full bg-red-500 text-[10px] font-semibold text-white">
-                        {unreadCount}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
+          {/* Platform Filters - Top Navigation - Always show all platforms */}
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            <button
+              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
+                activePlatformFilter === "All"
+                  ? "bg-blue-100 text-gray-900"
+                  : "bg-white text-gray-600 hover:bg-gray-50"
+              }`}
+              onClick={() => setActivePlatformFilter("All")}
+            >
+              All messages
+              {totalUnreadCount > 0 && (
+                <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-xs font-semibold text-white">
+                  {totalUnreadCount}
+                </span>
+              )}
+            </button>
+            {availablePlatforms.map(({ platform, unreadCount }) => {
+              const isActive = activePlatformFilter.toLowerCase() === platform.toLowerCase();
+              const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
+                                 platform === "instagram" ? InstagramIcon :
+                                 platform === "facebook" ? FacebookIcon :
+                                 platform === "telegram" ? TelegramIcon :
+                                 AllMessagesIcon;
+              const platformName = platform === "whatsapp" ? "WhatsApp" :
+                                 platform === "instagram" ? "Instagram" :
+                                 platform === "facebook" ? "Messenger" :
+                                 platform === "telegram" ? "Telegram" :
+                                 platform === "tiktok" ? "TikTok" :
+                                 platform === "email" ? "Email" :
+                                 platform.charAt(0).toUpperCase() + platform.slice(1);
+              
+              return (
+                <button
+                  key={platform}
+                  className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 relative whitespace-nowrap ${
+                    isActive
+                      ? "bg-blue-100 text-gray-900"
+                      : "bg-white text-gray-600 hover:bg-gray-50"
+                  }`}
+                  onClick={() => setActivePlatformFilter(platform)}
+                >
+                  <PlatformIcon className="h-4 w-4" />
+                  {platformName}
+                  {unreadCount > 0 && (
+                    <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-xs font-semibold text-white">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
       
