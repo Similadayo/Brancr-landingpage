@@ -157,78 +157,84 @@ export default function InboxPage() {
 
   return (
     <div className="h-[calc(100vh-120px)] -mx-4 -mt-2 -mb-8 overflow-hidden bg-white w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] md:-mx-6">
-      {/* Main Content - Three Panel Layout */}
-      <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
-        {/* Left Panel - Conversation List */}
-        <section className={`flex flex-col h-full border-r border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
+      {/* Main Content - Two Panel Layout with Platform Columns */}
+      <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[1fr_320px] w-full overflow-hidden">
+        {/* Main Panel - Platform Columns */}
+        <section className={`flex flex-col h-full bg-white transition-transform duration-300 overflow-hidden ${
           mobileView === "chat" ? "hidden md:flex" : "flex"
         }`}>
-          {/* Tabs */}
-          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
-            <div className="flex gap-1">
-              {STATUS_FILTERS.map((tab) => {
-                const isActive = activeStatusFilter === tab || (tab === "All" && activeStatusFilter === "All");
-                return (
-                  <button
-                    key={tab}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                      isActive
-                        ? "bg-primary text-white"
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`}
-                    onClick={() => setActiveStatusFilter(tab)}
-                  >
-                    {tab}
-                  </button>
-                );
-              })}
+          {/* Header with Tabs and Search */}
+          <div className="flex-shrink-0 border-b border-gray-200 bg-white">
+            {/* Tabs */}
+            <div className="px-3 py-2 md:px-4 md:py-2.5 border-b border-gray-200">
+              <div className="flex gap-1">
+                {STATUS_FILTERS.map((tab) => {
+                  const isActive = activeStatusFilter === tab || (tab === "All" && activeStatusFilter === "All");
+                  return (
+                    <button
+                      key={tab}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                        isActive
+                          ? "bg-primary text-white"
+                          : "text-gray-600 hover:bg-gray-100"
+                      }`}
+                      onClick={() => setActiveStatusFilter(tab)}
+                    >
+                      {tab}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Search */}
+            <div className="px-3 py-2 md:px-4 md:py-2.5">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by name"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-8 pr-8 py-2 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+                <FunnelIcon className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              </div>
             </div>
           </div>
           
-          {/* Search */}
-          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
-            <div className="relative">
-              <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by name"
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-8 pr-8 py-2 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-              <FunnelIcon className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            </div>
-          </div>
-          
-          {/* Conversation List - Grouped by Platform */}
-          <div className="flex-1 overflow-y-auto">
+          {/* Platform Columns - Horizontal Scroll */}
+          <div className="flex-1 overflow-x-auto overflow-y-hidden">
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
+              <div className="flex items-center justify-center py-12 h-full">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
               </div>
             ) : error ? (
-              <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 md:p-6 text-center text-sm text-rose-900 m-3">
-                Failed to load conversations: {error.message}
+              <div className="flex items-center justify-center py-12 h-full">
+                <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 md:p-6 text-center text-sm text-rose-900">
+                  Failed to load conversations: {error.message}
+                </div>
               </div>
             ) : platforms.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 md:p-8 text-center m-3">
-                <InboxIcon className="mx-auto h-10 w-10 md:h-12 md:w-12 text-gray-400" />
-                <p className="mt-3 text-sm font-medium text-gray-900">
-                  {searchQuery || activeStatusFilter !== "All"
-                    ? "No conversations found"
-                    : "No conversations yet"}
-                </p>
-                <p className="mt-1 text-xs text-gray-500">
-                  {searchQuery || activeStatusFilter !== "All"
-                    ? "Try adjusting your filters"
-                    : "Conversations will appear here when customers reach out"}
-                </p>
+              <div className="flex items-center justify-center py-12 h-full">
+                <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 md:p-8 text-center">
+                  <InboxIcon className="mx-auto h-10 w-10 md:h-12 md:w-12 text-gray-400" />
+                  <p className="mt-3 text-sm font-medium text-gray-900">
+                    {searchQuery || activeStatusFilter !== "All"
+                      ? "No conversations found"
+                      : "No conversations yet"}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    {searchQuery || activeStatusFilter !== "All"
+                      ? "Try adjusting your filters"
+                      : "Conversations will appear here when customers reach out"}
+                  </p>
+                </div>
               </div>
             ) : (
-              <div className="divide-y divide-gray-200">
+              <div className="flex h-full gap-0 min-w-max">
                 {platforms.map((platform) => {
                   const platformConversations = groupedConversations[platform] || [];
-                  if (platformConversations.length === 0) return null;
                   
                   // Get platform icon and name
                   const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
@@ -240,105 +246,91 @@ export default function InboxPage() {
                   const totalUnread = platformConversations.reduce((sum, conv) => sum + conv.unread_count, 0);
                   
                   return (
-                    <div key={platform} className="border-b border-gray-200 last:border-b-0">
-                      {/* Platform Header */}
-                      <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-3 py-2.5">
+                    <div key={platform} className="flex flex-col h-full w-80 border-r border-gray-200 last:border-r-0">
+                      {/* Platform Column Header */}
+                      <div className="flex-shrink-0 border-b border-gray-200 bg-gray-50 px-3 py-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <PlatformIcon className="h-4 w-4 text-gray-600" />
-                            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">{platformName}</span>
+                            <PlatformIcon className="h-5 w-5 text-gray-600" />
+                            <span className="text-sm font-semibold text-gray-900">{platformName}</span>
                             <span className="text-xs text-gray-500">({platformConversations.length})</span>
                           </div>
                           {totalUnread > 0 && (
-                            <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-blue-600 text-[10px] font-semibold text-white">
+                            <span className="inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 rounded-full bg-blue-600 text-xs font-semibold text-white">
                               {totalUnread}
                             </span>
                           )}
                         </div>
                       </div>
                       
-                      {/* Platform Conversations Table */}
-                      <div className="overflow-x-auto">
-                        <table className="w-full">
-                          <thead className="bg-gray-50 border-b border-gray-200">
-                            <tr>
-                              <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Customer</th>
-                              <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Last Message</th>
-                              <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Time</th>
-                              <th className="px-3 py-2 text-center text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-100">
+                      {/* Platform Conversations List */}
+                      <div className="flex-1 overflow-y-auto">
+                        {platformConversations.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+                            <p className="text-xs text-gray-500">No conversations</p>
+                          </div>
+                        ) : (
+                          <div className="divide-y divide-gray-100">
                             {platformConversations.map((conversation) => {
                               const isActive = selectedConversationId === String(conversation.id);
                               const unread = conversation.unread_count > 0;
                               
                               return (
-                                <tr
+                                <button
                                   key={conversation.id}
                                   onClick={() => handleConversationSelect(String(conversation.id))}
-                                  className={`cursor-pointer transition-colors ${
+                                  className={`w-full px-3 py-3 text-left transition-colors ${
                                     isActive
                                       ? "bg-blue-50 border-l-4 border-primary"
                                       : "hover:bg-gray-50"
                                   }`}
                                 >
-                                  <td className="px-3 py-3">
-                                    <div className="flex items-center gap-2">
-                                      {/* Avatar */}
-                                      <div className="flex-shrink-0 relative">
-                                        {conversation.customer_avatar ? (
-                                          <Image
-                                            src={conversation.customer_avatar}
-                                            alt={conversation.customer_name}
-                                            width={32}
-                                            height={32}
-                                            className="h-8 w-8 rounded-full object-cover"
-                                            unoptimized
-                                          />
-                                        ) : (
-                                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-xs font-medium text-primary">
-                                            {conversation.customer_name.charAt(0).toUpperCase()}
-                                          </div>
-                                        )}
-                                        {unread && (
-                                          <span className="absolute -top-0.5 -right-0.5 inline-flex h-2.5 w-2.5 rounded-full bg-blue-600 border-2 border-white" />
-                                        )}
-                                      </div>
-                                      <div className="min-w-0 flex-1">
-                                        <p className="text-xs font-medium text-gray-900 truncate">{conversation.customer_name}</p>
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td className="px-3 py-3">
-                                    <p className="text-xs text-gray-600 truncate max-w-[200px]" title={conversation.last_message || "No messages"}>
-                                      {conversation.last_message || "No messages"}
-                                    </p>
-                                  </td>
-                                  <td className="px-3 py-3">
-                                    <span className="text-xs text-gray-500">{formatTime(conversation.last_message_at)}</span>
-                                  </td>
-                                  <td className="px-3 py-3 text-center">
-                                    <div className="flex items-center justify-center gap-1.5">
-                                      {unread && (
-                                        <span className="inline-flex h-2 w-2 rounded-full bg-blue-600" />
+                                  <div className="flex items-start gap-2">
+                                    {/* Avatar */}
+                                    <div className="flex-shrink-0 relative">
+                                      {conversation.customer_avatar ? (
+                                        <Image
+                                          src={conversation.customer_avatar}
+                                          alt={conversation.customer_name}
+                                          width={40}
+                                          height={40}
+                                          className="h-10 w-10 rounded-full object-cover"
+                                          unoptimized
+                                        />
+                                      ) : (
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-xs font-medium text-primary">
+                                          {conversation.customer_name.charAt(0).toUpperCase()}
+                                        </div>
                                       )}
-                                      <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
-                                        conversation.status === "active" 
-                                          ? "bg-green-100 text-green-700" 
-                                          : conversation.status === "resolved"
-                                          ? "bg-gray-100 text-gray-700"
-                                          : "bg-yellow-100 text-yellow-700"
-                                      }`}>
-                                        {conversation.status === "active" ? "Active" : conversation.status === "resolved" ? "Resolved" : "Archived"}
-                                      </span>
+                                      {unread && (
+                                        <span className="absolute -top-0.5 -right-0.5 inline-flex h-3 w-3 rounded-full bg-blue-600 border-2 border-white" />
+                                      )}
                                     </div>
-                                  </td>
-                                </tr>
+                                    {/* Content */}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center justify-between mb-1">
+                                        <span className="text-xs font-semibold text-gray-900 truncate">{conversation.customer_name}</span>
+                                        <span className="text-[10px] text-gray-500 flex-shrink-0 ml-2">{formatTime(conversation.last_message_at)}</span>
+                                      </div>
+                                      <p className="line-clamp-2 text-xs text-gray-600 mb-1">{conversation.last_message || "No messages"}</p>
+                                      <div className="flex items-center gap-1.5">
+                                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
+                                          conversation.status === "active" 
+                                            ? "bg-green-100 text-green-700" 
+                                            : conversation.status === "resolved"
+                                            ? "bg-gray-100 text-gray-700"
+                                            : "bg-yellow-100 text-yellow-700"
+                                        }`}>
+                                          {conversation.status === "active" ? "Active" : conversation.status === "resolved" ? "Resolved" : "Archived"}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </button>
                               );
                             })}
-                          </tbody>
-                        </table>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -348,8 +340,8 @@ export default function InboxPage() {
           </div>
         </section>
 
-        {/* Center Panel - Chat Conversation */}
-        <section className={`flex h-full flex-col bg-white border-r border-gray-200 transition-transform duration-300 overflow-hidden ${
+        {/* Right Panel - Chat Conversation */}
+        <section className={`flex h-full flex-col bg-white border-l border-gray-200 transition-transform duration-300 overflow-hidden ${
           mobileView === "list" ? "hidden md:flex" : "flex"
         }`}>
           {activeConversation ? (
@@ -553,10 +545,8 @@ export default function InboxPage() {
           )}
         </section>
 
-        {/* Right Panel - Chat Details */}
-        <aside className={`hidden md:flex flex-col h-full border-l border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
-          mobileView === "list" ? "hidden" : ""
-        }`}>
+        {/* Chat Details - Hidden in this layout, can be shown in a modal or separate view */}
+        <aside className="hidden">
           {activeConversation ? (
             <>
               {/* Header - Fixed */}
