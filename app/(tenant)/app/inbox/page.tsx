@@ -41,7 +41,7 @@ export default function InboxPage() {
   const [selectedConversationId, setSelectedConversationId] = useState<string>("");
   const [replyText, setReplyText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [mobileView, setMobileView] = useState<"list" | "chat">("list");
+  const [mobileView, setMobileView] = useState<"list" | "chat" | "analytics">("list");
   const [readConversationIds, setReadConversationIds] = useState<Set<number>>(new Set());
 
   // Build filters for API
@@ -186,6 +186,9 @@ export default function InboxPage() {
     
     if (typeof window !== "undefined" && window.innerWidth < 768) {
       setMobileView("chat");
+    } else {
+      // On desktop, show all panels
+      setMobileView("list");
     }
   };
 
@@ -277,7 +280,7 @@ export default function InboxPage() {
       <div className="grid gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] h-[calc(100vh-280px)] sm:h-[calc(100vh-300px)] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         {/* Left Panel - Conversation List */}
         <section className={`flex flex-col h-full border-r border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
-          mobileView === "chat" ? "hidden md:flex" : "flex"
+          (mobileView === "chat" || mobileView === "analytics") ? "hidden md:flex" : "flex"
         }`}>
           {/* Status Tabs */}
           <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
@@ -410,7 +413,7 @@ export default function InboxPage() {
 
         {/* Right Panel - Chat Conversation */}
         <section className={`flex h-full flex-col bg-white border-l border-gray-200 transition-transform duration-300 overflow-hidden ${
-          mobileView === "list" ? "hidden md:flex" : "flex"
+          mobileView === "list" || mobileView === "analytics" ? "hidden md:flex" : "flex"
         }`}>
           {activeConversation ? (
             <>
@@ -429,39 +432,55 @@ export default function InboxPage() {
                       </svg>
                     </button>
                   )}
-                  {activeConversation.customer_avatar ? (
-                    <Image
-                      src={activeConversation.customer_avatar}
-                      alt={activeConversation.customer_name}
-                      width={40}
-                      height={40}
-                      className="h-10 w-10 rounded-full object-cover flex-shrink-0"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-medium text-primary flex-shrink-0">
-                      {activeConversation.customer_name.charAt(0).toUpperCase()}
+                  {/* Clickable name to open analytics on mobile */}
+                  <button
+                    onClick={() => {
+                      if (typeof window !== "undefined" && window.innerWidth < 768) {
+                        setMobileView("analytics");
+                      }
+                    }}
+                    className="flex items-center gap-3 flex-1 min-w-0 md:pointer-events-none"
+                  >
+                    {activeConversation.customer_avatar ? (
+                      <Image
+                        src={activeConversation.customer_avatar}
+                        alt={activeConversation.customer_name}
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 rounded-full object-cover flex-shrink-0"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-medium text-primary flex-shrink-0">
+                        {activeConversation.customer_name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-base font-semibold text-gray-900 truncate">{activeConversation.customer_name}</h2>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        {(() => {
+                          const platform = activeConversation.platform.toLowerCase();
+                          const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
+                                             platform === "instagram" ? InstagramIcon :
+                                             platform === "facebook" ? FacebookIcon :
+                                             platform === "telegram" ? TelegramIcon :
+                                             AllMessagesIcon;
+                          return (
+                            <>
+                              <PlatformIcon className="h-4 w-4 text-gray-600" />
+                              <span className="text-xs text-gray-500 capitalize">{activeConversation.platform}</span>
+                            </>
+                          );
+                        })()}
+                      </div>
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-base font-semibold text-gray-900 truncate">{activeConversation.customer_name}</h2>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      {(() => {
-                        const platform = activeConversation.platform.toLowerCase();
-                        const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
-                                           platform === "instagram" ? InstagramIcon :
-                                           platform === "facebook" ? FacebookIcon :
-                                           platform === "telegram" ? TelegramIcon :
-                                           AllMessagesIcon;
-                        return (
-                          <>
-                            <PlatformIcon className="h-4 w-4 text-gray-600" />
-                            <span className="text-xs text-gray-500 capitalize">{activeConversation.platform}</span>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  </div>
+                    {/* Arrow indicator on mobile */}
+                    {typeof window !== "undefined" && window.innerWidth < 768 && (
+                      <svg className="h-5 w-5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    )}
+                  </button>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button 
@@ -624,14 +643,28 @@ export default function InboxPage() {
         </section>
 
         {/* Right Panel - Platform Analytics */}
-        <aside className={`hidden md:flex flex-col h-full border-l border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
-          mobileView === "list" ? "hidden" : ""
+        <aside className={`flex flex-col h-full border-l border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
+          mobileView === "analytics" ? "flex md:flex" : "hidden md:flex"
         }`}>
           {activeConversation ? (
             <>
               {/* Header - Fixed */}
               <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
-                <h3 className="text-sm font-semibold text-gray-900 sm:text-base">Platform Analytics</h3>
+                <div className="flex items-center gap-3">
+                  {/* Back button - Mobile only */}
+                  {mobileView === "analytics" && (
+                    <button
+                      onClick={() => setMobileView("chat")}
+                      className="flex-shrink-0 rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors md:hidden"
+                      aria-label="Back to chat"
+                    >
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                  )}
+                  <h3 className="text-sm font-semibold text-gray-900 sm:text-base">Platform Analytics</h3>
+                </div>
               </div>
 
               {/* Content - Scrollable */}
