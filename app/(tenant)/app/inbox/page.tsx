@@ -13,6 +13,8 @@ import {
   useSuggestReplies
 } from "@/app/(tenant)/hooks/useConversations";
 import type { Message, ConversationDetail, ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
+import { AccountInsights } from "../../components/insights/AccountInsights";
+import { MediaInsights } from "../../components/insights/MediaInsights";
 import {
   InboxIcon,
   MagnifyingGlassIcon,
@@ -411,6 +413,13 @@ export default function InboxPage() {
         }`}>
           {activeConversation ? (
             <>
+              {/* Instagram Account Insights - Show for Instagram conversations */}
+              {activeConversation?.platform.toLowerCase() === 'instagram' && (
+                <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
+                  <AccountInsights period="day" save={true} />
+                </div>
+              )}
+
               {/* Chat Header - Fixed */}
               <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 z-10">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -498,6 +507,12 @@ export default function InboxPage() {
                   {messages.map((message: Message) => {
                     const isIncoming = message.direction === "incoming";
                     const isOutgoing = message.direction === "outgoing";
+                    const isInstagram = activeConversation?.platform.toLowerCase() === 'instagram';
+                    const mediaId = message.metadata && typeof message.metadata === "object" && "media_id" in message.metadata
+                      ? String(message.metadata.media_id)
+                      : message.metadata && typeof message.metadata === "object" && "platform_post_id" in message.metadata
+                      ? String(message.metadata.platform_post_id)
+                      : null;
                     
                     return (
                       <div
@@ -542,6 +557,10 @@ export default function InboxPage() {
                           }`}>
                             {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
                           </div>
+                          {/* Show media insights for Instagram posts */}
+                          {isInstagram && mediaId && (message.message_type === "image" || message.message_type === "video") && (
+                            <MediaInsights mediaId={mediaId} showSave={true} />
+                          )}
                         </div>
                       </div>
                     );

@@ -2001,6 +2001,61 @@ export const tenantApi = {
     if (params.success_redirect) queryParams.append('success_redirect', params.success_redirect);
     return `${API_BASE_URL}/api/oauth/instagram/start?${queryParams.toString()}`;
   },
+
+  // Instagram Insights endpoints
+  getInstagramAccountInsights: (params?: {
+    metrics?: string;
+    period?: 'day' | 'week' | 'days_28' | 'lifetime';
+    save?: boolean;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.metrics) queryParams.append('metrics', params.metrics);
+    if (params?.period) queryParams.append('period', params.period);
+    if (params?.save !== undefined) queryParams.append('save', params.save.toString());
+    return get<{
+      success: boolean;
+      insights: Array<{
+        name: string;
+        period: string;
+        title: string;
+        description: string;
+        id: string;
+        values: Array<{
+          value: number;
+          end_time?: string;
+        }>;
+      }>;
+      account_id: string;
+      period: string;
+    }>(`/api/tenant/instagram/insights/account${queryParams.toString() ? `?${queryParams.toString()}` : ''}`);
+  },
+
+  getInstagramMediaInsights: (mediaId: string, params?: {
+    metrics?: string;
+    period?: 'day' | 'week' | 'days_28' | 'lifetime';
+    save?: boolean;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.metrics) queryParams.append('metrics', params.metrics);
+    if (params?.period) queryParams.append('period', params.period);
+    if (params?.save !== undefined) queryParams.append('save', params.save.toString());
+    return get<{
+      success: boolean;
+      insights: Array<{
+        name: string;
+        period: string;
+        title: string;
+        description: string;
+        id: string;
+        values: Array<{
+          value: number;
+          end_time?: string;
+        }>;
+      }>;
+      media_id: string;
+      period: string;
+    }>(`/api/tenant/instagram/insights/media/${mediaId}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`);
+  },
 };
 
  
