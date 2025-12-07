@@ -334,41 +334,23 @@ export default function IntegrationsPage() {
                   {connected && !isWhatsApp ? (
                     <>
                       {platform === "instagram" ? (
-                        // Instagram: Show reconnect options with both methods
-                        <div className="flex flex-col gap-2 w-full">
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleVerify(platform)}
-                              disabled={verifyMutation.isPending}
-                              className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary disabled:opacity-50"
-                            >
-                              {verifyMutation.isPending ? "Verifying..." : "Verify"}
-                            </button>
-                            <button
-                              onClick={() => handleDisconnect(platform)}
-                              disabled={isDisconnecting || disconnectMutation.isPending}
-                              className="inline-flex items-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
-                            >
-                              {isDisconnecting ? "Disconnecting..." : "Disconnect"}
-                            </button>
-                          </div>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleConnect(platform, undefined, false)}
-                              disabled={isConnecting === platform || !tenantId}
-                              className="flex-1 inline-flex items-center justify-center gap-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              Reconnect (Facebook)
-                            </button>
-                            <button
-                              onClick={() => handleConnect(platform, undefined, true)}
-                              disabled={isConnecting === platform || !tenantId}
-                              className="flex-1 inline-flex items-center justify-center gap-1 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              Reconnect (Instagram)
-                            </button>
-                          </div>
-                        </div>
+                        // Instagram: Show only Verify and Disconnect buttons
+                        <>
+                          <button
+                            onClick={() => handleVerify(platform)}
+                            disabled={verifyMutation.isPending}
+                            className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary disabled:opacity-50"
+                          >
+                            {verifyMutation.isPending ? "Verifying..." : "Verify"}
+                          </button>
+                          <button
+                            onClick={() => handleDisconnect(platform)}
+                            disabled={isDisconnecting || disconnectMutation.isPending}
+                            className="inline-flex items-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
+                          >
+                            {isDisconnecting ? "Disconnecting..." : "Disconnect"}
+                          </button>
+                        </>
                       ) : (
                     <>
                       <button
