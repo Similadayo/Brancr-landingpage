@@ -25,7 +25,10 @@ export function IndustrySelector({ onSelect, showDescription = true, allowChange
       await setIndustryMutation.mutateAsync(industryId);
       onSelect?.(industryId);
     } catch (error) {
+      // Revert selection on error
       setSelectedId(currentIndustry?.industry_id || null);
+      // Error is already handled by the mutation's onError callback
+      console.error("Industry selection failed:", error);
     }
   };
 

@@ -57,7 +57,20 @@ export function useSetTenantIndustry() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (industryId: number) => {
-      return tenantApi.setTenantIndustry({ industry_id: industryId });
+      try {
+        return await tenantApi.setTenantIndustry({ industry_id: industryId });
+      } catch (error) {
+        // Log detailed error for debugging
+        console.error("Failed to set tenant industry:", error);
+        if (error instanceof ApiError) {
+          console.error("API Error details:", {
+            status: error.status,
+            message: error.message,
+            body: error.body,
+          });
+        }
+        throw error;
+      }
     },
     onSuccess: (data) => {
       toast.success(`Industry updated to ${data.industry.name}`);
@@ -67,9 +80,17 @@ export function useSetTenantIndustry() {
     },
     onError: (error) => {
       if (error instanceof ApiError) {
-        toast.error(error.message);
+        // Show more detailed error message
+        const errorMessage = error.body?.error || error.message || "Failed to update industry";
+        toast.error(`Failed to update industry: ${errorMessage}`);
+        console.error("Industry update error:", {
+          status: error.status,
+          message: error.message,
+          body: error.body,
+        });
       } else {
-        toast.error("Failed to update industry");
+        toast.error("Failed to update industry. Please try again.");
+        console.error("Unknown error:", error);
       }
     },
   });
