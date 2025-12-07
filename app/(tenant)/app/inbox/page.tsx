@@ -158,8 +158,73 @@ export default function InboxPage() {
 
   return (
     <div className="h-[calc(100vh-120px)] -mx-4 -mt-2 -mb-8 overflow-hidden bg-white w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] md:-mx-6">
+      {/* Top Header with Platform Filters */}
+      <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3 md:px-6">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">Inbox</h1>
+              <p className="text-sm text-gray-600 mt-0.5">Respond to messages, set up automations and more.</p>
+            </div>
+          </div>
+          {/* Platform Filters - Top Navigation */}
+          {availablePlatforms.length > 0 && (
+            <div className="flex gap-1 overflow-x-auto pb-1">
+              <button
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap ${
+                  activePlatformFilter === "All"
+                    ? "bg-blue-100 text-gray-900"
+                    : "bg-white text-gray-600 hover:bg-gray-50"
+                }`}
+                onClick={() => setActivePlatformFilter("All")}
+              >
+                All messages
+                {totalUnreadCount > 0 && (
+                  <span className="inline-flex items-center justify-center min-w-[18px] h-4 px-1 rounded-full bg-red-500 text-[10px] font-semibold text-white">
+                    {totalUnreadCount}
+                  </span>
+                )}
+              </button>
+              {availablePlatforms.map(({ platform, unreadCount }) => {
+                const isActive = activePlatformFilter.toLowerCase() === platform.toLowerCase();
+                const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
+                                   platform === "instagram" ? InstagramIcon :
+                                   platform === "facebook" ? FacebookIcon :
+                                   platform === "telegram" ? TelegramIcon :
+                                   AllMessagesIcon;
+                const platformName = platform === "whatsapp" ? "WhatsApp" :
+                                   platform === "instagram" ? "Instagram" :
+                                   platform === "facebook" ? "Messenger" :
+                                   platform === "telegram" ? "Telegram" :
+                                   platform.charAt(0).toUpperCase() + platform.slice(1);
+                
+                return (
+                  <button
+                    key={platform}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 relative whitespace-nowrap ${
+                      isActive
+                        ? "bg-blue-100 text-gray-900"
+                        : "bg-white text-gray-600 hover:bg-gray-50"
+                    }`}
+                    onClick={() => setActivePlatformFilter(platform)}
+                  >
+                    <PlatformIcon className="h-3.5 w-3.5" />
+                    {platformName}
+                    {unreadCount > 0 && (
+                      <span className="inline-flex items-center justify-center min-w-[18px] h-4 px-1 rounded-full bg-red-500 text-[10px] font-semibold text-white">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+      
       {/* Main Content - Three Panel Layout */}
-      <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
+      <div className="grid h-[calc(100%-120px)] gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
         {/* Left Panel - Conversation List */}
         <section className={`flex flex-col h-full border-r border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
           mobileView === "chat" ? "hidden md:flex" : "flex"
@@ -185,62 +250,6 @@ export default function InboxPage() {
               })}
             </div>
           </div>
-          
-          {/* Platform Filters */}
-          {availablePlatforms.length > 0 && (
-            <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
-              <div className="flex gap-1 flex-wrap">
-                <button
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 relative ${
-                    activePlatformFilter === "All"
-                      ? "bg-blue-100 text-gray-900"
-                      : "bg-white text-gray-600 hover:bg-gray-50"
-                  }`}
-                  onClick={() => setActivePlatformFilter("All")}
-                >
-                  All messages
-                  {totalUnreadCount > 0 && (
-                    <span className="inline-flex items-center justify-center min-w-[18px] h-4 px-1 rounded-full bg-red-500 text-[10px] font-semibold text-white">
-                      {totalUnreadCount}
-                    </span>
-                  )}
-                </button>
-                {availablePlatforms.map(({ platform, unreadCount }) => {
-                  const isActive = activePlatformFilter.toLowerCase() === platform.toLowerCase();
-                  const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
-                                     platform === "instagram" ? InstagramIcon :
-                                     platform === "facebook" ? FacebookIcon :
-                                     platform === "telegram" ? TelegramIcon :
-                                     AllMessagesIcon;
-                  const platformName = platform === "whatsapp" ? "WhatsApp" :
-                                     platform === "instagram" ? "Instagram" :
-                                     platform === "facebook" ? "Messenger" :
-                                     platform === "telegram" ? "Telegram" :
-                                     platform.charAt(0).toUpperCase() + platform.slice(1);
-                  
-                  return (
-                    <button
-                      key={platform}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 relative ${
-                        isActive
-                          ? "bg-blue-100 text-gray-900"
-                          : "bg-white text-gray-600 hover:bg-gray-50"
-                      }`}
-                      onClick={() => setActivePlatformFilter(platform)}
-                    >
-                      <PlatformIcon className="h-3.5 w-3.5" />
-                      {platformName}
-                      {unreadCount > 0 && (
-                        <span className="inline-flex items-center justify-center min-w-[18px] h-4 px-1 rounded-full bg-red-500 text-[10px] font-semibold text-white">
-                          {unreadCount}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
           
           {/* Search */}
           <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
