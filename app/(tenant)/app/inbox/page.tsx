@@ -15,6 +15,7 @@ import {
 import type { Message, ConversationDetail, ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
 import { AccountInsights } from "../../components/insights/AccountInsights";
 import { MediaInsights } from "../../components/insights/MediaInsights";
+import { PlatformAnalytics } from "../../components/inbox/PlatformAnalytics";
 import {
   InboxIcon,
   MagnifyingGlassIcon,
@@ -629,7 +630,7 @@ export default function InboxPage() {
           )}
         </section>
 
-        {/* Right Panel - Chat Details */}
+        {/* Right Panel - Platform Analytics */}
         <aside className={`hidden md:flex flex-col h-full border-l border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
           mobileView === "list" ? "hidden" : ""
         }`}>
@@ -637,145 +638,12 @@ export default function InboxPage() {
             <>
               {/* Header - Fixed */}
               <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
-                <h3 className="text-sm font-semibold text-gray-900">Chat Details</h3>
+                <h3 className="text-sm font-semibold text-gray-900">Platform Analytics</h3>
               </div>
 
               {/* Content - Scrollable */}
-              <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
-                {/* Contact Profile */}
-                <div className="mb-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    {activeConversation.customer_avatar ? (
-                      <Image
-                        src={activeConversation.customer_avatar}
-                        alt={activeConversation.customer_name}
-                        width={48}
-                        height={48}
-                        className="h-12 w-12 rounded-full object-cover flex-shrink-0"
-                        unoptimized
-                      />
-                    ) : (
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-base font-medium text-gray-600 flex-shrink-0">
-                        {activeConversation.customer_name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900">{activeConversation.customer_name}</p>
-                      <p className="text-xs text-gray-500">+62 989-289-929</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 mb-4">
-                    <button className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white hover:bg-primary/90 transition-colors">
-                      Call
-                    </button>
-                    <button className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
-                      Chat
-                    </button>
-                  </div>
-                </div>
-
-                {/* Contact Information */}
-                <div className="mb-6">
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Contact Information</h4>
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Status:</span>
-                      <select
-                        value={activeConversation.status}
-                        onChange={(e) => {
-                          const newStatus = e.target.value as "active" | "resolved" | "archived";
-                          updateStatusMutation.mutate({ status: newStatus });
-                        }}
-                        className="text-gray-900 font-medium border-0 bg-transparent focus:outline-none cursor-pointer"
-                      >
-                        <option value="active">Assigned</option>
-                        <option value="resolved">Resolved</option>
-                        <option value="archived">Archived</option>
-                      </select>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Start chat:</span>
-                      <span className="text-gray-900 font-medium">
-                        {new Date(activeConversation.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Country:</span>
-                      <span className="text-gray-900 font-medium">Yordania</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Add Tag */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Add tag</h4>
-                    <button 
-                      className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                      aria-label="Add tag"
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {Array.isArray(activeConversation.tags) && activeConversation.tags.length > 0 ? (
-                      activeConversation.tags.map((tag: string) => (
-                        <span
-                          key={tag}
-                          className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700"
-                        >
-                          {tag}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-xs text-gray-500">No tags</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Assigned by */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Assigned by</h4>
-                    <button 
-                      className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                      aria-label="Add assignee"
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
-                        NA
-                      </div>
-                      <span className="text-xs text-gray-700">CS Niki Ayu</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
-                        GB
-                      </div>
-                      <span className="text-xs text-gray-700">CS Geeburn</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Add Note */}
-                <div>
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Add Note</h4>
-                  <textarea
-                    placeholder="Type your note here.."
-                    className="min-h-[120px] w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-                    onBlur={async (e) => {
-                      const value = e.target.value.trim();
-                      if (value) {
-                        try {
-                          await updateConversationMutation.mutateAsync({ notes: value });
-                        } catch {}
-                      }
-                    }}
-                  />
-                </div>
+              <div className="flex-1 overflow-y-auto min-h-0 py-4">
+                <PlatformAnalytics platform={activeConversation.platform} />
               </div>
             </>
           ) : (
