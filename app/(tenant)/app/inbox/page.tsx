@@ -60,39 +60,15 @@ export default function InboxPage() {
     return Array.isArray(conversationsData) ? conversationsData : [];
   }, [conversationsData]);
 
-  // Group conversations by platform and sort within each group
-  const groupedConversations = useMemo(() => {
-    const grouped: Record<string, ConversationSummary[]> = {};
-    
-    // Group by platform
-    conversations.forEach((conv) => {
-      const platform = conv.platform.toLowerCase();
-      if (!grouped[platform]) {
-        grouped[platform] = [];
-      }
-      grouped[platform].push(conv);
+  // Sort conversations by last message time
+  const sortedConversations = useMemo(() => {
+    const sorted = [...conversations];
+    return sorted.sort((a, b) => {
+      if (a.unread_count > 0 && b.unread_count === 0) return -1;
+      if (a.unread_count === 0 && b.unread_count > 0) return 1;
+      return new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime();
     });
-    
-    // Sort each group by unread count and last message time
-    Object.keys(grouped).forEach((platform) => {
-      grouped[platform].sort((a, b) => {
-        if (a.unread_count > 0 && b.unread_count === 0) return -1;
-        if (a.unread_count === 0 && b.unread_count > 0) return 1;
-        return new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime();
-      });
-    });
-    
-    return grouped;
   }, [conversations]);
-  
-  // Platform order for display
-  const platformOrder = useMemo(() => ['whatsapp', 'instagram', 'facebook', 'telegram', 'tiktok', 'email'], []);
-  
-  // Get platforms in order
-  const platforms = useMemo(() => {
-    return platformOrder.filter(p => groupedConversations[p]?.length > 0)
-      .concat(Object.keys(groupedConversations).filter(p => !platformOrder.includes(p)));
-  }, [groupedConversations, platformOrder]);
   
   const { data: conversationDetail } = useConversation(selectedConversationId);
   const sendReplyMutation = useSendReply(selectedConversationId);
@@ -157,182 +133,134 @@ export default function InboxPage() {
 
   return (
     <div className="h-[calc(100vh-120px)] -mx-4 -mt-2 -mb-8 overflow-hidden bg-white w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] md:-mx-6">
-      {/* Main Content - Two Panel Layout with Platform Columns */}
-      <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[1fr_320px] w-full overflow-hidden">
-        {/* Main Panel - Platform Columns */}
-        <section className={`flex flex-col h-full bg-white transition-transform duration-300 overflow-hidden ${
+      {/* Main Content - Three Panel Layout */}
+      <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
+        {/* Left Panel - Conversation List */}
+        <section className={`flex flex-col h-full border-r border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
           mobileView === "chat" ? "hidden md:flex" : "flex"
         }`}>
-          {/* Header with Tabs and Search */}
-          <div className="flex-shrink-0 border-b border-gray-200 bg-white">
-            {/* Tabs */}
-            <div className="px-3 py-2 md:px-4 md:py-2.5 border-b border-gray-200">
-              <div className="flex gap-1">
-                {STATUS_FILTERS.map((tab) => {
-                  const isActive = activeStatusFilter === tab || (tab === "All" && activeStatusFilter === "All");
-                  return (
-                    <button
-                      key={tab}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                        isActive
-                          ? "bg-primary text-white"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                      onClick={() => setActiveStatusFilter(tab)}
-                    >
-                      {tab}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            
-            {/* Search */}
-            <div className="px-3 py-2 md:px-4 md:py-2.5">
-              <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by name"
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-8 pr-8 py-2 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-                <FunnelIcon className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              </div>
+          {/* Tabs */}
+          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
+            <div className="flex gap-1">
+              {STATUS_FILTERS.map((tab) => {
+                const isActive = activeStatusFilter === tab || (tab === "All" && activeStatusFilter === "All");
+                return (
+                  <button
+                    key={tab}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                      isActive
+                        ? "bg-primary text-white"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                    onClick={() => setActiveStatusFilter(tab)}
+                  >
+                    {tab}
+                  </button>
+                );
+              })}
             </div>
           </div>
           
-          {/* Platform Columns - Horizontal Scroll */}
-          <div className="flex-1 overflow-x-auto overflow-y-hidden">
+          {/* Search */}
+          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
+            <div className="relative">
+              <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by name"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-8 pr-8 py-2 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+              <FunnelIcon className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            </div>
+          </div>
+          
+          {/* Conversation List */}
+          <div className="flex-1 overflow-y-auto">
             {isLoading ? (
-              <div className="flex items-center justify-center py-12 h-full">
+              <div className="flex items-center justify-center py-12">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
               </div>
             ) : error ? (
-              <div className="flex items-center justify-center py-12 h-full">
-                <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 md:p-6 text-center text-sm text-rose-900">
-                  Failed to load conversations: {error.message}
-                </div>
+              <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 md:p-6 text-center text-sm text-rose-900 m-3">
+                Failed to load conversations: {error.message}
               </div>
-            ) : platforms.length === 0 ? (
-              <div className="flex items-center justify-center py-12 h-full">
-                <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 md:p-8 text-center">
-                  <InboxIcon className="mx-auto h-10 w-10 md:h-12 md:w-12 text-gray-400" />
-                  <p className="mt-3 text-sm font-medium text-gray-900">
-                    {searchQuery || activeStatusFilter !== "All"
-                      ? "No conversations found"
-                      : "No conversations yet"}
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    {searchQuery || activeStatusFilter !== "All"
-                      ? "Try adjusting your filters"
-                      : "Conversations will appear here when customers reach out"}
-                  </p>
-                </div>
+            ) : sortedConversations.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 md:p-8 text-center m-3">
+                <InboxIcon className="mx-auto h-10 w-10 md:h-12 md:w-12 text-gray-400" />
+                <p className="mt-3 text-sm font-medium text-gray-900">
+                  {searchQuery || activeStatusFilter !== "All"
+                    ? "No conversations found"
+                    : "No conversations yet"}
+                </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  {searchQuery || activeStatusFilter !== "All"
+                    ? "Try adjusting your filters"
+                    : "Conversations will appear here when customers reach out"}
+                </p>
               </div>
             ) : (
-              <div className="flex h-full gap-0 min-w-max">
-                {platforms.map((platform) => {
-                  const platformConversations = groupedConversations[platform] || [];
+              <div className="divide-y divide-gray-100">
+                {sortedConversations.map((conversation) => {
+                  const isActive = selectedConversationId === String(conversation.id);
+                  const unread = conversation.unread_count > 0;
+                  const platform = conversation.platform.toLowerCase();
                   
-                  // Get platform icon and name
+                  // Get platform icon
                   const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
                                      platform === "instagram" ? InstagramIcon :
                                      platform === "facebook" ? FacebookIcon :
                                      platform === "telegram" ? TelegramIcon :
                                      AllMessagesIcon;
-                  const platformName = platform.charAt(0).toUpperCase() + platform.slice(1);
-                  const totalUnread = platformConversations.reduce((sum, conv) => sum + conv.unread_count, 0);
                   
                   return (
-                    <div key={platform} className="flex flex-col h-full w-80 border-r border-gray-200 last:border-r-0">
-                      {/* Platform Column Header */}
-                      <div className="flex-shrink-0 border-b border-gray-200 bg-gray-50 px-3 py-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <PlatformIcon className="h-5 w-5 text-gray-600" />
-                            <span className="text-sm font-semibold text-gray-900">{platformName}</span>
-                            <span className="text-xs text-gray-500">({platformConversations.length})</span>
-                          </div>
-                          {totalUnread > 0 && (
-                            <span className="inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 rounded-full bg-blue-600 text-xs font-semibold text-white">
-                              {totalUnread}
-                            </span>
+                    <button
+                      key={conversation.id}
+                      onClick={() => handleConversationSelect(String(conversation.id))}
+                      className={`group w-full px-3 py-3 text-left transition-colors ${
+                        isActive
+                          ? "bg-blue-50 border-l-4 border-primary"
+                          : "hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        {/* Avatar */}
+                        <div className="flex-shrink-0 relative">
+                          {conversation.customer_avatar ? (
+                            <Image
+                              src={conversation.customer_avatar}
+                              alt={conversation.customer_name}
+                              width={48}
+                              height={48}
+                              className="h-12 w-12 rounded-full object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-medium text-primary">
+                              {conversation.customer_name.charAt(0).toUpperCase()}
+                            </div>
                           )}
+                          {/* Platform icon badge */}
+                          <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white border-2 border-white">
+                            <PlatformIcon className="h-3 w-3 text-gray-600" />
+                          </div>
+                        </div>
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium text-gray-900 truncate">{conversation.customer_name}</span>
+                            <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                              {unread && (
+                                <span className="inline-flex h-2 w-2 rounded-full bg-blue-600" />
+                              )}
+                              <span className="text-xs text-gray-500">{formatTime(conversation.last_message_at)}</span>
+                            </div>
+                          </div>
+                          <p className="line-clamp-1 text-sm text-gray-600">{conversation.last_message || "No messages"}</p>
                         </div>
                       </div>
-                      
-                      {/* Platform Conversations List */}
-                      <div className="flex-1 overflow-y-auto">
-                        {platformConversations.length === 0 ? (
-                          <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-                            <p className="text-xs text-gray-500">No conversations</p>
-                          </div>
-                        ) : (
-                          <div className="divide-y divide-gray-100">
-                            {platformConversations.map((conversation) => {
-                              const isActive = selectedConversationId === String(conversation.id);
-                              const unread = conversation.unread_count > 0;
-                              
-                              return (
-                                <button
-                                  key={conversation.id}
-                                  onClick={() => handleConversationSelect(String(conversation.id))}
-                                  className={`w-full px-3 py-3 text-left transition-colors ${
-                                    isActive
-                                      ? "bg-blue-50 border-l-4 border-primary"
-                                      : "hover:bg-gray-50"
-                                  }`}
-                                >
-                                  <div className="flex items-start gap-2">
-                                    {/* Avatar */}
-                                    <div className="flex-shrink-0 relative">
-                                      {conversation.customer_avatar ? (
-                                        <Image
-                                          src={conversation.customer_avatar}
-                                          alt={conversation.customer_name}
-                                          width={40}
-                                          height={40}
-                                          className="h-10 w-10 rounded-full object-cover"
-                                          unoptimized
-                                        />
-                                      ) : (
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-xs font-medium text-primary">
-                                          {conversation.customer_name.charAt(0).toUpperCase()}
-                                        </div>
-                                      )}
-                                      {unread && (
-                                        <span className="absolute -top-0.5 -right-0.5 inline-flex h-3 w-3 rounded-full bg-blue-600 border-2 border-white" />
-                                      )}
-                                    </div>
-                                    {/* Content */}
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex items-center justify-between mb-1">
-                                        <span className="text-xs font-semibold text-gray-900 truncate">{conversation.customer_name}</span>
-                                        <span className="text-[10px] text-gray-500 flex-shrink-0 ml-2">{formatTime(conversation.last_message_at)}</span>
-                                      </div>
-                                      <p className="line-clamp-2 text-xs text-gray-600 mb-1">{conversation.last_message || "No messages"}</p>
-                                      <div className="flex items-center gap-1.5">
-                                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
-                                          conversation.status === "active" 
-                                            ? "bg-green-100 text-green-700" 
-                                            : conversation.status === "resolved"
-                                            ? "bg-gray-100 text-gray-700"
-                                            : "bg-yellow-100 text-yellow-700"
-                                        }`}>
-                                          {conversation.status === "active" ? "Active" : conversation.status === "resolved" ? "Resolved" : "Archived"}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -545,8 +473,10 @@ export default function InboxPage() {
           )}
         </section>
 
-        {/* Chat Details - Hidden in this layout, can be shown in a modal or separate view */}
-        <aside className="hidden">
+        {/* Right Panel - Chat Details */}
+        <aside className={`hidden md:flex flex-col h-full border-l border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
+          mobileView === "list" ? "hidden" : ""
+        }`}>
           {activeConversation ? (
             <>
               {/* Header - Fixed */}
