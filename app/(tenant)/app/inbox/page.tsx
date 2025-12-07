@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTenant } from "../../providers/TenantProvider";
 import { 
   useConversations, 
@@ -31,6 +32,7 @@ const ALL_PLATFORMS = ['whatsapp', 'instagram', 'facebook', 'telegram', 'tiktok'
 
 export default function InboxPage() {
   const { tenant } = useTenant();
+  const queryClient = useQueryClient();
   const [activeStatusFilter, setActiveStatusFilter] = useState<string>("All");
   const [activePlatformFilter, setActivePlatformFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -38,6 +40,7 @@ export default function InboxPage() {
   const [replyText, setReplyText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [mobileView, setMobileView] = useState<"list" | "chat">("list");
+  const [readConversationIds, setReadConversationIds] = useState<Set<number>>(new Set());
 
   // Build filters for API
   const apiFilters = useMemo(() => {
@@ -154,6 +157,31 @@ export default function InboxPage() {
 
   const handleConversationSelect = (id: string) => {
     setSelectedConversationId(id);
+    
+    // Mark conversation as read when opened
+    const conversationId = Number(id);
+    if (conversationId && !readConversationIds.has(conversationId)) {
+      setReadConversationIds((prev) => new Set([...prev, conversationId]));
+      
+      // Optimistically update the conversation cache to set unread_count to 0
+      queryClient.setQueryData<ConversationSummary[]>(
+        ["conversations", apiFilters],
+        (oldData) => {
+          if (!oldData || !Array.isArray(oldData)) return oldData;
+          
+          return oldData.map((conv) => {
+            if (Number(conv.id) === conversationId) {
+              return { ...conv, unread_count: 0 };
+            }
+            return conv;
+          });
+        }
+      );
+      
+      // Invalidate to sync with backend
+      void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    }
+    
     if (typeof window !== "undefined" && window.innerWidth < 768) {
       setMobileView("chat");
     }
