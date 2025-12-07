@@ -105,21 +105,21 @@ export function useConversations(filters?: { platform?: string; status?: string;
           }
           
           return {
-            id: Number(conversation.id),
-            customer_id: conversation.customer_id,
+          id: Number(conversation.id),
+          customer_id: conversation.customer_id,
             customer_name: customerName,
-            customer_avatar: conversation.customer_avatar,
+          customer_avatar: conversation.customer_avatar,
             platform: platform as ConversationSummary["platform"],
-            status: (conversation.status === "active" || conversation.status === "resolved" || conversation.status === "archived" 
-              ? conversation.status 
-              : "active") as ConversationSummary["status"],
-            last_message: conversation.last_message || "",
-            last_message_at: conversation.last_message_at || conversation.updated_at,
-            unread_count: conversation.unread_count ?? 0,
-            created_at: conversation.created_at,
-            updated_at: conversation.updated_at,
-            tags: conversation.tags || [],
-            assignee: conversation.assignee ?? null,
+          status: (conversation.status === "active" || conversation.status === "resolved" || conversation.status === "archived" 
+            ? conversation.status 
+            : "active") as ConversationSummary["status"],
+          last_message: conversation.last_message || "",
+          last_message_at: conversation.last_message_at || conversation.updated_at,
+          unread_count: conversation.unread_count ?? 0,
+          created_at: conversation.created_at,
+          updated_at: conversation.updated_at,
+          tags: conversation.tags || [],
+          assignee: conversation.assignee ?? null,
           };
         });
         

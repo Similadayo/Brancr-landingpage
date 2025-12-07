@@ -60,15 +60,39 @@ export default function InboxPage() {
     return Array.isArray(conversationsData) ? conversationsData : [];
   }, [conversationsData]);
 
-  // Sort conversations by last message time
-  const sortedConversations = useMemo(() => {
-    const sorted = [...conversations];
-    return sorted.sort((a, b) => {
-      if (a.unread_count > 0 && b.unread_count === 0) return -1;
-      if (a.unread_count === 0 && b.unread_count > 0) return 1;
-      return new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime();
+  // Group conversations by platform and sort within each group
+  const groupedConversations = useMemo(() => {
+    const grouped: Record<string, ConversationSummary[]> = {};
+    
+    // Group by platform
+    conversations.forEach((conv) => {
+      const platform = conv.platform.toLowerCase();
+      if (!grouped[platform]) {
+        grouped[platform] = [];
+      }
+      grouped[platform].push(conv);
     });
+    
+    // Sort each group by unread count and last message time
+    Object.keys(grouped).forEach((platform) => {
+      grouped[platform].sort((a, b) => {
+        if (a.unread_count > 0 && b.unread_count === 0) return -1;
+        if (a.unread_count === 0 && b.unread_count > 0) return 1;
+        return new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime();
+      });
+    });
+    
+    return grouped;
   }, [conversations]);
+  
+  // Platform order for display
+  const platformOrder = useMemo(() => ['whatsapp', 'instagram', 'facebook', 'telegram', 'tiktok', 'email'], []);
+  
+  // Get platforms in order
+  const platforms = useMemo(() => {
+    return platformOrder.filter(p => groupedConversations[p]?.length > 0)
+      .concat(Object.keys(groupedConversations).filter(p => !platformOrder.includes(p)));
+  }, [groupedConversations, platformOrder]);
   
   const { data: conversationDetail } = useConversation(selectedConversationId);
   const sendReplyMutation = useSendReply(selectedConversationId);
@@ -176,7 +200,7 @@ export default function InboxPage() {
             </div>
           </div>
           
-          {/* Conversation List */}
+          {/* Conversation List - Grouped by Platform */}
           <div className="flex-1 overflow-y-auto">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
@@ -186,7 +210,7 @@ export default function InboxPage() {
               <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 md:p-6 text-center text-sm text-rose-900 m-3">
                 Failed to load conversations: {error.message}
               </div>
-            ) : sortedConversations.length === 0 ? (
+            ) : platforms.length === 0 ? (
               <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 md:p-8 text-center m-3">
                 <InboxIcon className="mx-auto h-10 w-10 md:h-12 md:w-12 text-gray-400" />
                 <p className="mt-3 text-sm font-medium text-gray-900">
@@ -201,66 +225,122 @@ export default function InboxPage() {
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-100">
-                {sortedConversations.map((conversation) => {
-                  const isActive = selectedConversationId === String(conversation.id);
-                  const unread = conversation.unread_count > 0;
-                  const platform = conversation.platform.toLowerCase();
+              <div className="divide-y divide-gray-200">
+                {platforms.map((platform) => {
+                  const platformConversations = groupedConversations[platform] || [];
+                  if (platformConversations.length === 0) return null;
                   
-                  // Get platform icon
+                  // Get platform icon and name
                   const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
                                      platform === "instagram" ? InstagramIcon :
                                      platform === "facebook" ? FacebookIcon :
                                      platform === "telegram" ? TelegramIcon :
                                      AllMessagesIcon;
+                  const platformName = platform.charAt(0).toUpperCase() + platform.slice(1);
+                  const totalUnread = platformConversations.reduce((sum, conv) => sum + conv.unread_count, 0);
                   
                   return (
-                    <button
-                      key={conversation.id}
-                      onClick={() => handleConversationSelect(String(conversation.id))}
-                      className={`group w-full px-3 py-3 text-left transition-colors ${
-                        isActive
-                          ? "bg-blue-50 border-l-4 border-primary"
-                          : "hover:bg-gray-50"
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        {/* Avatar */}
-                        <div className="flex-shrink-0 relative">
-                          {conversation.customer_avatar ? (
-                            <Image
-                              src={conversation.customer_avatar}
-                              alt={conversation.customer_name}
-                              width={48}
-                              height={48}
-                              className="h-12 w-12 rounded-full object-cover"
-                              unoptimized
-                            />
-                          ) : (
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-medium text-primary">
-                              {conversation.customer_name.charAt(0).toUpperCase()}
-                            </div>
+                    <div key={platform} className="border-b border-gray-200 last:border-b-0">
+                      {/* Platform Header */}
+                      <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-3 py-2.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <PlatformIcon className="h-4 w-4 text-gray-600" />
+                            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">{platformName}</span>
+                            <span className="text-xs text-gray-500">({platformConversations.length})</span>
+                          </div>
+                          {totalUnread > 0 && (
+                            <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-blue-600 text-[10px] font-semibold text-white">
+                              {totalUnread}
+                            </span>
                           )}
-                          {/* Platform icon badge */}
-                          <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white border-2 border-white">
-                            <PlatformIcon className="h-3 w-3 text-gray-600" />
-                          </div>
-                        </div>
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-gray-900 truncate">{conversation.customer_name}</span>
-                            <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                              {unread && (
-                                <span className="inline-flex h-2 w-2 rounded-full bg-blue-600" />
-                              )}
-                              <span className="text-xs text-gray-500">{formatTime(conversation.last_message_at)}</span>
-                            </div>
-                          </div>
-                          <p className="line-clamp-1 text-sm text-gray-600">{conversation.last_message || "No messages"}</p>
                         </div>
                       </div>
-                    </button>
+                      
+                      {/* Platform Conversations Table */}
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead className="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                              <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Customer</th>
+                              <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Last Message</th>
+                              <th className="px-3 py-2 text-left text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Time</th>
+                              <th className="px-3 py-2 text-center text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {platformConversations.map((conversation) => {
+                              const isActive = selectedConversationId === String(conversation.id);
+                              const unread = conversation.unread_count > 0;
+                              
+                              return (
+                                <tr
+                                  key={conversation.id}
+                                  onClick={() => handleConversationSelect(String(conversation.id))}
+                                  className={`cursor-pointer transition-colors ${
+                                    isActive
+                                      ? "bg-blue-50 border-l-4 border-primary"
+                                      : "hover:bg-gray-50"
+                                  }`}
+                                >
+                                  <td className="px-3 py-3">
+                                    <div className="flex items-center gap-2">
+                                      {/* Avatar */}
+                                      <div className="flex-shrink-0 relative">
+                                        {conversation.customer_avatar ? (
+                                          <Image
+                                            src={conversation.customer_avatar}
+                                            alt={conversation.customer_name}
+                                            width={32}
+                                            height={32}
+                                            className="h-8 w-8 rounded-full object-cover"
+                                            unoptimized
+                                          />
+                                        ) : (
+                                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-xs font-medium text-primary">
+                                            {conversation.customer_name.charAt(0).toUpperCase()}
+                                          </div>
+                                        )}
+                                        {unread && (
+                                          <span className="absolute -top-0.5 -right-0.5 inline-flex h-2.5 w-2.5 rounded-full bg-blue-600 border-2 border-white" />
+                                        )}
+                                      </div>
+                                      <div className="min-w-0 flex-1">
+                                        <p className="text-xs font-medium text-gray-900 truncate">{conversation.customer_name}</p>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="px-3 py-3">
+                                    <p className="text-xs text-gray-600 truncate max-w-[200px]" title={conversation.last_message || "No messages"}>
+                                      {conversation.last_message || "No messages"}
+                                    </p>
+                                  </td>
+                                  <td className="px-3 py-3">
+                                    <span className="text-xs text-gray-500">{formatTime(conversation.last_message_at)}</span>
+                                  </td>
+                                  <td className="px-3 py-3 text-center">
+                                    <div className="flex items-center justify-center gap-1.5">
+                                      {unread && (
+                                        <span className="inline-flex h-2 w-2 rounded-full bg-blue-600" />
+                                      )}
+                                      <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
+                                        conversation.status === "active" 
+                                          ? "bg-green-100 text-green-700" 
+                                          : conversation.status === "resolved"
+                                          ? "bg-gray-100 text-gray-700"
+                                          : "bg-yellow-100 text-yellow-700"
+                                      }`}>
+                                        {conversation.status === "active" ? "Active" : conversation.status === "resolved" ? "Resolved" : "Archived"}
+                                      </span>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   );
                 })}
               </div>

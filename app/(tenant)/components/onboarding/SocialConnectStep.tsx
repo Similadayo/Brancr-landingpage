@@ -247,7 +247,7 @@ export function SocialConnectStep({
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-gray-900">{platform.name}</h3>
+                    <h3 className="text-sm font-bold text-gray-900">{platform.name}</h3>
                       {platform.id === 'instagram_login' && (
                         <span className="inline-flex items-center rounded-full bg-blue-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-blue-700">
                           No Page Required
@@ -259,11 +259,11 @@ export function SocialConnectStep({
                 </div>
                 {isConnected && (
                   <div className="flex flex-col items-end gap-1">
-                    <div className="flex items-center gap-1.5 rounded-full bg-emerald-500 px-2.5 py-1 shadow-sm">
-                      <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-[10px] font-bold text-white">Connected</span>
+                  <div className="flex items-center gap-1.5 rounded-full bg-emerald-500 px-2.5 py-1 shadow-sm">
+                    <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-[10px] font-bold text-white">Connected</span>
                     </div>
                     {platform.id === 'instagram' && isConnected && (
                       <span className="text-[9px] font-medium text-gray-500">via Facebook</span>
