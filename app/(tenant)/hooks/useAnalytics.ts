@@ -3,98 +3,122 @@
 import { useQuery } from "@tanstack/react-query";
 import { ApiError, tenantApi } from "@/lib/api";
 
-export type AnalyticsSnapshot = {
-  kpis: Array<{ label: string; value: string; delta: string }>;
-  channelVolume: Array<{ channel: string; value: number }>;
-  campaignPerformance: Array<{ name: string; open: number; click: number }>;
-  responseDistribution: Array<{ label: string; value: number }>;
-  teamLeaderboard: Array<{ name: string; summary: string }>;
-};
-
-const FALLBACK_ANALYTICS: AnalyticsSnapshot = {
-  kpis: [
-    { label: "Conversations handled", value: "1,248", delta: "+18% vs previous period" },
-    { label: "Avg response time", value: "2m 45s", delta: "-32% faster" },
-    { label: "Campaign CTR", value: "28%", delta: "+6 points" },
-    { label: "AI assisted replies", value: "54%", delta: "+11% adoption" },
-  ],
-  channelVolume: [
-    { channel: "WhatsApp", value: 58 },
-    { channel: "Instagram", value: 22 },
-    { channel: "Facebook", value: 14 },
-    { channel: "TikTok", value: 6 },
-  ],
-  campaignPerformance: [
-    { name: "Welcome Flow", open: 84, click: 52 },
-    { name: "Restock Alert", open: 76, click: 33 },
-    { name: "VIP Broadcast", open: 68, click: 41 },
-    { name: "Giveaway", open: 62, click: 28 },
-  ],
-  responseDistribution: [
-    { label: "< 1 minute", value: 41 },
-    { label: "1 – 5 minutes", value: 33 },
-    { label: "5 – 15 minutes", value: 16 },
-    { label: "> 15 minutes", value: 10 },
-  ],
-  teamLeaderboard: [
-    { name: "Seyi", summary: "312 conversations • 2m avg response" },
-    { name: "Ada", summary: "274 conversations • 3m avg response" },
-    { name: "Tunde", summary: "198 conversations • 4m avg response" },
-    { name: "New Agent", summary: "Onboarding • 6m avg response" },
-  ],
-};
+export interface AnalyticsResponse {
+  summary: {
+    scheduled_posts: number;
+    posted: number;
+    conversations: number;
+    interactions: number;
+    has_data: boolean;
+  };
+  engagement: {
+    total_impressions: number;
+    total_reach: number;
+    total_likes: number;
+    total_comments: number;
+    total_shares: number;
+    avg_engagement_rate: number;
+    posts_with_analytics: number;
+  };
+  response_distribution: {
+    auto_reply: { count: number; percentage: number };
+    manual: { count: number; percentage: number };
+    escalated: { count: number; percentage: number };
+  };
+  response_time_distribution: {
+    data: {
+      under_1_min: { count: number; percentage: number };
+      "1_to_5_min": { count: number; percentage: number };
+      "5_to_15_min": { count: number; percentage: number };
+      over_15_min: { count: number; percentage: number };
+    };
+    has_data: boolean;
+    total: number;
+  };
+  volume_by_channel: {
+    data: Array<{
+      platform: string;
+      count: number;
+      percentage: number;
+    }>;
+    has_data: boolean;
+    total: number;
+  };
+  platforms: Array<{
+    platform: string;
+    posts: number;
+    conversations: number;
+    impressions: number;
+    reach: number;
+    likes: number;
+    comments: number;
+    shares: number;
+    engagement_rate: number;
+  }>;
+  date_range: {
+    start: string;
+    end: string;
+  };
+}
 
 export function useAnalytics(filters?: { platform?: string; start_date?: string; end_date?: string }) {
-  return useQuery<AnalyticsSnapshot, Error>({
+  return useQuery<AnalyticsResponse, Error>({
     queryKey: ["analytics", filters],
     queryFn: async () => {
       try {
-        const response = await tenantApi.analytics(filters);
-        
-        // Transform API response to match AnalyticsSnapshot
-        const platformBreakdown = (response?.platform_breakdown || []).map((p) => ({
-          channel: p.platform || "Unknown",
-          value: p.conversations || 0,
-        }));
-
-        // Build KPIs from API response with safe defaults
-        const kpis: AnalyticsSnapshot["kpis"] = [
-          {
-            label: "Scheduled posts",
-            value: (response?.scheduled_posts_count ?? 0).toString(),
-            delta: "",
-          },
-          {
-            label: "Posted",
-            value: (response?.posted_count ?? 0).toString(),
-            delta: "",
-          },
-          {
-            label: "Conversations",
-            value: (response?.conversations_count ?? 0).toString(),
-            delta: "",
-          },
-          {
-            label: "Interactions",
-            value: (response?.interactions_count ?? 0).toString(),
-            delta: "",
-          },
-        ];
-
-        return {
-          kpis,
-          channelVolume: platformBreakdown,
-          campaignPerformance: FALLBACK_ANALYTICS.campaignPerformance, // Not in API yet
-          responseDistribution: FALLBACK_ANALYTICS.responseDistribution, // Not in API yet
-          teamLeaderboard: FALLBACK_ANALYTICS.teamLeaderboard, // Not in API yet
-        };
+        return await tenantApi.analytics(filters);
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
-          return FALLBACK_ANALYTICS;
+          // Return empty structure when no data
+          const today = new Date().toISOString().split('T')[0];
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          return {
+            summary: {
+              scheduled_posts: 0,
+              posted: 0,
+              conversations: 0,
+              interactions: 0,
+              has_data: false,
+            },
+            engagement: {
+              total_impressions: 0,
+              total_reach: 0,
+              total_likes: 0,
+              total_comments: 0,
+              total_shares: 0,
+              avg_engagement_rate: 0,
+              posts_with_analytics: 0,
+            },
+            response_distribution: {
+              auto_reply: { count: 0, percentage: 0 },
+              manual: { count: 0, percentage: 0 },
+              escalated: { count: 0, percentage: 0 },
+            },
+            response_time_distribution: {
+              data: {
+                under_1_min: { count: 0, percentage: 0 },
+                "1_to_5_min": { count: 0, percentage: 0 },
+                "5_to_15_min": { count: 0, percentage: 0 },
+                over_15_min: { count: 0, percentage: 0 },
+              },
+              has_data: false,
+              total: 0,
+            },
+            volume_by_channel: {
+              data: [],
+              has_data: false,
+              total: 0,
+            },
+            platforms: [],
+            date_range: {
+              start: thirtyDaysAgo.toISOString().split('T')[0],
+              end: today,
+            },
+          };
         }
         throw error;
       }
     },
   });
 }
-

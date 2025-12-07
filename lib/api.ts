@@ -302,17 +302,61 @@ export const tenantApi = {
         ).toString()}`
       : "";
     return get<{
-      scheduled_posts_count: number;
-      posted_count: number;
-      conversations_count: number;
-      interactions_count: number;
-      platform_breakdown: Array<{
-        platform: string;
+      summary: {
         scheduled_posts: number;
         posted: number;
         conversations: number;
         interactions: number;
+        has_data: boolean;
+      };
+      engagement: {
+        total_impressions: number;
+        total_reach: number;
+        total_likes: number;
+        total_comments: number;
+        total_shares: number;
+        avg_engagement_rate: number;
+        posts_with_analytics: number;
+      };
+      response_distribution: {
+        auto_reply: { count: number; percentage: number };
+        manual: { count: number; percentage: number };
+        escalated: { count: number; percentage: number };
+      };
+      response_time_distribution: {
+        data: {
+          under_1_min: { count: number; percentage: number };
+          "1_to_5_min": { count: number; percentage: number };
+          "5_to_15_min": { count: number; percentage: number };
+          over_15_min: { count: number; percentage: number };
+        };
+        has_data: boolean;
+        total: number;
+      };
+      volume_by_channel: {
+        data: Array<{
+          platform: string;
+          count: number;
+          percentage: number;
+        }>;
+        has_data: boolean;
+        total: number;
+      };
+      platforms: Array<{
+        platform: string;
+        posts: number;
+        conversations: number;
+        impressions: number;
+        reach: number;
+        likes: number;
+        comments: number;
+        shares: number;
+        engagement_rate: number;
       }>;
+      date_range: {
+        start: string;
+        end: string;
+      };
     }>(`/api/tenant/analytics${query}`);
   },
 
