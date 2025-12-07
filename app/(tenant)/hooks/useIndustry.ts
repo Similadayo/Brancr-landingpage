@@ -60,14 +60,16 @@ export function useSetTenantIndustry() {
       return tenantApi.setTenantIndustry({ industry_id: industryId });
     },
     onSuccess: (data) => {
-      toast.success(`Industry set to ${data.industry.name}`);
+      toast.success(`Industry updated to ${data.industry.name}`);
+      // Invalidate industry query to refresh capabilities
       void queryClient.invalidateQueries({ queryKey: ["tenant-industry"] });
+      // Navigation will automatically update based on new capabilities
     },
     onError: (error) => {
       if (error instanceof ApiError) {
         toast.error(error.message);
       } else {
-        toast.error("Failed to set industry");
+        toast.error("Failed to update industry");
       }
     },
   });

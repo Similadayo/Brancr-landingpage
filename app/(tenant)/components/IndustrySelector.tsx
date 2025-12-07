@@ -18,11 +18,7 @@ export function IndustrySelector({ onSelect, showDescription = true, allowChange
   const [selectedId, setSelectedId] = useState<number | null>(currentIndustry?.industry_id || null);
 
   const handleSelect = async (industryId: number) => {
-    if (!allowChange && currentIndustry?.industry_id) {
-      toast.error("Industry cannot be changed after initial selection");
-      return;
-    }
-
+    // Always allow changing industry - no restrictions
     setSelectedId(industryId);
     
     try {
@@ -72,12 +68,12 @@ export function IndustrySelector({ onSelect, showDescription = true, allowChange
               key={industry.id}
               type="button"
               onClick={() => handleSelect(industry.id)}
-              disabled={!allowChange && !isCurrent}
+              disabled={false}
               className={`relative rounded-xl border-2 p-6 text-left transition-all ${
                 isSelected
                   ? "border-primary bg-primary/5 shadow-md"
                   : "border-gray-200 bg-white hover:border-primary/50 hover:shadow-sm"
-              } ${!allowChange && !isCurrent ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+              } cursor-pointer`}
             >
               {isCurrent && (
                 <div className="absolute right-3 top-3">

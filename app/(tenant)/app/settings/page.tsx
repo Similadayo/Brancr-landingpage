@@ -269,8 +269,10 @@ export default function SettingsPage() {
                 showDescription={true}
                 allowChange={true}
                 onSelect={(industryId) => {
-                  toast.success("Industry updated successfully");
+                  // Industry updated - invalidate all related queries to refresh UI
                   void queryClient.invalidateQueries({ queryKey: ["tenant-industry"] });
+                  // Navigation will automatically update based on new capabilities
+                  toast.success("Industry updated successfully. Navigation will refresh automatically.");
                 }}
               />
             </div>
