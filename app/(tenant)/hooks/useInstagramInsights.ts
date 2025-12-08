@@ -32,19 +32,23 @@ export interface MediaInsightsResponse {
 }
 
 export function useInstagramAccountInsights(
-  metrics: string[] = ['reach', 'profile_views', 'follower_count'],
+  metrics: string[] = [], // Empty = use backend defaults
   period: 'day' | 'week' | 'days_28' | 'lifetime' = 'day',
   save: boolean = false
 ) {
   return useQuery<AccountInsightsResponse, Error>({
-    queryKey: ['instagram-account-insights', metrics.join(','), period, save],
+    queryKey: ['instagram-account-insights', metrics.length > 0 ? metrics.join(',') : 'defaults', period, save],
     queryFn: async () => {
       try {
-        return await tenantApi.getInstagramAccountInsights({
-          metrics: metrics.join(','),
+        // If metrics array is empty, don't pass metrics param - let backend use defaults
+        const params: { period?: 'day' | 'week' | 'days_28' | 'lifetime'; save?: boolean; metrics?: string } = {
           period,
           save,
-        });
+        };
+        if (metrics.length > 0) {
+          params.metrics = metrics.join(',');
+        }
+        return await tenantApi.getInstagramAccountInsights(params);
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
           throw new Error('Instagram account not connected');

@@ -2060,7 +2060,10 @@ export const tenantApi = {
     save?: boolean;
   }) => {
     const queryParams = new URLSearchParams();
-    if (params?.metrics) queryParams.append('metrics', params.metrics);
+    // Only add metrics if provided (let backend use defaults if not specified)
+    if (params?.metrics && params.metrics.trim()) {
+      queryParams.append('metrics', params.metrics);
+    }
     if (params?.period) queryParams.append('period', params.period);
     if (params?.save !== undefined) queryParams.append('save', params.save.toString());
     return get<{
