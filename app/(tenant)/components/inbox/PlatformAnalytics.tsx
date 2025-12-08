@@ -13,13 +13,10 @@ export function PlatformAnalytics({ platform }: PlatformAnalyticsProps) {
   const isFacebook = platform.toLowerCase() === 'facebook';
 
   // For now, only Instagram has insights API
-  // Let backend use its default metrics (adjusted based on login method)
-  // Backend defaults:
-  // - Instagram Login: reach, profile_views, follower_count
-  // - Facebook Login: reach, follower_count, profile_views
-  // If we pass metrics explicitly, backend will use those if available
+  // Explicitly request the metrics we want to display
+  // Backend will return only available metrics for the account
   const { data: instagramData, isLoading: instagramLoading, error: instagramError } = useInstagramAccountInsights(
-    [], // Empty array = let backend use defaults
+    ['reach', 'profile_views', 'follower_count'], // Request all three metrics
     'day',
     true
   );
@@ -70,8 +67,9 @@ export function PlatformAnalytics({ platform }: PlatformAnalyticsProps) {
     if (typeof window !== 'undefined' && instagramData.insights) {
       console.log('Instagram Insights received:', {
         count: instagramData.insights.length,
-        metrics: instagramData.insights.map(m => m.name),
+        metrics: instagramData.insights.map(m => ({ name: m.name, title: m.title, values: m.values.length })),
         period: instagramData.period,
+        account_id: instagramData.account_id,
       });
     }
 
