@@ -18,6 +18,10 @@ const METRIC_TRANSLATIONS: Record<string, { title: string; description: string }
     title: 'Profile Views',
     description: 'Number of times your profile has been viewed',
   },
+  follower_count: {
+    title: 'Followers',
+    description: 'Total number of followers on your account',
+  },
   engagement: {
     title: 'Engagement',
     description: 'Total number of likes, comments, and shares on your content',
@@ -34,6 +38,26 @@ const METRIC_TRANSLATIONS: Record<string, { title: string; description: string }
     title: 'Saved',
     description: 'Number of times your content has been saved',
   },
+  shares: {
+    title: 'Shares',
+    description: 'Number of times your content has been shared',
+  },
+  views: {
+    title: 'Views',
+    description: 'Number of times your content has been viewed',
+  },
+  profile_links_taps: {
+    title: 'Profile Link Taps',
+    description: 'Number of times users tapped the profile link in your content',
+  },
+  threads_likes: {
+    title: 'Threads Likes',
+    description: 'Number of likes on your Threads posts',
+  },
+  threads_replies: {
+    title: 'Threads Replies',
+    description: 'Number of replies on your Threads posts',
+  },
   // Dutch translations (common case)
   bereik: {
     title: 'Reach',
@@ -46,6 +70,10 @@ const METRIC_TRANSLATIONS: Record<string, { title: string; description: string }
   weergaven: {
     title: 'Profile Views',
     description: 'Number of times your profile has been viewed',
+  },
+  volgers: {
+    title: 'Followers',
+    description: 'Total number of followers on your account',
   },
   betrokkenheid: {
     title: 'Engagement',

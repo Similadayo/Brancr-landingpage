@@ -32,7 +32,7 @@ export interface MediaInsightsResponse {
 }
 
 export function useInstagramAccountInsights(
-  metrics: string[] = ['impressions', 'reach', 'profile_views'],
+  metrics: string[] = ['reach', 'profile_views', 'follower_count'],
   period: 'day' | 'week' | 'days_28' | 'lifetime' = 'day',
   save: boolean = false
 ) {
@@ -59,7 +59,7 @@ export function useInstagramAccountInsights(
 
 export function useInstagramMediaInsights(
   mediaId: string | null,
-  metrics: string[] = ['engagement', 'impressions', 'reach'],
+  metrics: string[] = ['likes', 'comments', 'shares', 'saves'],
   period: 'day' | 'week' | 'days_28' | 'lifetime' = 'lifetime',
   save: boolean = false
 ) {

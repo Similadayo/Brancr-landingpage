@@ -11,7 +11,7 @@ interface AccountInsightsProps {
 
 export function AccountInsights({ 
   period = 'day', 
-  metrics = ['impressions', 'reach', 'profile_views'],
+  metrics = ['reach', 'profile_views', 'follower_count'],
   save = true 
 }: AccountInsightsProps) {
   const { data, isLoading, error } = useInstagramAccountInsights(metrics, period, save);

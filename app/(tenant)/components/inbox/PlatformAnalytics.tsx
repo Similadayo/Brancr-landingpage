@@ -13,8 +13,10 @@ export function PlatformAnalytics({ platform }: PlatformAnalyticsProps) {
   const isFacebook = platform.toLowerCase() === 'facebook';
 
   // For now, only Instagram has insights API
+  // Using default metrics: reach, profile_views, follower_count
+  // (Backend will adjust defaults based on login method: Instagram Login vs Facebook Login)
   const { data: instagramData, isLoading: instagramLoading, error: instagramError } = useInstagramAccountInsights(
-    ['impressions', 'reach', 'profile_views'],
+    ['reach', 'profile_views', 'follower_count'],
     'day',
     true
   );
