@@ -13,8 +13,8 @@ import {
   useSuggestReplies
 } from "@/app/(tenant)/hooks/useConversations";
 import type { Message, ConversationDetail, ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
+import { AccountInsights } from "../../components/insights/AccountInsights";
 import { MediaInsights } from "../../components/insights/MediaInsights";
-import { PlatformAnalytics } from "../../components/inbox/PlatformAnalytics";
 import {
   InboxIcon,
   MagnifyingGlassIcon,
@@ -41,7 +41,7 @@ export default function InboxPage() {
   const [selectedConversationId, setSelectedConversationId] = useState<string>("");
   const [replyText, setReplyText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [mobileView, setMobileView] = useState<"list" | "chat" | "analytics">("list");
+  const [mobileView, setMobileView] = useState<"list" | "chat">("list");
   const [readConversationIds, setReadConversationIds] = useState<Set<number>>(new Set());
 
   // Build filters for API
@@ -159,18 +159,18 @@ export default function InboxPage() {
 
   const handleConversationSelect = (id: string) => {
     setSelectedConversationId(id);
-
+    
     // Mark conversation as read when opened
     const conversationId = Number(id);
     if (conversationId && !readConversationIds.has(conversationId)) {
       setReadConversationIds((prev) => new Set([...prev, conversationId]));
-
+      
       // Optimistically update the conversation cache to set unread_count to 0
       queryClient.setQueryData<ConversationSummary[]>(
         ["conversations", apiFilters],
         (oldData) => {
           if (!oldData || !Array.isArray(oldData)) return oldData;
-
+          
           return oldData.map((conv) => {
             if (Number(conv.id) === conversationId) {
               return { ...conv, unread_count: 0 };
@@ -184,11 +184,9 @@ export default function InboxPage() {
       void queryClient.invalidateQueries({ queryKey: ["conversations"] });
     }
     
-    // Switch to chat view on mobile
     if (typeof window !== "undefined" && window.innerWidth < 768) {
       setMobileView("chat");
     }
-    // On desktop, keep showing all panels (mobileView stays "list")
   };
 
   const formatTime = (dateString: string) => {
@@ -208,21 +206,18 @@ export default function InboxPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-10rem)] md:h-[calc(100vh-8rem)] overflow-hidden">
-      {/* Header - Fixed */}
-      <div className="flex-shrink-0 space-y-4 mb-4">
-        <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 lg:text-4xl">Inbox</h1>
-            <p className="mt-1 md:mt-2 text-xs md:text-sm text-gray-600">
-              Respond to messages, set up automations and more.
-            </p>
+    <div className="h-[calc(100vh-120px)] -mx-4 -mt-2 -mb-8 overflow-hidden bg-white w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] md:-mx-6">
+      {/* Top Header with Platform Filters */}
+      <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3 md:px-6">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">Inbox</h1>
+              <p className="text-sm text-gray-600 mt-0.5">Respond to messages, set up automations and more.</p>
+            </div>
           </div>
-        </header>
-
-        {/* Platform Filters */}
-        <div className="rounded-xl border border-gray-200 bg-white p-3 md:p-4 md:shadow-sm sm:p-6">
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          {/* Platform Filters - Top Navigation - Always show all platforms */}
+          <div className="flex gap-2 overflow-x-auto pb-1">
             <button
               className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
                 activePlatformFilter === "All"
@@ -276,15 +271,15 @@ export default function InboxPage() {
           </div>
         </div>
       </div>
-
+      
       {/* Main Content - Three Panel Layout */}
-      <div className="flex-1 min-h-0 grid gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="grid h-[calc(100%-120px)] gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
         {/* Left Panel - Conversation List */}
         <section className={`flex flex-col h-full border-r border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
-          (mobileView === "chat" || mobileView === "analytics") ? "hidden md:flex" : "flex"
+          mobileView === "chat" ? "hidden md:flex" : "flex"
         }`}>
           {/* Status Tabs */}
-          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
+          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
             <div className="flex gap-1">
               {STATUS_FILTERS.map((tab) => {
                 const isActive = activeStatusFilter === tab || (tab === "All" && activeStatusFilter === "All");
@@ -306,7 +301,7 @@ export default function InboxPage() {
           </div>
           
           {/* Search */}
-          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
+          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
             <div className="relative">
               <MagnifyingGlassIcon className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <input
@@ -414,12 +409,19 @@ export default function InboxPage() {
 
         {/* Right Panel - Chat Conversation */}
         <section className={`flex h-full flex-col bg-white border-l border-gray-200 transition-transform duration-300 overflow-hidden ${
-          mobileView === "list" || mobileView === "analytics" ? "hidden md:flex" : "flex"
+          mobileView === "list" ? "hidden md:flex" : "flex"
         }`}>
           {activeConversation ? (
             <>
+              {/* Instagram Account Insights - Show for Instagram conversations */}
+              {activeConversation?.platform.toLowerCase() === 'instagram' && (
+                <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
+                  <AccountInsights period="day" save={true} />
+                </div>
+              )}
+
               {/* Chat Header - Fixed */}
-              <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 sm:px-6 z-10">
+              <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 z-10">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back button - Mobile only */}
                   {mobileView === "chat" && (
@@ -433,55 +435,39 @@ export default function InboxPage() {
                       </svg>
                     </button>
                   )}
-                  {/* Clickable name to open analytics on mobile */}
-                  <button
-                    onClick={() => {
-                      if (typeof window !== "undefined" && window.innerWidth < 768) {
-                        setMobileView("analytics");
-                      }
-                    }}
-                    className="flex items-center gap-3 flex-1 min-w-0 md:pointer-events-none"
-                  >
-                    {activeConversation.customer_avatar ? (
-                      <Image
-                        src={activeConversation.customer_avatar}
-                        alt={activeConversation.customer_name}
-                        width={40}
-                        height={40}
-                        className="h-10 w-10 rounded-full object-cover flex-shrink-0"
-                        unoptimized
-                      />
-                    ) : (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-medium text-primary flex-shrink-0">
-                        {activeConversation.customer_name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h2 className="text-base font-semibold text-gray-900 truncate">{activeConversation.customer_name}</h2>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        {(() => {
-                          const platform = activeConversation.platform.toLowerCase();
-                          const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
-                                             platform === "instagram" ? InstagramIcon :
-                                             platform === "facebook" ? FacebookIcon :
-                                             platform === "telegram" ? TelegramIcon :
-                                             AllMessagesIcon;
-                          return (
-                            <>
-                              <PlatformIcon className="h-4 w-4 text-gray-600" />
-                              <span className="text-xs text-gray-500 capitalize">{activeConversation.platform}</span>
-                            </>
-                          );
-                        })()}
-                      </div>
+                  {activeConversation.customer_avatar ? (
+                    <Image
+                      src={activeConversation.customer_avatar}
+                      alt={activeConversation.customer_name}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-full object-cover flex-shrink-0"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-medium text-primary flex-shrink-0">
+                      {activeConversation.customer_name.charAt(0).toUpperCase()}
                     </div>
-                    {/* Arrow indicator on mobile */}
-                    {typeof window !== "undefined" && window.innerWidth < 768 && (
-                      <svg className="h-5 w-5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    )}
-                  </button>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-base font-semibold text-gray-900 truncate">{activeConversation.customer_name}</h2>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      {(() => {
+                        const platform = activeConversation.platform.toLowerCase();
+                        const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
+                                           platform === "instagram" ? InstagramIcon :
+                                           platform === "facebook" ? FacebookIcon :
+                                           platform === "telegram" ? TelegramIcon :
+                                           AllMessagesIcon;
+                        return (
+                          <>
+                            <PlatformIcon className="h-4 w-4 text-gray-600" />
+                            <span className="text-xs text-gray-500 capitalize">{activeConversation.platform}</span>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button 
@@ -510,7 +496,7 @@ export default function InboxPage() {
               <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0">
                 {/* Date separator */}
                 {messages.length > 0 && (
-                  <div className="px-4 py-2 text-center sm:px-6">
+                  <div className="px-4 py-2 text-center">
                     <span className="text-xs text-gray-500">
                       {new Date(messages[0].created_at).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })}
                     </span>
@@ -589,7 +575,7 @@ export default function InboxPage() {
               </div>
 
               {/* Message Input - Fixed */}
-              <div className="flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3 sm:px-6 z-10">
+              <div className="flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3 z-10">
                 <div className="flex items-end gap-2">
                   <button 
                     className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -643,34 +629,153 @@ export default function InboxPage() {
           )}
         </section>
 
-        {/* Right Panel - Platform Analytics */}
-        <aside className={`flex flex-col h-full border-l border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
-          mobileView === "analytics" ? "flex md:flex" : "hidden md:flex"
+        {/* Right Panel - Chat Details */}
+        <aside className={`hidden md:flex flex-col h-full border-l border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
+          mobileView === "list" ? "hidden" : ""
         }`}>
           {activeConversation ? (
             <>
               {/* Header - Fixed */}
-              <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
-                <div className="flex items-center gap-3">
-                  {/* Back button - Mobile only */}
-                  {mobileView === "analytics" && (
-                    <button
-                      onClick={() => setMobileView("chat")}
-                      className="flex-shrink-0 rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors md:hidden"
-                      aria-label="Back to chat"
-                    >
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                  )}
-                  <h3 className="text-sm font-semibold text-gray-900 sm:text-base">Platform Analytics</h3>
-                </div>
+              <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
+                <h3 className="text-sm font-semibold text-gray-900">Chat Details</h3>
               </div>
 
               {/* Content - Scrollable */}
-              <div className="flex-1 overflow-y-auto min-h-0 py-4 px-4 sm:px-6">
-                <PlatformAnalytics platform={activeConversation.platform} />
+              <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
+                {/* Contact Profile */}
+                <div className="mb-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    {activeConversation.customer_avatar ? (
+                      <Image
+                        src={activeConversation.customer_avatar}
+                        alt={activeConversation.customer_name}
+                        width={48}
+                        height={48}
+                        className="h-12 w-12 rounded-full object-cover flex-shrink-0"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-base font-medium text-gray-600 flex-shrink-0">
+                        {activeConversation.customer_name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900">{activeConversation.customer_name}</p>
+                      <p className="text-xs text-gray-500">+62 989-289-929</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mb-4">
+                    <button className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white hover:bg-primary/90 transition-colors">
+                      Call
+                    </button>
+                    <button className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+                      Chat
+                    </button>
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="mb-6">
+                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Contact Information</h4>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Status:</span>
+                      <select
+                        value={activeConversation.status}
+                        onChange={(e) => {
+                          const newStatus = e.target.value as "active" | "resolved" | "archived";
+                          updateStatusMutation.mutate({ status: newStatus });
+                        }}
+                        className="text-gray-900 font-medium border-0 bg-transparent focus:outline-none cursor-pointer"
+                      >
+                        <option value="active">Assigned</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="archived">Archived</option>
+                      </select>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Start chat:</span>
+                      <span className="text-gray-900 font-medium">
+                        {new Date(activeConversation.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Country:</span>
+                      <span className="text-gray-900 font-medium">Yordania</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Add Tag */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Add tag</h4>
+                    <button 
+                      className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      aria-label="Add tag"
+                    >
+                      <PlusIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {Array.isArray(activeConversation.tags) && activeConversation.tags.length > 0 ? (
+                      activeConversation.tags.map((tag: string) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700"
+                        >
+                          {tag}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-xs text-gray-500">No tags</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Assigned by */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Assigned by</h4>
+                    <button 
+                      className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      aria-label="Add assignee"
+                    >
+                      <PlusIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
+                        NA
+                      </div>
+                      <span className="text-xs text-gray-700">CS Niki Ayu</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
+                        GB
+                      </div>
+                      <span className="text-xs text-gray-700">CS Geeburn</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Add Note */}
+                <div>
+                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Add Note</h4>
+                  <textarea
+                    placeholder="Type your note here.."
+                    className="min-h-[120px] w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                    onBlur={async (e) => {
+                      const value = e.target.value.trim();
+                      if (value) {
+                        try {
+                          await updateConversationMutation.mutateAsync({ notes: value });
+                        } catch {}
+                      }
+                    }}
+                  />
+                </div>
               </div>
             </>
           ) : (
