@@ -34,6 +34,7 @@ import {
   PackageIcon,
 } from "../components/icons";
 import { OrderCard, PaymentCard } from "../components/cards";
+import { NotificationsPanel } from "../components/dashboard/NotificationsPanel";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -51,7 +52,7 @@ export default function TenantOverviewPage() {
   
   const { data: scheduledPostsData } = useScheduledPosts();
   const { data: integrationsData } = useIntegrations();
-  const { data: conversationsData } = useConversations({ limit: 10 });
+  const { data: conversationsData } = useConversations({ limit: 100 }); // Get more for unread count calculation
   const { data: escalationsData } = useEscalations({ limit: 5 });
   const { data: escalationStatsData } = useEscalationStats();
   const { data: mediaData } = useMedia({ limit: 5 });
@@ -85,6 +86,8 @@ export default function TenantOverviewPage() {
     const pendingEscalations = escalationStatsData?.pending ?? escalations.length;
     const connectedPlatforms = integrations.filter((i) => i.connected).length;
     const totalPlatforms = integrations.length || 4;
+    // Calculate unread messages
+    const unreadMessages = conversations.reduce((sum, conv) => sum + (conv.unread_count || 0), 0);
 
     return {
       totalPosts,
@@ -93,6 +96,7 @@ export default function TenantOverviewPage() {
       pendingEscalations,
       connectedPlatforms,
       totalPlatforms,
+      unreadMessages,
     };
   }, [scheduledPosts, conversations, escalations, integrations, escalationStatsData]);
 
@@ -236,6 +240,30 @@ export default function TenantOverviewPage() {
           </div>
         </div>
       </div>
+
+      {/* Notifications Panel */}
+      <NotificationsPanel
+        unreadMessages={stats.unreadMessages}
+        pendingEscalations={stats.pendingEscalations}
+        recentConversations={conversations
+          .filter((c) => (c.unread_count || 0) > 0)
+          .slice(0, 3)
+          .map((c) => ({
+            id: Number(c.id),
+            customer_name: c.customer_name || 'Unknown',
+            platform: c.platform || 'unknown',
+            unread_count: c.unread_count || 0,
+            last_message_at: c.last_message_at || c.created_at,
+          }))}
+        recentEscalations={escalations.slice(0, 3).map((e) => ({
+          id: e.id,
+          customerName: e.customerName || 'Unknown',
+          platform: e.platform || 'unknown',
+          message: e.message || '',
+          priority: e.priority || 'normal',
+          createdAt: e.createdAt,
+        }))}
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">

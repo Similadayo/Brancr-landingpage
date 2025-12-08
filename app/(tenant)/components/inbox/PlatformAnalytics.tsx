@@ -1,6 +1,7 @@
 'use client';
 
 import { useInstagramAccountInsights } from '@/app/(tenant)/hooks/useInstagramInsights';
+import { translateInstagramMetric } from '@/app/(tenant)/utils/instagramInsightsTranslations';
 import { InstagramIcon, FacebookIcon } from '../icons';
 
 interface PlatformAnalyticsProps {
@@ -81,11 +82,18 @@ export function PlatformAnalytics({ platform }: PlatformAnalyticsProps) {
               ? ((change! / previousValue.value) * 100).toFixed(1)
               : null;
 
+            // Translate to English
+            const translated = translateInstagramMetric(
+              metric.name,
+              metric.title,
+              metric.description
+            );
+
             return (
               <div key={metric.id} className="rounded-lg border border-gray-200 bg-white p-3">
                 <div className="mb-2">
-                  <h4 className="text-xs font-semibold text-gray-900">{metric.title}</h4>
-                  <p className="text-[10px] text-gray-500 mt-0.5 line-clamp-2">{metric.description}</p>
+                  <h4 className="text-xs font-semibold text-gray-900">{translated.title}</h4>
+                  <p className="text-[10px] text-gray-500 mt-0.5 line-clamp-2">{translated.description}</p>
                 </div>
                 <div className="flex items-baseline justify-between">
                   <span className="text-lg font-bold text-gray-900">
