@@ -13,7 +13,6 @@ import {
   useSuggestReplies
 } from "@/app/(tenant)/hooks/useConversations";
 import type { Message, ConversationDetail, ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
-import { AccountInsights } from "../../components/insights/AccountInsights";
 import { MediaInsights } from "../../components/insights/MediaInsights";
 import { PlatformAnalytics } from "../../components/inbox/PlatformAnalytics";
 import {
@@ -417,13 +416,6 @@ export default function InboxPage() {
         }`}>
           {activeConversation ? (
             <>
-              {/* Instagram Account Insights - Show for Instagram conversations */}
-              {activeConversation?.platform.toLowerCase() === 'instagram' && (
-                <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 sm:px-4 sm:py-3">
-                  <AccountInsights period="day" save={true} />
-                </div>
-              )}
-
               {/* Chat Header - Fixed */}
               <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 sm:px-6 z-10">
                 <div className="flex items-center gap-3 flex-1 min-w-0">

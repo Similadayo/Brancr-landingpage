@@ -49,9 +49,9 @@ export function AccountInsights({
   const periodLabel = period === 'day' ? "Today's" : period === 'week' ? "This Week's" : period === 'days_28' ? "Last 28 Days'" : "All Time";
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4 shadow-sm">
-      <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-3 sm:mb-4">{periodLabel} Performance</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+      <h3 className="text-sm font-semibold text-gray-900 mb-4">{periodLabel} Performance</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {data.insights.map((metric) => {
           const latestValue = metric.values[metric.values.length - 1];
           const previousValue = metric.values.length > 1 
