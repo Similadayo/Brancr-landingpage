@@ -273,6 +273,13 @@ export const tenantApi = {
   suggestReplies: (conversationId: string) =>
     post<undefined, { suggestions: Array<{ reply: string; tone?: string; confidence?: number }> }>(`/api/tenant/conversations/${conversationId}/suggest-replies`),
 
+  campaignStats: () =>
+    get<{
+      scheduled: number;
+      published: number;
+      draft: number;
+    }>("/api/tenant/campaigns/stats"),
+
   campaigns: () =>
     get<{
       campaigns: Array<{

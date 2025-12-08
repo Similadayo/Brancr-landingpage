@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
-import { useScheduledPosts, useCancelScheduledPost, useUpdateScheduledPost } from "@/app/(tenant)/hooks/useScheduledPosts";
+import { useScheduledPosts, useCancelScheduledPost, useUpdateScheduledPost, useCampaignStats } from "@/app/(tenant)/hooks/useScheduledPosts";
 import { tenantApi } from "@/lib/api";
 import { toast } from "react-hot-toast";
 import { useTemplates } from "@/app/(tenant)/hooks/useTemplates";
@@ -42,6 +42,7 @@ export default function CampaignsPage() {
   const [platformFilter, setPlatformFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const { data: scheduledPostsData, isLoading, error, refetch } = useScheduledPosts();
+  const { data: campaignStats } = useCampaignStats();
   const { data: templatesData } = useTemplates();
   
   const scheduledPosts = useMemo(
@@ -195,7 +196,7 @@ export default function CampaignsPage() {
           }`}
         >
           <ClockIcon className="w-4 h-4" />
-          Scheduled ({scheduled.length})
+          Scheduled ({campaignStats?.scheduled ?? scheduled.length})
         </button>
         <button
           onClick={() => setActiveTab("published")}
@@ -206,7 +207,7 @@ export default function CampaignsPage() {
           }`}
         >
           <CheckCircleIcon className="w-4 h-4" />
-          Published ({published.length})
+          Published ({campaignStats?.published ?? published.length})
         </button>
         <button
           onClick={() => setActiveTab("drafts")}
@@ -217,7 +218,7 @@ export default function CampaignsPage() {
           }`}
         >
           <DocumentTextIcon className="w-4 h-4" />
-          Drafts ({drafts.length})
+          Drafts ({campaignStats?.draft ?? drafts.length})
         </button>
       </div>
 

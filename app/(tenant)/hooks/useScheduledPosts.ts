@@ -18,6 +18,12 @@ export type ScheduledPost = {
   posted_at?: string;
 };
 
+export type CampaignStats = {
+  scheduled: number;
+  published: number;
+  draft: number;
+};
+
 export function useScheduledPosts() {
   return useQuery<ScheduledPost[], Error>({
     queryKey: ["scheduled-posts"],
@@ -99,6 +105,7 @@ export function useUpdateScheduledPost() {
       toast.success("Post updated");
       void queryClient.invalidateQueries({ queryKey: ["scheduled-posts"] });
       void queryClient.invalidateQueries({ queryKey: ["scheduled-post", variables.postId] });
+      void queryClient.invalidateQueries({ queryKey: ["campaign-stats"] });
     },
     onError: (error) => {
       if (error instanceof ApiError) {
@@ -107,6 +114,28 @@ export function useUpdateScheduledPost() {
         toast.error("Failed to update post");
       }
     },
+  });
+}
+
+export function useCampaignStats() {
+  return useQuery<CampaignStats, Error>({
+    queryKey: ["campaign-stats"],
+    queryFn: async () => {
+      try {
+        const response = await tenantApi.campaignStats();
+        return {
+          scheduled: response?.scheduled ?? 0,
+          published: response?.published ?? 0,
+          draft: response?.draft ?? 0,
+        };
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 404) {
+          return { scheduled: 0, published: 0, draft: 0 };
+        }
+        throw error;
+      }
+    },
+    refetchInterval: 60000, // Poll every minute
   });
 }
 
