@@ -12,6 +12,7 @@ import {
   useSuggestReplies
 } from "@/app/(tenant)/hooks/useConversations";
 import type { Message, ConversationDetail, ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
+import { PlatformAnalytics } from "../../components/inbox/PlatformAnalytics";
 import {
   InboxIcon,
   MagnifyingGlassIcon,
@@ -473,19 +474,41 @@ export default function InboxPage() {
           )}
         </section>
 
-        {/* Right Panel - Chat Details */}
+        {/* Right Panel - Analytics or Chat Details */}
         <aside className={`hidden md:flex flex-col h-full border-l border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
           mobileView === "list" ? "hidden" : ""
         }`}>
           {activeConversation ? (
             <>
-              {/* Header - Fixed */}
-              <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
-                <h3 className="text-sm font-semibold text-gray-900">Chat Details</h3>
-              </div>
+              {(() => {
+                const platform = activeConversation.platform?.toLowerCase() || '';
+                const showAnalytics = platform === 'instagram' || platform === 'facebook';
+                const showChatDetails = platform === 'whatsapp' || platform === 'telegram' || !showAnalytics;
 
-              {/* Content - Scrollable */}
-              <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
+                if (showAnalytics) {
+                  return (
+                    <>
+                      {/* Header - Fixed */}
+                      <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
+                        <h3 className="text-sm font-semibold text-gray-900">Platform Analytics</h3>
+                      </div>
+                      {/* Analytics Content - Scrollable */}
+                      <div className="flex-1 overflow-y-auto min-h-0">
+                        <PlatformAnalytics platform={platform} />
+                      </div>
+                    </>
+                  );
+                }
+
+                if (showChatDetails) {
+                  return (
+                    <>
+                      {/* Header - Fixed */}
+                      <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
+                        <h3 className="text-sm font-semibold text-gray-900">Chat Details</h3>
+                      </div>
+                      {/* Content - Scrollable */}
+                      <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
                 {/* Contact Profile */}
                 <div className="mb-6">
                   <div className="flex items-center gap-3 mb-4">
@@ -620,7 +643,13 @@ export default function InboxPage() {
                     }}
                   />
                 </div>
-              </div>
+                      </div>
+                    </>
+                  );
+                }
+
+                return null;
+              })()}
             </>
           ) : (
             <div className="flex flex-1 items-center justify-center">
