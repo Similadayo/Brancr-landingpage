@@ -208,20 +208,21 @@ export default function InboxPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] md:h-auto md:space-y-4 sm:space-y-6 overflow-hidden">
-      {/* Header */}
-      <header className="flex-shrink-0 flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4 md:mb-0">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 lg:text-4xl">Inbox</h1>
-          <p className="mt-1 md:mt-2 text-xs md:text-sm text-gray-600">
-            Respond to messages, set up automations and more.
-          </p>
-        </div>
-      </header>
+    <div className="flex flex-col h-[calc(100vh-10rem)] md:h-[calc(100vh-8rem)] overflow-hidden">
+      {/* Header - Fixed */}
+      <div className="flex-shrink-0 space-y-4 mb-4">
+        <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 lg:text-4xl">Inbox</h1>
+            <p className="mt-1 md:mt-2 text-xs md:text-sm text-gray-600">
+              Respond to messages, set up automations and more.
+            </p>
+          </div>
+        </header>
 
-      {/* Platform Filters */}
-      <div className="flex-shrink-0 rounded-xl border border-gray-200 bg-white p-3 md:p-4 md:shadow-sm sm:p-6 mb-4 md:mb-0">
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        {/* Platform Filters */}
+        <div className="rounded-xl border border-gray-200 bg-white p-3 md:p-4 md:shadow-sm sm:p-6">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             <button
               className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
                 activePlatformFilter === "All"
@@ -272,6 +273,7 @@ export default function InboxPage() {
                 </button>
               );
             })}
+          </div>
         </div>
       </div>
 
