@@ -209,6 +209,62 @@ export default function AnalyticsPage() {
             ))}
           </section>
 
+          {/* Engagement Metrics Section */}
+          {analytics?.engagement && analytics.engagement.posts_with_analytics > 0 && (
+            <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <TrendingUpIcon className="h-5 w-5 text-gray-400" />
+                <h2 className="text-lg font-semibold text-gray-900">Engagement Metrics</h2>
+              </div>
+              <p className="mb-6 text-xs text-gray-500">
+                Performance metrics across all published posts
+              </p>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                  <p className="text-xs font-medium text-gray-500 mb-1">Total Impressions</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {analytics.engagement.total_impressions.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {analytics.engagement.posts_with_analytics} posts
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                  <p className="text-xs font-medium text-gray-500 mb-1">Total Reach</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {analytics.engagement.total_reach.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Unique accounts</p>
+                </div>
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                  <p className="text-xs font-medium text-gray-500 mb-1">Avg Engagement Rate</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {analytics.engagement.avg_engagement_rate.toFixed(2)}%
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Across all posts</p>
+                </div>
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                  <p className="text-xs font-medium text-gray-500 mb-1">Total Likes</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {analytics.engagement.total_likes.toLocaleString()}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                  <p className="text-xs font-medium text-gray-500 mb-1">Total Comments</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {analytics.engagement.total_comments.toLocaleString()}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                  <p className="text-xs font-medium text-gray-500 mb-1">Total Shares</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {analytics.engagement.total_shares.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* Charts Section */}
           <section className="grid gap-6 lg:grid-cols-2">
             {/* Volume by Channel */}
