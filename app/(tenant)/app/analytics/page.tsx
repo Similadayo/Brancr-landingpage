@@ -210,15 +210,15 @@ export default function AnalyticsPage() {
           </section>
 
           {/* Engagement Metrics Section */}
-          {analytics?.engagement && analytics.engagement.posts_with_analytics > 0 && (
-            <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <TrendingUpIcon className="h-5 w-5 text-gray-400" />
-                <h2 className="text-lg font-semibold text-gray-900">Engagement Metrics</h2>
-              </div>
-              <p className="mb-6 text-xs text-gray-500">
-                Performance metrics across all published posts
-              </p>
+          <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUpIcon className="h-5 w-5 text-gray-400" />
+              <h2 className="text-lg font-semibold text-gray-900">Engagement Metrics</h2>
+            </div>
+            <p className="mb-6 text-xs text-gray-500">
+              Performance metrics across all published posts
+            </p>
+            {analytics?.engagement && analytics.engagement.posts_with_analytics > 0 ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                   <p className="text-xs font-medium text-gray-500 mb-1">Total Impressions</p>
@@ -262,8 +262,13 @@ export default function AnalyticsPage() {
                   </p>
                 </div>
               </div>
-            </section>
-          )}
+            ) : (
+              <EmptyState
+                message="No engagement data available yet"
+                hint="Engagement metrics will appear after your posts receive views, likes, and comments"
+              />
+            )}
+          </section>
 
           {/* Charts Section */}
           <section className="grid gap-6 lg:grid-cols-2">
