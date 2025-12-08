@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { useQueryClient } from "@tanstack/react-query";
 import { useTenant } from "../../providers/TenantProvider";
 import { 
   useConversations, 
@@ -13,8 +12,6 @@ import {
   useSuggestReplies
 } from "@/app/(tenant)/hooks/useConversations";
 import type { Message, ConversationDetail, ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
-import { AccountInsights } from "../../components/insights/AccountInsights";
-import { MediaInsights } from "../../components/insights/MediaInsights";
 import {
   InboxIcon,
   MagnifyingGlassIcon,
@@ -30,23 +27,19 @@ import {
 } from "../../components/icons";
 
 const STATUS_FILTERS = ["All", "Unsigned", "Assigned", "Resolved"];
-const ALL_PLATFORMS = ['whatsapp', 'instagram', 'facebook', 'telegram', 'tiktok', 'email'];
 
 export default function InboxPage() {
   const { tenant } = useTenant();
-  const queryClient = useQueryClient();
   const [activeStatusFilter, setActiveStatusFilter] = useState<string>("All");
-  const [activePlatformFilter, setActivePlatformFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedConversationId, setSelectedConversationId] = useState<string>("");
   const [replyText, setReplyText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [mobileView, setMobileView] = useState<"list" | "chat">("list");
-  const [readConversationIds, setReadConversationIds] = useState<Set<number>>(new Set());
 
   // Build filters for API
   const apiFilters = useMemo(() => {
-    const filters: { status?: string; search?: string; platform?: string } = {};
+    const filters: { status?: string; search?: string } = {};
     if (activeStatusFilter !== "All") {
       const statusMap: Record<string, string> = {
         "Unsigned": "active",
@@ -55,59 +48,17 @@ export default function InboxPage() {
       };
       filters.status = statusMap[activeStatusFilter] || activeStatusFilter.toLowerCase();
     }
-    if (activePlatformFilter !== "All") {
-      filters.platform = activePlatformFilter.toLowerCase();
-    }
     if (searchQuery.trim()) {
       filters.search = searchQuery.trim();
     }
     return filters;
-  }, [activeStatusFilter, activePlatformFilter, searchQuery]);
+  }, [activeStatusFilter, searchQuery]);
 
   const { data: conversationsData, isLoading, error } = useConversations(apiFilters);
   
   const conversations = useMemo(() => {
     return Array.isArray(conversationsData) ? conversationsData : [];
   }, [conversationsData]);
-
-  // Get available platforms from conversations with unread counts
-  // Always show all platforms, even if they have no conversations
-  const availablePlatforms = useMemo(() => {
-    const platformMap = new Map<string, number>();
-    
-    // Initialize all platforms with 0 unread
-    ALL_PLATFORMS.forEach((platform) => {
-      platformMap.set(platform, 0);
-    });
-    
-    // Update with actual unread counts from conversations
-    if (conversations && conversations.length > 0) {
-      conversations.forEach((conv) => {
-        if (conv.platform) {
-          const platform = conv.platform.toLowerCase();
-          const currentCount = platformMap.get(platform) || 0;
-          platformMap.set(platform, currentCount + (conv.unread_count || 0));
-        }
-      });
-    }
-    
-    return Array.from(platformMap.entries())
-      .map(([platform, unreadCount]) => ({ platform, unreadCount }))
-      .sort((a, b) => {
-        // Keep order: whatsapp, instagram, facebook, telegram, tiktok, email
-        const orderA = ALL_PLATFORMS.indexOf(a.platform);
-        const orderB = ALL_PLATFORMS.indexOf(b.platform);
-        if (orderA !== -1 && orderB !== -1) return orderA - orderB;
-        if (orderA !== -1) return -1;
-        if (orderB !== -1) return 1;
-        return a.platform.localeCompare(b.platform);
-      });
-  }, [conversations]);
-
-  // Calculate total unread count
-  const totalUnreadCount = useMemo(() => {
-    return conversations.reduce((sum, conv) => sum + (conv.unread_count || 0), 0);
-  }, [conversations]);
 
   // Sort conversations by last message time
   const sortedConversations = useMemo(() => {
@@ -159,31 +110,6 @@ export default function InboxPage() {
 
   const handleConversationSelect = (id: string) => {
     setSelectedConversationId(id);
-    
-    // Mark conversation as read when opened
-    const conversationId = Number(id);
-    if (conversationId && !readConversationIds.has(conversationId)) {
-      setReadConversationIds((prev) => new Set([...prev, conversationId]));
-      
-      // Optimistically update the conversation cache to set unread_count to 0
-      queryClient.setQueryData<ConversationSummary[]>(
-        ["conversations", apiFilters],
-        (oldData) => {
-          if (!oldData || !Array.isArray(oldData)) return oldData;
-          
-          return oldData.map((conv) => {
-            if (Number(conv.id) === conversationId) {
-              return { ...conv, unread_count: 0 };
-            }
-            return conv;
-          });
-        }
-      );
-      
-      // Invalidate to sync with backend
-      void queryClient.invalidateQueries({ queryKey: ["conversations"] });
-    }
-    
     if (typeof window !== "undefined" && window.innerWidth < 768) {
       setMobileView("chat");
     }
@@ -207,78 +133,13 @@ export default function InboxPage() {
 
   return (
     <div className="h-[calc(100vh-120px)] -mx-4 -mt-2 -mb-8 overflow-hidden bg-white w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] md:-mx-6">
-      {/* Top Header with Platform Filters */}
-      <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3 md:px-6">
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">Inbox</h1>
-              <p className="text-sm text-gray-600 mt-0.5">Respond to messages, set up automations and more.</p>
-            </div>
-          </div>
-          {/* Platform Filters - Top Navigation - Always show all platforms */}
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            <button
-              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 whitespace-nowrap ${
-                activePlatformFilter === "All"
-                  ? "bg-blue-100 text-gray-900"
-                  : "bg-white text-gray-600 hover:bg-gray-50"
-              }`}
-              onClick={() => setActivePlatformFilter("All")}
-            >
-              All messages
-              {totalUnreadCount > 0 && (
-                <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-xs font-semibold text-white">
-                  {totalUnreadCount}
-                </span>
-              )}
-            </button>
-            {availablePlatforms.map(({ platform, unreadCount }) => {
-              const isActive = activePlatformFilter.toLowerCase() === platform.toLowerCase();
-              const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
-                                 platform === "instagram" ? InstagramIcon :
-                                 platform === "facebook" ? FacebookIcon :
-                                 platform === "telegram" ? TelegramIcon :
-                                 AllMessagesIcon;
-              const platformName = platform === "whatsapp" ? "WhatsApp" :
-                                 platform === "instagram" ? "Instagram" :
-                                 platform === "facebook" ? "Messenger" :
-                                 platform === "telegram" ? "Telegram" :
-                                 platform === "tiktok" ? "TikTok" :
-                                 platform === "email" ? "Email" :
-                                 platform.charAt(0).toUpperCase() + platform.slice(1);
-              
-              return (
-                <button
-                  key={platform}
-                  className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-2 relative whitespace-nowrap ${
-                    isActive
-                      ? "bg-blue-100 text-gray-900"
-                      : "bg-white text-gray-600 hover:bg-gray-50"
-                  }`}
-                  onClick={() => setActivePlatformFilter(platform)}
-                >
-                  <PlatformIcon className="h-4 w-4" />
-                  {platformName}
-                  {unreadCount > 0 && (
-                    <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-xs font-semibold text-white">
-                      {unreadCount}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      
       {/* Main Content - Three Panel Layout */}
-      <div className="grid h-[calc(100%-120px)] gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
+      <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
         {/* Left Panel - Conversation List */}
         <section className={`flex flex-col h-full border-r border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
           mobileView === "chat" ? "hidden md:flex" : "flex"
         }`}>
-          {/* Status Tabs */}
+          {/* Tabs */}
           <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
             <div className="flex gap-1">
               {STATUS_FILTERS.map((tab) => {
@@ -407,19 +268,12 @@ export default function InboxPage() {
           </div>
         </section>
 
-        {/* Right Panel - Chat Conversation */}
-        <section className={`flex h-full flex-col bg-white border-l border-gray-200 transition-transform duration-300 overflow-hidden ${
+        {/* Center Panel - Chat Conversation */}
+        <section className={`flex h-full flex-col bg-white border-r border-gray-200 transition-transform duration-300 overflow-hidden ${
           mobileView === "list" ? "hidden md:flex" : "flex"
         }`}>
           {activeConversation ? (
             <>
-              {/* Instagram Account Insights - Show for Instagram conversations */}
-              {activeConversation?.platform.toLowerCase() === 'instagram' && (
-                <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
-                  <AccountInsights period="day" save={true} />
-                </div>
-              )}
-
               {/* Chat Header - Fixed */}
               <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 z-10">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -507,12 +361,6 @@ export default function InboxPage() {
                   {messages.map((message: Message) => {
                     const isIncoming = message.direction === "incoming";
                     const isOutgoing = message.direction === "outgoing";
-                    const isInstagram = activeConversation?.platform.toLowerCase() === 'instagram';
-                    const mediaId = message.metadata && typeof message.metadata === "object" && "media_id" in message.metadata
-                      ? String(message.metadata.media_id)
-                      : message.metadata && typeof message.metadata === "object" && "platform_post_id" in message.metadata
-                      ? String(message.metadata.platform_post_id)
-                      : null;
                     
                     return (
                       <div
@@ -557,10 +405,6 @@ export default function InboxPage() {
                           }`}>
                             {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
                           </div>
-                          {/* Show media insights for Instagram posts */}
-                          {isInstagram && mediaId && (message.message_type === "image" || message.message_type === "video") && (
-                            <MediaInsights mediaId={mediaId} showSave={true} />
-                          )}
                         </div>
                       </div>
                     );
