@@ -462,20 +462,29 @@ export default function InboxPage() {
                               : "bg-primary text-white"
                           }`}
                         >
-                          {/* Media Display */}
-                          {message.media && message.media.type && (
-                            <div className="mb-2">
+                          {/* Media Display - Render actual media when present */}
+                          {message.media && message.media.type ? (
+                            <div className="space-y-2">
                               <MessageMedia media={message.media} />
+                              {/* Show content as additional text if it exists and is not just a placeholder description */}
+                              {message.content && 
+                               !message.content.match(/^\[(Voice note|Image|Video|Document|Sticker)\]:\s*/i) && (
+                                <p className={`text-sm whitespace-pre-wrap break-words ${
+                                  isOutgoing ? "text-white/90" : "text-gray-600"
+                                }`}>
+                                  {message.content}
+                                </p>
+                              )}
                             </div>
-                          )}
-                          
-                          {/* Text Content */}
-                          {message.content && (
-                            <p className={`text-sm whitespace-pre-wrap break-words ${
-                              isOutgoing ? "text-white" : "text-gray-700"
-                            }`}>
-                              {message.content}
-                            </p>
+                          ) : (
+                            /* Text Content - Only show if no media */
+                            message.content && (
+                              <p className={`text-sm whitespace-pre-wrap break-words ${
+                                isOutgoing ? "text-white" : "text-gray-700"
+                              }`}>
+                                {message.content}
+                              </p>
+                            )
                           )}
                           
                           {/* Timestamp */}
