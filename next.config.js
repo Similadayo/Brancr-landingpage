@@ -13,10 +13,6 @@ const nextConfig = {
   },
   // Compress responses
   compress: true,
-  // Experimental features for performance
-  experimental: {
-    optimizeCss: true,
-  },
 }
 
 module.exports = nextConfig;

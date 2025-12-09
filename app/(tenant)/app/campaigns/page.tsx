@@ -324,7 +324,7 @@ export default function CampaignsPage() {
               {getUserFriendlyErrorMessage(error, {
                 action: 'loading posts',
                 resource: 'posts',
-              }) || ErrorMessages.campaign.load || 'Failed to load posts'}
+              }) || 'Failed to load posts'}
             </p>
             <button
               onClick={() => window.location.reload()}
