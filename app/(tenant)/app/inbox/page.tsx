@@ -76,13 +76,23 @@ export default function InboxPage() {
     return Array.from(platformSet).sort();
   }, [conversations]);
 
-  // Sort conversations by last message time
+  // Sort conversations by most recent message time (newest first)
   const sortedConversations = useMemo(() => {
     const sorted = [...conversations];
     return sorted.sort((a, b) => {
-      if (a.unread_count > 0 && b.unread_count === 0) return -1;
-      if (a.unread_count === 0 && b.unread_count > 0) return 1;
-      return new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime();
+      // Get the most recent message time for each conversation
+      const timeA = new Date(a.last_message_at || a.updated_at || a.created_at).getTime();
+      const timeB = new Date(b.last_message_at || b.updated_at || b.created_at).getTime();
+      
+      // Sort by most recent message time (newest first)
+      // If times are equal, prioritize conversations with unread messages
+      if (timeB === timeA) {
+        if (a.unread_count > 0 && b.unread_count === 0) return -1;
+        if (a.unread_count === 0 && b.unread_count > 0) return 1;
+        return 0;
+      }
+      
+      return timeB - timeA;
     });
   }, [conversations]);
   
