@@ -44,6 +44,7 @@ export default function NewBulkUploadPage() {
   // Caption state
   const [captionStrategy, setCaptionStrategy] = useState<"same" | "individual" | "ai_batch">("same");
   const [sharedCaption, setSharedCaption] = useState("");
+  const [enhanceSharedCaption, setEnhanceSharedCaption] = useState(false);
   const [carouselCaptions, setCarouselCaptions] = useState<Record<string, string>>({});
   const [captionContext, setCaptionContext] = useState("");
   const [isGeneratingCaptions, setIsGeneratingCaptions] = useState(false);
@@ -518,10 +519,11 @@ export default function NewBulkUploadPage() {
                   <CaptionEditor
                     value={sharedCaption}
                     onChange={setSharedCaption}
+                    enhanceCaption={enhanceSharedCaption}
+                    onEnhanceCaptionChange={setEnhanceSharedCaption}
                     onAIGenerate={handleGenerateCaptions}
                     isAIGenerating={isGeneratingCaptions}
                     selectedMediaIds={uploadedMedia.map((m) => m.id)}
-                    isAIGenerated={false}
                     selectedPlatforms={selectedPlatforms}
                   />
                 </div>
