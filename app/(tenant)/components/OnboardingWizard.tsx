@@ -103,16 +103,17 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       }
       
       // Backend returns steps after 'industry', so if step is undefined, user is on 'industry' step
-      // Handle 'complete' step as well
-      const stepFromStatus = onboardingStatus.step === 'complete' || onboardingStatus.step === 'social_connect' 
-        ? 'industry' // If step is 'complete', default to industry (shouldn't happen, but handle it)
-        : onboardingStatus.step || 'industry';
-      
-      // Only update step if it's a valid onboarding step
-      if (stepFromStatus !== 'complete') {
-        console.log('[OnboardingWizard] Setting step to:', stepFromStatus);
-        setCurrentStep(stepFromStatus as OnboardingStep);
+      // If step is 'complete', we've already handled it above with redirect
+      // This code should only run if complete is false, but handle edge cases
+      if (onboardingStatus.step === 'complete') {
+        // This shouldn't happen since we check complete above, but handle it
+        console.warn('[OnboardingWizard] Step is "complete" but complete flag is false');
+        return;
       }
+      
+      const stepFromStatus = onboardingStatus.step || 'industry';
+      console.log('[OnboardingWizard] Setting step to:', stepFromStatus);
+      setCurrentStep(stepFromStatus as OnboardingStep);
       
       // Load saved data for pre-filling forms
       setSavedData({

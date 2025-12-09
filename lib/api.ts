@@ -937,7 +937,7 @@ export const tenantApi = {
   // Onboarding endpoints
   onboardingStatus: () =>
     get<{
-      step: "business_profile" | "persona" | "business_details" | "social_connect";
+      step: "business_profile" | "persona" | "business_details" | "social_connect" | "complete";
       complete: boolean;
       tenant_name?: string;
       business_profile?: {
