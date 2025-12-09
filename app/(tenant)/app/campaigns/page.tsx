@@ -48,7 +48,9 @@ export default function CampaignsPage() {
   const apiStatusFilter = useMemo(() => {
     switch (activeTab) {
       case "scheduled":
-        return "scheduled"; // API will return both "scheduled" and "posting" status
+        // Don't filter by status - get all posts and filter client-side
+        // This ensures we get both "scheduled" and "posting" status posts
+        return undefined;
       case "published":
         return "posted";
       case "drafts":
@@ -79,9 +81,28 @@ export default function CampaignsPage() {
   const [editCaption, setEditCaption] = useState<string>("");
   const [editScheduledAt, setEditScheduledAt] = useState<string>("");
 
+  // Debug logging
+  useEffect(() => {
+    console.log('[CampaignsPage] Debug:', {
+      activeTab,
+      apiStatusFilter,
+      scheduledPostsCount: scheduledPosts.length,
+      campaignStatsScheduled: campaignStats?.scheduled,
+      statusFilter,
+      platformFilter,
+      searchQuery,
+      scheduledPosts: scheduledPosts.map(p => ({ id: p.id, name: p.name, status: p.status, platforms: p.platforms })),
+    });
+  }, [activeTab, apiStatusFilter, scheduledPosts, campaignStats, statusFilter, platformFilter, searchQuery]);
+
   // Filter posts (client-side for status filter, platform filter, and search)
   const currentPosts = useMemo(() => {
     let posts = [...scheduledPosts];
+
+    // For scheduled tab, filter to show only "scheduled" and "posting" status posts
+    if (activeTab === "scheduled") {
+      posts = posts.filter((post) => post.status === "scheduled" || post.status === "posting");
+    }
 
     // Apply status filter (additional filtering beyond API)
     if (statusFilter !== "All") {
