@@ -4,6 +4,17 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { ApiError, tenantApi } from "@/lib/api";
 
+export type InteractionMedia = {
+  url?: string;
+  stored_url?: string;
+  type?: string;
+  transcription?: string;
+  image_analysis?: string;
+  document_text?: string;
+  filename?: string;
+  caption?: string;
+};
+
 export type ConversationSummary = {
   id: number;
   customer_id: number;
@@ -13,6 +24,7 @@ export type ConversationSummary = {
   status: "active" | "resolved" | "archived";
   last_message: string;
   last_message_at: string;
+  last_message_media?: InteractionMedia | null;
   unread_count: number;
   created_at: string;
   updated_at: string;
@@ -23,7 +35,7 @@ export type ConversationSummary = {
 export type Message = {
   id: number;
   direction: "incoming" | "outgoing";
-  message_type: "text" | "image" | "video" | "comment";
+  message_type: "text" | "image" | "video" | "comment" | "audio" | "document" | "sticker";
   content: string;
   detected_intent?: string;
   detected_tone?: string;
@@ -34,6 +46,7 @@ export type Message = {
   final_reply?: string;
   created_at: string;
   metadata?: Record<string, unknown>;
+  media?: InteractionMedia | null;
 };
 
 export type ConversationDetail = {
@@ -115,6 +128,7 @@ export function useConversations(filters?: { platform?: string; status?: string;
             : "active") as ConversationSummary["status"],
           last_message: conversation.last_message || "",
           last_message_at: conversation.last_message_at || conversation.updated_at,
+          last_message_media: conversation.last_message_media || null,
           unread_count: conversation.unread_count ?? 0,
           created_at: conversation.created_at,
           updated_at: conversation.updated_at,
@@ -272,6 +286,7 @@ export function useConversation(conversationId: string | null) {
             final_reply: msg.final_reply,
             created_at: msg.created_at,
             metadata: msg.metadata,
+            media: msg.media || null,
           })) : [],
           created_at: response.created_at,
           updated_at: response.updated_at,
@@ -320,6 +335,7 @@ export function useSendReply(conversationId: string | null) {
               suggested_reply: response.interaction.suggested_reply,
               created_at: response.interaction.created_at,
               metadata: response.interaction.metadata,
+              media: response.interaction.media || null,
             };
             
             // Add new message and sort by created_at ascending

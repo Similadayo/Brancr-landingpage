@@ -201,6 +201,16 @@ export const tenantApi = {
         status: string;
         last_message: string;
         last_message_at: string;
+        last_message_media?: {
+          url?: string;
+          stored_url?: string;
+          type?: string;
+          transcription?: string;
+          image_analysis?: string;
+          document_text?: string;
+          filename?: string;
+          caption?: string;
+        } | null;
         unread_count: number;
         created_at: string;
         updated_at: string;
@@ -221,7 +231,7 @@ export const tenantApi = {
       messages: Array<{
         id: number;
         direction: "incoming" | "outgoing";
-        message_type: "text" | "image" | "video" | "comment";
+        message_type: "text" | "image" | "video" | "comment" | "audio" | "document" | "sticker";
         content: string;
         detected_intent?: string;
         detected_tone?: string;
@@ -232,6 +242,16 @@ export const tenantApi = {
         final_reply?: string;
         created_at: string;
         metadata?: Record<string, unknown>;
+        media?: {
+          url?: string;
+          stored_url?: string;
+          type?: string;
+          transcription?: string;
+          image_analysis?: string;
+          document_text?: string;
+          filename?: string;
+          caption?: string;
+        } | null;
       }>;
       created_at: string;
       updated_at: string;
@@ -244,7 +264,7 @@ export const tenantApi = {
       interaction: {
         id: number;
         direction: "incoming" | "outgoing";
-        message_type: "text" | "image" | "video" | "comment";
+        message_type: "text" | "image" | "video" | "comment" | "audio" | "document" | "sticker";
         content: string;
         final_reply?: string;
         response_type?: "auto_reply" | "escalated" | "manual";
@@ -255,6 +275,16 @@ export const tenantApi = {
         confidence?: number;
         suggested_reply?: string;
         metadata?: Record<string, unknown>;
+        media?: {
+          url?: string;
+          stored_url?: string;
+          type?: string;
+          transcription?: string;
+          image_analysis?: string;
+          document_text?: string;
+          filename?: string;
+          caption?: string;
+        } | null;
       };
     }>(`/api/tenant/conversations/${conversationId}/replies`, payload),
 

@@ -12,6 +12,7 @@ import {
   useSuggestReplies
 } from "@/app/(tenant)/hooks/useConversations";
 import type { Message, ConversationDetail, ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
+import { MessageMedia } from "@/app/(tenant)/components/inbox/MessageMedia";
 import { PlatformAnalytics } from "../../components/inbox/PlatformAnalytics";
 import {
   InboxIcon,
@@ -332,7 +333,19 @@ export default function InboxPage() {
                               <span className="text-xs text-gray-500">{formatTime(conversation.last_message_at)}</span>
                             </div>
                           </div>
-                          <p className="line-clamp-1 text-sm text-gray-600">{conversation.last_message || "No messages"}</p>
+                          <div className="flex items-center gap-1.5">
+                            {/* Media Preview */}
+                            {conversation.last_message_media?.type && (
+                              <span className="flex-shrink-0 text-xs text-gray-400">
+                                {conversation.last_message_media.type === 'audio' && '🎤'}
+                                {conversation.last_message_media.type === 'image' && '📷'}
+                                {conversation.last_message_media.type === 'video' && '🎥'}
+                                {conversation.last_message_media.type === 'document' && '📄'}
+                                {conversation.last_message_media.type === 'sticker' && '😊'}
+                              </span>
+                            )}
+                            <p className="line-clamp-1 text-sm text-gray-600">{conversation.last_message || "No messages"}</p>
+                          </div>
                         </div>
                       </div>
                     </button>
@@ -449,32 +462,23 @@ export default function InboxPage() {
                               : "bg-primary text-white"
                           }`}
                         >
-                          {message.message_type === "image" || message.message_type === "video" ? (
-                            <div className="space-y-2">
-                              <Image
-                                src={message.content}
-                                alt="Media"
-                                width={320}
-                                height={240}
-                                className="max-w-full rounded-lg"
-                                unoptimized
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display = "none";
-                                }}
-                              />
-                              {message.metadata && typeof message.metadata === "object" && "caption" in message.metadata && (
-                                <p className={`text-sm ${isOutgoing ? "text-white" : "text-gray-700"}`}>
-                                  {String(message.metadata.caption)}
-                                </p>
-                              )}
+                          {/* Media Display */}
+                          {message.media && message.media.type && (
+                            <div className="mb-2">
+                              <MessageMedia media={message.media} />
                             </div>
-                          ) : (
+                          )}
+                          
+                          {/* Text Content */}
+                          {message.content && (
                             <p className={`text-sm whitespace-pre-wrap break-words ${
                               isOutgoing ? "text-white" : "text-gray-700"
                             }`}>
                               {message.content}
                             </p>
                           )}
+                          
+                          {/* Timestamp */}
                           <div className={`mt-2 text-xs ${
                             isOutgoing ? "text-white/70" : "text-gray-500"
                           }`}>
