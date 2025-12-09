@@ -30,18 +30,25 @@ export function useScheduledPosts(params?: { status?: string; limit?: number }) 
     queryKey: ["scheduled-posts", params],
     queryFn: async () => {
       try {
+        console.log('[useScheduledPosts] Fetching with params:', params);
         const response = await tenantApi.scheduledPosts(params);
+        console.log('[useScheduledPosts] API response:', response);
         const posts = response?.scheduled_posts || [];
+        console.log('[useScheduledPosts] Posts extracted:', posts.length, posts);
         if (!Array.isArray(posts)) {
+          console.warn('[useScheduledPosts] Posts is not an array:', posts);
           return [];
         }
         // Normalize array properties
-        return posts.map((post) => ({
+        const normalized = posts.map((post) => ({
           ...post,
           platforms: Array.isArray(post.platforms) ? post.platforms : [],
           media_asset_ids: Array.isArray(post.media_asset_ids) ? post.media_asset_ids : [],
         }));
+        console.log('[useScheduledPosts] Normalized posts:', normalized.length, normalized.map(p => ({ id: p.id, status: p.status, name: p.name })));
+        return normalized;
       } catch (error) {
+        console.error('[useScheduledPosts] Error:', error);
         if (error instanceof ApiError && error.status === 404) {
           return [];
         }

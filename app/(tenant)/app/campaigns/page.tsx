@@ -45,11 +45,12 @@ export default function CampaignsPage() {
   const { data: templatesData } = useTemplates();
   
   // Determine API status filter based on active tab
+  // For scheduled tab, we need to fetch all posts and filter client-side
+  // because the API might return posts with different statuses
   const apiStatusFilter = useMemo(() => {
     switch (activeTab) {
       case "scheduled":
-        // Don't filter by status - get all posts and filter client-side
-        // This ensures we get both "scheduled" and "posting" status posts
+        // Fetch all posts - we'll filter client-side for "scheduled" and "posting"
         return undefined;
       case "published":
         return "posted";
@@ -91,22 +92,58 @@ export default function CampaignsPage() {
       statusFilter,
       platformFilter,
       searchQuery,
-      scheduledPosts: scheduledPosts.map(p => ({ id: p.id, name: p.name, status: p.status, platforms: p.platforms })),
+      currentPostsCount: currentPosts.length,
+      scheduledPosts: scheduledPosts.map(p => ({ 
+        id: p.id, 
+        name: p.name, 
+        status: p.status, 
+        platforms: p.platforms,
+        scheduled_at: p.scheduled_at 
+      })),
+      currentPosts: currentPosts.map(p => ({ 
+        id: p.id, 
+        name: p.name, 
+        status: p.status 
+      })),
+      rawData: scheduledPostsData,
     });
-  }, [activeTab, apiStatusFilter, scheduledPosts, campaignStats, statusFilter, platformFilter, searchQuery]);
+  }, [activeTab, apiStatusFilter, scheduledPosts, campaignStats, statusFilter, platformFilter, searchQuery, currentPosts, scheduledPostsData]);
 
   // Filter posts (client-side for status filter, platform filter, and search)
   const currentPosts = useMemo(() => {
     let posts = [...scheduledPosts];
+    
+    console.log('[CampaignsPage] Filtering posts - initial:', {
+      count: posts.length,
+      posts: posts.map(p => ({ id: p.id, name: p.name, status: p.status })),
+      activeTab,
+      statusFilter,
+    });
 
     // For scheduled tab, filter to show only "scheduled" and "posting" status posts
     if (activeTab === "scheduled") {
-      posts = posts.filter((post) => post.status === "scheduled" || post.status === "posting");
+      const beforeCount = posts.length;
+      posts = posts.filter((post) => {
+        const isScheduled = post.status === "scheduled" || post.status === "posting";
+        if (!isScheduled) {
+          console.log('[CampaignsPage] Filtered out (not scheduled/posting):', { id: post.id, status: post.status, name: post.name });
+        }
+        return isScheduled;
+      });
+      console.log('[CampaignsPage] After scheduled tab filter:', { before: beforeCount, after: posts.length });
     }
 
     // Apply status filter (additional filtering beyond API)
     if (statusFilter !== "All") {
-      posts = posts.filter((post) => post.status === statusFilter.toLowerCase());
+      const beforeCount = posts.length;
+      posts = posts.filter((post) => {
+        const matches = post.status === statusFilter.toLowerCase();
+        if (!matches) {
+          console.log('[CampaignsPage] Filtered out (status filter):', { id: post.id, status: post.status, filter: statusFilter });
+        }
+        return matches;
+      });
+      console.log('[CampaignsPage] After status filter:', { before: beforeCount, after: posts.length, filter: statusFilter });
     }
 
     // Apply platform filter
