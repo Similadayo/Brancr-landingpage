@@ -12,7 +12,7 @@ type IndustrySelectorProps = {
 };
 
 export function IndustrySelector({ onSelect, showDescription = true, allowChange = true }: IndustrySelectorProps) {
-  const { data: industries = [], isLoading: industriesLoading } = useIndustries();
+  const { data: industries = [], isLoading: industriesLoading, error: industriesError } = useIndustries();
   const { data: currentIndustry, isLoading: currentLoading } = useTenantIndustry();
   const setIndustryMutation = useSetTenantIndustry();
   const [selectedId, setSelectedId] = useState<number | null>(currentIndustry?.industry_id || null);
@@ -41,6 +41,36 @@ export function IndustrySelector({ onSelect, showDescription = true, allowChange
             <div key={i} className="h-32 animate-pulse rounded-xl bg-gray-200" />
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (industriesError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <div className="mb-4 rounded-full bg-red-100 p-3">
+          <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to load industries</h3>
+        <p className="text-sm text-gray-600 mb-4 text-center max-w-md">
+          Unable to load the list of industries. Please check your connection and try again.
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (industries.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <p className="text-sm text-gray-600">No industries available.</p>
       </div>
     );
   }

@@ -51,6 +51,7 @@ const STEPS: Array<{ id: OnboardingStep; title: string; description: string; ico
 export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep }) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  // Initialize with 'industry' as default for new users
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(initialStep || 'industry');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<Set<OnboardingStep>>(new Set());
@@ -62,7 +63,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
   }>({});
 
   // Load onboarding status on mount
-  const { data: onboardingStatus, isLoading: isLoadingStatus } = useQuery({
+  const { data: onboardingStatus, isLoading: isLoadingStatus, error: onboardingError } = useQuery({
     queryKey: ['onboarding', 'status'],
     queryFn: () => tenantApi.onboardingStatus(),
     retry: false,
@@ -75,8 +76,15 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
   useEffect(() => {
     if (onboardingStatus) {
       // Set current step from status (backend knows the current step)
-      const stepFromStatus = onboardingStatus.step || initialStep || 'industry';
-      setCurrentStep(stepFromStatus);
+      // Note: backend step doesn't include 'industry', so we default to 'industry' for new users
+      // If onboarding is complete, we shouldn't be here (should redirect), but handle it anyway
+      if (onboardingStatus.complete) {
+        return; // Let the redirect handle this
+      }
+      
+      // Backend returns steps after 'industry', so if step is undefined, user is on 'industry' step
+      const stepFromStatus = onboardingStatus.step || 'industry';
+      setCurrentStep(stepFromStatus as OnboardingStep);
       
       // Load saved data for pre-filling forms
       setSavedData({
@@ -85,8 +93,14 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         persona: onboardingStatus.persona,
         business_details: onboardingStatus.business_details,
       });
+    } else if (!isLoadingStatus && !onboardingError) {
+      // If status hasn't loaded yet but we're not in error state, ensure we have a default step
+      // This handles the case where the API call hasn't completed yet
+      if (currentStep === 'industry' || !currentStep) {
+        setCurrentStep('industry');
+      }
     }
-  }, [onboardingStatus, tenantIndustry, initialStep]);
+  }, [onboardingStatus, tenantIndustry, initialStep, isLoadingStatus, onboardingError, currentStep]);
 
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
@@ -170,11 +184,36 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     }
  };
 
- const renderStep = () => {
+  const renderStep = () => {
     if (isLoadingStatus) {
       return (
-        <div className="flex items-center justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary/20 border-t-primary mb-4" />
+          <p className="text-sm text-gray-600">Loading onboarding...</p>
+        </div>
+      );
+    }
+
+    if (onboardingError) {
+      return (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="mb-4 rounded-full bg-red-100 p-3">
+            <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to load onboarding</h3>
+          <p className="text-sm text-gray-600 mb-4 text-center max-w-md">
+            {onboardingError instanceof ApiError 
+              ? onboardingError.message || 'An error occurred while loading your onboarding status.'
+              : 'Unable to connect to the server. Please check your connection and try again.'}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90"
+          >
+            Retry
+          </button>
         </div>
       );
     }
