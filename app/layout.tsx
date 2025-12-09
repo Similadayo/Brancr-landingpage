@@ -3,6 +3,9 @@ import "./globals.css";
 import StructuredData from "./components/StructuredData";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 import { Providers } from "./providers";
+import { ErrorBoundary } from "@/lib/error-boundary";
+
+
 
 export const metadata: Metadata = {
   title: {
@@ -103,11 +106,13 @@ export default function RootLayout({
               "(function(){try{var d=document.documentElement;d.classList.remove('dark');document.body&&document.body.classList&&document.body.classList.remove('dark');localStorage.removeItem('theme');localStorage.removeItem('theme:dark');}catch(e){}})();",
           }}
         />
-        <Providers>
-          <GoogleAnalytics />
-          <StructuredData />
-          {children}
-        </Providers>
+        <ErrorBoundary>
+          <Providers>
+            <GoogleAnalytics />
+            <StructuredData />
+            {children}
+          </Providers>
+        </ErrorBoundary>
       </body>
     </html>
   );
