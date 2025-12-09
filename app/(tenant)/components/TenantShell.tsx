@@ -620,7 +620,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                         {(tenant.name || "?").charAt(0).toUpperCase()}
                       </span>
                       <span className="hidden text-left leading-tight lg:block">
-                        <span className="block text-xs text-gray-500">{tenant.name.split(" ")[0]}</span>
+                        <span className="block text-xs text-gray-500">{(tenant.name || "User").split(" ")[0]}</span>
                         <span className="text-xs capitalize">{tenant.plan ?? "trial"}</span>
                       </span>
                       <ChevronDownIcon
