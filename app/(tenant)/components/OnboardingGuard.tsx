@@ -2,19 +2,27 @@
 
 import { usePathname } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { authApi, ApiError } from '@/lib/api';
+import { authApi, tenantApi, ApiError } from '@/lib/api';
 import { OnboardingWizard } from './OnboardingWizard';
 
 export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isOnboardingPage = pathname === '/app/onboarding';
 
-  // Always call hooks at the top level (React Hooks rules)
-  const { data: userData, isLoading, error } = useQuery({
+  // Check both auth.me and onboardingStatus to catch completion faster
+  const { data: userData, isLoading: isLoadingAuth, error } = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: () => authApi.me(),
     retry: false,
   });
+
+  const { data: onboardingStatus, isLoading: isLoadingStatus } = useQuery({
+    queryKey: ['onboarding', 'status'],
+    queryFn: () => tenantApi.onboardingStatus(),
+    retry: false,
+  });
+
+  const isLoading = isLoadingAuth || isLoadingStatus;
 
   // If we're on the onboarding page, let it handle its own rendering
   if (isOnboardingPage) {
@@ -38,13 +46,13 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Check onboarding status - default to false if userData is missing
-  const onboardingComplete = userData?.onboarding?.complete ?? false;
-  const currentStep = userData?.onboarding?.step;
+  // Check onboarding status from both sources - default to false if both are missing
+  // onboardingStatus is more reliable as it's updated immediately when onboarding completes
+  const onboardingComplete = onboardingStatus?.complete ?? userData?.onboarding?.complete ?? false;
+  const currentStep = onboardingStatus?.step || userData?.onboarding?.step;
 
-  // If onboarding is not complete, redirect to onboarding page or show wizard
+  // If onboarding is not complete, show wizard as overlay blocking other pages
   if (!onboardingComplete) {
-    // Show wizard as overlay blocking other pages
     return (
       <>
         <OnboardingWizard initialStep={currentStep} />

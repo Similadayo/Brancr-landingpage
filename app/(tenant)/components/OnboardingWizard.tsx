@@ -83,18 +83,36 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         hasPersona: !!onboardingStatus.persona,
       });
       
-      // Set current step from status (backend knows the current step)
-      // Note: backend step doesn't include 'industry', so we default to 'industry' for new users
-      // If onboarding is complete, we shouldn't be here (should redirect), but handle it anyway
+      // If onboarding is complete, redirect immediately
       if (onboardingStatus.complete) {
-        console.log('[OnboardingWizard] Onboarding complete, should redirect');
-        return; // Let the redirect handle this
+        console.log('[OnboardingWizard] Onboarding complete, redirecting to /app');
+        // Invalidate queries to refresh user data
+        void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+        void queryClient.invalidateQueries({ queryKey: ['onboarding', 'status'] });
+        // Redirect to app - use window.location as fallback for immediate redirect
+        router.push('/app');
+        router.refresh();
+        // Fallback: force redirect if router.push doesn't work
+        setTimeout(() => {
+          if (window.location.pathname === '/app/onboarding') {
+            console.log('[OnboardingWizard] Router redirect failed, using window.location');
+            window.location.href = '/app';
+          }
+        }, 500);
+        return;
       }
       
       // Backend returns steps after 'industry', so if step is undefined, user is on 'industry' step
-      const stepFromStatus = onboardingStatus.step || 'industry';
-      console.log('[OnboardingWizard] Setting step to:', stepFromStatus);
-      setCurrentStep(stepFromStatus as OnboardingStep);
+      // Handle 'complete' step as well
+      const stepFromStatus = onboardingStatus.step === 'complete' || onboardingStatus.step === 'social_connect' 
+        ? 'industry' // If step is 'complete', default to industry (shouldn't happen, but handle it)
+        : onboardingStatus.step || 'industry';
+      
+      // Only update step if it's a valid onboarding step
+      if (stepFromStatus !== 'complete') {
+        console.log('[OnboardingWizard] Setting step to:', stepFromStatus);
+        setCurrentStep(stepFromStatus as OnboardingStep);
+      }
       
       // Load saved data for pre-filling forms
       setSavedData({
@@ -111,7 +129,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         setCurrentStep('industry');
       }
     }
-  }, [onboardingStatus, tenantIndustry, initialStep, isLoadingStatus, onboardingError, currentStep]);
+  }, [onboardingStatus, tenantIndustry, initialStep, isLoadingStatus, onboardingError, currentStep, router, queryClient]);
 
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
@@ -312,6 +330,25 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         return null;
     }
   };
+
+  // If onboarding is complete, show redirect message instead of wizard
+  if (onboardingStatus?.complete) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="relative w-full max-w-4xl max-h-[92vh] overflow-hidden rounded-3xl bg-white shadow-2xl border border-gray-100 mx-auto">
+          <div className="flex flex-col items-center justify-center py-12 px-8">
+            <div className="mb-4 rounded-full bg-green-100 p-3">
+              <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Onboarding Complete!</h3>
+            <p className="text-sm text-gray-600">Redirecting to your dashboard...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
