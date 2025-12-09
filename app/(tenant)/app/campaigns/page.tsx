@@ -332,7 +332,19 @@ export default function CampaignsPage() {
                               {post.status}
                             </span>
                           </div>
-                          <p className="mt-1 line-clamp-2 text-sm text-gray-600">{post.caption || "No caption"}</p>
+                          <div className="mt-1 flex items-center gap-2">
+                            <p className="line-clamp-2 text-sm text-gray-600 flex-1">{post.caption || "No caption"}</p>
+                            {post.enhance_caption && (
+                              <span className="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                                ✨ AI Enhanced
+                              </span>
+                            )}
+                            {!post.caption && (
+                              <span className="shrink-0 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700">
+                                🤖 AI Generated
+                              </span>
+                            )}
+                          </div>
                           <div className="mt-2 flex flex-wrap items-center gap-3">
                             <div className="flex flex-wrap gap-1">
                               {post.platforms.map((platform) => {

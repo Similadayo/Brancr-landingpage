@@ -31,7 +31,6 @@ export default function NewPostPage() {
   const queryClient = useQueryClient();
   const [step, setStep] = useState<Step>("upload");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
   const [publishingStatus, setPublishingStatus] = useState<{
     status: "idle" | "publishing" | "success" | "error";
     platformResults?: Record<string, "success" | "error">;
@@ -42,7 +41,8 @@ export default function NewPostPage() {
   const [uploadedMedia, setUploadedMedia] = useState<UploadedMedia[]>([]);
   const [selectedMediaIds, setSelectedMediaIds] = useState<string[]>([]);
   const [caption, setCaption] = useState("");
-  const [isAIGenerated, setIsAIGenerated] = useState(false);
+  const [enhanceCaption, setEnhanceCaption] = useState(false);
+  const [isAIGenerating, setIsAIGenerating] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [scheduledAt, setScheduledAt] = useState<string | null>(null);
   
@@ -58,13 +58,13 @@ export default function NewPostPage() {
       uploadedMedia,
       selectedMediaIds,
       caption,
-      isAIGenerated,
+      enhanceCaption,
       selectedPlatforms,
       scheduledAt,
       step,
     };
     localStorage.setItem("post-draft", JSON.stringify(draft));
-  }, [uploadedMedia, selectedMediaIds, caption, isAIGenerated, selectedPlatforms, scheduledAt, step]);
+  }, [uploadedMedia, selectedMediaIds, caption, enhanceCaption, selectedPlatforms, scheduledAt, step]);
 
   // Load draft on mount
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function NewPostPage() {
         const draft = JSON.parse(savedDraft);
         if (draft.selectedMediaIds) setSelectedMediaIds(draft.selectedMediaIds);
         if (draft.caption) setCaption(draft.caption);
-        if (draft.isAIGenerated) setIsAIGenerated(draft.isAIGenerated);
+        if (draft.enhanceCaption !== undefined) setEnhanceCaption(draft.enhanceCaption);
         if (draft.selectedPlatforms) setSelectedPlatforms(draft.selectedPlatforms);
         if (draft.scheduledAt) setScheduledAt(draft.scheduledAt);
         if (draft.step) setStep(draft.step);
@@ -118,6 +118,19 @@ export default function NewPostPage() {
     setSelectedMediaIds((prev) => [...prev, ...newIds]);
   }, []);
 
+  // Get first media asset for API calls
+  const getFirstMediaAsset = useCallback(() => {
+    if (selectedMediaIds.length === 0) return null;
+    const firstId = Number(selectedMediaIds[0]);
+    if (isNaN(firstId)) return null;
+    const media = uploadedMedia.find(m => m.id === selectedMediaIds[0]);
+    return {
+      id: firstId,
+      type: media?.type || "image",
+      url: media?.url || "",
+    };
+  }, [selectedMediaIds, uploadedMedia]);
+
   const handleGenerateCaption = useCallback(async () => {
     if (selectedMediaIds.length === 0) {
       toast.error("Please select media first");
@@ -125,7 +138,7 @@ export default function NewPostPage() {
     }
 
     try {
-      setIsGeneratingCaption(true);
+      setIsAIGenerating(true);
       // Convert media IDs from strings to numbers
       const mediaIds = selectedMediaIds.map((id) => Number(id)).filter((id) => !isNaN(id));
       const res = await tenantApi.generateCaption({
@@ -133,13 +146,12 @@ export default function NewPostPage() {
         include_hashtags: true,
       });
       setCaption(res.caption || "");
-      setIsAIGenerated(true);
       toast.success("Caption generated successfully");
     } catch (error: any) {
       const errorMessage = error?.body?.message || error?.message || "Failed to generate caption";
       toast.error(errorMessage);
     } finally {
-      setIsGeneratingCaption(false);
+      setIsAIGenerating(false);
     }
   }, [selectedMediaIds]);
 
@@ -182,9 +194,11 @@ export default function NewPostPage() {
       };
 
       // Add optional fields
+      // If caption is empty and mode is ai_generate, backend will generate it
       if (caption.trim()) {
         payload.caption = caption.trim();
       }
+      // Note: Backend handles empty captions by generating them based on tenant preferences
 
       // Handle scheduling
       if (scheduledAt) {
@@ -250,7 +264,7 @@ export default function NewPostPage() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [canNext, caption, selectedMediaIds, selectedPlatforms, scheduledAt, router, queryClient, tiktokDisableDuet, tiktokDisableStitch, tiktokDisableComment, tiktokScheduleTime]);
+  }, [canNext, caption, enhanceCaption, selectedMediaIds, selectedPlatforms, scheduledAt, router, queryClient, tiktokDisableDuet, tiktokDisableStitch, tiktokDisableComment, tiktokScheduleTime]);
 
   // Keyboard shortcuts (must be after canNext and handlePublish are defined)
   useEffect(() => {
@@ -395,10 +409,11 @@ export default function NewPostPage() {
           <CaptionEditor
             value={caption}
             onChange={setCaption}
+            enhanceCaption={enhanceCaption}
+            onEnhanceCaptionChange={setEnhanceCaption}
             onAIGenerate={handleGenerateCaption}
-            isAIGenerating={isGeneratingCaption}
+            isAIGenerating={isAIGenerating}
             selectedMediaIds={selectedMediaIds}
-            isAIGenerated={isAIGenerated}
             selectedPlatforms={selectedPlatforms}
           />
         )}

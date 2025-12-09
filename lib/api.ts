@@ -687,6 +687,7 @@ export const tenantApi = {
     media_ids: number[]; // Array of media asset IDs
     platforms: string[]; // Required: At least one platform
     scheduled_at?: string | null; // "now", RFC3339 date, or null for immediate publishing
+    enhance_caption?: boolean; // If true, AI enhances the caption; if false or omitted, uses caption as-is
     // TikTok-specific options
     tiktok_disable_duet?: boolean;
     tiktok_disable_stitch?: boolean;
@@ -711,6 +712,35 @@ export const tenantApi = {
     tone?: string;
     include_hashtags?: boolean;
   }) => post<typeof payload, { caption: string }>(`/api/tenant/posts/generate-caption`, payload),
+
+  // Caption generation and enhancement endpoints
+  generateCaptionFromMedia: (payload: {
+    media_asset_id: number;
+    platform: string;
+    media_type: string;
+    image_urls?: string[];
+  }) => post<typeof payload, { caption: string }>(`/api/tenant/posts/generate-caption`, payload),
+
+  generateCaptionFromKeywords: (payload: {
+    keywords: string;
+    platform: string;
+    media_type: string;
+    image_urls?: string[];
+  }) => post<typeof payload, { caption: string }>(`/api/tenant/captions/generate-from-keywords`, payload),
+
+  rephraseCaption: (payload: {
+    original_caption: string;
+    platform: string;
+    media_type: string;
+    image_urls?: string[];
+  }) => post<typeof payload, { caption: string }>(`/api/tenant/captions/rephrase`, payload),
+
+  fineTuneCaption: (payload: {
+    original_caption: string;
+    platform: string;
+    media_type: string;
+    image_urls?: string[];
+  }) => post<typeof payload, { caption: string }>(`/api/tenant/captions/fine-tune`, payload),
 
   optimalTimes: (params: { platforms: string[]; date: string }) =>
     get<{ times: Array<{ at: string; score: number }> }>(

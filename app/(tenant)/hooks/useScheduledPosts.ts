@@ -16,6 +16,7 @@ export type ScheduledPost = {
   last_error?: string;
   created_at: string;
   posted_at?: string;
+  enhance_caption?: boolean; // If true, caption was enhanced with AI; if false/undefined, used as-is
 };
 
 export type CampaignStats = {

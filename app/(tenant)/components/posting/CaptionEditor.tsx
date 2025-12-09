@@ -5,10 +5,11 @@ import { useState } from "react";
 type CaptionEditorProps = {
   value: string;
   onChange: (value: string) => void;
-  onAIGenerate: () => Promise<void>;
-  isAIGenerating: boolean;
+  enhanceCaption: boolean;
+  onEnhanceCaptionChange: (enhance: boolean) => void;
+  onAIGenerate?: () => Promise<void>;
+  isAIGenerating?: boolean;
   selectedMediaIds: string[];
-  isAIGenerated?: boolean;
   selectedPlatforms?: string[];
 };
 
@@ -25,10 +26,11 @@ const PLATFORM_LIMITS: Record<string, { max: number; name: string; icon: string 
 export default function CaptionEditor({
   value,
   onChange,
+  enhanceCaption,
+  onEnhanceCaptionChange,
   onAIGenerate,
-  isAIGenerating,
+  isAIGenerating = false,
   selectedMediaIds,
-  isAIGenerated = false,
   selectedPlatforms = [],
 }: CaptionEditorProps) {
   const [showPreview, setShowPreview] = useState(false);
@@ -38,7 +40,9 @@ export default function CaptionEditor({
     if (selectedMediaIds.length === 0) {
       return;
     }
-    await onAIGenerate();
+    if (onAIGenerate) {
+      await onAIGenerate();
+    }
   };
 
   // Auto-save indicator
@@ -80,43 +84,33 @@ export default function CaptionEditor({
         </button>
       </div>
 
-      {/* AI Generation */}
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={() => void handleAIGenerate()}
-          disabled={isAIGenerating || selectedMediaIds.length === 0}
-          className="group flex items-center gap-2 rounded-xl border-2 border-primary/30 bg-primary/10 px-5 py-2.5 text-sm font-semibold text-primary transition-all hover:border-primary/50 hover:bg-primary/20 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-          aria-label="Generate caption with AI"
-        >
-          {isAIGenerating ? (
-            <>
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
-              <span>Generating caption...</span>
-            </>
-          ) : (
-            <>
-              <span className="text-lg">✨</span>
-              <span>Generate with AI</span>
-            </>
+      {/* AI Generation Button (for empty captions) */}
+      {!value.trim() && (
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => void handleAIGenerate()}
+            disabled={isAIGenerating || selectedMediaIds.length === 0}
+            className="group flex items-center gap-2 rounded-xl border-2 border-primary/30 bg-primary/10 px-5 py-2.5 text-sm font-semibold text-primary transition-all hover:border-primary/50 hover:bg-primary/20 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+            aria-label="Generate caption with AI"
+          >
+            {isAIGenerating ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
+                <span>Generating caption...</span>
+              </>
+            ) : (
+              <>
+                <span className="text-lg">✨</span>
+                <span>Generate with AI</span>
+              </>
+            )}
+          </button>
+          {selectedMediaIds.length === 0 && (
+            <span className="text-xs text-gray-500">💡 Select media first to generate caption</span>
           )}
-        </button>
-        {isAIGenerated && (
-          <span className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
-            <span>✨</span>
-            <span>AI Generated</span>
-          </span>
-        )}
-        {draftSaved && (
-          <span className="flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700">
-            <span>✓</span>
-            <span>Draft saved</span>
-          </span>
-        )}
-        {selectedMediaIds.length === 0 && (
-          <span className="text-xs text-gray-500">💡 Select media first to generate caption</span>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Caption Input */}
       <div className="space-y-2">
@@ -164,6 +158,44 @@ export default function CaptionEditor({
             Clear
           </button>
         </div>
+      </div>
+
+      {/* Enhance with AI Checkbox */}
+      {value.trim() && (
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={enhanceCaption}
+              onChange={(e) => onEnhanceCaptionChange(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-900">✨ Enhance with AI</span>
+              </div>
+              <p className="mt-1 text-xs text-gray-600">
+                Your caption will be optimized for each platform using AI based on your brand persona and best practices.
+              </p>
+            </div>
+          </label>
+        </div>
+      )}
+
+      {/* Status indicators */}
+      <div className="flex flex-wrap items-center gap-3">
+        {draftSaved && (
+          <span className="flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700">
+            <span>✓</span>
+            <span>Draft saved</span>
+          </span>
+        )}
+        {enhanceCaption && value.trim() && (
+          <span className="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
+            <span>✨</span>
+            <span>AI Enhancement enabled</span>
+          </span>
+        )}
       </div>
 
       {/* Platform Character Limits */}
@@ -240,4 +272,3 @@ export default function CaptionEditor({
     </div>
   );
 }
-
