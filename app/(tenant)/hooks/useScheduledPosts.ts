@@ -8,14 +8,14 @@ export type ScheduledPost = {
   id: string;
   name: string;
   caption: string;
-  status: "scheduled" | "posting" | "posted" | "failed" | "cancelled";
-  scheduled_at: string;
+  status: "scheduled" | "posting" | "posted" | "failed" | "partial_failed" | "draft" | "cancelled";
+  scheduled_at: string | null;
   platforms: string[];
   media_asset_ids: string[];
   attempts: number;
   last_error?: string;
   created_at: string;
-  posted_at?: string;
+  posted_at?: string | null;
   enhance_caption?: boolean; // If true, caption was enhanced with AI; if false/undefined, used as-is
 };
 
@@ -25,13 +25,13 @@ export type CampaignStats = {
   draft: number;
 };
 
-export function useScheduledPosts() {
+export function useScheduledPosts(params?: { status?: string; limit?: number }) {
   return useQuery<ScheduledPost[], Error>({
-    queryKey: ["scheduled-posts"],
+    queryKey: ["scheduled-posts", params],
     queryFn: async () => {
       try {
-        const response = await tenantApi.scheduledPosts();
-        const posts = response?.posts;
+        const response = await tenantApi.scheduledPosts(params);
+        const posts = response?.scheduled_posts || [];
         if (!Array.isArray(posts)) {
           return [];
         }
@@ -137,6 +137,65 @@ export function useCampaignStats() {
       }
     },
     refetchInterval: 60000, // Poll every minute
+  });
+}
+
+export type PerformanceSummary = {
+  period: string;
+  engagement_rate: number | null;
+  total_impressions: number;
+  total_reach: number;
+  total_likes: number;
+  total_comments: number;
+  total_shares: number;
+  total_posts: number;
+  top_performing_post: {
+    id: number;
+    name: string;
+    platform: string;
+    impressions: number;
+    reach: number;
+    likes: number;
+    comments: number;
+    shares: number;
+    engagement_rate: number;
+    posted_at: string;
+  } | null;
+  platform_breakdown: Record<string, {
+    posts: number;
+    impressions: number;
+    reach: number;
+    likes: number;
+    comments: number;
+  }>;
+};
+
+export function usePerformanceSummary(period: string = "7d") {
+  return useQuery<PerformanceSummary, Error>({
+    queryKey: ["performance-summary", period],
+    queryFn: async () => {
+      try {
+        return await tenantApi.performanceSummary({ period });
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 404) {
+          // Return empty structure when no data
+          return {
+            period,
+            engagement_rate: null,
+            total_impressions: 0,
+            total_reach: 0,
+            total_likes: 0,
+            total_comments: 0,
+            total_shares: 0,
+            total_posts: 0,
+            top_performing_post: null,
+            platform_breakdown: {},
+          };
+        }
+        throw error;
+      }
+    },
+    refetchInterval: 300000, // Poll every 5 minutes
   });
 }
 

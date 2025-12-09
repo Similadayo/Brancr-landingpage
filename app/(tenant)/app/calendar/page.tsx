@@ -82,7 +82,7 @@ export default function CalendarPage() {
       });
     } else {
       scheduledPosts.forEach((p) => {
-        const d = new Date(p.scheduled_at);
+        const d = new Date(p.scheduled_at || p.created_at);
         const key = d.toISOString().slice(0, 10);
         const list = map.get(key) || [];
         list.push({

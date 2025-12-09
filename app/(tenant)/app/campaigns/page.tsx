@@ -41,9 +41,27 @@ export default function CampaignsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [platformFilter, setPlatformFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const { data: scheduledPostsData, isLoading, error, refetch } = useScheduledPosts();
   const { data: campaignStats } = useCampaignStats();
   const { data: templatesData } = useTemplates();
+  
+  // Determine API status filter based on active tab
+  const apiStatusFilter = useMemo(() => {
+    switch (activeTab) {
+      case "scheduled":
+        return "scheduled"; // API will return both "scheduled" and "posting" status
+      case "published":
+        return "posted";
+      case "drafts":
+        return "draft";
+      default:
+        return undefined;
+    }
+  }, [activeTab]);
+
+  // Fetch posts with API filtering
+  const { data: scheduledPostsData, isLoading, error, refetch } = useScheduledPosts(
+    apiStatusFilter ? { status: apiStatusFilter } : undefined
+  );
   
   const scheduledPosts = useMemo(
     () => Array.isArray(scheduledPostsData) ? scheduledPostsData : [],
@@ -55,53 +73,17 @@ export default function CampaignsPage() {
   const [publishingPostId, setPublishingPostId] = useState<string | null>(null);
   const updateMutation = useUpdateScheduledPost();
 
-  // Refetch posts when component mounts to ensure fresh data
-  useEffect(() => {
-    void refetch();
-  }, [refetch]);
-
   // Modal state
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editPostId, setEditPostId] = useState<string | null>(null);
   const [editCaption, setEditCaption] = useState<string>("");
   const [editScheduledAt, setEditScheduledAt] = useState<string>("");
 
-  // Filter and categorize posts
-  const { scheduled, published, drafts } = useMemo(() => {
-    const scheduled: typeof scheduledPosts = [];
-    const published: typeof scheduledPosts = [];
-    const drafts: typeof scheduledPosts = [];
-
-    scheduledPosts.forEach((post) => {
-      if (post.status === "posted") {
-        published.push(post);
-      } else if (post.status === "scheduled" || post.status === "posting") {
-        scheduled.push(post);
-      } else if (post.status === "cancelled" || post.status === "failed") {
-        // Could be considered drafts or archived
-        drafts.push(post);
-      }
-    });
-
-    return { scheduled, published, drafts };
-  }, [scheduledPosts]);
-
-  // Get posts for current tab
+  // Filter posts (client-side for status filter, platform filter, and search)
   const currentPosts = useMemo(() => {
-    let posts: typeof scheduledPosts = [];
-    switch (activeTab) {
-      case "scheduled":
-        posts = scheduled;
-        break;
-      case "published":
-        posts = published;
-        break;
-      case "drafts":
-        posts = drafts;
-        break;
-    }
+    let posts = [...scheduledPosts];
 
-    // Apply status filter
+    // Apply status filter (additional filtering beyond API)
     if (statusFilter !== "All") {
       posts = posts.filter((post) => post.status === statusFilter.toLowerCase());
     }
@@ -127,11 +109,15 @@ export default function CampaignsPage() {
     // Sort by scheduled date (newest first for published, oldest first for scheduled)
     return posts.sort((a, b) => {
       if (activeTab === "published") {
-        return new Date(b.posted_at || b.scheduled_at).getTime() - new Date(a.posted_at || a.scheduled_at).getTime();
+        const aTime = a.posted_at || a.scheduled_at || "";
+        const bTime = b.posted_at || b.scheduled_at || "";
+        return new Date(bTime).getTime() - new Date(aTime).getTime();
       }
-      return new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime();
+      const aTime = a.scheduled_at || "";
+      const bTime = b.scheduled_at || "";
+      return new Date(aTime).getTime() - new Date(bTime).getTime();
     });
-  }, [activeTab, scheduled, published, drafts, statusFilter, platformFilter, searchQuery]);
+  }, [scheduledPosts, activeTab, statusFilter, platformFilter, searchQuery]);
 
   const handleCancel = (postId: string, postName: string) => {
     if (confirm(`Are you sure you want to cancel "${postName}"? This cannot be undone.`)) {
@@ -196,7 +182,7 @@ export default function CampaignsPage() {
           }`}
         >
           <ClockIcon className="w-4 h-4" />
-          Scheduled ({campaignStats?.scheduled ?? scheduled.length})
+          Scheduled ({campaignStats?.scheduled ?? 0})
         </button>
         <button
           onClick={() => setActiveTab("published")}
@@ -207,7 +193,7 @@ export default function CampaignsPage() {
           }`}
         >
           <CheckCircleIcon className="w-4 h-4" />
-          Published ({campaignStats?.published ?? published.length})
+          Published ({campaignStats?.published ?? 0})
         </button>
         <button
           onClick={() => setActiveTab("drafts")}
@@ -218,7 +204,7 @@ export default function CampaignsPage() {
           }`}
         >
           <DocumentTextIcon className="w-4 h-4" />
-          Drafts ({campaignStats?.draft ?? drafts.length})
+          Drafts ({campaignStats?.draft ?? 0})
         </button>
       </div>
 
@@ -366,14 +352,14 @@ export default function CampaignsPage() {
                             <span className="flex items-center gap-1 text-xs text-gray-500">
                               <ClockIcon className="h-3.5 w-3.5" />
                               {activeTab === "published" && post.posted_at
-                                ? new Date(post.posted_at).toLocaleString([], {
+                                ? new Date(post.posted_at || post.scheduled_at || post.created_at).toLocaleString([], {
                                     month: "short",
                                     day: "numeric",
                                     year: "numeric",
                                     hour: "2-digit",
                                     minute: "2-digit",
                                   })
-                                : new Date(post.scheduled_at).toLocaleString([], {
+                                : new Date(post.scheduled_at || post.created_at).toLocaleString([], {
                                     month: "short",
                                     day: "numeric",
                                     year: "numeric",
@@ -424,7 +410,7 @@ export default function CampaignsPage() {
                                 onClick={() => {
                                   setEditPostId(post.id);
                                   setEditCaption(post.caption || "");
-                                  const dt = new Date(post.scheduled_at);
+                                  const dt = new Date(post.scheduled_at || post.created_at);
                                   const tzOffset = dt.getTimezoneOffset() * 60000;
                                   const localISO = new Date(dt.getTime() - tzOffset).toISOString().slice(0, 16);
                                   setEditScheduledAt(localISO);

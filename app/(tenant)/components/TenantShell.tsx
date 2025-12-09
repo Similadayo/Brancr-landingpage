@@ -49,11 +49,7 @@ const getCoreNavItems = (badges?: { inbox?: number; escalations?: number }): Nav
   { label: "Calendar", href: "/app/calendar", icon: <CalendarIcon className="w-5 h-5" /> },
 ];
 
-// TikTok section items
-const TIKTOK_NAV_ITEMS: NavItem[] = [
-  { label: "TikTok Videos", href: "/app/tiktok/videos", icon: <ImageIcon className="w-5 h-5" /> },
-  { label: "TikTok Analytics", href: "/app/tiktok/analytics", icon: <ChartIcon className="w-5 h-5" /> },
-];
+// TikTok section removed - TikTok is now integrated into unified Campaigns and Analytics views
 
 // Media with submenu
 const MEDIA_NAV_ITEM: NavItem = { label: "Media", href: "/app/media", icon: <ImageIcon className="w-5 h-5" /> };
@@ -114,7 +110,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
   const stats = useMemo(() => {
     const connectedChannels = integrations.filter((i) => i.connected).length;
     const totalChannels = 4; // Always 4 platforms: Facebook, Instagram, Telegram, WhatsApp
-    const scheduledPosts = scheduledPostsData?.posts?.length || 0;
+    const scheduledPosts = scheduledPostsData?.scheduled_posts?.length || 0;
     const conversations = conversationsData?.conversations?.length || 0;
     return { connectedChannels, totalChannels, scheduledPosts, conversations };
   }, [integrations, scheduledPostsData, conversationsData]);
@@ -170,7 +166,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   const currentNav = useMemo(() => {
-    const allItems = [...CORE_NAV_ITEMS, ...industryNavItems, ...TIKTOK_NAV_ITEMS, MEDIA_NAV_ITEM, BULK_UPLOADS_NAV_ITEM, ...settingsNavItems];
+    const allItems = [...CORE_NAV_ITEMS, ...industryNavItems, MEDIA_NAV_ITEM, BULK_UPLOADS_NAV_ITEM, ...settingsNavItems];
     const matched = allItems.reduce<NavItem | undefined>((best, item) => {
       const overviewMatch = item.href === "/app" && (pathname === "/app" || pathname === "/app/");
       const specificMatch =
@@ -297,7 +293,6 @@ export function TenantShell({ children }: { children: ReactNode }) {
           return renderNavItem(item, compact, isActive);
         })}
         
-        {/* TikTok Section */}
         {/* Industry-based navigation items */}
         {industryNavItems.length > 0 && (
           <>
@@ -307,11 +302,6 @@ export function TenantShell({ children }: { children: ReactNode }) {
             })}
           </>
         )}
-
-        {TIKTOK_NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
-          return renderNavItem(item, compact, isActive);
-        })}
 
         {/* Media with Bulk Uploads Submenu */}
         {!compact ? (

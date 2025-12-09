@@ -145,7 +145,7 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
               </span>
               {post.posted_at && (
                 <span className="text-sm text-gray-500">
-                  Posted {new Date(post.posted_at).toLocaleDateString()}
+                  Posted {post.posted_at ? new Date(post.posted_at).toLocaleDateString() : "N/A"}
                 </span>
               )}
             </div>
@@ -210,18 +210,24 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Scheduled</p>
-              <p className="mt-2 text-sm font-semibold text-gray-900">
-                {new Date(post.scheduled_at).toLocaleDateString([], {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </p>
-              <p className="text-xs text-gray-500">
-                {new Date(post.scheduled_at).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
+              {post.scheduled_at ? (
+                <>
+                  <p className="mt-2 text-sm font-semibold text-gray-900">
+                    {new Date(post.scheduled_at).toLocaleDateString([], {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {new Date(post.scheduled_at).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </>
+              ) : (
+                <p className="mt-2 text-sm font-semibold text-gray-500">Not scheduled</p>
+              )}
             </div>
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600">
               <ClockIcon className="w-6 h-6" />

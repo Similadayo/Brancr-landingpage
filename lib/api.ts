@@ -367,6 +367,43 @@ export const tenantApi = {
     }>(`/api/tenant/analytics${query}`);
   },
 
+  performanceSummary: (params?: { period?: string }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+        ).toString()}`
+      : "";
+    return get<{
+      period: string;
+      engagement_rate: number | null;
+      total_impressions: number;
+      total_reach: number;
+      total_likes: number;
+      total_comments: number;
+      total_shares: number;
+      total_posts: number;
+      top_performing_post: {
+        id: number;
+        name: string;
+        platform: string;
+        impressions: number;
+        reach: number;
+        likes: number;
+        comments: number;
+        shares: number;
+        engagement_rate: number;
+        posted_at: string;
+      } | null;
+      platform_breakdown: Record<string, {
+        posts: number;
+        impressions: number;
+        reach: number;
+        likes: number;
+        comments: number;
+      }>;
+    }>(`/api/tenant/analytics/performance${query}`);
+  },
+
   // Templates CRUD endpoints
   templates: () =>
     get<{
@@ -572,22 +609,28 @@ export const tenantApi = {
     post<undefined, { success: boolean; message?: string }>(`/api/tenant/integrations/${platform}/repair`),
 
   // Scheduled posts endpoints
-  scheduledPosts: () =>
-    get<{
-      posts: Array<{
+  scheduledPosts: (params?: { status?: string; limit?: number }) => {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+        ).toString()}`
+      : "";
+    return get<{
+      scheduled_posts: Array<{
         id: string;
         name: string;
         caption: string;
-        status: "scheduled" | "posting" | "posted" | "failed" | "cancelled";
-        scheduled_at: string;
+        status: "scheduled" | "posting" | "posted" | "failed" | "partial_failed" | "draft" | "cancelled";
+        scheduled_at: string | null;
         platforms: string[];
         media_asset_ids: string[];
         attempts: number;
         last_error?: string;
         created_at: string;
-        posted_at?: string;
+        posted_at?: string | null;
       }>;
-    }>("/api/tenant/scheduled-posts"),
+    }>(`/api/tenant/scheduled-posts${query}`);
+  },
 
   scheduledPost: (postId: string) =>
     get<{

@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTenant } from "../providers/TenantProvider";
 import { tenantApi } from "@/lib/api";
-import { useScheduledPosts } from "@/app/(tenant)/hooks/useScheduledPosts";
+import { useScheduledPosts, usePerformanceSummary } from "@/app/(tenant)/hooks/useScheduledPosts";
 import { useIntegrations } from "@/app/(tenant)/hooks/useIntegrations";
 import { useConversations } from "@/app/(tenant)/hooks/useConversations";
 import { useEscalations, useEscalationStats } from "@/app/(tenant)/hooks/useEscalations";
@@ -51,6 +51,10 @@ export default function TenantOverviewPage() {
   });
   
   const { data: scheduledPostsData } = useScheduledPosts();
+  // Fetch upcoming posts separately for the dashboard
+  const { data: upcomingPostsData } = useScheduledPosts({ status: "scheduled", limit: 5 });
+  // Fetch performance summary
+  const { data: performanceSummary } = usePerformanceSummary("7d");
   const { data: integrationsData } = useIntegrations();
   const { data: conversationsData } = useConversations({ limit: 100 }); // Get more for unread count calculation
   const { data: escalationsData } = useEscalations({ limit: 5 });
@@ -186,13 +190,16 @@ export default function TenantOverviewPage() {
     return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 8);
   }, [scheduledPosts, conversations, escalations, mediaItems]);
 
-  // Upcoming posts (next 5)
+  // Upcoming posts (from API, already filtered and limited)
   const upcomingPosts = useMemo(() => {
-    return scheduledPosts
-      .filter((p) => p.status === "scheduled" || p.status === "posting")
-      .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
-      .slice(0, 5);
-  }, [scheduledPosts]);
+    const posts = Array.isArray(upcomingPostsData) ? upcomingPostsData : [];
+    // Sort by scheduled_at ascending (next posts first)
+    return posts.sort((a, b) => {
+      const aTime = a.scheduled_at || "";
+      const bTime = b.scheduled_at || "";
+      return new Date(aTime).getTime() - new Date(bTime).getTime();
+    });
+  }, [upcomingPostsData]);
 
   // Format relative time
   const formatRelativeTime = (date: Date) => {
@@ -463,30 +470,94 @@ export default function TenantOverviewPage() {
               <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Performance Summary</h2>
               <p className="mt-0.5 text-xs text-gray-500">Last 7 days overview</p>
             </div>
-            <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
-                <div className="flex items-center gap-2">
-                  <TrendingUpIcon className="h-4 w-4 shrink-0 text-green-600 sm:h-5 sm:w-5" />
-                  <p className="text-xs font-semibold text-gray-500">Engagement Rate</p>
+            {!performanceSummary || performanceSummary.total_posts === 0 ? (
+              <div className="space-y-3">
+                <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
+                    <div className="flex items-center gap-2">
+                      <TrendingUpIcon className="h-4 w-4 shrink-0 text-green-600 sm:h-5 sm:w-5" />
+                      <p className="text-xs font-semibold text-gray-500">Engagement Rate</p>
+                    </div>
+                    <p className="mt-2 text-xl font-bold text-gray-900 sm:text-2xl">--</p>
+                    <p className="mt-1 text-xs text-gray-500">Coming soon</p>
+                  </div>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
+                    <div className="flex items-center gap-2">
+                      <FireIcon className="h-4 w-4 shrink-0 text-orange-600 sm:h-5 sm:w-5" />
+                      <p className="text-xs font-semibold text-gray-500">Top Performing Post</p>
+                    </div>
+                    <p className="mt-2 text-sm font-semibold text-gray-900">--</p>
+                    <p className="mt-1 text-xs text-gray-500">Analytics coming soon</p>
+                  </div>
                 </div>
-                <p className="mt-2 text-xl font-bold text-gray-900 sm:text-2xl">--</p>
-                <p className="mt-1 text-xs text-gray-500">Coming soon</p>
-              </div>
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
-                <div className="flex items-center gap-2">
-                  <FireIcon className="h-4 w-4 shrink-0 text-orange-600 sm:h-5 sm:w-5" />
-                  <p className="text-xs font-semibold text-gray-500">Top Performing Post</p>
+                <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 sm:mt-4 sm:p-4">
+                  <p className="text-xs font-semibold text-blue-900">💡 Tip</p>
+                  <p className="mt-1 text-xs text-blue-700">
+                    Connect more platforms and publish regularly to see detailed performance metrics.
+                  </p>
                 </div>
-                <p className="mt-2 text-sm font-semibold text-gray-900">--</p>
-                <p className="mt-1 text-xs text-gray-500">Analytics coming soon</p>
               </div>
-            </div>
-            <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 sm:mt-4 sm:p-4">
-              <p className="text-xs font-semibold text-blue-900">💡 Tip</p>
-              <p className="mt-1 text-xs text-blue-700">
-                Connect more platforms and publish regularly to see detailed performance metrics.
-              </p>
-            </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
+                    <div className="flex items-center gap-2">
+                      <TrendingUpIcon className="h-4 w-4 shrink-0 text-green-600 sm:h-5 sm:w-5" />
+                      <p className="text-xs font-semibold text-gray-500">Engagement Rate</p>
+                    </div>
+                    <p className="mt-2 text-xl font-bold text-gray-900 sm:text-2xl">
+                      {performanceSummary.engagement_rate !== null
+                        ? `${performanceSummary.engagement_rate.toFixed(1)}%`
+                        : "--"}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {performanceSummary.total_posts} posts
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
+                    <div className="flex items-center gap-2">
+                      <FireIcon className="h-4 w-4 shrink-0 text-orange-600 sm:h-5 sm:w-5" />
+                      <p className="text-xs font-semibold text-gray-500">Top Performing Post</p>
+                    </div>
+                    {performanceSummary.top_performing_post ? (
+                      <>
+                        <p className="mt-2 text-sm font-semibold text-gray-900 truncate">
+                          {performanceSummary.top_performing_post.name}
+                        </p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          {performanceSummary.top_performing_post.impressions.toLocaleString()} impressions • {performanceSummary.top_performing_post.engagement_rate.toFixed(1)}% engagement
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="mt-2 text-sm font-semibold text-gray-900">--</p>
+                        <p className="mt-1 text-xs text-gray-500">No data available</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+                {performanceSummary.total_impressions > 0 && (
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="rounded-lg border border-gray-200 bg-white p-2">
+                      <p className="text-gray-500">Impressions</p>
+                      <p className="mt-1 font-semibold text-gray-900">{performanceSummary.total_impressions.toLocaleString()}</p>
+                    </div>
+                    <div className="rounded-lg border border-gray-200 bg-white p-2">
+                      <p className="text-gray-500">Reach</p>
+                      <p className="mt-1 font-semibold text-gray-900">{performanceSummary.total_reach.toLocaleString()}</p>
+                    </div>
+                    <div className="rounded-lg border border-gray-200 bg-white p-2">
+                      <p className="text-gray-500">Likes</p>
+                      <p className="mt-1 font-semibold text-gray-900">{performanceSummary.total_likes.toLocaleString()}</p>
+                    </div>
+                    <div className="rounded-lg border border-gray-200 bg-white p-2">
+                      <p className="text-gray-500">Comments</p>
+                      <p className="mt-1 font-semibold text-gray-900">{performanceSummary.total_comments.toLocaleString()}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -698,14 +769,16 @@ export default function TenantOverviewPage() {
                           ? post.platforms.join(", ")
                           : "No platforms"}
                       </p>
-                      <p className="mt-1 text-xs text-gray-400">
-                        {new Date(post.scheduled_at).toLocaleString([], {
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
+                      {post.scheduled_at && (
+                        <p className="mt-1 text-xs text-gray-400">
+                          {post.scheduled_at && new Date(post.scheduled_at).toLocaleString([], {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      )}
                     </div>
                   </Link>
                 ))
