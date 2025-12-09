@@ -14,9 +14,21 @@ export default function OnboardingPage() {
     retry: false,
   });
 
+  // Debug logging
+  useEffect(() => {
+    console.log('[OnboardingPage] State:', {
+      isLoading,
+      hasError: !!error,
+      hasUserData: !!userData,
+      onboardingComplete: userData?.onboarding?.complete,
+      onboardingStep: userData?.onboarding?.step,
+    });
+  }, [isLoading, error, userData]);
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (error instanceof ApiError && error.status === 401) {
+      console.log('[OnboardingPage] Unauthorized, redirecting to login');
       router.push('/login?next=/app/onboarding');
     }
   }, [error, router]);
@@ -24,6 +36,7 @@ export default function OnboardingPage() {
   // Redirect to /app if onboarding is complete
   useEffect(() => {
     if (userData?.onboarding?.complete) {
+      console.log('[OnboardingPage] Onboarding complete, redirecting to /app');
       router.push('/app');
     }
   }, [userData?.onboarding?.complete, router]);

@@ -75,15 +75,25 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
   // Update current step and saved data when status loads
   useEffect(() => {
     if (onboardingStatus) {
+      // Debug logging
+      console.log('[OnboardingWizard] Status loaded:', {
+        complete: onboardingStatus.complete,
+        step: onboardingStatus.step,
+        hasBusinessProfile: !!onboardingStatus.business_profile,
+        hasPersona: !!onboardingStatus.persona,
+      });
+      
       // Set current step from status (backend knows the current step)
       // Note: backend step doesn't include 'industry', so we default to 'industry' for new users
       // If onboarding is complete, we shouldn't be here (should redirect), but handle it anyway
       if (onboardingStatus.complete) {
+        console.log('[OnboardingWizard] Onboarding complete, should redirect');
         return; // Let the redirect handle this
       }
       
       // Backend returns steps after 'industry', so if step is undefined, user is on 'industry' step
       const stepFromStatus = onboardingStatus.step || 'industry';
+      console.log('[OnboardingWizard] Setting step to:', stepFromStatus);
       setCurrentStep(stepFromStatus as OnboardingStep);
       
       // Load saved data for pre-filling forms
@@ -96,6 +106,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     } else if (!isLoadingStatus && !onboardingError) {
       // If status hasn't loaded yet but we're not in error state, ensure we have a default step
       // This handles the case where the API call hasn't completed yet
+      console.log('[OnboardingWizard] No status yet, using default step');
       if (currentStep === 'industry' || !currentStep) {
         setCurrentStep('industry');
       }
@@ -185,6 +196,15 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
  };
 
   const renderStep = () => {
+    // Debug logging
+    console.log('[OnboardingWizard] renderStep called:', {
+      isLoadingStatus,
+      hasError: !!onboardingError,
+      currentStep,
+      currentStepIndex,
+      hasOnboardingStatus: !!onboardingStatus,
+    });
+
     if (isLoadingStatus) {
       return (
         <div className="flex flex-col items-center justify-center py-12">
@@ -195,6 +215,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     }
 
     if (onboardingError) {
+      console.error('[OnboardingWizard] Error loading status:', onboardingError);
       return (
         <div className="flex flex-col items-center justify-center py-12">
           <div className="mb-4 rounded-full bg-red-100 p-3">
@@ -215,6 +236,18 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
             Retry
           </button>
         </div>
+      );
+    }
+
+    // If we don't have a valid step, default to industry
+    if (!currentStep || currentStepIndex === -1) {
+      console.warn('[OnboardingWizard] Invalid step, defaulting to industry:', currentStep);
+      return (
+        <IndustryStep
+          onComplete={(data) => handleStepComplete('industry', data)}
+          isLoading={isSubmitting}
+          savedData={savedData.industry}
+        />
       );
     }
 

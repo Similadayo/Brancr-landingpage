@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIndustries, useTenantIndustry, useSetTenantIndustry } from "../hooks/useIndustry";
 import { PlusIcon, CheckCircleIcon } from "./icons";
 import { toast } from "react-hot-toast";
@@ -16,6 +16,17 @@ export function IndustrySelector({ onSelect, showDescription = true, allowChange
   const { data: currentIndustry, isLoading: currentLoading } = useTenantIndustry();
   const setIndustryMutation = useSetTenantIndustry();
   const [selectedId, setSelectedId] = useState<number | null>(currentIndustry?.industry_id || null);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('[IndustrySelector] State:', {
+      industriesCount: industries.length,
+      isLoading: industriesLoading,
+      hasError: !!industriesError,
+      currentIndustry: currentIndustry?.industry_name,
+      selectedId,
+    });
+  }, [industries, industriesLoading, industriesError, currentIndustry, selectedId]);
 
   const handleSelect = async (industryId: number) => {
     // Always allow changing industry - no restrictions
