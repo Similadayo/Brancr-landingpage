@@ -215,7 +215,7 @@ export default function InboxPage() {
                                      platform === "telegram" ? "Telegram" :
                                      platform === "tiktok" ? "TikTok" :
                                      platform === "email" ? "Email" :
-                                     platform.charAt(0).toUpperCase() + platform.slice(1);
+                                     platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : "Unknown";
                   
                   return (
                     <button
@@ -313,7 +313,7 @@ export default function InboxPage() {
                             />
                           ) : (
                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-medium text-primary">
-                              {conversation.customer_name.charAt(0).toUpperCase()}
+                              {(conversation.customer_name || "?").charAt(0).toUpperCase()}
                             </div>
                           )}
                           {/* Platform icon badge */}
@@ -375,7 +375,7 @@ export default function InboxPage() {
                     />
                   ) : (
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-medium text-primary flex-shrink-0">
-                      {activeConversation.customer_name.charAt(0).toUpperCase()}
+                      {(activeConversation.customer_name || "?").charAt(0).toUpperCase()}
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
@@ -597,7 +597,7 @@ export default function InboxPage() {
                       />
                     ) : (
                       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-base font-medium text-gray-600 flex-shrink-0">
-                        {activeConversation.customer_name.charAt(0).toUpperCase()}
+                        {(activeConversation.customer_name || "?").charAt(0).toUpperCase()}
                       </div>
                     )}
                     <div className="flex-1 min-w-0">

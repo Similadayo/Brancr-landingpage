@@ -453,7 +453,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
             <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Account</p>
             <div className="mt-3 flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
-                {tenant.name.charAt(0).toUpperCase()}
+                {(tenant.name || "?").charAt(0).toUpperCase()}
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-900">{tenant.name}</p>
@@ -535,7 +535,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                   <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Account</p>
                   <div className="mt-3 flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
-                      {tenant.name.charAt(0).toUpperCase()}
+                      {(tenant.name || "?").charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-gray-900">{tenant.name}</p>
@@ -546,7 +546,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
               ) : (
                 <div className="flex flex-col items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
-                    {tenant.name.charAt(0).toUpperCase()}
+                    {(tenant.name || "?").charAt(0).toUpperCase()}
                   </div>
                   <span className="text-xs font-semibold text-gray-600">Account</span>
                 </div>
@@ -617,7 +617,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                       className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-accent hover:text-accent"
                     >
                       <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
-                        {tenant.name.charAt(0).toUpperCase()}
+                        {(tenant.name || "?").charAt(0).toUpperCase()}
                       </span>
                       <span className="hidden text-left leading-tight lg:block">
                         <span className="block text-xs text-gray-500">{tenant.name.split(" ")[0]}</span>
