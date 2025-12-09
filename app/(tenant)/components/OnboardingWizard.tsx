@@ -86,19 +86,19 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       // If onboarding is complete, redirect immediately
       if (onboardingStatus.complete) {
         console.log('[OnboardingWizard] Onboarding complete, redirecting to /app');
-        // Invalidate queries to refresh user data
+        // Invalidate and refetch queries to ensure fresh data
         void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
         void queryClient.invalidateQueries({ queryKey: ['onboarding', 'status'] });
-        // Redirect to app - use window.location as fallback for immediate redirect
-        router.push('/app');
-        router.refresh();
-        // Fallback: force redirect if router.push doesn't work
+        // Refetch immediately to ensure OnboardingGuard has fresh data
+        void queryClient.refetchQueries({ queryKey: ['auth', 'me'] });
+        void queryClient.refetchQueries({ queryKey: ['onboarding', 'status'] });
+        
+        // Use replace instead of push to avoid history issues, and use window.location for immediate redirect
+        router.replace('/app');
+        // Force immediate redirect using window.location to bypass any React state issues
         setTimeout(() => {
-          if (window.location.pathname === '/app/onboarding') {
-            console.log('[OnboardingWizard] Router redirect failed, using window.location');
-            window.location.href = '/app';
-          }
-        }, 500);
+          window.location.href = '/app';
+        }, 100);
         return;
       }
       

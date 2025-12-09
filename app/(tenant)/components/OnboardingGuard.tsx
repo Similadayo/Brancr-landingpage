@@ -48,11 +48,24 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
 
   // Check onboarding status from both sources - default to false if both are missing
   // onboardingStatus is more reliable as it's updated immediately when onboarding completes
-  const onboardingComplete = onboardingStatus?.complete ?? userData?.onboarding?.complete ?? false;
+  // Prioritize onboardingStatus.complete as it's updated immediately by the backend
+  const onboardingComplete = onboardingStatus?.complete === true 
+    ? true 
+    : (userData?.onboarding?.complete ?? false);
+  
   const currentStep = onboardingStatus?.step || userData?.onboarding?.step;
   
   // Filter out 'complete' step - OnboardingWizard doesn't accept it
   const validStep = currentStep && currentStep !== 'complete' ? currentStep : undefined;
+
+  // Debug logging
+  console.log('[OnboardingGuard] Status check:', {
+    pathname,
+    onboardingStatusComplete: onboardingStatus?.complete,
+    userDataComplete: userData?.onboarding?.complete,
+    onboardingComplete,
+    isLoading,
+  });
 
   // If onboarding is not complete, show wizard as overlay blocking other pages
   if (!onboardingComplete) {

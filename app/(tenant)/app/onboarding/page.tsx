@@ -53,11 +53,17 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (!isLoading && isComplete) {
       console.log('[OnboardingPage] Onboarding complete, redirecting to /app');
-      // Invalidate queries to ensure fresh data
+      // Invalidate and refetch queries to ensure fresh data
       void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
       void queryClient.invalidateQueries({ queryKey: ['onboarding', 'status'] });
-      router.push('/app');
-      router.refresh();
+      void queryClient.refetchQueries({ queryKey: ['auth', 'me'] });
+      void queryClient.refetchQueries({ queryKey: ['onboarding', 'status'] });
+      
+      // Use replace and window.location for immediate redirect
+      router.replace('/app');
+      setTimeout(() => {
+        window.location.href = '/app';
+      }, 100);
     }
   }, [isLoading, isComplete, router, queryClient]);
 
