@@ -23,6 +23,14 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
+    // Allow access to onboarding page
+    if (pathname === "/app/onboarding") {
+      return NextResponse.next();
+    }
+
+    // For other /app routes, OnboardingGuard will check onboarding status client-side
+    // This is necessary because we need to make an API call to check onboarding status
+    // which requires the session cookie that's already set
     return NextResponse.next();
   }
 

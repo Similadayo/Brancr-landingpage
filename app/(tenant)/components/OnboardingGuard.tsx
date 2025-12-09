@@ -26,11 +26,25 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
+  // Show loading state while checking onboarding status
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary mx-auto mb-4" />
+          <p className="text-sm text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check onboarding status - default to false if userData is missing
   const onboardingComplete = userData?.onboarding?.complete ?? false;
   const currentStep = userData?.onboarding?.step;
 
-  // If onboarding is not complete, show wizard as overlay blocking other pages
-  if (!isLoading && !onboardingComplete) {
+  // If onboarding is not complete, redirect to onboarding page or show wizard
+  if (!onboardingComplete) {
+    // Show wizard as overlay blocking other pages
     return (
       <>
         <OnboardingWizard initialStep={currentStep} />
@@ -40,6 +54,7 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // Onboarding is complete, allow access
   return <>{children}</>;
 }
 
