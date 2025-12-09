@@ -4,7 +4,7 @@
 
 import { globalRateLimiter, getEndpointRateLimiter } from './rate-limiter';
 import { requestDeduplicator, generateRequestKey } from './request-deduplication';
-import { captureException } from './sentry';
+import { captureException } from './observability';
 
 const DEFAULT_API_BASE_URL = "https://api.brancr.com";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL;

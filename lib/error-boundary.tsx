@@ -1,16 +1,7 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-
-// Lazy load Sentry to avoid issues if not configured
-let Sentry: typeof import('@sentry/nextjs') | null = null;
-if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_SENTRY_DSN) {
-  try {
-    Sentry = require('@sentry/nextjs');
-  } catch {
-    // Sentry not available
-  }
-}
+import { captureException } from '@/lib/observability';
 
 interface Props {
   children: ReactNode;
@@ -34,16 +25,11 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log to Sentry if available
-    if (Sentry) {
-      Sentry.captureException(error, {
-        contexts: {
-          react: {
-            componentStack: errorInfo.componentStack,
-          },
-        },
-      });
-    }
+    // Log to observability system
+    captureException(error, {
+      componentStack: errorInfo.componentStack,
+      errorBoundary: true,
+    });
 
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo);

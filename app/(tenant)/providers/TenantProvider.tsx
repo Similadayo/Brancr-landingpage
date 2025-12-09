@@ -1,9 +1,10 @@
 'use client';
 
-import { createContext, useContext, useMemo } from "react";
+import { createContext, useContext, useMemo, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { ApiError, authApi } from "@/lib/api";
+import { setUserContext, clearUserContext } from "@/lib/observability";
 
 type TenantProfile = {
   tenant_id: number;
@@ -46,6 +47,18 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
   if (error instanceof ApiError && error.status === 401 && !isOnboardingPage) {
     router.replace(`/login?next=${encodeURIComponent(pathname || "/app")}`);
   }
+
+  // Set observability user context when tenant is loaded
+  useEffect(() => {
+    if (data) {
+      setUserContext(data.tenant_id, data.email);
+    } else {
+      clearUserContext();
+    }
+    return () => {
+      clearUserContext();
+    };
+  }, [data]);
 
   const value = useMemo<TenantContextValue>(
     () => ({
