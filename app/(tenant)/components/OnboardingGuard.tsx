@@ -48,10 +48,9 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
 
   // Check onboarding status from both sources - default to false if both are missing
   // onboardingStatus is more reliable as it's updated immediately when onboarding completes
-  // Prioritize onboardingStatus.complete as it's updated immediately by the backend
-  const onboardingComplete = onboardingStatus?.complete === true 
-    ? true 
-    : (userData?.onboarding?.complete ?? false);
+  // Explicitly check for === true to prevent new users from skipping onboarding
+  // Only treat as complete if explicitly true, not undefined/null
+  const onboardingComplete = onboardingStatus?.complete === true || userData?.onboarding?.complete === true;
   
   const currentStep = onboardingStatus?.step || userData?.onboarding?.step;
   

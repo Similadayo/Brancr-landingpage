@@ -84,7 +84,8 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       });
       
       // If onboarding is complete, redirect immediately
-      if (onboardingStatus.complete) {
+      // Explicitly check for === true to prevent new users from skipping onboarding
+      if (onboardingStatus.complete === true) {
         console.log('[OnboardingWizard] Onboarding complete, redirecting to /app');
         // Invalidate and refetch queries to ensure fresh data
         void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
@@ -226,7 +227,8 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     });
 
     // If onboarding is complete, show redirect message (redirect should happen in useEffect)
-    if (onboardingStatus?.complete) {
+    // Explicitly check for === true to prevent new users from skipping onboarding
+    if (onboardingStatus?.complete === true) {
       return (
         <div className="flex flex-col items-center justify-center py-12">
           <div className="mb-4 rounded-full bg-green-100 p-3">
@@ -333,7 +335,8 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
   };
 
   // If onboarding is complete, show redirect message instead of wizard
-  if (onboardingStatus?.complete) {
+  // Explicitly check for === true to prevent new users from skipping onboarding
+  if (onboardingStatus?.complete === true) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="relative w-full max-w-4xl max-h-[92vh] overflow-hidden rounded-3xl bg-white shadow-2xl border border-gray-100 mx-auto">

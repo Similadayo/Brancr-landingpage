@@ -24,7 +24,9 @@ export default function OnboardingPage() {
   });
 
   const isLoading = isLoadingAuth || isLoadingStatus;
-  const isComplete = userData?.onboarding?.complete || onboardingStatus?.complete;
+  // Explicitly check for true - only treat as complete if explicitly true
+  // Default to false if undefined/null to prevent new users from skipping onboarding
+  const isComplete = onboardingStatus?.complete === true || userData?.onboarding?.complete === true;
 
   // Debug logging
   useEffect(() => {
@@ -80,7 +82,8 @@ export default function OnboardingPage() {
   }
 
   // If onboarding is already complete, show redirect message (redirect will happen via useEffect)
-  if (!isLoading && userData?.onboarding?.complete) {
+  // Explicitly check for true to prevent false positives
+  if (!isLoading && (onboardingStatus?.complete === true || userData?.onboarding?.complete === true)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="max-w-md rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-xl">
