@@ -645,14 +645,34 @@ export const tenantApi = {
     post<undefined, { success: boolean; message?: string }>(`/api/tenant/integrations/${platform}/repair`),
 
   // Scheduled posts endpoints
-  scheduledPosts: (params?: { status?: string; limit?: number }) => {
+  scheduledPosts: (params?: { status?: string; page?: number; limit?: number }) => {
     const query = params
       ? `?${new URLSearchParams(
           Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
         ).toString()}`
       : "";
     return get<{
-      scheduled_posts: Array<{
+      data: Array<{
+        id: string;
+        name: string;
+        caption: string;
+        status: "scheduled" | "posting" | "posted" | "failed" | "partial_failed" | "draft" | "cancelled";
+        scheduled_at: string | null;
+        platforms: string[];
+        media_asset_ids: string[];
+        attempts: number;
+        last_error?: string;
+        created_at: string;
+        posted_at?: string | null;
+      }>;
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        total_pages: number;
+      };
+      // Backward compatibility: also support old format with scheduled_posts array
+      scheduled_posts?: Array<{
         id: string;
         name: string;
         caption: string;

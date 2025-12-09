@@ -25,7 +25,7 @@ export type CampaignStats = {
   draft: number;
 };
 
-export function useScheduledPosts(params?: { status?: string; limit?: number }) {
+export function useScheduledPosts(params?: { status?: string; page?: number; limit?: number }) {
   return useQuery<ScheduledPost[], Error>({
     queryKey: ["scheduled-posts", params],
     queryFn: async () => {
@@ -33,12 +33,16 @@ export function useScheduledPosts(params?: { status?: string; limit?: number }) 
         console.log('[useScheduledPosts] Fetching with params:', params);
         const response = await tenantApi.scheduledPosts(params);
         console.log('[useScheduledPosts] API response:', response);
-        const posts = response?.scheduled_posts || [];
+        
+        // Support both new paginated format (data) and old format (scheduled_posts) for backward compatibility
+        const posts = response?.data || response?.scheduled_posts || [];
         console.log('[useScheduledPosts] Posts extracted:', posts.length, posts);
+        
         if (!Array.isArray(posts)) {
           console.warn('[useScheduledPosts] Posts is not an array:', posts);
           return [];
         }
+        
         // Normalize array properties
         const normalized = posts.map((post) => ({
           ...post,
