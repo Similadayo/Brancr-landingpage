@@ -50,12 +50,15 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   // onboardingStatus is more reliable as it's updated immediately when onboarding completes
   const onboardingComplete = onboardingStatus?.complete ?? userData?.onboarding?.complete ?? false;
   const currentStep = onboardingStatus?.step || userData?.onboarding?.step;
+  
+  // Filter out 'complete' step - OnboardingWizard doesn't accept it
+  const validStep = currentStep && currentStep !== 'complete' ? currentStep : undefined;
 
   // If onboarding is not complete, show wizard as overlay blocking other pages
   if (!onboardingComplete) {
     return (
       <>
-        <OnboardingWizard initialStep={currentStep} />
+        <OnboardingWizard initialStep={validStep as 'industry' | 'business_profile' | 'persona' | 'business_details' | 'social_connect' | undefined} />
         {/* Render children behind the modal so layout doesn't break */}
         <div className="opacity-0 pointer-events-none">{children}</div>
       </>
