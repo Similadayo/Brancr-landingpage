@@ -82,33 +82,6 @@ export default function CampaignsPage() {
   const [editCaption, setEditCaption] = useState<string>("");
   const [editScheduledAt, setEditScheduledAt] = useState<string>("");
 
-  // Debug logging
-  useEffect(() => {
-    console.log('[CampaignsPage] Debug:', {
-      activeTab,
-      apiStatusFilter,
-      scheduledPostsCount: scheduledPosts.length,
-      campaignStatsScheduled: campaignStats?.scheduled,
-      statusFilter,
-      platformFilter,
-      searchQuery,
-      currentPostsCount: currentPosts.length,
-      scheduledPosts: scheduledPosts.map(p => ({ 
-        id: p.id, 
-        name: p.name, 
-        status: p.status, 
-        platforms: p.platforms,
-        scheduled_at: p.scheduled_at 
-      })),
-      currentPosts: currentPosts.map(p => ({ 
-        id: p.id, 
-        name: p.name, 
-        status: p.status 
-      })),
-      rawData: scheduledPostsData,
-    });
-  }, [activeTab, apiStatusFilter, scheduledPosts, campaignStats, statusFilter, platformFilter, searchQuery, currentPosts, scheduledPostsData]);
-
   // Filter posts (client-side for status filter, platform filter, and search)
   const currentPosts = useMemo(() => {
     let posts = [...scheduledPosts];
@@ -176,6 +149,33 @@ export default function CampaignsPage() {
       return new Date(aTime).getTime() - new Date(bTime).getTime();
     });
   }, [scheduledPosts, activeTab, statusFilter, platformFilter, searchQuery]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('[CampaignsPage] Debug:', {
+      activeTab,
+      apiStatusFilter,
+      scheduledPostsCount: scheduledPosts.length,
+      campaignStatsScheduled: campaignStats?.scheduled,
+      statusFilter,
+      platformFilter,
+      searchQuery,
+      currentPostsCount: currentPosts.length,
+      scheduledPosts: scheduledPosts.map(p => ({ 
+        id: p.id, 
+        name: p.name, 
+        status: p.status, 
+        platforms: p.platforms,
+        scheduled_at: p.scheduled_at 
+      })),
+      currentPosts: currentPosts.map(p => ({ 
+        id: p.id, 
+        name: p.name, 
+        status: p.status 
+      })),
+      rawData: scheduledPostsData,
+    });
+  }, [activeTab, apiStatusFilter, scheduledPosts, campaignStats, statusFilter, platformFilter, searchQuery, currentPosts, scheduledPostsData]);
 
   const handleCancel = (postId: string, postName: string) => {
     if (confirm(`Are you sure you want to cancel "${postName}"? This cannot be undone.`)) {
