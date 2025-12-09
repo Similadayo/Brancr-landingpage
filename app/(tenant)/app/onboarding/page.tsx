@@ -2,28 +2,44 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import { authApi, ApiError } from '@/lib/api';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { authApi, tenantApi, ApiError } from '@/lib/api';
 import { OnboardingWizard } from '@/app/(tenant)/components/OnboardingWizard';
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { data: userData, isLoading, error } = useQuery({
+  const queryClient = useQueryClient();
+  
+  // Check both auth.me and onboardingStatus to ensure we catch completion
+  const { data: userData, isLoading: isLoadingAuth, error } = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: () => authApi.me(),
     retry: false,
   });
 
+  const { data: onboardingStatus, isLoading: isLoadingStatus } = useQuery({
+    queryKey: ['onboarding', 'status'],
+    queryFn: () => tenantApi.onboardingStatus(),
+    retry: false,
+  });
+
+  const isLoading = isLoadingAuth || isLoadingStatus;
+  const isComplete = userData?.onboarding?.complete || onboardingStatus?.complete;
+
   // Debug logging
   useEffect(() => {
     console.log('[OnboardingPage] State:', {
       isLoading,
+      isLoadingAuth,
+      isLoadingStatus,
       hasError: !!error,
       hasUserData: !!userData,
-      onboardingComplete: userData?.onboarding?.complete,
-      onboardingStep: userData?.onboarding?.step,
+      hasOnboardingStatus: !!onboardingStatus,
+      userOnboardingComplete: userData?.onboarding?.complete,
+      statusOnboardingComplete: onboardingStatus?.complete,
+      isComplete,
     });
-  }, [isLoading, error, userData]);
+  }, [isLoading, isLoadingAuth, isLoadingStatus, error, userData, onboardingStatus, isComplete]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -33,13 +49,17 @@ export default function OnboardingPage() {
     }
   }, [error, router]);
 
-  // Redirect to /app if onboarding is complete
+  // Redirect to /app if onboarding is complete (check both sources)
   useEffect(() => {
-    if (userData?.onboarding?.complete) {
+    if (!isLoading && isComplete) {
       console.log('[OnboardingPage] Onboarding complete, redirecting to /app');
+      // Invalidate queries to ensure fresh data
+      void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      void queryClient.invalidateQueries({ queryKey: ['onboarding', 'status'] });
       router.push('/app');
+      router.refresh();
     }
-  }, [userData?.onboarding?.complete, router]);
+  }, [isLoading, isComplete, router, queryClient]);
 
   // If there&apos;s an auth error, show redirect message (redirect will happen via useEffect)
   if (error instanceof ApiError && error.status === 401) {

@@ -203,7 +203,23 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       currentStep,
       currentStepIndex,
       hasOnboardingStatus: !!onboardingStatus,
+      isComplete: onboardingStatus?.complete,
     });
+
+    // If onboarding is complete, show redirect message (redirect should happen in useEffect)
+    if (onboardingStatus?.complete) {
+      return (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="mb-4 rounded-full bg-green-100 p-3">
+            <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Onboarding Complete!</h3>
+          <p className="text-sm text-gray-600">Redirecting to your dashboard...</p>
+        </div>
+      );
+    }
 
     if (isLoadingStatus) {
       return (
