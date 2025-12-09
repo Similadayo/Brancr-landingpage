@@ -6,6 +6,7 @@ import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { tenantApi } from "@/lib/api";
+import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import MediaUploader, { type UploadedMedia } from "@/app/(tenant)/components/posting/MediaUploader";
 import PlatformSelector from "@/app/(tenant)/components/posting/PlatformSelector";
 import SchedulePicker from "@/app/(tenant)/components/posting/SchedulePicker";
@@ -236,7 +237,19 @@ export default function NewBulkUploadPage() {
         router.push("/app/bulk-uploads");
       }, 2000);
     } catch (error: any) {
-      const errorMessage = error?.body?.message || error?.message || "Failed to create bulk upload";
+      // Check for "coming soon" feature
+      const errorBody = error?.body || {};
+      if (error?.status === 501 || errorBody.coming_soon) {
+        toast.error("Bulk uploads are coming soon! This feature will be available shortly.", { duration: 5000 });
+        return;
+      }
+
+      const errorMessage = getUserFriendlyErrorMessage(error, {
+        action: 'creating bulk upload',
+        resource: 'bulk upload',
+        coming_soon: errorBody.coming_soon,
+        feature: errorBody.feature || 'bulk_uploads',
+      }) || error?.body?.message || error?.message || "Failed to create bulk upload";
       toast.error(errorMessage, { duration: 5000 });
     } finally {
       setIsSubmitting(false);

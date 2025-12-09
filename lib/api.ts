@@ -524,6 +524,7 @@ export const tenantApi = {
         status?: string;
         joined_at?: string;
       }>;
+      coming_soon?: boolean;
     }>("/api/tenant/team/members"),
 
   teamMember: (memberId: string) =>

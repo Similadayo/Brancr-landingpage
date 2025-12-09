@@ -14,22 +14,35 @@ export type TeamMember = {
 };
 
 export function useTeamMembers() {
-  return useQuery<TeamMember[], Error>({
+  return useQuery<{ members: TeamMember[]; coming_soon?: boolean } | TeamMember[], Error>({
     queryKey: ["team", "members"],
     queryFn: async () => {
       try {
         const response = await tenantApi.teamMembers();
-        return response.members.map((member) => ({
-          id: member.id,
-          name: member.name,
-          email: member.email,
-          role: member.role,
-          status: member.status,
-          joined_at: member.joined_at,
-        }));
+        // Check for "coming soon" flag
+        if ('coming_soon' in response && response.coming_soon) {
+          return { members: [], coming_soon: true };
+        }
+        // Handle both response formats
+        const members = Array.isArray(response) 
+          ? response 
+          : (response.members || []).map((member: any) => ({
+              id: member.id,
+              name: member.name,
+              email: member.email,
+              role: member.role,
+              status: member.status,
+              joined_at: member.joined_at,
+            }));
+        return { members, coming_soon: false };
       } catch (error) {
-        if (error instanceof ApiError && error.status === 404) {
-          return [];
+        if (error instanceof ApiError) {
+          if (error.status === 404) {
+            return { members: [], coming_soon: false };
+          }
+          if (error.status === 501 || error.body?.coming_soon) {
+            return { members: [], coming_soon: true };
+          }
         }
         throw error;
       }

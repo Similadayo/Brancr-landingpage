@@ -12,7 +12,9 @@ export default function TeamSettingsPage() {
   const { tenant } = useTenant();
   const { data: rolesData } = useQuery({ queryKey: ["team", "roles"], queryFn: () => tenantApi.teamRoles(), retry: 0 });
   const { data: invitationsData } = useQuery({ queryKey: ["team", "invitations"], queryFn: () => tenantApi.teamInvitations(), retry: 0 });
-  const { data: teamMembers = [], isLoading, error } = useTeamMembers();
+  const { data: teamData, isLoading, error } = useTeamMembers();
+  const teamMembers = Array.isArray(teamData) ? teamData : (teamData?.members || []);
+  const comingSoon = !Array.isArray(teamData) && teamData?.coming_soon;
   const inviteMutation = useInviteTeamMember();
   const deleteMutation = useDeleteTeamMember();
 
@@ -76,6 +78,18 @@ export default function TeamSettingsPage() {
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+          </div>
+        ) : comingSoon ? (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+              <svg className="h-6 w-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p className="text-sm font-semibold text-amber-900">Team Management Coming Soon</p>
+            <p className="mt-2 text-xs text-amber-700">
+              Team management features will be available soon. We&apos;re working on it!
+            </p>
           </div>
         ) : error ? (
           <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center">

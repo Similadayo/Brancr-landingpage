@@ -6,6 +6,8 @@ import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { tenantApi } from "@/lib/api";
+import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
+import { captureException } from "@/lib/observability";
 import MediaUploader, { type UploadedMedia } from "@/app/(tenant)/components/posting/MediaUploader";
 import MediaSelector from "@/app/(tenant)/components/posting/MediaSelector";
 import CaptionEditor from "@/app/(tenant)/components/posting/CaptionEditor";
@@ -254,7 +256,32 @@ export default function NewPostPage() {
         }, 2000);
       }
     } catch (error: any) {
-      const errorMessage = error?.body?.message || error?.message || "Failed to publish post";
+      // Enhanced error handling with platform-specific detection
+      const errorBody = error?.body || {};
+      const alertType = errorBody.alert_type || errorBody.error || '';
+      const errorMessage = getUserFriendlyErrorMessage(error, {
+        action: 'publishing post',
+        resource: 'post',
+        platform: selectedPlatforms[0],
+        alert_type: alertType,
+        coming_soon: errorBody.coming_soon,
+        feature: errorBody.feature,
+      });
+
+      // Log critical platform errors to monitoring
+      if (alertType === 'whatsapp_template_failure' || alertType === 'instagram_rate_limit' || alertType === 'tiktok_upload_failure') {
+        captureException(new Error(`Platform error: ${alertType}`), {
+          alert_type: alertType,
+          platform: selectedPlatforms.join(','),
+          error_message: errorMessage,
+          post_data: {
+            platforms: selectedPlatforms,
+            has_media: selectedMediaIds.length > 0,
+            has_caption: !!caption,
+          },
+        });
+      }
+
       setPublishingStatus({
         status: "error",
         error: errorMessage,

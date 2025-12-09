@@ -7,6 +7,9 @@ export interface ErrorContext {
   action?: string; // What the user was trying to do
   resource?: string; // What resource was involved
   platform?: string; // Which platform (if applicable)
+  alert_type?: string; // Specific error type from API (e.g., 'whatsapp_template_failure', 'instagram_rate_limit', 'tiktok_upload_failure')
+  coming_soon?: boolean; // Whether this is a "coming soon" feature
+  feature?: string; // Feature name for "coming soon" messages
 }
 
 /**
@@ -18,20 +21,61 @@ export function getUserFriendlyErrorMessage(
 ): string {
   // Handle ApiError instances
   if (error && typeof error === 'object' && 'status' in error) {
-    const apiError = error as { status?: number; message?: string; body?: { message?: string } };
+    const apiError = error as { 
+      status?: number; 
+      message?: string; 
+      body?: { 
+        message?: string;
+        error?: string;
+        coming_soon?: boolean;
+        feature?: string;
+        alert_type?: string;
+        [key: string]: unknown;
+      } 
+    };
     const status = apiError.status;
-    const message = apiError.body?.message || apiError.message || '';
+    const body = apiError.body || {};
+    const message = body.message || apiError.message || '';
+    const errorCode = body.error || '';
+    const alertType = context?.alert_type || body.alert_type || '';
+
+    // Check for "coming soon" features
+    if (status === 501 || body.coming_soon) {
+      const featureName = body.feature || context?.feature || 'This feature';
+      return `${featureName} is coming soon. We're working on it!`;
+    }
+
+    // Handle platform-specific errors
+    if (alertType === 'whatsapp_template_failure' || errorCode === 'whatsapp_template_failure' || message.toLowerCase().includes('template')) {
+      return 'Unable to send WhatsApp message. Template may need approval. Please try again later.';
+    }
+
+    if (alertType === 'instagram_rate_limit' || errorCode === 'instagram_rate_limit' || (status === 403 && message.toLowerCase().includes('rate limit'))) {
+      return 'Instagram rate limit reached. Please wait 5-10 minutes before sending more messages.';
+    }
+
+    if (alertType === 'tiktok_upload_failure' || errorCode === 'tiktok_upload_failure' || message.toLowerCase().includes('tiktok upload failed')) {
+      return 'TikTok video upload failed. Please check that your video is in a supported format and under the size limit.';
+    }
 
     // Map HTTP status codes to user-friendly messages
     switch (status) {
       case 400:
+        // Check for template errors in 400 responses
+        if (message.toLowerCase().includes('template') || errorCode.includes('template')) {
+          return 'WhatsApp template error. Please check template approval status.';
+        }
         return message || 'Invalid request. Please check your input and try again.';
       case 401:
         return 'Your session has expired. Please log in again.';
       case 403:
+        // Check for rate limits in 403 responses
+        if (message.toLowerCase().includes('rate limit') || context?.platform === 'instagram') {
+          return 'Instagram rate limit reached. Please wait a few minutes before trying again.';
+        }
         return context?.action === 'onboarding'
           ? 'Please complete onboarding to access this feature.'
-          : 'You don\'t have permission to perform this action.';
+          : 'You do not have permission to perform this action.';
       case 404:
         return context?.resource
           ? `${context.resource} not found. It may have been deleted or moved.`
@@ -112,6 +156,11 @@ export const ErrorMessages = {
     connect: 'Failed to connect account. Please try again.',
     disconnect: 'Failed to disconnect account. Please try again.',
     verify: 'Failed to verify connection. Please check your account settings.',
+  },
+  platform: {
+    whatsapp_template: 'WhatsApp template error. Template may need approval. Please try again later.',
+    instagram_rate_limit: 'Instagram rate limit reached. Please wait 5-10 minutes before sending more messages.',
+    tiktok_upload: 'TikTok video upload failed. Please check video format and size limit.',
   },
   generic: {
     network: 'Unable to connect. Please check your internet connection.',

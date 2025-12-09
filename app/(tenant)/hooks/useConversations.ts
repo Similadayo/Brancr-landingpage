@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { ApiError, tenantApi } from "@/lib/api";
 import { getUserFriendlyErrorMessage, ErrorMessages } from "@/lib/error-messages";
+import { captureException } from "@/lib/observability";
 
 export type InteractionMedia = {
   url?: string;
@@ -369,9 +370,22 @@ export function useSendReply(conversationId: string | null) {
       void queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
     onError: (error) => {
+      const errorBody = error && typeof error === 'object' && 'body' in error ? (error as any).body : {};
+      const alertType = errorBody?.alert_type || errorBody?.error || '';
+      
+      // Log critical platform errors to monitoring
+      if (alertType === 'whatsapp_template_failure' || alertType === 'instagram_rate_limit') {
+        captureException(new Error(`Platform error: ${alertType}`), {
+          alert_type: alertType,
+          action: 'sending message',
+          conversation_id: conversationId,
+        });
+      }
+      
       const message = getUserFriendlyErrorMessage(error, {
         action: 'sending reply',
         resource: 'message',
+        alert_type: alertType,
       });
       toast.error(message || ErrorMessages.conversation.send);
     },
