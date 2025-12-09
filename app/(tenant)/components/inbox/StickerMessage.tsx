@@ -23,11 +23,12 @@ export function StickerMessage({ media }: StickerMessageProps) {
     <div className="space-y-2">
       <Image
         src={stickerUrl}
-        alt="Sticker"
+        alt="Sticker message"
         width={200}
         height={200}
-        className="max-w-[200px] h-auto rounded-lg"
+        className="max-w-full sm:max-w-[200px] h-auto rounded-lg"
         unoptimized
+        sizes="(max-width: 640px) 150px, 200px"
       />
       {media.image_analysis && (
         <details className="text-xs">

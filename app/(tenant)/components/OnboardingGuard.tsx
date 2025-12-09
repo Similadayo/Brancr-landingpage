@@ -30,7 +30,9 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   }
 
   // Don't block if there's an auth error (TenantProvider will handle it)
-  if (error instanceof ApiError && error.status === 401) {
+  // Use a safer check that works in test environments
+  // Check for status property directly to avoid instanceof issues in tests
+  if (error && typeof error === 'object' && 'status' in error && (error as { status?: number }).status === 401) {
     return <>{children}</>;
   }
 

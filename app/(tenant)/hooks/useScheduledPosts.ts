@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { ApiError, tenantApi } from "@/lib/api";
+import { getUserFriendlyErrorMessage, ErrorMessages } from "@/lib/error-messages";
 
 export type ScheduledPost = {
   id: string;
@@ -99,11 +100,11 @@ export function useCancelScheduledPost() {
       void queryClient.invalidateQueries({ queryKey: ["scheduled-post", postId] });
     },
     onError: (error) => {
-      if (error instanceof ApiError) {
-        toast.error(error.message);
-      } else {
-        toast.error("Failed to cancel post");
-      }
+      const message = getUserFriendlyErrorMessage(error, {
+        action: 'cancelling post',
+        resource: 'post',
+      });
+      toast.error(message || ErrorMessages.campaign.cancel);
     },
   });
 }
@@ -120,11 +121,11 @@ export function useUpdateScheduledPost() {
       void queryClient.invalidateQueries({ queryKey: ["campaign-stats"] });
     },
     onError: (error) => {
-      if (error instanceof ApiError) {
-        toast.error(error.message);
-      } else {
-        toast.error("Failed to update post");
-      }
+      const message = getUserFriendlyErrorMessage(error, {
+        action: 'updating post',
+        resource: 'post',
+      });
+      toast.error(message || ErrorMessages.campaign.update);
     },
   });
 }

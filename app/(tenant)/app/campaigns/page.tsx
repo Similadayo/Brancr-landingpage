@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useScheduledPosts, useCancelScheduledPost, useUpdateScheduledPost, useCampaignStats } from "@/app/(tenant)/hooks/useScheduledPosts";
 import { tenantApi } from "@/lib/api";
 import { toast } from "react-hot-toast";
+import { getUserFriendlyErrorMessage, ErrorMessages } from "@/lib/error-messages";
 import { useTemplates } from "@/app/(tenant)/hooks/useTemplates";
 import {
   RocketIcon,
@@ -267,7 +268,7 @@ export default function CampaignsPage() {
       </div>
 
       {/* Filters and Search */}
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-3 sm:p-4 shadow-sm sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
           <input
@@ -275,6 +276,7 @@ export default function CampaignsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search posts by name, caption, or platform..."
+            aria-label="Search posts"
             className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
@@ -318,8 +320,18 @@ export default function CampaignsPage() {
         ) : error ? (
           <div className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center">
             <XCircleIcon className="mx-auto h-12 w-12 text-rose-400" />
-            <p className="mt-3 text-sm font-semibold text-rose-900">Failed to load posts</p>
-            <p className="mt-1 text-xs text-rose-700">{error?.message || "Unknown error occurred"}</p>
+            <p className="mt-3 text-sm font-semibold text-rose-900">
+              {getUserFriendlyErrorMessage(error, {
+                action: 'loading posts',
+                resource: 'posts',
+              }) || ErrorMessages.campaign.load || 'Failed to load posts'}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 text-xs text-rose-700 hover:text-rose-900 underline"
+            >
+              Refresh page
+            </button>
           </div>
         ) : currentPosts.length === 0 ? (
           <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-12 text-center">

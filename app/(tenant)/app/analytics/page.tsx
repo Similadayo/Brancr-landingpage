@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useAnalytics } from "@/app/(tenant)/hooks/useAnalytics";
 import { EmptyState } from "@/app/(tenant)/components/analytics/EmptyState";
+import { getUserFriendlyErrorMessage, ErrorMessages } from "@/lib/error-messages";
 import {
   ChartBarIcon,
   CalendarIcon,
@@ -177,8 +178,18 @@ export default function AnalyticsPage() {
       ) : error ? (
         <div className="rounded-xl border border-rose-200 bg-rose-50 p-8 text-center">
           <ChartBarIcon className="mx-auto h-12 w-12 text-rose-400" />
-          <p className="mt-3 text-sm font-semibold text-rose-900">Failed to load analytics</p>
-          <p className="mt-1 text-xs text-rose-700">{error.message}</p>
+          <p className="mt-3 text-sm font-semibold text-rose-900">
+            {getUserFriendlyErrorMessage(error, {
+              action: 'loading analytics',
+              resource: 'analytics',
+            }) || ErrorMessages.analytics.load}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 text-xs text-rose-700 hover:text-rose-900 underline"
+          >
+            Refresh page
+          </button>
         </div>
       ) : (
         <>

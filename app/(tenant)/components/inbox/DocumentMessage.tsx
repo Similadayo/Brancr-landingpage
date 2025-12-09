@@ -42,6 +42,7 @@ export function DocumentMessage({ media }: DocumentMessageProps) {
         rel="noopener noreferrer"
         className="inline-block rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 transition"
         download={filename}
+        aria-label={`Download document: ${filename}`}
       >
         📥 Download Document
       </a>

@@ -6,6 +6,7 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { tenantApi, ApiError } from '@/lib/api';
+import { getUserFriendlyErrorMessage, ErrorMessages } from '@/lib/error-messages';
 import { useTenantIndustry } from '../hooks/useIndustry';
 import { IndustryStep } from './onboarding/IndustryStep';
 import { BusinessProfileStep } from './onboarding/BusinessProfileStep';
@@ -180,11 +181,18 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         setCurrentStep(STEPS[currentStepIndex + 1].id);
       }
     } catch (error) {
-      if (error instanceof ApiError) {
-        toast.error(error.message || 'Failed to save step');
-      } else {
-        toast.error('An error occurred. Please try again.');
-      }
+      const stepMessages: Record<OnboardingStep, string> = {
+        industry: ErrorMessages.onboarding.industry,
+        business_profile: ErrorMessages.onboarding.businessProfile,
+        persona: ErrorMessages.onboarding.persona,
+        business_details: ErrorMessages.onboarding.businessDetails,
+        social_connect: ErrorMessages.onboarding.complete,
+      };
+      const message = getUserFriendlyErrorMessage(error, {
+        action: 'saving onboarding step',
+        resource: step,
+      });
+      toast.error(message || stepMessages[step] || ErrorMessages.onboarding.complete);
     } finally {
       setIsSubmitting(false);
     }
@@ -205,11 +213,10 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       router.push(redirectTo);
       router.refresh();
     } catch (error) {
-      if (error instanceof ApiError) {
-        toast.error(error.message || 'Failed to complete onboarding');
-      } else {
-        toast.error('An error occurred. Please try again.');
-      }
+      const message = getUserFriendlyErrorMessage(error, {
+        action: 'completing onboarding',
+      });
+      toast.error(message || ErrorMessages.onboarding.complete);
     } finally {
       setIsSubmitting(false);
     }

@@ -28,6 +28,15 @@ export function ImageMessage({ media }: ImageMessageProps) {
       <div 
         className="relative cursor-pointer rounded-lg overflow-hidden"
         onClick={() => setShowFullscreen(true)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setShowFullscreen(true);
+          }
+        }}
+        aria-label="Click to view image in fullscreen"
       >
         <Image
           src={imageUrl}
@@ -37,6 +46,7 @@ export function ImageMessage({ media }: ImageMessageProps) {
           className="max-w-full h-auto rounded-lg"
           onError={() => setImageError(true)}
           unoptimized
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
         />
         {imageError && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 rounded-lg">
@@ -88,6 +98,7 @@ export function ImageMessage({ media }: ImageMessageProps) {
               e.stopPropagation();
               setShowFullscreen(false);
             }}
+            aria-label="Close fullscreen image"
           >
             ✕
           </button>

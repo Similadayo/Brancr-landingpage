@@ -11,6 +11,7 @@ import {
   useUpdateConversation, 
   useSuggestReplies
 } from "@/app/(tenant)/hooks/useConversations";
+import { getUserFriendlyErrorMessage, ErrorMessages } from "@/lib/error-messages";
 import type { Message, ConversationDetail, ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
 import { MessageMedia } from "@/app/(tenant)/components/inbox/MessageMedia";
 import { PlatformAnalytics } from "../../components/inbox/PlatformAnalytics";
@@ -259,8 +260,19 @@ export default function InboxPage() {
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
               </div>
             ) : error ? (
-              <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 md:p-6 text-center text-sm text-rose-900 m-3">
-                Failed to load conversations: {error.message}
+              <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 md:p-6 text-center m-3">
+                <p className="text-sm font-semibold text-rose-900">
+                  {getUserFriendlyErrorMessage(error, {
+                    action: 'loading conversations',
+                    resource: 'conversations',
+                  }) || ErrorMessages.conversation.load}
+                </p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="mt-3 text-xs text-rose-700 hover:text-rose-900 underline"
+                >
+                  Refresh page
+                </button>
               </div>
             ) : sortedConversations.length === 0 ? (
               <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 md:p-8 text-center m-3">
@@ -456,11 +468,13 @@ export default function InboxPage() {
                         className={`flex ${isIncoming ? "justify-start" : "justify-end"}`}
                       >
                         <div
-                          className={`max-w-[75%] rounded-2xl px-4 py-3 ${
+                          className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 ${
                             isIncoming
                               ? "bg-white"
                               : "bg-primary text-white"
                           }`}
+                          role="article"
+                          aria-label={`${isIncoming ? 'Incoming' : 'Outgoing'} message`}
                         >
                           {/* Media Display - Render actual media when present */}
                           {message.media && message.media.type ? (
@@ -526,8 +540,13 @@ export default function InboxPage() {
                     }}
                     disabled={sendReplyMutation.isPending || !selectedConversationId}
                     placeholder="Type message here.."
+                    aria-label="Message input"
+                    aria-describedby="message-input-hint"
                     className="min-h-[44px] max-h-[120px] flex-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-700 transition-all focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                   />
+                  <span id="message-input-hint" className="sr-only">
+                    Press Cmd+Enter or Ctrl+Enter to send
+                  </span>
                   <button 
                     className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                     aria-label="Add emoji"

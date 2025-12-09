@@ -23,7 +23,7 @@ export function AudioMessage({ media }: AudioMessageProps) {
 
   return (
     <div className="space-y-2">
-      <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+      <div className="rounded-lg border border-gray-200 bg-gray-50 p-2 sm:p-3">
         <audio
           controls
           src={audioUrl}
@@ -31,6 +31,7 @@ export function AudioMessage({ media }: AudioMessageProps) {
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
           onEnded={() => setIsPlaying(false)}
+          aria-label="Audio message player"
         >
           Your browser does not support the audio element.
         </audio>

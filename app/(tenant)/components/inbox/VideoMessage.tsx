@@ -23,8 +23,9 @@ export function VideoMessage({ media }: VideoMessageProps) {
       <video
         controls
         src={videoUrl}
-        className="w-full max-w-md rounded-lg"
+        className="w-full max-w-full sm:max-w-md rounded-lg"
         preload="metadata"
+        aria-label="Video message player"
       >
         Your browser does not support the video element.
       </video>

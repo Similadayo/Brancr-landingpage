@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { ApiError, tenantApi } from "@/lib/api";
+import { getUserFriendlyErrorMessage, ErrorMessages } from "@/lib/error-messages";
 
 export type InteractionMedia = {
   url?: string;
@@ -368,11 +369,11 @@ export function useSendReply(conversationId: string | null) {
       void queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
     onError: (error) => {
-      if (error instanceof ApiError) {
-        toast.error(error.message);
-      } else {
-        toast.error("Unable to send reply. Please try again.");
-      }
+      const message = getUserFriendlyErrorMessage(error, {
+        action: 'sending reply',
+        resource: 'message',
+      });
+      toast.error(message || ErrorMessages.conversation.send);
     },
   });
 }
