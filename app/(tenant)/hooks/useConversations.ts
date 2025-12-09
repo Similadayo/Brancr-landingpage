@@ -20,6 +20,9 @@ export type ConversationSummary = {
   customer_id: number;
   customer_name: string;
   customer_avatar?: string;
+  customer_phone?: string;
+  customer_country_code?: string;
+  customer_dial_code?: string;
   platform: "whatsapp" | "instagram" | "facebook" | "tiktok" | "telegram" | "email";
   status: "active" | "resolved" | "archived";
   last_message: string;
@@ -54,6 +57,9 @@ export type ConversationDetail = {
   customer_id: number;
   customer_name: string;
   customer_avatar?: string;
+  customer_phone?: string;
+  customer_country_code?: string;
+  customer_dial_code?: string;
   platform: string;
   status: "active" | "resolved" | "archived";
   messages: Message[];
@@ -268,6 +274,9 @@ export function useConversation(conversationId: string | null) {
           customer_id: response.customer_id,
           customer_name: customerName,
           customer_avatar: response.customer_avatar,
+          customer_phone: response.customer_phone,
+          customer_country_code: response.customer_country_code,
+          customer_dial_code: response.customer_dial_code,
           platform: response.platform,
           status: (response.status === "active" || response.status === "resolved" || response.status === "archived"
             ? response.status

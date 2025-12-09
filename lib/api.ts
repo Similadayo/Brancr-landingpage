@@ -197,6 +197,9 @@ export const tenantApi = {
         customer_id: number;
         customer_name: string;
         customer_avatar?: string;
+        customer_phone?: string;
+        customer_country_code?: string;
+        customer_dial_code?: string;
         platform: string;
         status: string;
         last_message: string;
@@ -226,6 +229,9 @@ export const tenantApi = {
       customer_id: number;
       customer_name: string;
       customer_avatar?: string;
+      customer_phone?: string;
+      customer_country_code?: string;
+      customer_dial_code?: string;
       platform: string;
       status: string;
       messages: Array<{

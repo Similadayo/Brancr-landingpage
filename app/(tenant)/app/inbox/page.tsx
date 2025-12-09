@@ -615,7 +615,15 @@ export default function InboxPage() {
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-900">{activeConversation.customer_name}</p>
-                      <p className="text-xs text-gray-500">+62 989-289-929</p>
+                      {activeConversation.customer_phone ? (
+                        <p className="text-xs text-gray-500">
+                          {activeConversation.customer_country_code 
+                            ? `+${activeConversation.customer_country_code} ${activeConversation.customer_dial_code || activeConversation.customer_phone}`
+                            : activeConversation.customer_phone}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-400 italic">No phone number</p>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-2 mb-4">
@@ -632,6 +640,28 @@ export default function InboxPage() {
                 <div className="mb-6">
                   <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Contact Information</h4>
                   <div className="space-y-2 text-xs">
+                    {activeConversation.customer_phone && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Phone:</span>
+                        <span className="text-gray-900 font-medium">
+                          {activeConversation.customer_country_code 
+                            ? `+${activeConversation.customer_country_code} ${activeConversation.customer_dial_code || activeConversation.customer_phone}`
+                            : activeConversation.customer_phone}
+                        </span>
+                      </div>
+                    )}
+                    {activeConversation.customer_country_code && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Country Code:</span>
+                        <span className="text-gray-900 font-medium">+{activeConversation.customer_country_code}</span>
+                      </div>
+                    )}
+                    {activeConversation.customer_dial_code && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Dial Code:</span>
+                        <span className="text-gray-900 font-medium">{activeConversation.customer_dial_code}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <span className="text-gray-500">Status:</span>
                       <select
@@ -652,10 +682,6 @@ export default function InboxPage() {
                       <span className="text-gray-900 font-medium">
                         {new Date(activeConversation.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
                       </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Country:</span>
-                      <span className="text-gray-900 font-medium">Yordania</span>
                     </div>
                   </div>
                 </div>
