@@ -223,7 +223,11 @@ export default function TenantOverviewPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 flex-1">
             <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl">
-              Welcome back{tenant?.name ? `, ${tenant.name.split(" ")[0]}` : ""}
+              {(() => {
+                const displayName = (tenant?.business_name?.trim() || tenant?.name?.trim() || "");
+                const firstWord = displayName.split(/\s+/).filter(Boolean)[0];
+                return `Welcome back${firstWord ? ", " + firstWord : ""}`;
+              })()}
             </h1>
             <p className="mt-1 text-xs text-gray-600 sm:mt-2 sm:text-sm">
               Here&apos;s a quick snapshot of your automation, conversations, and campaign health today.
