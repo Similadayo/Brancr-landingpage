@@ -147,7 +147,7 @@ export default function TenantOverviewPage() {
           description: `${conv.customer_name} on ${conv.platform}`,
           timestamp: new Date(conv.updated_at),
           icon: <InboxIcon className="w-4 h-4" />,
-          href: `/app/inbox/${conv.id}`,
+          href: `/app/inbox?conversation=${conv.id}`,
           color: "text-green-600 bg-green-50",
         });
       });
