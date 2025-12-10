@@ -45,6 +45,7 @@ const getCoreNavItems = (badges?: { inbox?: number; escalations?: number }): Nav
   { label: "Inbox", href: "/app/inbox", icon: <InboxIcon className="w-5 h-5" />, badge: badges?.inbox },
   { label: "Escalations", href: "/app/escalations", icon: <AlertIcon className="w-5 h-5" />, badge: badges?.escalations },
   { label: "Campaigns", href: "/app/campaigns", icon: <RocketIcon className="w-5 h-5" /> },
+  { label: "Payments", href: "/app/payments", icon: <CreditCardIcon className="w-5 h-5" /> },
   { label: "Orders", href: "/app/orders", icon: <PackageIcon className="w-5 h-5" /> },
   { label: "Calendar", href: "/app/calendar", icon: <CalendarIcon className="w-5 h-5" /> },
 ];
@@ -236,6 +237,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
   }
 
   const sidebarDesktopWidth = isSidebarCollapsed ? 92 : 276;
+  const sidebarWidthClass = isSidebarCollapsed ? "w-[92px]" : "w-[276px]";
 
   function renderNavItem(item: NavItem, compact: boolean, isActive: boolean) {
     return (
@@ -490,9 +492,9 @@ export function TenantShell({ children }: { children: ReactNode }) {
         {/* Desktop sidebar */}
         <aside
           className={cn(
-          "sticky top-0 hidden h-screen shrink-0 border-r border-gray-200 bg-white px-4 py-6 transition-all duration-300 lg:flex lg:flex-col"
+          "sticky top-0 hidden h-screen shrink-0 border-r border-gray-200 bg-white px-4 py-6 transition-all duration-300 lg:flex lg:flex-col",
+          sidebarWidthClass
           )}
-          style={{ width: sidebarDesktopWidth }}
         >
           <div className={cn("flex items-center gap-3", isSidebarCollapsed && "justify-center")}>
             <Link href="/app" className="flex items-center gap-3 text-lg font-semibold text-gray-900">

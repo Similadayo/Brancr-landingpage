@@ -1,6 +1,16 @@
 const DEFAULT_API_BASE_URL = "https://api.brancr.com";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL;
 
+// Lightweight token accessor for client-side requests
+export function getAuthToken(): string | null {
+  try {
+    if (typeof window === "undefined") return null;
+    return window.localStorage.getItem("token");
+  } catch {
+    return null;
+  }
+}
+
 type ApiErrorBody = {
   error?: string;
   [key: string]: unknown;

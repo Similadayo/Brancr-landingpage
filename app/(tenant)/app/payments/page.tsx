@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import { useTenant } from '@/app/(tenant)/providers/TenantProvider';
+import { getAuthToken } from '@/lib/api';
 
 type Payment = {
   id: number;
@@ -52,16 +53,6 @@ type PaymentsListResponse = {
   limit: number;
   offset: number;
 };
-
-function getAuthToken(): string | null {
-  try {
-    if (typeof window === 'undefined') return null;
-    // Prefer bearer token from localStorage for MVP; adapt as needed.
-    return window.localStorage.getItem('token');
-  } catch {
-    return null;
-  }
-}
 
 function currencyFormat(amount: number, currency: string) {
   try {
