@@ -53,3 +53,10 @@ html.dark .bg-neutral-bg { background-color: #0B0B11 !important; }
   }
 }
 
+/* Dashboard button sizing (exclude inbox via data attribute) */
+[data-tenant-shell]:not([data-tenant-page="inbox"]) button {
+  min-height: 46px;
+  padding-block: 12px;
+  padding-inline: 14px;
+}
+

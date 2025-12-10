@@ -82,6 +82,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(true);
   const [isMediaExpanded, setIsMediaExpanded] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const isInboxPage = pathname?.startsWith("/app/inbox");
 
   // Check onboarding status
   const { data: onboardingStatus } = useQuery({
@@ -362,7 +363,11 @@ export function TenantShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100">
+    <div
+      data-tenant-shell
+      data-tenant-page={isInboxPage ? "inbox" : "default"}
+      className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100"
+    >
       {/* Mobile overlay */}
       {isMobileNavOpen ? (
         <div
