@@ -453,14 +453,14 @@ export function TenantShell({ children }: { children: ReactNode }) {
             <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Account</p>
             <div className="mt-3 flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm">
               {(() => {
-                const displayName = (tenant?.business_name?.trim() || tenant?.name?.trim() || tenant?.email?.split("@")[0] || "User");
+                const displayName = (tenant?.business_profile?.name?.trim() || tenant?.business_name?.trim() || tenant?.name?.trim() || tenant?.email?.split("@")[0] || "User");
                 const nameParts = displayName.split(/\s+/).filter(Boolean);
                 const initials = (nameParts[0]?.charAt(0) || "U") + (nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "");
                 const initialsUpper = initials.toUpperCase();
                 return (
                   <>
-                    {tenant?.logo_url ? (
-                      <img src={tenant.logo_url} alt={displayName} className="h-10 w-10 rounded-full object-cover" />
+                    {(tenant?.business_profile?.logo_url || tenant?.logo_url) ? (
+                      <img src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} className="h-10 w-10 rounded-full object-cover" />
                     ) : (
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
                         {initialsUpper}
@@ -631,14 +631,14 @@ export function TenantShell({ children }: { children: ReactNode }) {
                       className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-accent hover:text-accent"
                     >
                       {(() => {
-                        const displayName = (tenant?.business_name?.trim() || tenant?.name?.trim() || tenant?.email?.split("@")[0] || "User");
+                        const displayName = (tenant?.business_profile?.name?.trim() || tenant?.business_name?.trim() || tenant?.name?.trim() || tenant?.email?.split("@")[0] || "User");
                         const nameParts = displayName.split(/\s+/).filter(Boolean);
                         const initials = (nameParts[0]?.charAt(0) || "U") + (nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "");
                         const initialsUpper = initials.toUpperCase();
                         return (
                           <>
-                            {tenant?.logo_url ? (
-                              <img src={tenant.logo_url} alt={displayName} className="h-8 w-8 rounded-full object-cover" />
+                            {(tenant?.business_profile?.logo_url || tenant?.logo_url) ? (
+                              <img src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} className="h-8 w-8 rounded-full object-cover" />
                             ) : (
                               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
                                 {initialsUpper}

@@ -224,7 +224,7 @@ export default function TenantOverviewPage() {
           <div className="min-w-0 flex-1">
             <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl">
               {(() => {
-                const displayName = (tenant?.business_name?.trim() || tenant?.name?.trim() || "");
+                const displayName = (tenant?.business_profile?.name?.trim() || tenant?.business_name?.trim() || tenant?.name?.trim() || "");
                 const firstWord = displayName.split(/\s+/).filter(Boolean)[0];
                 return `Welcome back${firstWord ? ", " + firstWord : ""}`;
               })()}
