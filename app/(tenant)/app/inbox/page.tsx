@@ -1,17 +1,21 @@
 'use client';
 
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useTenant } from "../../providers/TenantProvider";
+import { useWebSocketTenant } from "@/lib/hooks/use-websocket-tenant";
 import { 
   useConversations, 
   useConversation, 
   useSendReply, 
   useUpdateConversationStatus, 
   useUpdateConversation, 
-  useSuggestReplies
+  useSuggestReplies,
+  useMarkConversationRead,
 } from "@/app/(tenant)/hooks/useConversations";
+import type { TenantNotification } from "@/lib/api";
 import { getUserFriendlyErrorMessage, ErrorMessages } from "@/lib/error-messages";
 import type { Message, ConversationDetail, ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
 import { MessageMedia } from "@/app/(tenant)/components/inbox/MessageMedia";
@@ -45,37 +49,10 @@ export default function InboxPage() {
   const unreadCountsRef = useRef<Record<string, number>>({});
   const hasInitializedUnreadRef = useRef(false);
   const audioContextRef = useRef<AudioContext | null>(null);
-  const rawUnreadCountsRef = useRef<Record<string, number>>({});
-  const lastReadSnapshotsRef = useRef<Record<string, number>>({});
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [attachments, setAttachments] = useState<File[]>([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-
-  const SNAPSHOT_STORAGE_KEY = "brancr_inbox_last_read";
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const stored = window.localStorage.getItem(SNAPSHOT_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed && typeof parsed === "object") {
-          lastReadSnapshotsRef.current = parsed as Record<string, number>;
-        }
-      }
-    } catch {
-      // ignore storage errors
-    }
-  }, []);
-
-  const persistSnapshots = useCallback(() => {
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem(SNAPSHOT_STORAGE_KEY, JSON.stringify(lastReadSnapshotsRef.current));
-    } catch {
-      // ignore storage errors
-    }
-  }, []);
+  const searchParams = useSearchParams();
 
   // Build filters for API
   const apiFilters = useMemo(() => {
@@ -103,21 +80,7 @@ export default function InboxPage() {
     return Array.isArray(conversationsData) ? conversationsData : [];
   }, [conversationsData]);
 
-  useEffect(() => {
-    rawUnreadCountsRef.current = conversations.reduce<Record<string, number>>((acc, conv) => {
-      acc[String(conv.id)] = conv.unread_count ?? 0;
-      return acc;
-    }, {});
-  }, [conversations]);
-
-  const conversationsWithEffectiveUnread = useMemo(() => {
-    return conversations.map((conv) => {
-      const id = String(conv.id);
-      const snapshot = lastReadSnapshotsRef.current[id] ?? 0;
-      const effectiveUnread = Math.max((conv.unread_count ?? 0) - snapshot, 0);
-      return { ...conv, unread_count: effectiveUnread };
-    });
-  }, [conversations]);
+  const conversationsWithEffectiveUnread = useMemo(() => conversations, [conversations]);
 
   // Get available platforms from conversations
   const availablePlatforms = useMemo(() => {
@@ -154,13 +117,34 @@ export default function InboxPage() {
   const sendReplyMutation = useSendReply(selectedConversationId);
   const updateStatusMutation = useUpdateConversationStatus(selectedConversationId);
   const updateConversationMutation = useUpdateConversation(selectedConversationId);
+  const markConversationReadMutation = useMarkConversationRead();
+
+  useWebSocketTenant((message) => {
+    if (!message || typeof message !== "object") return;
+    const payload = (message as any).payload;
+    const type = (message as any).type;
+    const conversationId = payload?.conversation_id ?? payload?.conversationId ?? payload?.conversationID;
+    const isIncoming = payload?.direction === "incoming" || payload?.direction === "inbound";
+
+    if (!conversationId || !isIncoming) return;
+
+    const idStr = String(conversationId);
+    const isActive = selectedConversationId === idStr;
+
+    // Increment unread for non-active conversations
+    if (!isActive) {
+      queryClient.setQueriesData<ConversationSummary[]>(["conversations"], (old) => {
+        if (!old) return old;
+        return old.map((conv) =>
+          String(conv.id) === idStr ? { ...conv, unread_count: (conv.unread_count || 0) + 1 } : conv
+        );
+      });
+      playNotificationSound();
+    }
+  });
 
   const markConversationAsRead = useCallback((conversationId: string) => {
     if (!conversationId) return;
-
-    const currentRaw = rawUnreadCountsRef.current[conversationId] ?? 0;
-    lastReadSnapshotsRef.current[conversationId] = currentRaw;
-    persistSnapshots();
 
     unreadCountsRef.current[conversationId] = 0;
 
@@ -171,7 +155,24 @@ export default function InboxPage() {
         String(conv.id) === conversationId ? { ...conv, unread_count: 0 } : conv
       );
     });
-  }, [persistSnapshots, queryClient]);
+
+    queryClient.setQueriesData<{ notifications: TenantNotification[] }>(
+      { queryKey: ["notifications"] },
+      (oldData) => {
+        if (!oldData || !Array.isArray(oldData.notifications)) return oldData;
+        const now = new Date().toISOString();
+        return {
+          ...oldData,
+          notifications: oldData.notifications.map((notification) =>
+            notification.conversation_id && String(notification.conversation_id) === conversationId
+              ? { ...notification, read_at: notification.read_at ?? now, status: notification.status ?? "read" }
+              : notification
+          ),
+        };
+      }
+    );
+    markConversationReadMutation.mutate(conversationId);
+  }, [queryClient, markConversationReadMutation]);
 
   const playNotificationSound = useCallback(() => {
     try {
@@ -204,6 +205,14 @@ export default function InboxPage() {
       setSelectedConversationId(String(conversations[0].id));
     }
   }, [conversations, selectedConversationId]);
+
+  useEffect(() => {
+    const targetId = searchParams?.get("conversationId");
+    if (targetId && targetId !== selectedConversationId) {
+      setSelectedConversationId(targetId);
+      setMobileView("chat");
+    }
+  }, [searchParams, selectedConversationId]);
 
   useEffect(() => {
     if (selectedConversationId) {

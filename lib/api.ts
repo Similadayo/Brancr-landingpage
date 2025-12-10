@@ -28,6 +28,22 @@ export class ApiError extends Error {
   }
 }
 
+export type TenantNotification = {
+  id: string | number;
+  type?: string;
+  title?: string;
+  message?: string;
+  category?: string;
+  status?: string;
+  created_at: string;
+  read_at?: string | null;
+  conversation_id?: string | number;
+  escalation_id?: string | number;
+  resource_id?: string | number;
+  resource_type?: string;
+  metadata?: Record<string, unknown>;
+};
+
 type ApiRequestOptions = RequestInit & {
   parseJson?: boolean;
 };
@@ -272,6 +288,9 @@ export const tenantApi = {
       created_at: string;
       updated_at: string;
     }>(`/api/tenant/conversations/${conversationId}`),
+
+  markConversationRead: (conversationId: string) =>
+    post<undefined, { success: boolean }>(`/api/tenant/conversations/${conversationId}/read`),
 
   sendReply: (conversationId: string, payload: { message: string; attachments?: File[] } | FormData) => {
     let body: FormData | { message: string; attachments?: File[] } = payload;
@@ -2048,6 +2067,64 @@ export const tenantApi = {
       receipt_url: string;
       message?: string;
     }>(`/api/tenant/payments/${paymentId}/generate-receipt`),
+
+  // Tenant Notifications
+  getNotifications: (params?: {
+    status?: "unread" | "read" | "all";
+    type?: string;
+    since?: string;
+    limit?: number;
+    offset?: number;
+    cursor?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.status && params.status !== "all") {
+      queryParams.append("status", params.status);
+    }
+    if (params?.type) {
+      queryParams.append("type", params.type);
+    }
+    if (params?.since) {
+      queryParams.append("since", params.since);
+    }
+    if (params?.limit) {
+      queryParams.append("limit", params.limit.toString());
+    }
+    if (params?.offset) {
+      queryParams.append("offset", params.offset.toString());
+    }
+    if (params?.cursor) {
+      queryParams.append("cursor", params.cursor);
+    }
+    const query = queryParams.toString();
+
+    return get<{
+      notifications: TenantNotification[];
+      unread_count?: number;
+      total?: number;
+      next_cursor?: string | null;
+    }>(`/api/tenant/notifications${query ? `?${query}` : ""}`);
+  },
+
+  getNotificationCounts: () =>
+    get<{
+      total?: number;
+      unread?: number;
+    }>("/api/tenant/notifications/counts"),
+
+  markNotificationRead: (notificationId: string | number) =>
+    post<undefined, {
+      success: boolean;
+      notification?: TenantNotification;
+      unread_count?: number;
+    }>(`/api/tenant/notifications/${notificationId}/read`),
+
+  markAllNotificationsRead: () =>
+    post<undefined, {
+      success?: boolean;
+      updated?: number;
+      unread_count?: number;
+    }>("/api/tenant/notifications/read-all"),
 
   // Notification Settings
   getNotificationSettings: () =>

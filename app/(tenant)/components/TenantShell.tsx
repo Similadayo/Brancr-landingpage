@@ -32,6 +32,7 @@ import {
   BellIcon,
 } from "./icons";
 import { CommandPalette } from "./CommandPalette";
+import { NotificationsBell } from "./NotificationsBell";
 
 type NavItem = {
   label: string;
@@ -124,27 +125,10 @@ export function TenantShell({ children }: { children: ReactNode }) {
   });
 
   const navBadges = useMemo(() => {
-    const SNAPSHOT_STORAGE_KEY = "brancr_inbox_last_read";
-    let lastReadSnapshots: Record<string, number> = {};
-    if (typeof window !== "undefined") {
-      try {
-        const raw = window.localStorage.getItem(SNAPSHOT_STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (parsed && typeof parsed === "object") {
-            lastReadSnapshots = parsed as Record<string, number>;
-          }
-        }
-      } catch {
-        // ignore storage errors
-      }
-    }
-
-    const unreadConversations = conversationsData?.conversations?.filter((c: any) => {
-      const snapshot = lastReadSnapshots[String(c.id)] ?? 0;
-      const effective = Math.max((c.unread_count ?? 0) - snapshot, 0);
-      return effective > 0;
-    }).length || 0;
+    const conversations = Array.isArray(conversationsData?.conversations)
+      ? conversationsData?.conversations
+      : [];
+    const unreadConversations = conversations.filter((c: any) => (c.unread_count ?? 0) > 0).length;
     const pendingEscalations = escalationsData?.escalations?.filter((e: any) => e.status === "pending").length || 0;
     return {
       inbox: unreadConversations > 0 ? unreadConversations : undefined,
@@ -626,6 +610,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                       <p className="text-sm font-bold text-gray-900">{stats.conversations}</p>
                     </div>
                   </div>
+                  <NotificationsBell />
                   {/* User Profile */}
                   <div className="relative" ref={profileMenuRef}>
                     <button

@@ -466,3 +466,23 @@ export function useSuggestReplies(conversationId: string | null) {
     },
   });
 }
+
+export function useMarkConversationRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (conversationId: string) => {
+      if (!conversationId) throw new Error("No conversation id");
+      await tenantApi.markConversationRead(conversationId);
+      return conversationId;
+    },
+    onSuccess: (conversationId) => {
+      queryClient.setQueryData<ConversationSummary[]>(["conversations"], (old) => {
+        if (!old) return old;
+        return old.map((conv) =>
+          String(conv.id) === conversationId ? { ...conv, unread_count: 0 } : conv
+        );
+      });
+      void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    },
+  });
+}
