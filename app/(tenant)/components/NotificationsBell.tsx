@@ -131,7 +131,7 @@ export function NotificationsBell() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
-  const unreadCount = countsData?.unread ?? data?.unread_count ?? 0;
+  const unreadCount = countsData?.unread ?? (data && "unread_count" in data ? data.unread_count : 0) ?? 0;
   const notifications = data?.notifications ?? [];
 
   const isEmpty = !isLoading && notifications.length === 0;
