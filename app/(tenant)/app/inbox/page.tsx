@@ -117,7 +117,7 @@ export default function InboxPage() {
   const sendReplyMutation = useSendReply(selectedConversationId);
   const updateStatusMutation = useUpdateConversationStatus(selectedConversationId);
   const updateConversationMutation = useUpdateConversation(selectedConversationId);
-  const markConversationReadMutation = useMarkConversationRead();
+  const { mutate: markConversationRead } = useMarkConversationRead();
 
   useWebSocketTenant((message) => {
     if (!message || typeof message !== "object") return;
@@ -171,8 +171,8 @@ export default function InboxPage() {
         };
       }
     );
-    markConversationReadMutation.mutate(conversationId);
-  }, [queryClient, markConversationReadMutation]);
+    markConversationRead(conversationId);
+  }, [queryClient, markConversationRead]);
 
   const playNotificationSound = useCallback(() => {
     try {

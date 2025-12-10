@@ -8,6 +8,7 @@ import { captureException } from "@/lib/observability";
 
 // Avoid spamming toasts when the conversations service is down
 let hasNotifiedConversations503 = false;
+let suppressMarkReadUntil = 0;
 
 export type InteractionMedia = {
   url?: string;
@@ -498,8 +499,20 @@ export function useMarkConversationRead() {
   return useMutation({
     mutationFn: async (conversationId: string) => {
       if (!conversationId) throw new Error("No conversation id");
-      await tenantApi.markConversationRead(conversationId);
-      return conversationId;
+      if (suppressMarkReadUntil && Date.now() < suppressMarkReadUntil) {
+        return conversationId; // skip hitting API while service is down
+      }
+
+      try {
+        await tenantApi.markConversationRead(conversationId);
+        return conversationId;
+      } catch (error) {
+        if (error instanceof ApiError && error.status >= 500) {
+          suppressMarkReadUntil = Date.now() + 30_000; // back off for 30s on server errors
+          return conversationId; // resolve to avoid surfacing an error state
+        }
+        throw error;
+      }
     },
     onSuccess: (conversationId) => {
       queryClient.setQueryData<ConversationSummary[]>(["conversations"], (old) => {
