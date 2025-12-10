@@ -452,13 +452,21 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm">
             <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Account</p>
             <div className="mt-3 flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
-                {(tenant.name || "?").charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900">{tenant.name}</p>
-                <p className="text-xs text-gray-500">{tenant.email}</p>
-              </div>
+              {(() => {
+                const displayName = (tenant?.name?.trim() || tenant?.email?.split("@")[0] || "User");
+                const initial = displayName.charAt(0).toUpperCase();
+                return (
+                  <>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
+                      {initial}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{displayName}</p>
+                      <p className="text-xs text-gray-500">{tenant?.email}</p>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
             <button
               type="button"
@@ -616,13 +624,21 @@ export function TenantShell({ children }: { children: ReactNode }) {
                       onClick={() => setIsProfileMenuOpen((prev) => !prev)}
                       className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-accent hover:text-accent"
                     >
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
-                        {(tenant.name || "?").charAt(0).toUpperCase()}
-                      </span>
-                      <span className="hidden text-left leading-tight lg:block">
-                        <span className="block text-xs text-gray-500">{(tenant.name || "User").split(" ")[0]}</span>
-                        <span className="text-xs capitalize">{tenant.plan ?? "trial"}</span>
-                      </span>
+                      {(() => {
+                        const displayName = (tenant?.name?.trim() || tenant?.email?.split("@")[0] || "User");
+                        const initial = displayName.charAt(0).toUpperCase();
+                        return (
+                          <>
+                            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
+                              {initial}
+                            </span>
+                            <span className="hidden text-left leading-tight lg:block">
+                              <span className="block text-xs text-gray-500">{displayName.split(" ")[0]}</span>
+                              <span className="text-xs capitalize">{tenant?.plan ?? "trial"}</span>
+                            </span>
+                          </>
+                        );
+                      })()}
                       <ChevronDownIcon
                         className={cn("w-4 h-4 text-gray-400 transition-transform", isProfileMenuOpen && "rotate-180")}
                         aria-hidden
