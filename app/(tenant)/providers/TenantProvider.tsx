@@ -41,13 +41,23 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
   const {
     data,
     isLoading,
+    isFetching,
     error,
     refetch,
   } = useQuery<TenantProfile, Error>({
     queryKey: ["tenant", "profile"],
     queryFn: async () => authApi.me(),
-    retry: false,
+    retry: (failureCount, err) => {
+      // Retry transient server errors a few times before surfacing
+      if (err instanceof ApiError && err.status >= 500) {
+        return failureCount < 3;
+      }
+      return false;
+    },
+    staleTime: 60_000,
   });
+
+  const serverUnavailable = error instanceof ApiError && error.status >= 500;
 
   // Don't redirect on onboarding page - let it handle its own auth
   if (error instanceof ApiError && error.status === 401 && !isOnboardingPage) {
@@ -69,8 +79,12 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<TenantContextValue>(
     () => ({
       tenant: data ?? null,
-      loading: isLoading,
-      error: error && !(error instanceof ApiError && error.status === 401) ? error.message : null,
+      loading: serverUnavailable ? true : (isLoading || isFetching),
+      error: serverUnavailable
+        ? "Service temporarily unavailable. Please try again."
+        : error && !(error instanceof ApiError && error.status === 401)
+          ? error.message
+          : null,
       refresh: () => {
         void refetch();
       },
