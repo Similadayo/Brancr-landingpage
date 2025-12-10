@@ -314,11 +314,11 @@ export function useSendReply(conversationId: string | null) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: { body: string }) => {
+    mutationFn: async (payload: { body: string; attachments?: File[] }) => {
       if (!conversationId) {
         throw new Error("No conversation selected");
       }
-      return tenantApi.sendReply(conversationId, { message: payload.body });
+      return tenantApi.sendReply(conversationId, { message: payload.body, attachments: payload.attachments });
     },
     onSuccess: (response) => {
       toast.success("Reply sent");

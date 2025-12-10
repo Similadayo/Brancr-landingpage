@@ -6,6 +6,7 @@ import { SettingsIcon, CheckCircleIcon, XIcon } from '../../../components/icons'
 import { toast } from 'react-hot-toast';
 
 export default function NotificationSettingsPage() {
+  const comingSoon = true;
   const { data: settings, isLoading } = useNotificationSettings();
   const updateMutation = useUpdateNotificationSettings();
   const testMutation = useTestNotifications();
@@ -108,9 +109,21 @@ export default function NotificationSettingsPage() {
         </div>
       </header>
 
+      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <p className="font-semibold">Inbox notifications are live.</p>
+        <p className="mt-1 text-amber-800">Email and webhook alerts are marked as coming soon so tenants can clearly see they differ from the in-app inbox.</p>
+      </div>
+
       {/* Email Notifications */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Email Notifications</h2>
+        <div className="mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-gray-900">Email Notifications</h2>
+          {comingSoon && (
+            <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-800">
+              Coming soon
+            </span>
+          )}
+        </div>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -123,8 +136,10 @@ export default function NotificationSettingsPage() {
                 checked={localSettings.email_notifications.enabled}
                 onChange={(e) => handleEmailToggle('enabled', e.target.checked)}
                 className="peer sr-only"
+                aria-label="Enable email notifications"
+                disabled={comingSoon}
               />
-              <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+              <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-disabled:opacity-60"></div>
             </label>
           </div>
 
@@ -141,8 +156,10 @@ export default function NotificationSettingsPage() {
                     checked={localSettings.email_notifications.order_status_changes}
                     onChange={(e) => handleEmailToggle('order_status_changes', e.target.checked)}
                     className="peer sr-only"
+                    aria-label="Notify on order status changes"
+                    disabled={comingSoon}
                   />
-                  <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+                  <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-disabled:opacity-60"></div>
                 </label>
               </div>
 
@@ -157,8 +174,10 @@ export default function NotificationSettingsPage() {
                     checked={localSettings.email_notifications.payment_confirmations}
                     onChange={(e) => handleEmailToggle('payment_confirmations', e.target.checked)}
                     className="peer sr-only"
+                    aria-label="Notify on payment confirmations"
+                    disabled={comingSoon}
                   />
-                  <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+                  <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-disabled:opacity-60"></div>
                 </label>
               </div>
 
@@ -173,8 +192,10 @@ export default function NotificationSettingsPage() {
                     checked={localSettings.email_notifications.receipt_generated}
                     onChange={(e) => handleEmailToggle('receipt_generated', e.target.checked)}
                     className="peer sr-only"
+                    aria-label="Notify when receipt is generated"
+                    disabled={comingSoon}
                   />
-                  <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+                  <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-disabled:opacity-60"></div>
                 </label>
               </div>
             </div>
@@ -184,7 +205,14 @@ export default function NotificationSettingsPage() {
 
       {/* Webhook Configuration */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Webhook Configuration</h2>
+        <div className="mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-gray-900">Webhook Configuration</h2>
+          {comingSoon && (
+            <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-800">
+              Coming soon
+            </span>
+          )}
+        </div>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -197,8 +225,10 @@ export default function NotificationSettingsPage() {
                 checked={localSettings.webhook.enabled}
                 onChange={(e) => handleWebhookToggle('enabled', e.target.checked)}
                 className="peer sr-only"
+                aria-label="Enable webhook notifications"
+                disabled={comingSoon}
               />
-              <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+              <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-disabled:opacity-60"></div>
             </label>
           </div>
 
@@ -211,7 +241,8 @@ export default function NotificationSettingsPage() {
                   value={localSettings.webhook.url}
                   onChange={(e) => handleWebhookToggle('url', e.target.value)}
                   placeholder="https://your-endpoint.com/webhook"
-                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-gray-50"
+                  disabled={comingSoon}
                 />
                 <p className="mt-1 text-xs text-gray-500">Your webhook endpoint URL</p>
               </div>
@@ -225,7 +256,8 @@ export default function NotificationSettingsPage() {
                         type="checkbox"
                         checked={localSettings.webhook.events.includes(event)}
                         onChange={() => handleEventToggle(event)}
-                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary disabled:cursor-not-allowed"
+                        disabled={comingSoon}
                       />
                       <span className="text-sm text-gray-700">{event}</span>
                     </label>
@@ -241,14 +273,14 @@ export default function NotificationSettingsPage() {
       <div className="flex items-center justify-end gap-3">
         <button
           onClick={handleTest}
-          disabled={testMutation.isPending}
+          disabled={testMutation.isPending || comingSoon}
           className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50"
         >
           {testMutation.isPending ? 'Testing...' : 'Test Notifications'}
         </button>
         <button
           onClick={handleSave}
-          disabled={updateMutation.isPending}
+          disabled={updateMutation.isPending || comingSoon}
           className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50"
         >
           {updateMutation.isPending ? 'Saving...' : 'Save Settings'}

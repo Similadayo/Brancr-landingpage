@@ -273,8 +273,19 @@ export const tenantApi = {
       updated_at: string;
     }>(`/api/tenant/conversations/${conversationId}`),
 
-  sendReply: (conversationId: string, payload: { message: string; attachments?: Array<Record<string, unknown>> }) =>
-    post<typeof payload, { 
+  sendReply: (conversationId: string, payload: { message: string; attachments?: File[] } | FormData) => {
+    let body: FormData | { message: string; attachments?: File[] } = payload;
+
+    if (!(payload instanceof FormData) && payload.attachments?.length) {
+      const formData = new FormData();
+      formData.append('message', payload.message);
+      payload.attachments.forEach((file) => {
+        formData.append('attachments', file);
+      });
+      body = formData;
+    }
+
+    return post<typeof body, { 
       success: boolean; 
       message: string; 
       interaction: {
@@ -302,7 +313,8 @@ export const tenantApi = {
           caption?: string;
         } | null;
       };
-    }>(`/api/tenant/conversations/${conversationId}/replies`, payload),
+    }>(`/api/tenant/conversations/${conversationId}/replies`, body);
+  },
 
   assignConversation: (conversationId: string, payload: { assignee_id: string | null }) =>
     patch<typeof payload, { success: boolean }>(

@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useTenant } from "../../providers/TenantProvider";
 import { 
@@ -33,6 +34,7 @@ const STATUS_FILTERS = ["All", "Unsigned", "Assigned", "Resolved"];
 
 export default function InboxPage() {
   const { tenant } = useTenant();
+  const queryClient = useQueryClient();
   const [activeStatusFilter, setActiveStatusFilter] = useState<string>("All");
   const [activePlatformFilter, setActivePlatformFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -40,6 +42,12 @@ export default function InboxPage() {
   const [replyText, setReplyText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [mobileView, setMobileView] = useState<"list" | "chat">("list");
+  const unreadCountsRef = useRef<Record<string, number>>({});
+  const hasInitializedUnreadRef = useRef(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   // Build filters for API
   const apiFilters = useMemo(() => {
@@ -103,11 +111,57 @@ export default function InboxPage() {
   const updateStatusMutation = useUpdateConversationStatus(selectedConversationId);
   const updateConversationMutation = useUpdateConversation(selectedConversationId);
 
+  const markConversationAsRead = useCallback((conversationId: string) => {
+    if (!conversationId) return;
+
+    unreadCountsRef.current[conversationId] = 0;
+
+    queryClient.setQueriesData<ConversationSummary[]>({ queryKey: ["conversations"] }, (oldData) => {
+      if (!oldData || !Array.isArray(oldData)) return oldData;
+
+      return oldData.map((conv) =>
+        String(conv.id) === conversationId ? { ...conv, unread_count: 0 } : conv
+      );
+    });
+  }, [queryClient]);
+
+  const playNotificationSound = useCallback(() => {
+    try {
+      if (typeof window === "undefined") return;
+      const AudioCtor = (window as typeof window & { webkitAudioContext?: typeof AudioContext }).AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtor) return;
+
+      const ctx = audioContextRef.current || new AudioCtor();
+      audioContextRef.current = ctx;
+
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      oscillator.type = "triangle";
+      oscillator.frequency.value = 880;
+      gainNode.gain.value = 0.08;
+
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + 0.15);
+    } catch {
+      // Ignore audio playback errors to avoid blocking UI
+    }
+  }, []);
+
   useEffect(() => {
     if (conversations.length > 0 && !selectedConversationId) {
       setSelectedConversationId(String(conversations[0].id));
     }
   }, [conversations, selectedConversationId]);
+
+  useEffect(() => {
+    if (selectedConversationId) {
+      markConversationAsRead(selectedConversationId);
+    }
+  }, [selectedConversationId, markConversationAsRead]);
 
   const activeConversation = conversationDetail;
   const messages = useMemo(() => {
@@ -126,21 +180,90 @@ export default function InboxPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    if (activeConversation?.id) {
+      markConversationAsRead(String(activeConversation.id));
+    }
+  }, [activeConversation?.id, markConversationAsRead]);
+
+  useEffect(() => {
+    if (!hasInitializedUnreadRef.current) {
+      unreadCountsRef.current = conversations.reduce<Record<string, number>>((acc, conv) => {
+        acc[String(conv.id)] = conv.unread_count;
+        return acc;
+      }, {});
+      hasInitializedUnreadRef.current = true;
+      return;
+    }
+
+    const nextCounts: Record<string, number> = {};
+    let shouldPlaySound = false;
+
+    conversations.forEach((conv) => {
+      const id = String(conv.id);
+      const previousCount = unreadCountsRef.current[id] ?? 0;
+      nextCounts[id] = conv.unread_count;
+
+      const isActive = selectedConversationId === id || activeConversation?.id === conv.id;
+
+      if (!isActive && conv.unread_count > previousCount) {
+        shouldPlaySound = true;
+      }
+    });
+
+    unreadCountsRef.current = nextCounts;
+
+    if (shouldPlaySound) {
+      playNotificationSound();
+    }
+  }, [conversations, selectedConversationId, activeConversation?.id, playNotificationSound]);
+
   const handleSendReply = async () => {
-    if (!replyText.trim() || !selectedConversationId) return;
+    if ((!replyText.trim() && attachments.length === 0) || !selectedConversationId) return;
     try {
-      await sendReplyMutation.mutateAsync({ body: replyText.trim() });
+      await sendReplyMutation.mutateAsync({ body: replyText.trim(), attachments });
       setReplyText("");
+      setAttachments([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     } catch (error) {
       // Error is handled by the hook
     }
   };
 
-  const handleConversationSelect = (id: string) => {
+  const handleConversationSelect = useCallback((id: string) => {
     setSelectedConversationId(id);
+    markConversationAsRead(id);
     if (typeof window !== "undefined" && window.innerWidth < 768) {
       setMobileView("chat");
     }
+  }, [markConversationAsRead]);
+
+  const handleAttachmentClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFilesSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    if (files.length === 0) return;
+
+    // Limit to 3 attachments and basic size guard (10MB each)
+    const filtered = files.filter((file) => file.size <= 10 * 1024 * 1024);
+    setAttachments((prev) => [...prev, ...filtered].slice(0, 3));
+  };
+
+  const handleRemoveAttachment = (index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleToggleEmojiPicker = () => {
+    setShowEmojiPicker((prev) => !prev);
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    setReplyText((prev) => `${prev}${emoji}`);
+    setShowEmojiPicker(false);
   };
 
   const formatTime = (dateString: string) => {
@@ -337,10 +460,12 @@ export default function InboxPage() {
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-gray-900 truncate">{conversation.customer_name}</span>
+                            <span className={`text-sm ${unread ? "font-semibold" : "font-medium"} text-gray-900 truncate`}>{conversation.customer_name}</span>
                             <div className="flex items-center gap-2 flex-shrink-0 ml-2">
                               {unread && (
-                                <span className="inline-flex h-2 w-2 rounded-full bg-blue-600" />
+                                <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                                  {conversation.unread_count > 9 ? "9+" : conversation.unread_count}
+                                </span>
                               )}
                               <span className="text-xs text-gray-500">{formatTime(conversation.last_message_at)}</span>
                             </div>
@@ -522,12 +647,26 @@ export default function InboxPage() {
               {/* Message Input - Fixed */}
               <div className="flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3 z-10">
                 <div className="flex items-end gap-2">
-                  <button 
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                    aria-label="Attach file"
-                  >
-                    <PaperClipIcon className="h-5 w-5" />
-                  </button>
+                  <div className="relative">
+                    <button 
+                      type="button"
+                      onClick={handleAttachmentClick}
+                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      aria-label="Attach file"
+                    >
+                      <PaperClipIcon className="h-5 w-5" />
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={handleFilesSelected}
+                      aria-label="Upload attachments"
+                      title="Upload attachments"
+                      accept="image/*,video/*,audio/*,application/pdf"
+                    />
+                  </div>
                   <textarea
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
@@ -546,17 +685,39 @@ export default function InboxPage() {
                   <span id="message-input-hint" className="sr-only">
                     Press Cmd+Enter or Ctrl+Enter to send
                   </span>
-                  <button 
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                    aria-label="Add emoji"
-                  >
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </button>
+                  <div className="relative">
+                    <button 
+                      type="button"
+                      onClick={handleToggleEmojiPicker}
+                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      aria-label="Add emoji"
+                    >
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </button>
+                    {showEmojiPicker && (
+                      <div className="absolute bottom-12 right-0 z-20 w-48 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
+                        <div className="grid grid-cols-6 gap-1 text-lg">
+                          {["😀","😁","😂","😊","😍","🤔","🙌","🔥","👍","🎉","🙏","😅","😎","🤩","🥳","🤝","💡","📌"].map((emoji) => (
+                            <button
+                              key={emoji}
+                              type="button"
+                              className="h-8 w-8 rounded hover:bg-gray-100"
+                              onClick={() => handleEmojiSelect(emoji)}
+                              aria-label={`Insert ${emoji}`}
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <button
                     onClick={() => void handleSendReply()}
-                    disabled={sendReplyMutation.isPending || !replyText.trim() || !selectedConversationId}
+                    type="button"
+                    disabled={sendReplyMutation.isPending || (!replyText.trim() && attachments.length === 0) || !selectedConversationId}
                     className="flex-shrink-0 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px]"
                   >
                     {sendReplyMutation.isPending ? (
@@ -569,6 +730,24 @@ export default function InboxPage() {
                     )}
                   </button>
                 </div>
+
+                {attachments.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {attachments.map((file, index) => (
+                      <span key={`${file.name}-${index}`} className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-700 border border-gray-200">
+                        <span className="truncate max-w-[140px]" title={file.name}>{file.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAttachment(index)}
+                          className="rounded-full p-1 text-gray-500 hover:bg-gray-200"
+                          aria-label={`Remove ${file.name}`}
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </>
           ) : (

@@ -23,6 +23,25 @@ export function ImageMessage({ media }: ImageMessageProps) {
     );
   }
 
+  if (imageError) {
+    return (
+      <div className="space-y-2">
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+          <span className="block text-sm font-medium text-amber-900">Image failed to load.</span>
+          <a
+            href={imageUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-primary hover:underline"
+          >
+            Open original in new tab
+          </a>
+        </div>
+        {media.caption && <div className="text-sm text-gray-600">{media.caption}</div>}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-2">
       <div 
@@ -48,19 +67,6 @@ export function ImageMessage({ media }: ImageMessageProps) {
           unoptimized
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
         />
-        {imageError && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 rounded-lg">
-            <span className="text-sm text-gray-600 mb-2">Failed to load image</span>
-            <a 
-              href={imageUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-xs text-primary hover:underline"
-            >
-              Open in new tab
-            </a>
-          </div>
-        )}
       </div>
 
       {/* Caption */}
@@ -81,8 +87,9 @@ export function ImageMessage({ media }: ImageMessageProps) {
       {/* Fullscreen Modal */}
       {showFullscreen && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 cursor-pointer"
-          onClick={() => setShowFullscreen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          role="dialog"
+          aria-modal="true"
         >
           <Image
             src={imageUrl}
@@ -94,11 +101,9 @@ export function ImageMessage({ media }: ImageMessageProps) {
           />
           <button 
             className="absolute top-4 right-4 bg-white rounded-full w-10 h-10 flex items-center justify-center text-gray-900 hover:bg-gray-100 transition"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowFullscreen(false);
-            }}
+            onClick={() => setShowFullscreen(false)}
             aria-label="Close fullscreen image"
+            type="button"
           >
             ✕
           </button>
