@@ -16,13 +16,16 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
     retry: false,
   });
 
-  const { data: onboardingStatus, isLoading: isLoadingStatus } = useQuery({
+  const { data: onboardingStatus, isLoading: isLoadingStatus, error: onboardingError } = useQuery({
     queryKey: ['onboarding', 'status'],
     queryFn: () => tenantApi.onboardingStatus(),
     retry: false,
   });
 
-  const isLoading = isLoadingAuth || isLoadingStatus;
+  const onboardingErrorStatus = onboardingError instanceof ApiError ? onboardingError.status : undefined;
+  const onboardingServiceUnavailable = typeof onboardingErrorStatus === 'number' && onboardingErrorStatus >= 500;
+
+  const isLoading = !onboardingServiceUnavailable && (isLoadingAuth || isLoadingStatus);
 
   // If we're on the onboarding page, let it handle its own rendering
   if (isOnboardingPage) {
@@ -46,6 +49,11 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     );
+  }
+
+  if (onboardingServiceUnavailable) {
+    console.warn('[OnboardingGuard] Onboarding status unavailable (5xx). Allowing access.');
+    return <>{children}</>;
   }
 
   // Check onboarding status from both sources - default to false if both are missing
