@@ -12,6 +12,8 @@ type TenantProfile = {
   email: string;
   plan: string;
   status: string;
+  business_name?: string;
+  logo_url?: string;
   onboarding?: {
     complete: boolean;
     step?: 'business_profile' | 'persona' | 'business_details' | 'social_connect';

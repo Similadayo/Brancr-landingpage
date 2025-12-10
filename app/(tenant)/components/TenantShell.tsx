@@ -453,13 +453,19 @@ export function TenantShell({ children }: { children: ReactNode }) {
             <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Account</p>
             <div className="mt-3 flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm">
               {(() => {
-                const displayName = (tenant?.name?.trim() || tenant?.email?.split("@")[0] || "User");
-                const initial = displayName.charAt(0).toUpperCase();
+                const displayName = (tenant?.business_name?.trim() || tenant?.name?.trim() || tenant?.email?.split("@")[0] || "User");
+                const nameParts = displayName.split(/\s+/).filter(Boolean);
+                const initials = (nameParts[0]?.charAt(0) || "U") + (nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "");
+                const initialsUpper = initials.toUpperCase();
                 return (
                   <>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
-                      {initial}
-                    </div>
+                    {tenant?.logo_url ? (
+                      <img src={tenant.logo_url} alt={displayName} className="h-10 w-10 rounded-full object-cover" />
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
+                        {initialsUpper}
+                      </div>
+                    )}
                     <div>
                       <p className="text-sm font-semibold text-gray-900">{displayName}</p>
                       <p className="text-xs text-gray-500">{tenant?.email}</p>
@@ -625,15 +631,21 @@ export function TenantShell({ children }: { children: ReactNode }) {
                       className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-accent hover:text-accent"
                     >
                       {(() => {
-                        const displayName = (tenant?.name?.trim() || tenant?.email?.split("@")[0] || "User");
-                        const initial = displayName.charAt(0).toUpperCase();
+                        const displayName = (tenant?.business_name?.trim() || tenant?.name?.trim() || tenant?.email?.split("@")[0] || "User");
+                        const nameParts = displayName.split(/\s+/).filter(Boolean);
+                        const initials = (nameParts[0]?.charAt(0) || "U") + (nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "");
+                        const initialsUpper = initials.toUpperCase();
                         return (
                           <>
-                            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
-                              {initial}
-                            </span>
+                            {tenant?.logo_url ? (
+                              <img src={tenant.logo_url} alt={displayName} className="h-8 w-8 rounded-full object-cover" />
+                            ) : (
+                              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
+                                {initialsUpper}
+                              </span>
+                            )}
                             <span className="hidden text-left leading-tight lg:block">
-                              <span className="block text-xs text-gray-500">{displayName.split(" ")[0]}</span>
+                              <span className="block text-xs text-gray-500">{nameParts[0] || displayName}</span>
                               <span className="text-xs capitalize">{tenant?.plan ?? "trial"}</span>
                             </span>
                           </>
