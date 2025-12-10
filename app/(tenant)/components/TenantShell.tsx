@@ -29,6 +29,7 @@ import {
   ChevronLeftIcon,
   ExternalLinkIcon,
   CreditCardIcon,
+  BellIcon,
 } from "./icons";
 import { CommandPalette } from "./CommandPalette";
 
@@ -54,14 +55,13 @@ const getCoreNavItems = (badges?: { inbox?: number; escalations?: number }): Nav
 
 // Media with submenu
 const MEDIA_NAV_ITEM: NavItem = { label: "Media", href: "/app/media", icon: <ImageIcon className="w-5 h-5" /> };
-const BULK_UPLOADS_NAV_ITEM: NavItem = { label: "Bulk Uploads", href: "/app/bulk-uploads", icon: <PackageIcon className="w-5 h-5" /> };
 
 // Settings section items (grouped)
 const SETTINGS_NAV_ITEMS_BASE: NavItem[] = [
   { label: "Integrations", href: "/app/integrations", icon: <LinkIcon className="w-5 h-5" /> },
   { label: "Analytics", href: "/app/analytics", icon: <ChartIcon className="w-5 h-5" /> },
   { label: "Payment Accounts", href: "/app/settings/payment-accounts", icon: <CreditCardIcon className="w-5 h-5" /> },
-  { label: "Notifications", href: "/app/settings/notifications", icon: <AlertIcon className="w-5 h-5" /> },
+  { label: "Notifications", href: "/app/settings/notifications", icon: <BellIcon className="w-5 h-5" /> },
   { label: "Settings", href: "/app/settings", icon: <SettingsIcon className="w-5 h-5" /> },
 ];
 const ONBOARDING_SUMMARY_ITEM: NavItem = { label: "Onboarding Summary", href: "/app/settings/onboarding", icon: <ClipboardIcon className="w-5 h-5" /> };
@@ -181,7 +181,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
   // Auto-expand Media if on bulk-uploads page
   useEffect(() => {
-    if (pathname?.startsWith("/app/bulk-uploads")) {
+    if (pathname?.startsWith("/app/media")) {
       setIsMediaExpanded(true);
     }
   }, [pathname]);
@@ -325,61 +325,8 @@ export function TenantShell({ children }: { children: ReactNode }) {
           </>
         )}
 
-        {/* Media with Bulk Uploads Submenu */}
-        {!compact ? (
-          <div className="mt-2">
-            <div className="flex items-center gap-3">
-              <Link
-                href={MEDIA_NAV_ITEM.href}
-                onClick={() => setIsMobileNavOpen(false)}
-                className={cn(
-                  "group flex flex-1 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-                  (pathname === MEDIA_NAV_ITEM.href || pathname?.startsWith(`${MEDIA_NAV_ITEM.href}/`)) && !pathname?.startsWith(`${BULK_UPLOADS_NAV_ITEM.href}/`)
-                    ? "bg-accent/10 text-accent shadow-sm"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                )}
-              >
-                <span
-                  className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-base transition group-hover:bg-accent/10 group-hover:text-accent",
-                    (pathname === MEDIA_NAV_ITEM.href || pathname?.startsWith(`${MEDIA_NAV_ITEM.href}/`)) && !pathname?.startsWith(`${BULK_UPLOADS_NAV_ITEM.href}/`) && "bg-accent text-white group-hover:bg-accent"
-                  )}
-                  aria-hidden
-                >
-                  {MEDIA_NAV_ITEM.icon}
-                </span>
-                <span className="flex-1">{MEDIA_NAV_ITEM.label}</span>
-                <span className="text-xs text-gray-400 group-hover:text-accent" aria-hidden>
-                  {(pathname === MEDIA_NAV_ITEM.href || pathname?.startsWith(`${MEDIA_NAV_ITEM.href}/`)) && !pathname?.startsWith(`${BULK_UPLOADS_NAV_ITEM.href}/`) ? "•" : "→"}
-                </span>
-              </Link>
-              <button
-                onClick={() => setIsMediaExpanded(!isMediaExpanded)}
-                className={cn(
-                  "rounded-xl p-2 text-xs text-gray-400 transition hover:bg-gray-100 hover:text-gray-600",
-                  isMediaExpanded && "text-accent"
-                )}
-                aria-label={isMediaExpanded ? "Collapse Media submenu" : "Expand Media submenu"}
-              >
-                {isMediaExpanded ? (
-                  <ChevronDownIcon className="w-4 h-4" />
-                ) : (
-                  <ChevronRightIcon className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-            {isMediaExpanded && (
-              <div className="mt-1 space-y-1 pl-12">
-                {renderNavItem(BULK_UPLOADS_NAV_ITEM, compact, pathname === BULK_UPLOADS_NAV_ITEM.href || pathname?.startsWith(`${BULK_UPLOADS_NAV_ITEM.href}/`))}
-              </div>
-            )}
-          </div>
-        ) : (
-          <>
-            {renderNavItem(MEDIA_NAV_ITEM, compact, pathname === MEDIA_NAV_ITEM.href || pathname?.startsWith(`${MEDIA_NAV_ITEM.href}/`))}
-            {renderNavItem(BULK_UPLOADS_NAV_ITEM, compact, pathname === BULK_UPLOADS_NAV_ITEM.href || pathname?.startsWith(`${BULK_UPLOADS_NAV_ITEM.href}/`))}
-          </>
-        )}
+        {/* Media */}
+        {renderNavItem(MEDIA_NAV_ITEM, compact, pathname === MEDIA_NAV_ITEM.href || pathname?.startsWith(`${MEDIA_NAV_ITEM.href}/`))}
 
         {/* Settings Section (Collapsible) */}
         {!compact && (
@@ -403,7 +350,10 @@ export function TenantShell({ children }: { children: ReactNode }) {
             {isSettingsExpanded && (
               <div className="mt-2 space-y-1 pl-4">
                 {settingsNavItems.map((item) => {
-                  const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+                  const isSettingsRoot = item.href === "/app/settings";
+                  const isActive = isSettingsRoot
+                    ? pathname === "/app/settings" || pathname === "/app/settings/"
+                    : pathname === item.href || pathname?.startsWith(`${item.href}/`);
                   return renderNavItem(item, compact, isActive);
                 })}
               </div>
@@ -415,7 +365,10 @@ export function TenantShell({ children }: { children: ReactNode }) {
         {compact && (
           <div className="mt-6 pt-6 border-t border-gray-200">
             {settingsNavItems.map((item) => {
-              const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              const isSettingsRoot = item.href === "/app/settings";
+              const isActive = isSettingsRoot
+                ? pathname === "/app/settings" || pathname === "/app/settings/"
+                : pathname === item.href || pathname?.startsWith(`${item.href}/`);
               return renderNavItem(item, compact, isActive);
             })}
           </div>
