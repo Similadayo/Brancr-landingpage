@@ -133,7 +133,7 @@ export default function InboxPage() {
 
     // Increment unread for non-active conversations
     if (!isActive) {
-      queryClient.setQueriesData<ConversationSummary[]>(["conversations"], (old) => {
+      queryClient.setQueriesData<ConversationSummary[]>({ queryKey: ["conversations"] }, (old) => {
         if (!old) return old;
         return old.map((conv) =>
           String(conv.id) === idStr ? { ...conv, unread_count: (conv.unread_count || 0) + 1 } : conv
