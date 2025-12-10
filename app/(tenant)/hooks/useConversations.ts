@@ -6,6 +6,9 @@ import { ApiError, tenantApi } from "@/lib/api";
 import { getUserFriendlyErrorMessage, ErrorMessages } from "@/lib/error-messages";
 import { captureException } from "@/lib/observability";
 
+// Avoid spamming toasts when the conversations service is down
+let hasNotifiedConversations503 = false;
+
 export type InteractionMedia = {
   url?: string;
   stored_url?: string;
@@ -231,16 +234,39 @@ export function useConversations(filters?: { platform?: string; status?: string;
           return true;
         });
         
+        hasNotifiedConversations503 = false; // reset once service recovers
         return filteredConversations;
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
           return [];
         }
+        if (error instanceof ApiError && error.status >= 500) {
+          if (!hasNotifiedConversations503) {
+            const message = getUserFriendlyErrorMessage(error, {
+              action: "loading conversations",
+            });
+            toast.error(message || "Conversations are temporarily unavailable. Please try again.");
+            hasNotifiedConversations503 = true;
+          }
+        }
         throw error;
       }
     },
+    retry: (failureCount, err) => {
+      if (err instanceof ApiError && err.status >= 500) {
+        return failureCount < 2;
+      }
+      return false;
+    },
+    retryDelay: (attempt) => Math.min(2000 * attempt, 5000),
     refetchOnMount: "always",
-    refetchInterval: 10000,
+    refetchInterval: (query) => {
+      const err = query.state.error;
+      if (err instanceof ApiError && err.status >= 500) {
+        return false; // pause polling while service is down
+      }
+      return 10000;
+    },
   });
 }
 

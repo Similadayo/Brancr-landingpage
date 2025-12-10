@@ -89,7 +89,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         void refetch();
       },
     }),
-    [data, isLoading, error, refetch]
+    [data, isLoading, isFetching, serverUnavailable, error, refetch]
   );
 
   return <TenantContext.Provider value={value}>{children}</TenantContext.Provider>;
