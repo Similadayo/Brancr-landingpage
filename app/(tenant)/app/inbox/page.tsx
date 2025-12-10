@@ -42,6 +42,7 @@ export default function InboxPage() {
   const [activeStatusFilter, setActiveStatusFilter] = useState<string>("All");
   const [activePlatformFilter, setActivePlatformFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [selectedConversationId, setSelectedConversationId] = useState<string>("");
   const [replyText, setReplyText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -53,6 +54,13 @@ export default function InboxPage() {
   const [attachments, setAttachments] = useState<File[]>([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim());
+    }, 350);
+    return () => clearTimeout(handle);
+  }, [searchQuery]);
 
   // Build filters for API
   const apiFilters = useMemo(() => {
@@ -68,11 +76,11 @@ export default function InboxPage() {
     if (activePlatformFilter !== "All") {
       filters.platform = activePlatformFilter.toLowerCase();
     }
-    if (searchQuery.trim()) {
-      filters.search = searchQuery.trim();
+    if (debouncedSearch) {
+      filters.search = debouncedSearch;
     }
     return filters;
-  }, [activeStatusFilter, activePlatformFilter, searchQuery]);
+  }, [activeStatusFilter, activePlatformFilter, debouncedSearch]);
 
   const { data: conversationsData, isLoading, error } = useConversations(apiFilters);
   
