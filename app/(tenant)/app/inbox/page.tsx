@@ -45,9 +45,37 @@ export default function InboxPage() {
   const unreadCountsRef = useRef<Record<string, number>>({});
   const hasInitializedUnreadRef = useRef(false);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const rawUnreadCountsRef = useRef<Record<string, number>>({});
+  const lastReadSnapshotsRef = useRef<Record<string, number>>({});
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [attachments, setAttachments] = useState<File[]>([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  const SNAPSHOT_STORAGE_KEY = "brancr_inbox_last_read";
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const stored = window.localStorage.getItem(SNAPSHOT_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === "object") {
+          lastReadSnapshotsRef.current = parsed as Record<string, number>;
+        }
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
+  const persistSnapshots = useCallback(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(SNAPSHOT_STORAGE_KEY, JSON.stringify(lastReadSnapshotsRef.current));
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
 
   // Build filters for API
   const apiFilters = useMemo(() => {
@@ -75,20 +103,36 @@ export default function InboxPage() {
     return Array.isArray(conversationsData) ? conversationsData : [];
   }, [conversationsData]);
 
+  useEffect(() => {
+    rawUnreadCountsRef.current = conversations.reduce<Record<string, number>>((acc, conv) => {
+      acc[String(conv.id)] = conv.unread_count ?? 0;
+      return acc;
+    }, {});
+  }, [conversations]);
+
+  const conversationsWithEffectiveUnread = useMemo(() => {
+    return conversations.map((conv) => {
+      const id = String(conv.id);
+      const snapshot = lastReadSnapshotsRef.current[id] ?? 0;
+      const effectiveUnread = Math.max((conv.unread_count ?? 0) - snapshot, 0);
+      return { ...conv, unread_count: effectiveUnread };
+    });
+  }, [conversations]);
+
   // Get available platforms from conversations
   const availablePlatforms = useMemo(() => {
     const platformSet = new Set<string>();
-    conversations.forEach((conv) => {
+    conversationsWithEffectiveUnread.forEach((conv) => {
       if (conv.platform) {
         platformSet.add(conv.platform.toLowerCase());
       }
     });
     return Array.from(platformSet).sort();
-  }, [conversations]);
+  }, [conversationsWithEffectiveUnread]);
 
   // Sort conversations by most recent message time (newest first)
   const sortedConversations = useMemo(() => {
-    const sorted = [...conversations];
+    const sorted = [...conversationsWithEffectiveUnread];
     return sorted.sort((a, b) => {
       // Get the most recent message time for each conversation
       const timeA = new Date(a.last_message_at || a.updated_at || a.created_at).getTime();
@@ -104,7 +148,7 @@ export default function InboxPage() {
       
       return timeB - timeA;
     });
-  }, [conversations]);
+  }, [conversationsWithEffectiveUnread]);
   
   const { data: conversationDetail } = useConversation(selectedConversationId);
   const sendReplyMutation = useSendReply(selectedConversationId);
@@ -113,6 +157,10 @@ export default function InboxPage() {
 
   const markConversationAsRead = useCallback((conversationId: string) => {
     if (!conversationId) return;
+
+    const currentRaw = rawUnreadCountsRef.current[conversationId] ?? 0;
+    lastReadSnapshotsRef.current[conversationId] = currentRaw;
+    persistSnapshots();
 
     unreadCountsRef.current[conversationId] = 0;
 
@@ -123,7 +171,7 @@ export default function InboxPage() {
         String(conv.id) === conversationId ? { ...conv, unread_count: 0 } : conv
       );
     });
-  }, [queryClient]);
+  }, [persistSnapshots, queryClient]);
 
   const playNotificationSound = useCallback(() => {
     try {
@@ -188,7 +236,7 @@ export default function InboxPage() {
 
   useEffect(() => {
     if (!hasInitializedUnreadRef.current) {
-      unreadCountsRef.current = conversations.reduce<Record<string, number>>((acc, conv) => {
+      unreadCountsRef.current = conversationsWithEffectiveUnread.reduce<Record<string, number>>((acc, conv) => {
         acc[String(conv.id)] = conv.unread_count;
         return acc;
       }, {});
@@ -199,7 +247,7 @@ export default function InboxPage() {
     const nextCounts: Record<string, number> = {};
     let shouldPlaySound = false;
 
-    conversations.forEach((conv) => {
+    conversationsWithEffectiveUnread.forEach((conv) => {
       const id = String(conv.id);
       const previousCount = unreadCountsRef.current[id] ?? 0;
       nextCounts[id] = conv.unread_count;
@@ -216,7 +264,7 @@ export default function InboxPage() {
     if (shouldPlaySound) {
       playNotificationSound();
     }
-  }, [conversations, selectedConversationId, activeConversation?.id, playNotificationSound]);
+  }, [conversationsWithEffectiveUnread, selectedConversationId, activeConversation?.id, playNotificationSound]);
 
   const handleSendReply = async () => {
     if ((!replyText.trim() && attachments.length === 0) || !selectedConversationId) return;
