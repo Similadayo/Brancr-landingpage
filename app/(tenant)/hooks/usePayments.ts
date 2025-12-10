@@ -11,7 +11,7 @@ export type Payment = {
   payment_reference: string;
   amount: number;
   currency: string;
-  status: "pending" | "verified" | "confirmed" | "disputed";
+  status: "pending" | "verified" | "confirmed" | "disputed" | "failed";
   verification_status: "pending" | "verified" | "disputed";
   customer_name: string;
   customer_phone?: string;
