@@ -187,7 +187,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   const currentNav = useMemo(() => {
-    const allItems = [...CORE_NAV_ITEMS, ...industryNavItems, MEDIA_NAV_ITEM, BULK_UPLOADS_NAV_ITEM, ...settingsNavItems];
+    const allItems = [...CORE_NAV_ITEMS, ...industryNavItems, MEDIA_NAV_ITEM, ...settingsNavItems];
     const matched = allItems.reduce<NavItem | undefined>((best, item) => {
       const overviewMatch = item.href === "/app" && (pathname === "/app" || pathname === "/app/");
       const specificMatch =
@@ -203,7 +203,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
     }, undefined);
 
     return matched ?? CORE_NAV_ITEMS[0];
-  }, [pathname, settingsNavItems, industryNavItems]);
+  }, [pathname, settingsNavItems, industryNavItems, CORE_NAV_ITEMS]);
 
   async function handleSignOut() {
     setIsSigningOut(true);
