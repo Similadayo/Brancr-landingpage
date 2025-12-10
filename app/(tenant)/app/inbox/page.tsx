@@ -306,9 +306,9 @@ export default function InboxPage() {
                     <button
                       key={conversation.id}
                       onClick={() => handleConversationSelect(String(conversation.id))}
-                      className={`group w-full px-3 py-3 text-left transition-colors ${
+                      className={`group w-full px-3 py-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary/60 ${
                         isActive
-                          ? "bg-blue-50 border-l-4 border-primary"
+                          ? "bg-blue-50 border-l-4 border-primary shadow-sm"
                           : "hover:bg-gray-50"
                       }`}
                     >
@@ -345,15 +345,14 @@ export default function InboxPage() {
                               <span className="text-xs text-gray-500">{formatTime(conversation.last_message_at)}</span>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            {/* Media Preview */}
+                          <div className="flex items-center gap-2">
                             {conversation.last_message_media?.type && (
-                              <span className="flex-shrink-0 text-xs text-gray-400">
-                                {conversation.last_message_media.type === 'audio' && '🎤'}
-                                {conversation.last_message_media.type === 'image' && '📷'}
-                                {conversation.last_message_media.type === 'video' && '🎥'}
-                                {conversation.last_message_media.type === 'document' && '📄'}
-                                {conversation.last_message_media.type === 'sticker' && '😊'}
+                              <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
+                                {conversation.last_message_media.type === 'audio' && '🎤 Audio'}
+                                {conversation.last_message_media.type === 'image' && '📷 Image'}
+                                {conversation.last_message_media.type === 'video' && '🎥 Video'}
+                                {conversation.last_message_media.type === 'document' && '📄 Document'}
+                                {conversation.last_message_media.type === 'sticker' && '😊 Sticker'}
                               </span>
                             )}
                             <p className="line-clamp-1 text-sm text-gray-600">{conversation.last_message || "No messages"}</p>
@@ -468,9 +467,9 @@ export default function InboxPage() {
                         className={`flex ${isIncoming ? "justify-start" : "justify-end"}`}
                       >
                         <div
-                          className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 ${
+                          className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-sm ${
                             isIncoming
-                              ? "bg-white"
+                              ? "bg-white border border-gray-100"
                               : "bg-primary text-white"
                           }`}
                           role="article"

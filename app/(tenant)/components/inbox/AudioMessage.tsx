@@ -23,7 +23,11 @@ export function AudioMessage({ media }: AudioMessageProps) {
 
   return (
     <div className="space-y-2">
-      <div className="rounded-lg border border-gray-200 bg-gray-50 p-2 sm:p-3">
+      <div className="rounded-xl border border-gray-200 bg-white/80 px-3 py-3 shadow-sm ring-1 ring-gray-100">
+        <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-gray-600">
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary text-sm">🎤</span>
+          <span>{isPlaying ? "Playing audio" : "Voice note"}</span>
+        </div>
         <audio
           controls
           src={audioUrl}
@@ -37,15 +41,12 @@ export function AudioMessage({ media }: AudioMessageProps) {
         </audio>
       </div>
       
-      {/* Show transcription if available */}
       {media.transcription && (
-        <div className="rounded-lg border border-gray-200 bg-white p-2">
-          <span className="text-xs font-semibold text-gray-600">Transcription: </span>
-          <span className="text-xs text-gray-700">{media.transcription}</span>
+        <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-700">
+          <span className="font-semibold text-gray-600">Transcript:</span> {media.transcription}
         </div>
       )}
 
-      {/* Fallback download link */}
       <div className="text-xs">
         <a 
           href={audioUrl} 
