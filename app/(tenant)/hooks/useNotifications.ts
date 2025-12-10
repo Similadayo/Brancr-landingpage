@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { ApiError, TenantNotification, tenantApi } from "@/lib/api";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import { toast } from "react-hot-toast";
@@ -201,7 +201,7 @@ export function useNotificationsFeed(params?: {
     },
     staleTime: 15_000,
     refetchInterval: params?.refetchInterval ?? 30_000,
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -244,7 +244,7 @@ export function useMarkNotificationRead() {
     },
     onError: (error, _notificationId, context) => {
       context?.previous?.forEach(([key, data]) => {
-        queryClient.setQueryData(key, data);
+        queryClient.setQueryData<NotificationsQueryData | undefined>(key as readonly unknown[], data);
       });
       if (context?.counts) {
         queryClient.setQueryData(["notification-counts"], context.counts);
@@ -286,7 +286,7 @@ export function useMarkAllNotificationsRead() {
     },
     onError: (error, _variables, context) => {
       context?.previous?.forEach(([key, data]) => {
-        queryClient.setQueryData(key, data);
+        queryClient.setQueryData<NotificationsQueryData | undefined>(key as readonly unknown[], data);
       });
       if (context?.counts) {
         queryClient.setQueryData(["notification-counts"], context.counts);

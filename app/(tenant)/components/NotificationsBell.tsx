@@ -118,7 +118,7 @@ export function NotificationsBell() {
   const markAllMutation = useMarkAllNotificationsRead();
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -131,8 +131,16 @@ export function NotificationsBell() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
-  const unreadCount = countsData?.unread ?? (data && "unread_count" in data ? data.unread_count : 0) ?? 0;
-  const notifications = data?.notifications ?? [];
+  const notificationsFromFeed =
+    typeof data === "object" && data !== null && "notifications" in data && Array.isArray((data as any).notifications)
+      ? (data as { notifications: TenantNotification[] }).notifications
+      : [];
+  const unreadFromFeed =
+    typeof data === "object" && data !== null && "unread_count" in data
+      ? (data as { unread_count?: number }).unread_count ?? 0
+      : 0;
+  const unreadCount = countsData?.unread ?? unreadFromFeed;
+  const notifications = notificationsFromFeed;
 
   const isEmpty = !isLoading && notifications.length === 0;
 
@@ -166,7 +174,7 @@ export function NotificationsBell() {
   );
 
   const handleMarkAll = () => {
-    if (unreadCount === 0 || markAllMutation.isLoading) return;
+    if (unreadCount === 0 || markAllMutation.isPending) return;
     markAllMutation.mutate();
   };
 
@@ -240,7 +248,7 @@ export function NotificationsBell() {
                 <button
                   type="button"
                   onClick={handleMarkAll}
-                  disabled={unreadCount === 0 || markAllMutation.isLoading}
+                  disabled={unreadCount === 0 || markAllMutation.isPending}
                   className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Mark all read
