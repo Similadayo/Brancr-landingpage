@@ -1,13 +1,11 @@
 'use client';
 
-import { use } from "react";
 import Link from "next/link";
 import { useServices } from "../../../../hooks/useServices";
 import ServiceForm from "../../../../components/services/ServiceForm";
 
-export default function EditServicePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
-  const serviceId = parseInt(id, 10);
+export default function EditServicePage({ params }: { params: { id: string } }) {
+  const serviceId = parseInt(params.id, 10);
   
   const { data: services = [], isLoading } = useServices();
   const service = services.find((s) => s.id === serviceId);
