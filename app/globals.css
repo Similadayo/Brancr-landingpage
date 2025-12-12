@@ -39,13 +39,38 @@ body {
   input[type='week'],
   textarea,
   select {
-    @apply rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition placeholder:text-gray-400;
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
-    @apply disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 disabled:opacity-70;
+    @apply min-h-11 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition;
+    @apply placeholder:text-gray-400;
+    @apply hover:border-primary/30;
+    @apply focus-visible:outline-none focus-visible:bg-white focus-visible:border-primary;
+    @apply focus-visible:ring-4 focus-visible:ring-primary/15;
+    @apply disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500 disabled:opacity-70;
   }
 
   textarea {
-    @apply resize-y;
+    @apply min-h-[96px] resize-y;
+  }
+
+  select {
+    @apply pr-10;
+  }
+
+  input[type='text'][aria-invalid='true'],
+  input[type='email'][aria-invalid='true'],
+  input[type='password'][aria-invalid='true'],
+  input[type='search'][aria-invalid='true'],
+  input[type='tel'][aria-invalid='true'],
+  input[type='url'][aria-invalid='true'],
+  input[type='number'][aria-invalid='true'],
+  input[type='date'][aria-invalid='true'],
+  input[type='datetime-local'][aria-invalid='true'],
+  input[type='time'][aria-invalid='true'],
+  input[type='month'][aria-invalid='true'],
+  input[type='week'][aria-invalid='true'],
+  textarea[aria-invalid='true'],
+  select[aria-invalid='true'] {
+    @apply border-rose-300 bg-white;
+    @apply ring-4 ring-rose-200/40;
   }
 
   html.dark input[type='text'],
@@ -64,7 +89,26 @@ body {
   html.dark select {
     @apply bg-gray-900 text-gray-100 placeholder:text-gray-400;
     @apply border-gray-700;
-    @apply focus-visible:ring-primary/30;
+    @apply focus-visible:bg-gray-900;
+    @apply focus-visible:ring-primary/25;
+  }
+
+  html.dark input[type='text'][aria-invalid='true'],
+  html.dark input[type='email'][aria-invalid='true'],
+  html.dark input[type='password'][aria-invalid='true'],
+  html.dark input[type='search'][aria-invalid='true'],
+  html.dark input[type='tel'][aria-invalid='true'],
+  html.dark input[type='url'][aria-invalid='true'],
+  html.dark input[type='number'][aria-invalid='true'],
+  html.dark input[type='date'][aria-invalid='true'],
+  html.dark input[type='datetime-local'][aria-invalid='true'],
+  html.dark input[type='time'][aria-invalid='true'],
+  html.dark input[type='month'][aria-invalid='true'],
+  html.dark input[type='week'][aria-invalid='true'],
+  html.dark textarea[aria-invalid='true'],
+  html.dark select[aria-invalid='true'] {
+    @apply border-rose-400/50;
+    @apply ring-rose-400/20;
   }
 }
 
