@@ -24,6 +24,50 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+@layer base {
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  input[type='search'],
+  input[type='tel'],
+  input[type='url'],
+  input[type='number'],
+  input[type='date'],
+  input[type='datetime-local'],
+  input[type='time'],
+  input[type='month'],
+  input[type='week'],
+  textarea,
+  select {
+    @apply rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm transition placeholder:text-gray-400;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary;
+    @apply disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 disabled:opacity-70;
+  }
+
+  textarea {
+    @apply resize-y;
+  }
+
+  html.dark input[type='text'],
+  html.dark input[type='email'],
+  html.dark input[type='password'],
+  html.dark input[type='search'],
+  html.dark input[type='tel'],
+  html.dark input[type='url'],
+  html.dark input[type='number'],
+  html.dark input[type='date'],
+  html.dark input[type='datetime-local'],
+  html.dark input[type='time'],
+  html.dark input[type='month'],
+  html.dark input[type='week'],
+  html.dark textarea,
+  html.dark select {
+    @apply bg-gray-900 text-gray-100 placeholder:text-gray-400;
+    @apply border-gray-700;
+    @apply focus-visible:ring-primary/30;
+  }
+}
+
 /* Basic dark theme */
 html.dark body {
   background-color: #0B0B11;
