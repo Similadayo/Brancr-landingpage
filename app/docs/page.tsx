@@ -50,6 +50,57 @@ export default function DocsPage() {
         </div>
       </section>
 
+      <section className="relative z-10 mx-auto w-full max-w-4xl px-6 pb-16 sm:px-12">
+        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 text-left shadow-sm shadow-primary/5">
+          <h2 className="text-lg font-semibold text-gray-900">Quick Integration Guides</h2>
+          <p className="mt-2 text-sm text-gray-600">Short setup notes for the Integrations page guide links.</p>
+
+          <div className="mt-6 space-y-8">
+            <section id="whatsapp-business" className="scroll-mt-24">
+              <h3 className="text-base font-semibold text-gray-900">WhatsApp Business (Brancr Official Number)</h3>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700">
+                <li>Use a number not currently active on the WhatsApp mobile app.</li>
+                <li>If the number is on WhatsApp mobile, delete the WhatsApp account, wait 3 minutes, then connect in Brancr.</li>
+                <li>Once connected, WhatsApp messages appear inside the Brancr Dashboard.</li>
+              </ul>
+            </section>
+
+            <section id="instagram" className="scroll-mt-24">
+              <h3 className="text-base font-semibold text-gray-900">Instagram</h3>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700">
+                <li>Use an Instagram Business Account.</li>
+                <li>Link it to a Facebook Page you have admin access to.</li>
+                <li>Return to Integrations and click Verify.</li>
+              </ul>
+            </section>
+
+            <section id="facebook" className="scroll-mt-24">
+              <h3 className="text-base font-semibold text-gray-900">Facebook Page</h3>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700">
+                <li>Confirm you have admin access to the Page.</li>
+                <li>Return to Integrations and click Verify.</li>
+              </ul>
+            </section>
+
+            <section id="telegram" className="scroll-mt-24">
+              <h3 className="text-base font-semibold text-gray-900">Telegram Bot</h3>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700">
+                <li>Create a bot using BotFather and copy the Bot Token.</li>
+                <li>Return to Integrations and click Verify.</li>
+              </ul>
+            </section>
+
+            <section id="tiktok-shop" className="scroll-mt-24">
+              <h3 className="text-base font-semibold text-gray-900">TikTok Shop</h3>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700">
+                <li>Use a registered TikTok Shop Seller account.</li>
+                <li>Return to Integrations and click Verify.</li>
+              </ul>
+            </section>
+          </div>
+        </div>
+      </section>
+
       <footer className="relative z-10 px-6 pb-8 text-center text-xs text-gray-500 sm:px-12">
         © {new Date().getFullYear()} Brancr. All rights reserved.
       </footer>

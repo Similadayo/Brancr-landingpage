@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useState, useEffect } from "react";
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useIntegrations, useVerifyIntegration, useDisconnectIntegration } from "@/app/(tenant)/hooks/useIntegrations";
 import { WhatsAppNumberSelector } from "@/app/(tenant)/components/WhatsAppNumberSelector";
@@ -47,6 +47,22 @@ const PLATFORM_NAMES: Record<string, string> = {
   tiktok: "TikTok Shop",
 };
 
+const PLATFORM_REQUIREMENTS: Record<string, string> = {
+  whatsapp: "Requires a number not in use on the WhatsApp mobile app.",
+  instagram: "Requires an Instagram Business Account linked to a Facebook Page.",
+  facebook: "Requires a Facebook Page with admin access.",
+  telegram: "Requires a Bot Token created via BotFather.",
+  tiktok: "Requires a registered TikTok Shop Seller account.",
+};
+
+const GUIDE_LINKS: Record<string, { label: string; href: string }> = {
+  whatsapp: { label: "How to Set Up →", href: "/docs#whatsapp-business" },
+  instagram: { label: "How to Convert →", href: "/docs#instagram" },
+  facebook: { label: "Setup Guide →", href: "/docs#facebook" },
+  telegram: { label: "How to Create a Bot →", href: "/docs#telegram" },
+  tiktok: { label: "Setup Guide →", href: "/docs#tiktok-shop" },
+};
+
 // Define all supported platforms (even if not connected)
 const ALL_PLATFORMS = ["whatsapp", "instagram", "facebook", "telegram", "tiktok"];
 
@@ -61,8 +77,30 @@ export default function IntegrationsPage() {
   const integrations = Array.isArray(integrationsData) ? integrationsData : [];
   const verifyMutation = useVerifyIntegration();
   const disconnectMutation = useDisconnectIntegration();
+  const queryClient = useQueryClient();
   const [disconnectingPlatform, setDisconnectingPlatform] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
+
+  const whatsappRefreshMutation = useMutation({
+    mutationFn: () => tenantApi.whatsappRefreshStatus(),
+    onSuccess: (data) => {
+      if (data?.updated) toast.success("WhatsApp status refreshed");
+      else toast.success("WhatsApp status is up to date");
+      void queryClient.invalidateQueries({ queryKey: ["integrations"] });
+      void refetchIntegrations();
+    },
+    onError: () => toast.error("Failed to refresh WhatsApp status"),
+  });
+
+  const whatsappDisconnectMutation = useMutation({
+    mutationFn: () => tenantApi.disconnectWhatsApp(),
+    onSuccess: () => {
+      toast.success("Disconnected WhatsApp");
+      void queryClient.invalidateQueries({ queryKey: ["integrations"] });
+      void refetchIntegrations();
+    },
+    onError: () => toast.error("Failed to disconnect WhatsApp"),
+  });
 
   // Get tenant ID from authenticated user
   const { data: userData } = useQuery({
@@ -113,22 +151,22 @@ export default function IntegrationsPage() {
         });
       } else if (platform === 'facebook' || platform === 'instagram') {
         // Meta platforms (Facebook Login, Instagram via Facebook)
-      const platformsParam = platforms || platform;
-      oauthUrl = tenantApi.getMetaOAuthUrl({
-        tenant_id: tenantId,
-        platforms: platformsParam,
-        success_redirect: successRedirect,
-      });
-    } else if (platform === 'tiktok') {
-      // TikTok
-      oauthUrl = tenantApi.getTikTokOAuthUrl({
-        tenant_id: tenantId,
-        success_redirect: successRedirect,
-      });
-    } else {
-      // For Telegram, use the existing link behavior
-      return;
-    }
+        const platformsParam = platforms || platform;
+        oauthUrl = tenantApi.getMetaOAuthUrl({
+          tenant_id: tenantId,
+          platforms: platformsParam,
+          success_redirect: successRedirect,
+        });
+      } else if (platform === 'tiktok') {
+        // TikTok
+        oauthUrl = tenantApi.getTikTokOAuthUrl({
+          tenant_id: tenantId,
+          success_redirect: successRedirect,
+        });
+      } else {
+        // For Telegram, use the existing link behavior
+        return;
+      }
 
       // Redirect to OAuth
       if (typeof window !== 'undefined') {
@@ -242,12 +280,15 @@ export default function IntegrationsPage() {
             const status = STATUS_MAP[statusKey];
             const isDisconnecting = disconnectingPlatform === platform;
             const isWhatsApp = platform === "whatsapp";
+            const guide = GUIDE_LINKS[platform];
 
             return (
               <div key={platform} className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-semibold text-gray-900">{name}</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      {isWhatsApp ? "WhatsApp Business (Brancr Official Number Integration)" : name}
+                    </h2>
                     {isWhatsApp && connected && (
                       <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-primary">
                         Brancr-Managed
@@ -291,9 +332,27 @@ export default function IntegrationsPage() {
                 ) : connected && integration?.username && !isWhatsApp ? (
                   <p className="mt-2 text-xs text-gray-500">@{integration.username}</p>
                 ) : null}
+
+                <p className="mt-3 text-sm text-gray-700">{PLATFORM_REQUIREMENTS[platform]}</p>
+
+                {isWhatsApp && (
+                  <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                    <p className="text-sm font-semibold text-amber-900">⚠️ Important Notice</p>
+                    <div className="mt-2 space-y-2 text-sm text-amber-900">
+                      <p>Once connected, this number cannot be used on the WhatsApp mobile app.</p>
+                      <p>All WhatsApp messages will appear exclusively inside the Brancr Dashboard.</p>
+                      <p>
+                        If this number is currently registered on WhatsApp mobile, delete the WhatsApp account on your phone,
+                        wait 3 minutes, then connect.
+                      </p>
+                      <p>Or use a new number not previously associated with WhatsApp.</p>
+                    </div>
+                  </div>
+                )}
+
                 {!isWhatsApp && (
                   <>
-                    <p className="mt-3 text-sm text-gray-600">{status.description}</p>
+                    <p className="mt-2 text-sm text-gray-600">{status.description}</p>
                     {connected && integration && "webhook_status" in integration ? (
                       <div className="mt-3">
                         <div className="rounded-lg border border-gray-200 bg-white px-3 py-2">
@@ -331,27 +390,38 @@ export default function IntegrationsPage() {
                 )}
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {connected && !isWhatsApp ? (
+                  {isWhatsApp ? (
                     <>
-                      {platform === "instagram" ? (
-                        // Instagram: Show only Verify and Disconnect buttons
-                        <>
-                          <button
-                            onClick={() => handleVerify(platform)}
-                            disabled={verifyMutation.isPending}
-                            className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary disabled:opacity-50"
-                          >
-                            {verifyMutation.isPending ? "Verifying..." : "Verify"}
-                          </button>
-                          <button
-                            onClick={() => handleDisconnect(platform)}
-                            disabled={isDisconnecting || disconnectMutation.isPending}
-                            className="inline-flex items-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
-                          >
-                            {isDisconnecting ? "Disconnecting..." : "Disconnect"}
-                          </button>
-                        </>
-                      ) : (
+                      <button
+                        type="button"
+                        onClick={() => whatsappRefreshMutation.mutate()}
+                        disabled={whatsappRefreshMutation.isPending}
+                        className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50"
+                      >
+                        {whatsappRefreshMutation.isPending ? "Refreshing..." : "Refresh Status"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!connected) return;
+                          if (!confirm("Are you sure you want to disconnect WhatsApp?")) return;
+                          whatsappDisconnectMutation.mutate();
+                        }}
+                        disabled={!connected || whatsappDisconnectMutation.isPending}
+                        className="inline-flex items-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
+                      >
+                        {whatsappDisconnectMutation.isPending ? "Disconnecting..." : "Disconnect"}
+                      </button>
+                      {guide && (
+                        <Link
+                          href={guide.href}
+                          className="inline-flex items-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                        >
+                          {guide.label}
+                        </Link>
+                      )}
+                    </>
+                  ) : connected ? (
                     <>
                       <button
                         onClick={() => handleVerify(platform)}
@@ -367,28 +437,36 @@ export default function IntegrationsPage() {
                       >
                         {isDisconnecting ? "Disconnecting..." : "Disconnect"}
                       </button>
-                        </>
+                      {guide && (
+                        <Link
+                          href={guide.href}
+                          className="inline-flex items-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                        >
+                          {guide.label}
+                        </Link>
                       )}
                     </>
-                  ) : isWhatsApp && connected ? (
-                    <Link
-                      href="/app/integrations#whatsapp"
-                      className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
-                    >
-                      Manage Number
-                    </Link>
                   ) : platform === "telegram" ? (
-                    <a
-                      href="https://t.me/brancrbot"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
-                    >
-                      Open bot deep link
-                    </a>
-                  ) : !isWhatsApp ? (
-                    platform === "instagram" && !connected ? (
-                      // Instagram: Show only Instagram Login button
+                    <>
+                      <a
+                        href="https://t.me/brancrbot"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
+                      >
+                        Open bot deep link
+                      </a>
+                      {guide && (
+                        <Link
+                          href={guide.href}
+                          className="inline-flex items-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                        >
+                          {guide.label}
+                        </Link>
+                      )}
+                    </>
+                  ) : platform === "instagram" ? (
+                    <>
                       <button
                         onClick={() => handleConnect(platform, undefined, true)}
                         disabled={isConnecting === platform || !tenantId}
@@ -411,31 +489,49 @@ export default function IntegrationsPage() {
                           </>
                         )}
                       </button>
-                    ) : (
-                    <button
-                      onClick={() => handleConnect(platform)}
-                      disabled={isConnecting === platform || !tenantId}
-                      className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-200 disabled:hover:bg-white"
-                    >
-                      {isConnecting === platform ? (
-                        <>
-                          <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Connecting...
-                        </>
-                      ) : (
-                        <>
-                          Connect
-                          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                          </svg>
-                        </>
+                      {guide && (
+                        <Link
+                          href={guide.href}
+                          className="inline-flex items-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                        >
+                          {guide.label}
+                        </Link>
                       )}
-                    </button>
-                    )
-                  ) : null}
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => handleConnect(platform)}
+                        disabled={isConnecting === platform || !tenantId}
+                        className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-200 disabled:hover:bg-white"
+                      >
+                        {isConnecting === platform ? (
+                          <>
+                            <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Connecting...
+                          </>
+                        ) : (
+                          <>
+                            Connect
+                            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                          </>
+                        )}
+                      </button>
+                      {guide && (
+                        <Link
+                          href={guide.href}
+                          className="inline-flex items-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                        >
+                          {guide.label}
+                        </Link>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             );
