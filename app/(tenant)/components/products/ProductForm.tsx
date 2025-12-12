@@ -26,6 +26,9 @@ export default function ProductForm({ product }: ProductFormProps) {
     price: product?.price !== undefined ? String(product.price) : "",
     currency: product?.currency || "NGN",
     category: product?.category || "",
+    negotiation_mode: product?.negotiation_mode || "default",
+    negotiation_min_price: product?.negotiation_min_price !== undefined ? String(product.negotiation_min_price) : "",
+    negotiation_max_price: product?.negotiation_max_price !== undefined ? String(product.negotiation_max_price) : "",
     sku: (product as any)?.sku || "",
     stock_count: product?.stock_count ?? -1,
     availability: product?.availability || "in_stock",
@@ -45,6 +48,9 @@ export default function ProductForm({ product }: ProductFormProps) {
         price: product.price !== undefined ? String(product.price) : "",
         currency: product.currency || "NGN",
         category: product.category || "",
+        negotiation_mode: product.negotiation_mode || "default",
+        negotiation_min_price: product.negotiation_min_price !== undefined ? String(product.negotiation_min_price) : "",
+        negotiation_max_price: product.negotiation_max_price !== undefined ? String(product.negotiation_max_price) : "",
         sku: (product as any)?.sku || "",
         stock_count: product.stock_count ?? -1,
         availability: product.availability || "in_stock",
@@ -62,12 +68,32 @@ export default function ProductForm({ product }: ProductFormProps) {
 
     try {
       const parsedPrice = Number(formData.price);
+
+      const negotiationMin = formData.negotiation_min_price === "" ? undefined : Number(formData.negotiation_min_price);
+      const negotiationMax = formData.negotiation_max_price === "" ? undefined : Number(formData.negotiation_max_price);
+
+      if (formData.negotiation_mode === "range") {
+        if (!Number.isFinite(negotiationMin as number) || !Number.isFinite(negotiationMax as number)) {
+          toast.error("Set both min and max prices for negotiation range");
+          setIsSubmitting(false);
+          return;
+        }
+        if ((negotiationMin as number) > (negotiationMax as number)) {
+          toast.error("Negotiation min price cannot exceed max price");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const payload = {
         name: formData.name,
         description: formData.description || undefined,
         price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
         currency: formData.currency,
         category: formData.category || undefined,
+        negotiation_mode: formData.negotiation_mode,
+        negotiation_min_price: formData.negotiation_mode === "range" ? (negotiationMin as number) : undefined,
+        negotiation_max_price: formData.negotiation_mode === "range" ? (negotiationMax as number) : undefined,
         sku: formData.sku || undefined,
         stock_count: formData.stock_count === -1 ? undefined : formData.stock_count,
         availability: formData.availability,
@@ -218,6 +244,59 @@ export default function ProductForm({ product }: ProductFormProps) {
                 placeholder="PROD-001"
                 className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+            <h3 className="text-sm font-semibold text-gray-900">Negotiation Rules</h3>
+            <p className="mt-1 text-xs text-gray-600">Controls what the AI can negotiate for this product.</p>
+
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label htmlFor="product-negotiation-mode" className="block text-sm font-semibold text-gray-700">Negotiation</label>
+                <div className="mt-1">
+                  <Select
+                    id="product-negotiation-mode"
+                    value={formData.negotiation_mode}
+                    onChange={(value) => setFormData({ ...formData, negotiation_mode: value as any })}
+                    options={[
+                      { value: "default", label: "Use tenant default" },
+                      { value: "disabled", label: "No negotiation (fixed price)" },
+                      { value: "range", label: "Allow negotiation within a range" },
+                    ]}
+                    searchable={false}
+                  />
+                </div>
+              </div>
+
+              {formData.negotiation_mode === "range" && (
+                <>
+                  <div>
+                    <label htmlFor="product-negotiation-min" className="block text-sm font-semibold text-gray-700">Min Price</label>
+                    <input
+                      id="product-negotiation-min"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.negotiation_min_price}
+                      onChange={(e) => setFormData({ ...formData, negotiation_min_price: e.target.value })}
+                      className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="product-negotiation-max" className="block text-sm font-semibold text-gray-700">Max Price</label>
+                    <input
+                      id="product-negotiation-max"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.negotiation_max_price}
+                      onChange={(e) => setFormData({ ...formData, negotiation_max_price: e.target.value })}
+                      className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

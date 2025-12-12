@@ -11,6 +11,9 @@ export type Product = {
   price: number;
   currency: string;
   category?: string;
+  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_min_price?: number;
+  negotiation_max_price?: number;
   stock_count?: number;
   availability: "in_stock" | "out_of_stock" | "low_stock";
   is_active: boolean;
@@ -27,6 +30,9 @@ export type CreateProductPayload = {
   price: number;
   currency?: string;
   category?: string;
+  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_min_price?: number;
+  negotiation_max_price?: number;
   stock_count?: number;
   variants?: Record<string, string[]>;
   tags?: string[];
@@ -39,6 +45,9 @@ export type UpdateProductPayload = {
   price?: number;
   currency?: string;
   category?: string;
+  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_min_price?: number;
+  negotiation_max_price?: number;
   stock_count?: number;
   availability?: "in_stock" | "out_of_stock" | "low_stock";
   is_active?: boolean;

@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useProducts, useDeleteProduct, type Product } from "../../hooks/useProducts";
+import { useNegotiationSettings } from "../../hooks/useNegotiationSettings";
+import { formatNegotiationRule } from "../../utils/negotiation";
 import {
   PackageIcon,
   MagnifyingGlassIcon,
@@ -34,6 +36,8 @@ export default function ProductsPage() {
     search: query || undefined,
     category: category || undefined,
   });
+
+  const { data: negotiationSettings } = useNegotiationSettings();
 
   // Filter and sort products
   const products = useMemo(() => {
@@ -287,6 +291,9 @@ export default function ProductsPage() {
                   <div className="mb-2 sm:mb-3">
                     <p className="text-base font-bold text-gray-900 sm:text-lg">
                       {product.currency} {product.price.toLocaleString()}
+                    </p>
+                    <p className="mt-0.5 text-xs text-gray-500">
+                      {formatNegotiationRule(product, negotiationSettings ?? undefined)}
                     </p>
                     {product.stock_count !== undefined && (
                       <p className="mt-0.5 text-xs text-gray-500">

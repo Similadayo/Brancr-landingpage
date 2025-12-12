@@ -11,6 +11,9 @@ export type MenuItem = {
   price: number;
   currency: string;
   category?: string;
+  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_min_price?: number;
+  negotiation_max_price?: number;
   preparation_time?: number;
   dietary_info?: string[];
   spice_level?: "mild" | "medium" | "hot" | "very_hot";
@@ -27,6 +30,9 @@ export type CreateMenuItemPayload = {
   price: number;
   currency?: string;
   category?: string;
+  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_min_price?: number;
+  negotiation_max_price?: number;
   preparation_time?: number;
   dietary_info?: string[];
   spice_level?: "mild" | "medium" | "hot" | "very_hot";
@@ -39,6 +45,9 @@ export type UpdateMenuItemPayload = {
   price?: number;
   currency?: string;
   category?: string;
+  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_min_price?: number;
+  negotiation_max_price?: number;
   preparation_time?: number;
   dietary_info?: string[];
   spice_level?: "mild" | "medium" | "hot" | "very_hot";

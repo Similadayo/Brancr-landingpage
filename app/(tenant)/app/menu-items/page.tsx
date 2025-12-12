@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useMenuItems, useDeleteMenuItem, type MenuItem } from "../../hooks/useMenuItems";
+import { useNegotiationSettings } from "../../hooks/useNegotiationSettings";
+import { formatNegotiationRule } from "../../utils/negotiation";
 import {
   PackageIcon,
   MagnifyingGlassIcon,
@@ -45,6 +47,8 @@ export default function MenuItemsPage() {
     search: query || undefined,
     category: category || undefined,
   });
+
+  const { data: negotiationSettings } = useNegotiationSettings();
 
   // Filter and sort menu items
   const items = useMemo(() => {
@@ -308,6 +312,9 @@ export default function MenuItemsPage() {
                   <div className="mb-3">
                     <p className="text-lg font-bold text-gray-900">
                       {item.currency} {item.price.toLocaleString()}
+                    </p>
+                    <p className="mt-0.5 text-xs text-gray-500">
+                      {formatNegotiationRule(item, negotiationSettings ?? undefined)}
                     </p>
                     {item.preparation_time && (
                       <p className="text-xs text-gray-500">⏱️ {item.preparation_time} min</p>

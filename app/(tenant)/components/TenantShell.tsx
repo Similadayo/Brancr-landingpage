@@ -62,6 +62,7 @@ const SETTINGS_NAV_ITEMS_BASE: NavItem[] = [
   { label: "Integrations", href: "/app/integrations", icon: <LinkIcon className="w-5 h-5" /> },
   { label: "Analytics", href: "/app/analytics", icon: <ChartIcon className="w-5 h-5" /> },
   { label: "Payment Accounts", href: "/app/settings/payment-accounts", icon: <CreditCardIcon className="w-5 h-5" /> },
+  { label: "Negotiation", href: "/app/settings/negotiation", icon: <CreditCardIcon className="w-5 h-5" /> },
   { label: "Notifications", href: "/app/settings/notifications", icon: <BellIcon className="w-5 h-5" /> },
   { label: "Settings", href: "/app/settings", icon: <SettingsIcon className="w-5 h-5" /> },
 ];

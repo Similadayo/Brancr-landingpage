@@ -8,6 +8,9 @@ export type Service = {
   id: number;
   name: string;
   description?: string;
+  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_min_price?: number;
+  negotiation_max_price?: number;
   pricing: {
     type: "hourly" | "fixed" | "package";
     rate?: number;
@@ -29,6 +32,9 @@ export type Service = {
 export type CreateServicePayload = {
   name: string;
   description?: string;
+  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_min_price?: number;
+  negotiation_max_price?: number;
   pricing: {
     type: "hourly" | "fixed" | "package";
     rate?: number;
@@ -47,6 +53,9 @@ export type CreateServicePayload = {
 export type UpdateServicePayload = {
   name?: string;
   description?: string;
+  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_min_price?: number;
+  negotiation_max_price?: number;
   pricing?: {
     type: "hourly" | "fixed" | "package";
     rate?: number;

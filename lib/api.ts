@@ -2177,6 +2177,24 @@ export const tenantApi = {
       message?: string;
     }>("/api/tenant/settings/notifications/test"),
 
+  // Negotiation Settings
+  getNegotiationSettings: () =>
+    get<{
+      negotiation_mode: "disabled" | "range";
+      negotiation_min_price?: number;
+      negotiation_max_price?: number;
+    }>("/api/tenant/settings/negotiation"),
+
+  updateNegotiationSettings: (payload: {
+    negotiation_mode?: "disabled" | "range";
+    negotiation_min_price?: number;
+    negotiation_max_price?: number;
+  }) =>
+    put<typeof payload, {
+      success: boolean;
+      message?: string;
+    }>("/api/tenant/settings/negotiation", payload),
+
   // Customer Portal APIs (Public - no auth required)
   portalOrder: (token: string) =>
     get<{

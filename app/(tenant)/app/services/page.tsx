@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useServices, useDeleteService, type Service } from "../../hooks/useServices";
+import { useNegotiationSettings } from "../../hooks/useNegotiationSettings";
+import { formatNegotiationRule } from "../../utils/negotiation";
 import {
   PackageIcon,
   MagnifyingGlassIcon,
@@ -33,6 +35,8 @@ export default function ServicesPage() {
     search: query || undefined,
     category: category || undefined,
   });
+
+  const { data: negotiationSettings } = useNegotiationSettings();
 
   // Filter and sort services
   const services = useMemo(() => {
@@ -266,6 +270,9 @@ export default function ServicesPage() {
                         : service.pricing.type === "fixed"
                         ? "Fixed Price"
                         : "Package-based"}
+                    </p>
+                    <p className="mt-0.5 text-xs text-gray-500">
+                      {formatNegotiationRule(service, negotiationSettings ?? undefined)}
                     </p>
                     {service.duration && <p className="text-xs text-gray-500">⏱️ {service.duration}</p>}
                   </div>
