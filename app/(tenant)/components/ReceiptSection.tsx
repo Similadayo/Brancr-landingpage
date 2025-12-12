@@ -31,53 +31,42 @@ export function ReceiptSection({ paymentId, receiptId, receiptUrl, status }: Rec
 
   if (receiptUrl) {
     return (
-      <div className="mt-3 rounded-xl border border-green-100 bg-green-50 p-3 text-sm text-green-900">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <CheckCircleIcon className="h-5 w-5 text-green-600" />
-            <p className="text-sm font-semibold">Receipt available</p>
-          </div>
-          {receiptId && <span className="text-xs text-green-700">#{receiptId}</span>}
-        </div>
-        <div className="mt-2 flex flex-wrap gap-2">
-          <a
-            href={receiptUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 rounded-lg border border-green-100 bg-white px-3 py-2 text-center text-xs font-semibold text-primary transition hover:border-primary/50"
-          >
-            View Receipt
-          </a>
-          <a
-            href={receiptUrl}
-            download
-            className="flex-1 rounded-lg border border-green-100 bg-white px-3 py-2 text-center text-xs font-semibold text-primary transition hover:border-primary/50"
-          >
-            <ArrowUpTrayIcon className="mr-1 inline h-4 w-4" />
-            Download
-          </a>
-        </div>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-700">
+          <CheckCircleIcon className="h-4 w-4" />
+          Receipt
+          {receiptId ? <span className="text-green-800">#{receiptId}</span> : null}
+        </span>
+        <a
+          href={receiptUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary/30 hover:text-primary"
+        >
+          View
+        </a>
+        <a
+          href={receiptUrl}
+          download
+          className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary/30 hover:text-primary"
+        >
+          <ArrowUpTrayIcon className="mr-1 h-4 w-4" />
+          Download
+        </a>
       </div>
     );
   }
 
   return (
-    <div className="mt-3 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-3 text-sm text-gray-600">
-      <p className="text-xs sm:text-sm">
-        {canGenerate
-          ? 'Generate a receipt once the payment is verified or confirmed. You can share it with customers via the portal link.'
-          : 'Receipt can only be generated after the payment is verified or confirmed.'}
-      </p>
-      <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-        <button
-          onClick={handleGenerate}
-          disabled={isGenerating || !canGenerate}
-          className="flex-shrink-0 rounded-lg bg-primary px-5 py-2 text-xs font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isGenerating ? 'Generating...' : 'Generate Receipt'}
-        </button>
-        <span className="text-xs text-gray-400">Portal link can also be shared for customers to download their receipt.</span>
-      </div>
+    <div className="flex flex-wrap items-center justify-end gap-2">
+      <span className="text-xs font-medium text-gray-500">Receipt</span>
+      <button
+        onClick={handleGenerate}
+        disabled={isGenerating || !canGenerate}
+        className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {isGenerating ? 'Generating...' : 'Generate'}
+      </button>
     </div>
   );
 }

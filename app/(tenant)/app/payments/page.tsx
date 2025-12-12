@@ -268,6 +268,7 @@ export default function PaymentsPage() {
 					<div className="divide-y divide-gray-100">
 						{filteredPayments.map((payment) => {
 							const canAct = payment.verification_status === "pending";
+							const showReceiptActions = Boolean(payment.receipt_url) || !["pending", "disputed", "failed"].includes(payment.status);
 							return (
 								<div key={payment.id} className="px-4 py-3">
 									{/* Mobile */}
@@ -291,30 +292,32 @@ export default function PaymentsPage() {
 															setSelectedPayment(payment);
 															setShowVerifyModal(true);
 														}}
-														className="rounded-lg bg-green-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-green-700 active:scale-95"
-													>
-														Verify
-													</button>
-													<button
-														onClick={() => {
-															setSelectedPayment(payment);
-															setShowDisputeModal(true);
-														}}
-														className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 active:scale-95"
-													>
-														Dispute
-													</button>
-												</div>
-											) : (
-												<span className="text-xs font-semibold text-gray-400">—</span>
-											)}
+													className="rounded-lg bg-green-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-green-700 active:scale-95"
+												>
+													Verify
+												</button>
+												<button
+													onClick={() => {
+														setSelectedPayment(payment);
+														setShowDisputeModal(true);
+													}}
+													className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 active:scale-95"
+												>
+													Dispute
+												</button>
+											</div>
+										) : (
+											<span className="text-xs font-semibold text-gray-400">—</span>
+										)}
 										</div>
-										<ReceiptSection
-											paymentId={payment.id}
-											status={payment.status}
-											receiptId={payment.receipt_id}
-											receiptUrl={payment.receipt_url}
-										/>
+										{showReceiptActions && (
+											<ReceiptSection
+												paymentId={payment.id}
+												status={payment.status}
+												receiptId={payment.receipt_id}
+												receiptUrl={payment.receipt_url}
+											/>
+										)}
 									</div>
 
 									{/* Desktop */}
@@ -344,13 +347,14 @@ export default function PaymentsPage() {
 										</div>
 
 										<div className="col-span-1 flex justify-end">
-											{canAct ? (
-												<div className="flex flex-col items-end gap-2">
-													<button
-														onClick={() => {
-															setSelectedPayment(payment);
-															setShowVerifyModal(true);
-														}}
+											<div className="flex flex-col items-end gap-2">
+												{canAct ? (
+													<>
+														<button
+															onClick={() => {
+																setSelectedPayment(payment);
+																setShowVerifyModal(true);
+															}}
 														className="rounded-lg bg-green-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-green-700 active:scale-95"
 													>
 														Verify
@@ -364,20 +368,21 @@ export default function PaymentsPage() {
 													>
 														Dispute
 													</button>
-												</div>
-											) : (
-												<span className="text-xs font-semibold text-gray-400">—</span>
-											)}
-										</div>
-									</div>
+												</>
+												) : (
+													<span className="text-xs font-semibold text-gray-400">—</span>
+												)}
 
-									<div className="hidden sm:block">
-										<ReceiptSection
-											paymentId={payment.id}
-											status={payment.status}
-											receiptId={payment.receipt_id}
-											receiptUrl={payment.receipt_url}
-										/>
+												{showReceiptActions && (
+													<ReceiptSection
+														paymentId={payment.id}
+														status={payment.status}
+														receiptId={payment.receipt_id}
+														receiptUrl={payment.receipt_url}
+													/>
+												)}
+											</div>
+										</div>
 									</div>
 								</div>
 							);
