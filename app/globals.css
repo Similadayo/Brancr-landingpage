@@ -42,6 +42,8 @@ body {
     @apply min-h-11 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition;
     @apply placeholder:text-gray-400;
     @apply hover:border-primary/30;
+    @apply focus:outline-none focus:bg-white focus:border-primary;
+    @apply focus:ring-4 focus:ring-primary/15;
     @apply focus-visible:outline-none focus-visible:bg-white focus-visible:border-primary;
     @apply focus-visible:ring-4 focus-visible:ring-primary/15;
     @apply disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500 disabled:opacity-70;
@@ -89,6 +91,8 @@ body {
   html.dark select {
     @apply bg-gray-900 text-gray-100 placeholder:text-gray-400;
     @apply border-gray-700;
+    @apply focus:bg-gray-900;
+    @apply focus:ring-primary/25;
     @apply focus-visible:bg-gray-900;
     @apply focus-visible:ring-primary/25;
   }
