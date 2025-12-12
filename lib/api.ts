@@ -1991,12 +1991,14 @@ export const tenantApi = {
         payment_reference: string;
         amount: number;
         currency: string;
-        status: "pending" | "verified" | "confirmed" | "disputed";
+        status: "pending" | "verified" | "confirmed" | "disputed" | "failed";
         verification_status: "pending" | "verified" | "disputed";
         customer_name: string;
         customer_phone?: string;
         created_at: string;
         verified_at?: string;
+        receipt_id?: string;
+        receipt_url?: string;
       }>;
       count: number;
     }>(`/api/tenant/payments${query}`);
@@ -2010,7 +2012,7 @@ export const tenantApi = {
       payment_reference: string;
       amount: number;
       currency: string;
-      status: "pending" | "verified" | "confirmed" | "disputed";
+      status: "pending" | "verified" | "confirmed" | "disputed" | "failed";
       verification_status: "pending" | "verified" | "disputed";
       customer_name: string;
       customer_phone?: string;
@@ -2020,6 +2022,8 @@ export const tenantApi = {
       created_at: string;
       verified_at?: string;
       disputed_at?: string;
+      receipt_id?: string;
+      receipt_url?: string;
     }>(`/api/tenant/payments/${paymentId}`),
 
   verifyPayment: (paymentId: number, payload: {
@@ -2031,8 +2035,12 @@ export const tenantApi = {
       message?: string;
       payment: {
         id: number;
+        order_id: number;
+        status: "verified" | "confirmed";
         verification_status: "verified";
         verified_at: string;
+        receipt_id?: string;
+        receipt_url?: string;
       };
     }>(`/api/tenant/payments/${paymentId}/verify`, payload),
 

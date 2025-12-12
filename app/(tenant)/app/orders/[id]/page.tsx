@@ -4,7 +4,6 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useOrder, useUpdateOrder, useConfirmOrderPayment } from "../../../hooks/useOrders";
 import { CopyToClipboard } from "../../../components/CopyToClipboard";
-import { ReceiptSection } from "../../../components/ReceiptSection";
 import { PortalLinkGenerator } from "../../../components/PortalLinkGenerator";
 import {
   PackageIcon,
@@ -31,10 +30,9 @@ export default function OrderDetailPage() {
     switch (status) {
       case "pending":
         return "bg-yellow-100 text-yellow-700";
-      case "confirmed":
-        return "bg-blue-100 text-blue-700";
       case "processing":
         return "bg-purple-100 text-purple-700";
+      case "confirmed":
       case "completed":
         return "bg-green-100 text-green-700";
       case "cancelled":
@@ -290,16 +288,6 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Receipt Section */}
-          {(order.status === "confirmed" || order.status === "processing" || order.status === "completed") && (
-            <ReceiptSection
-              paymentId={(order as any).payment_id}
-              receiptId={(order as any).receipt_id}
-              receiptUrl={(order as any).receipt_url}
-              orderId={order.id}
-              canGenerate={true}
-            />
-          )}
-
           {/* Portal Link Generator */}
           <PortalLinkGenerator orderId={order.id} />
         </div>

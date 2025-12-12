@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { usePayments, useVerifyPayment, useDisputePayment, type Payment } from "../../hooks/usePayments";
-import { CreditCardIcon, FunnelIcon, MagnifyingGlassIcon, XIcon } from "../../components/icons";
+import { MagnifyingGlassIcon, FunnelIcon, CreditCardIcon, XIcon } from "../../components/icons";
+import { ReceiptSection } from "../../components/ReceiptSection";
 
 export default function PaymentsPage() {
 	const [query, setQuery] = useState("");
@@ -67,11 +68,16 @@ export default function PaymentsPage() {
 		}
 	};
 
+	const canGenerateReceipt = (payment: Payment) => {
+		return payment.status !== "pending" && payment.status !== "disputed" && payment.status !== "failed";
+	};
+
 	const handleVerify = async () => {
 		if (!selectedPayment) return;
 		try {
 			await verifyMutation.mutateAsync({
 				paymentId: selectedPayment.id,
+				orderId: selectedPayment.order_id,
 				payload: {
 					transaction_id: transactionId || undefined,
 					notes: verifyNotes || undefined,
@@ -103,6 +109,7 @@ export default function PaymentsPage() {
 			// handled by mutation toast
 		}
 	};
+
 
 	return (
 		<div className="space-y-4 sm:space-y-6">
@@ -253,6 +260,12 @@ export default function PaymentsPage() {
 											<p className="text-xs text-gray-500">Verified: {new Date(payment.verified_at).toLocaleString()}</p>
 										)}
 									</div>
+									<ReceiptSection
+										paymentId={payment.id}
+										status={payment.status}
+										receiptId={payment.receipt_id}
+										receiptUrl={payment.receipt_url}
+									/>
 								</div>
 								<div className="flex items-center justify-between border-t border-gray-100 pt-2 sm:ml-4 sm:flex-col sm:items-end sm:border-0 sm:pt-0">
 									<div className="text-left sm:text-right">

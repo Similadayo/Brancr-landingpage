@@ -21,6 +21,8 @@ export type Payment = {
   created_at: string;
   verified_at?: string;
   disputed_at?: string;
+  receipt_id?: string;
+  receipt_url?: string;
 };
 
 export function usePayments(filters?: { status?: string; verification_status?: string; limit?: number; offset?: number }) {
@@ -55,13 +57,17 @@ export function usePayment(paymentId: number) {
 export function useVerifyPayment() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ paymentId, payload }: { paymentId: number; payload: { transaction_id?: string; notes?: string } }) => {
+    mutationFn: async ({ paymentId, orderId, payload }: { paymentId: number; orderId?: number; payload: { transaction_id?: string; notes?: string } }) => {
       return tenantApi.verifyPayment(paymentId, payload);
     },
     onSuccess: (_, variables) => {
       toast.success("Payment verified successfully");
       void queryClient.invalidateQueries({ queryKey: ["payments"] });
       void queryClient.invalidateQueries({ queryKey: ["payments", variables.paymentId] });
+      void queryClient.invalidateQueries({ queryKey: ["orders"] });
+      if (variables.orderId) {
+        void queryClient.invalidateQueries({ queryKey: ["orders", variables.orderId] });
+      }
     },
     onError: (error) => {
       if (error instanceof ApiError) {

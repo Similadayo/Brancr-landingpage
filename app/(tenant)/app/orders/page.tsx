@@ -118,7 +118,7 @@ export default function OrdersPage() {
       case "pending":
         return "bg-yellow-100 text-yellow-700";
       case "confirmed":
-        return "bg-blue-100 text-blue-700";
+        return "bg-green-100 text-green-700";
       case "processing":
         return "bg-purple-100 text-purple-700";
       case "completed":
@@ -217,7 +217,6 @@ export default function OrdersPage() {
           >
             <option value="">All Status</option>
             <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
             <option value="processing">Processing</option>
             <option value="completed">Completed</option>
             <option value="cancelled">Cancelled</option>

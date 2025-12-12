@@ -8,12 +8,16 @@ export function useGenerateReceipt() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (paymentId: number) => {
-      return tenantApi.generateReceipt(paymentId);
+      const data = await tenantApi.generateReceipt(paymentId);
+      return { ...data, paymentId };
     },
     onSuccess: (data) => {
       toast.success(data.message || "Receipt generated successfully");
       void queryClient.invalidateQueries({ queryKey: ["orders"] });
       void queryClient.invalidateQueries({ queryKey: ["payments"] });
+      if (data.paymentId) {
+        void queryClient.invalidateQueries({ queryKey: ["payments", data.paymentId] });
+      }
     },
     onError: (error) => {
       if (error instanceof ApiError) {
