@@ -53,6 +53,8 @@ export default function OrderDetailPage() {
     return createdAt > tenMinutesAgo;
   }, [order]);
 
+  const orderItems = order?.items ?? [];
+
   useEffect(() => {
     if (order && !paymentRef) {
       setPaymentRef(order.payment_reference);
@@ -217,7 +219,7 @@ export default function OrderDetailPage() {
           <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-lg font-semibold text-gray-900">Order Items</h2>
             <div className="space-y-3">
-              {order.items.map((item, idx) => (
+              {orderItems.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0">
                   <div>
                     <p className="text-sm font-medium text-gray-900">{item.name}</p>

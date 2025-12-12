@@ -68,11 +68,11 @@ export function ReceiptSection({ paymentId, receiptId, receiptUrl, status }: Rec
           ? 'Generate a receipt once the payment is verified or confirmed. You can share it with customers via the portal link.'
           : 'Receipt can only be generated after the payment is verified or confirmed.'}
       </p>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
         <button
           onClick={handleGenerate}
           disabled={isGenerating || !canGenerate}
-          className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex-shrink-0 rounded-lg bg-primary px-5 py-2 text-xs font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isGenerating ? 'Generating...' : 'Generate Receipt'}
         </button>
