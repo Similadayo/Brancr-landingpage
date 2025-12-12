@@ -311,12 +311,14 @@ export default function PaymentsPage() {
 										)}
 										</div>
 										{showReceiptActions && (
-											<ReceiptSection
-												paymentId={payment.id}
-												status={payment.status}
-												receiptId={payment.receipt_id}
-												receiptUrl={payment.receipt_url}
-											/>
+											<div className="flex justify-end">
+												<ReceiptSection
+													paymentId={payment.id}
+													status={payment.status}
+													receiptId={payment.receipt_id}
+													receiptUrl={payment.receipt_url}
+												/>
+											</div>
 										)}
 									</div>
 
@@ -374,12 +376,14 @@ export default function PaymentsPage() {
 												)}
 
 												{showReceiptActions && (
-													<ReceiptSection
-														paymentId={payment.id}
-														status={payment.status}
-														receiptId={payment.receipt_id}
-														receiptUrl={payment.receipt_url}
-													/>
+													<div className="w-full">
+														<ReceiptSection
+															paymentId={payment.id}
+															status={payment.status}
+															receiptId={payment.receipt_id}
+															receiptUrl={payment.receipt_url}
+														/>
+													</div>
 												)}
 											</div>
 										</div>

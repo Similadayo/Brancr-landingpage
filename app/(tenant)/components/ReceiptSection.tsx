@@ -31,35 +31,36 @@ export function ReceiptSection({ paymentId, receiptId, receiptUrl, status }: Rec
 
   if (receiptUrl) {
     return (
-      <div className="flex flex-wrap items-center justify-end gap-2">
+      <div className="flex flex-col items-end gap-2">
         <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-700">
           <CheckCircleIcon className="h-4 w-4" />
           Receipt
           {receiptId ? <span className="text-green-800">#{receiptId}</span> : null}
         </span>
-        <a
-          href={receiptUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary/30 hover:text-primary"
-        >
-          View
-        </a>
-        <a
-          href={receiptUrl}
-          download
-          className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary/30 hover:text-primary"
-        >
-          <ArrowUpTrayIcon className="mr-1 h-4 w-4" />
-          Download
-        </a>
+        <div className="flex items-center justify-end gap-2">
+          <a
+            href={receiptUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary/30 hover:text-primary"
+          >
+            View
+          </a>
+          <a
+            href={receiptUrl}
+            download
+            className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary/30 hover:text-primary"
+          >
+            <ArrowUpTrayIcon className="mr-1 h-4 w-4" />
+            Download
+          </a>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-end gap-2">
-      <span className="text-xs font-medium text-gray-500">Receipt</span>
+    <div className="flex items-center justify-end gap-2">
       <button
         onClick={handleGenerate}
         disabled={isGenerating || !canGenerate}
