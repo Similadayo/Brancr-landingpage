@@ -146,15 +146,21 @@ export default function OrdersPage() {
     return createdAt > tenMinutesAgo;
   };
 
-  const statusTabs = [
+  type StatusTab = {
+    key: Order["status"] | undefined;
+    label: string;
+    count?: number;
+  };
+
+  const statusTabs: StatusTab[] = [
     { key: undefined, label: "All", count: stats?.total_orders },
     { key: "pending", label: "Pending", count: stats?.pending_orders },
     { key: "processing", label: "Processing" },
     { key: "completed", label: "Completed", count: stats?.completed_orders },
     { key: "cancelled", label: "Cancelled" },
-  ] as const;
+  ];
 
-  const activeStatusKey = (statusFilter || undefined) as (typeof statusTabs)[number]["key"];
+  const activeStatusKey = (statusFilter || undefined) as StatusTab["key"];
 
   return (
     <div className="space-y-4 sm:space-y-6">
