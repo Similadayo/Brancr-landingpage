@@ -282,19 +282,19 @@ export default function PaymentsPage() {
 									{/* Mobile */}
 									<div className="space-y-2 sm:hidden">
 										<div className="flex flex-wrap items-center gap-2">
-											<p className="text-sm font-semibold text-gray-900">{payment.order_number}</p>
+											<p className="break-words text-sm font-semibold text-gray-900">{payment.order_number}</p>
 											<span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getStatusColor(payment.status)}`}>{payment.status}</span>
 											<span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getVerificationStatusColor(payment.verification_status)}`}>{payment.verification_status}</span>
 										</div>
-										<p className="text-xs text-gray-600">Customer: <span className="font-medium">{payment.customer_name}</span></p>
-										<p className="text-xs text-gray-600">Ref: <span className="font-mono font-medium">{payment.payment_reference}</span></p>
+										<p className="text-xs text-gray-600">Customer: <span className="break-words font-medium">{payment.customer_name}</span></p>
+										<p className="text-xs text-gray-600">Ref: <span className="break-all font-mono font-medium">{payment.payment_reference}</span></p>
 										{payment.verified_at && (
 											<p className="text-xs text-gray-500">Verified: {new Date(payment.verified_at).toLocaleString()}</p>
 										)}
-										<div className="flex items-center justify-between">
+										<div className="flex flex-col gap-2">
 											<p className="text-base font-bold text-gray-900">{payment.currency} {payment.amount.toLocaleString()}</p>
 											{canAct ? (
-												<div className="flex gap-2">
+												<div className="flex flex-wrap gap-2">
 													<button
 														onClick={() => {
 															setSelectedPayment(payment);

@@ -37,7 +37,7 @@ export function ReceiptSection({ paymentId, receiptId, receiptUrl, status }: Rec
           Receipt
           {receiptId ? <span className="text-green-800">#{receiptId}</span> : null}
         </span>
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           <a
             href={receiptUrl}
             target="_blank"
@@ -60,7 +60,7 @@ export function ReceiptSection({ paymentId, receiptId, receiptUrl, status }: Rec
   }
 
   return (
-    <div className="flex items-center justify-end gap-2">
+    <div className="flex flex-wrap items-center justify-end gap-2">
       <button
         onClick={handleGenerate}
         disabled={isGenerating || !canGenerate}
