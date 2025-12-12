@@ -49,7 +49,7 @@ const PLATFORM_NAMES: Record<string, string> = {
 
 const PLATFORM_REQUIREMENTS: Record<string, string> = {
   whatsapp: "Requires a number not in use on the WhatsApp mobile app.",
-  instagram: "Requires an Instagram Business Account linked to a Facebook Page.",
+  instagram: "Requires an Instagram Business Account.",
   facebook: "Requires a Facebook Page with admin access.",
   telegram: "Requires a Bot Token created via BotFather.",
   tiktok: "Requires a registered TikTok Shop Seller account.",
@@ -243,7 +243,7 @@ export default function IntegrationsPage() {
             Link Meta, TikTok, and Telegram accounts to automate content, messaging, and analytics in Brancr.
           </p>
           <p className="mt-2 max-w-2xl text-xs text-gray-500">
-            <strong>Instagram:</strong> Use Instagram Login to connect without a Facebook Page, or connect via Facebook Login if you have a Facebook Page.
+            <strong>Instagram:</strong> Connect using Instagram Login.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">

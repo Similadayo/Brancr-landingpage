@@ -69,7 +69,6 @@ export default function DocsPage() {
               <h3 className="text-base font-semibold text-gray-900">Instagram</h3>
               <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-700">
                 <li>Use an Instagram Business Account.</li>
-                <li>Link it to a Facebook Page you have admin access to.</li>
                 <li>Return to Integrations and click Verify.</li>
               </ul>
             </section>
