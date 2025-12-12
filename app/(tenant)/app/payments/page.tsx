@@ -68,6 +68,17 @@ export default function PaymentsPage() {
 		}
 	};
 
+	const statusTabs = [
+		{ key: undefined, label: "All", count },
+		{ key: "pending", label: "Pending", count: payments.filter((p) => p.status === "pending").length },
+		{ key: "verified", label: "Verified", count: payments.filter((p) => p.status === "verified").length },
+		{ key: "confirmed", label: "Confirmed", count: payments.filter((p) => p.status === "confirmed").length },
+		{ key: "disputed", label: "Disputed", count: payments.filter((p) => p.status === "disputed").length },
+		{ key: "failed", label: "Failed", count: payments.filter((p) => p.status === "failed").length },
+	] as const;
+
+	const activeStatusKey = (statusFilter || undefined) as (typeof statusTabs)[number]["key"];
+
 	const verificationTabs = [
 		{ key: undefined, label: "All", count },
 		{ key: "pending", label: "Pending", count: payments.filter((p) => p.verification_status === "pending").length },
@@ -119,13 +130,26 @@ export default function PaymentsPage() {
 	return (
 		<div className="space-y-4 sm:space-y-6">
 			<header className="flex flex-col gap-3 sm:gap-4">
-				<div className="flex items-center gap-3">
-					<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-						<CreditCardIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+					<div className="flex items-center gap-3">
+						<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+							<CreditCardIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+						</div>
+						<div className="min-w-0 flex-1">
+							<h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl lg:text-4xl">Payments</h1>
+							<p className="mt-0.5 text-xs text-gray-600 sm:mt-1 sm:text-sm">Verify and manage customer payments</p>
+						</div>
 					</div>
-					<div className="min-w-0 flex-1">
-						<h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl lg:text-4xl">Payment Verification</h1>
-						<p className="mt-0.5 text-xs text-gray-600 sm:mt-1 sm:text-sm">Verify and manage customer payments</p>
+
+					<div className="relative w-full sm:max-w-sm">
+						<MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:h-5 sm:w-5" />
+						<input
+							type="search"
+							value={query}
+							onChange={(e) => setQuery(e.target.value)}
+							placeholder="Search payments..."
+							className="w-full rounded-full border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:pl-10"
+						/>
 					</div>
 				</div>
 			</header>
@@ -158,51 +182,56 @@ export default function PaymentsPage() {
 				</div>
 			</div>
 
-			<div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:p-4">
-				<div className="relative flex-1">
-					<MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:h-5 sm:w-5" />
-					<input
-						type="search"
-						value={query}
-						onChange={(e) => setQuery(e.target.value)}
-						placeholder="Search payments..."
-						className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 sm:py-2.5 sm:pl-10 sm:pr-4"
-					/>
-				</div>
-				<div className="flex items-center gap-2">
-					<FunnelIcon className="h-4 w-4 shrink-0 text-gray-400" />
-					<select
-						value={verificationFilter || ""}
-						onChange={(e) => setVerificationFilter(e.target.value || undefined)}
-						className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-					>
-						<option value="">All Verification</option>
-						<option value="pending">Pending</option>
-						<option value="verified">Verified</option>
-						<option value="disputed">Disputed</option>
-					</select>
-					<select
-						value={statusFilter || ""}
-						onChange={(e) => setStatusFilter(e.target.value || undefined)}
-						className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-					>
-						<option value="">All Status</option>
-						<option value="pending">Pending</option>
-						<option value="verified">Verified</option>
-						<option value="confirmed">Confirmed</option>
-						<option value="disputed">Disputed</option>
-						<option value="failed">Failed</option>
-					</select>
-					<button
-						onClick={() => {
+			<div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
+				<div className="flex flex-col gap-3">
+					<div className="flex items-center gap-2 overflow-x-auto pb-1">
+						{statusTabs.map((tab) => {
+							const active = tab.key === activeStatusKey;
+							return (
+								<button
+									key={String(tab.key ?? "all")}
+									onClick={() => setStatusFilter(tab.key ?? undefined)}
+									className={`shrink-0 inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold transition active:scale-[0.98] sm:text-sm ${
+										active
+											? "border-primary/20 bg-primary text-white"
+											: "border-gray-200 bg-white text-gray-700 hover:border-primary/30 hover:text-primary"
+									}`}
+								>
+									<span>{tab.label}</span>
+									<span className={`rounded-full px-2 py-0.5 text-[10px] font-bold sm:text-xs ${active ? "bg-white/20 text-white" : "bg-gray-100 text-gray-700"}`}>
+										{tab.count}
+									</span>
+								</button>
+							);
+						})}
+					</div>
+
+					<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+						<div className="flex items-center gap-2">
+							<FunnelIcon className="h-4 w-4 shrink-0 text-gray-400" />
+							<select
+								value={verificationFilter || ""}
+								onChange={(e) => setVerificationFilter(e.target.value || undefined)}
+								className="rounded-full border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
+							>
+								<option value="">All Verification</option>
+								<option value="pending">Pending</option>
+								<option value="verified">Verified</option>
+								<option value="disputed">Disputed</option>
+							</select>
+						</div>
+
+						<button
+							onClick={() => {
 							setStatusFilter(undefined);
 							setVerificationFilter(undefined);
 							setQuery("");
 						}}
-						className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary active:scale-95"
-					>
-						Clear
-					</button>
+							className="self-start rounded-full border border-gray-200 bg-white px-4 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary active:scale-95 sm:self-auto"
+						>
+							Clear
+						</button>
+					</div>
 				</div>
 			</div>
 
@@ -228,31 +257,10 @@ export default function PaymentsPage() {
 				</div>
 			) : (
 				<div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-					<div className="flex flex-col gap-3 border-b border-gray-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+					<div className="flex items-center justify-between gap-3 border-b border-gray-100 px-4 py-3">
 						<div className="flex items-center gap-2">
 							<p className="text-sm font-semibold text-gray-900">Payments</p>
 							<span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700">{count}</span>
-						</div>
-						<div className="flex flex-wrap gap-2">
-							{verificationTabs.map((tab) => {
-								const active = tab.key === activeVerificationKey;
-								return (
-									<button
-										key={String(tab.key ?? "all")}
-										onClick={() => setVerificationFilter(tab.key ?? undefined)}
-										className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition active:scale-[0.98] sm:text-sm ${
-											active
-												? "border-primary/20 bg-primary text-white"
-												: "border-gray-200 bg-white text-gray-700 hover:border-primary/30 hover:text-primary"
-										}`}
-									>
-										<span>{tab.label}</span>
-										<span className={`rounded-full px-2 py-0.5 text-[10px] font-bold sm:text-xs ${active ? "bg-white/20 text-white" : "bg-gray-100 text-gray-700"}`}>
-											{tab.count}
-										</span>
-									</button>
-								);
-							})}
 						</div>
 					</div>
 

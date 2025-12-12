@@ -1,7 +1,28 @@
 import { describe, it, expect, jest } from '@jest/globals';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import PaymentsPage from '@/app/(tenant)/app/payments/page';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const mockPayments = {
+  payments: [
+    {
+      id: 1,
+      order_id: 10,
+      order_number: 'ORDER-10',
+      payment_reference: 'PAY-1',
+      amount: 5000,
+      currency: 'NGN',
+      status: 'pending',
+      verification_status: 'pending',
+      customer_name: 'Jane Doe',
+      created_at: '2024-12-10T14:30:45Z',
+    },
+  ],
+  count: 1,
+  total: 1,
+  limit: 20,
+  offset: 0,
+};
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: jest.fn(), replace: jest.fn(), refresh: jest.fn() }),
@@ -12,61 +33,46 @@ jest.mock('@/app/(tenant)/providers/TenantProvider', () => ({
   useTenant: () => ({ tenant: { business_profile: { name: 'Acme Biz' }, business_name: 'Acme Biz', name: 'Owner' } }),
 }));
 
-// Provide a simple global fetch mock to satisfy page data fetching
-const mockStats = {
-  stats: {
-    total_payments: 1,
-    pending_count: 1,
-    verified_count: 0,
-    confirmed_count: 0,
-    failed_count: 0,
-    disputed_count: 0,
-    total_revenue: 1000,
-    pending_revenue: 1000,
-    verified_revenue: 0,
-    this_month_revenue: 500,
-    last_month_revenue: 400,
-    today_payments: 1,
-    today_revenue: 1000,
-  },
-  recent_payments: [],
-};
+jest.mock('@/lib/api', () => {
+  class ApiError extends Error {
+    status?: number;
+    constructor(message: string, status?: number) {
+      super(message);
+      this.name = 'ApiError';
+      this.status = status;
+    }
+  }
 
-const mockPayments = {
-  payments: [
-    {
-      id: 1,
-      order_id: 10,
-      payment_reference: 'PAY-1',
-      amount: 5000,
-      currency: 'NGN',
-      status: 'pending',
-      verification_status: 'unverified',
-      created_at: '2024-12-10T14:30:45Z',
+  return {
+    ApiError,
+    tenantApi: {
+      payments: jest.fn(async () => mockPayments),
+      payment: jest.fn(),
+      verifyPayment: jest.fn(),
+      disputePayment: jest.fn(),
     },
-  ],
-  count: 1,
-  total: 1,
-  limit: 20,
-  offset: 0,
-};
+  };
+});
 
-global.fetch = jest.fn((url: string) => {
-  if (url.includes('/stats')) {
-    return Promise.resolve({ ok: true, json: () => Promise.resolve(mockStats) } as Response);
-  }
-  if (url.includes('/payments') && !url.includes('/stats')) {
-    return Promise.resolve({ ok: true, json: () => Promise.resolve(mockPayments) } as Response);
-  }
-  return Promise.resolve({ ok: true, json: () => Promise.resolve({}) } as Response);
-}) as unknown as typeof fetch;
+function renderWithQueryClient(ui: React.ReactElement) {
+	const queryClient = new QueryClient({
+		defaultOptions: {
+			queries: { retry: false },
+			mutations: { retry: false },
+		},
+	});
+	return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+}
 
 describe('PaymentsPage', () => {
   it('renders payments heading and stats', async () => {
-    render(<PaymentsPage />);
+    const { default: PaymentsPage } = await import('@/app/(tenant)/app/payments/page');
 
-    expect(screen.getByText('Payments')).toBeTruthy();
+    renderWithQueryClient(<PaymentsPage />);
+
+    expect(screen.getAllByText('Payments')[0]).toBeTruthy();
     await waitFor(() => expect(screen.getByText('Total Payments')).toBeTruthy());
-    await waitFor(() => expect(screen.getByText('PAY-1')).toBeTruthy());
+    const matches = await screen.findAllByText('PAY-1');
+    expect(matches.length).toBeGreaterThan(0);
   });
 });
