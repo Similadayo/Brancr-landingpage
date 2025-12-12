@@ -7,6 +7,7 @@ import { XIcon, TrashIcon, ArrowLeftIcon } from "../icons";
 import PackageBuilder from "../shared/PackageBuilder";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
+import Select from "../ui/Select";
 
 type ServiceFormProps = {
   service?: Service | null;
@@ -22,12 +23,12 @@ export default function ServiceForm({ service }: ServiceFormProps) {
     name: service?.name || "",
     description: service?.description || "",
     pricing_type: service?.pricing.type || "hourly",
-    pricing_rate: service?.pricing.rate || 0,
-    pricing_amount: (service?.pricing as any)?.amount || 0,
+    pricing_rate: service?.pricing.rate !== undefined ? String(service.pricing.rate) : "",
+    pricing_amount: (service?.pricing as any)?.amount !== undefined ? String((service?.pricing as any)?.amount) : "",
     duration: service?.duration || "",
     category: service?.category || "",
     deliverables: service?.deliverables || [],
-    packages: service?.packages || [],
+    packages: (service?.packages || []).map((p: any) => ({ ...p, price: p?.price !== undefined ? String(p.price) : "" })),
     is_active: service?.is_active ?? true,
   });
 
@@ -39,12 +40,12 @@ export default function ServiceForm({ service }: ServiceFormProps) {
         name: service.name || "",
         description: service.description || "",
         pricing_type: service.pricing.type || "hourly",
-        pricing_rate: service.pricing.rate || 0,
-        pricing_amount: (service.pricing as any)?.amount || 0,
+        pricing_rate: service.pricing.rate !== undefined ? String(service.pricing.rate) : "",
+        pricing_amount: (service.pricing as any)?.amount !== undefined ? String((service.pricing as any)?.amount) : "",
         duration: service.duration || "",
         category: service.category || "",
         deliverables: service.deliverables || [],
-        packages: service.packages || [],
+        packages: (service.packages || []).map((p: any) => ({ ...p, price: p?.price !== undefined ? String(p.price) : "" })),
         is_active: service.is_active ?? true,
       });
     }
@@ -69,15 +70,23 @@ export default function ServiceForm({ service }: ServiceFormProps) {
     setIsSubmitting(true);
 
     try {
+      const parsedRate = formData.pricing_rate === "" ? undefined : Number(formData.pricing_rate);
+      const parsedAmount = formData.pricing_amount === "" ? undefined : Number(formData.pricing_amount);
+
+      const parsedPackages = (formData.packages || []).map((p: any) => ({
+        ...p,
+        price: p?.price === "" || p?.price === undefined ? 0 : Number(p.price),
+      }));
+
       const payload = {
         name: formData.name,
         description: formData.description || undefined,
         pricing: {
           type: formData.pricing_type as "hourly" | "fixed" | "package",
-          rate: formData.pricing_type === "hourly" ? formData.pricing_rate : undefined,
-          amount: formData.pricing_type === "fixed" ? formData.pricing_amount : undefined,
+          rate: formData.pricing_type === "hourly" && Number.isFinite(parsedRate as number) ? (parsedRate as number) : undefined,
+          amount: formData.pricing_type === "fixed" && Number.isFinite(parsedAmount as number) ? (parsedAmount as number) : undefined,
         },
-        packages: formData.packages.length > 0 ? formData.packages : undefined,
+        packages: parsedPackages.length > 0 ? parsedPackages : undefined,
         duration: formData.duration || undefined,
         category: formData.category || undefined,
         deliverables: formData.deliverables.length > 0 ? formData.deliverables : undefined,
@@ -173,16 +182,19 @@ export default function ServiceForm({ service }: ServiceFormProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="service-pricing-type" className="block text-sm font-semibold text-gray-700">Pricing Type *</label>
-              <select
-                id="service-pricing-type"
-                value={formData.pricing_type}
-                onChange={(e) => setFormData({ ...formData, pricing_type: e.target.value as "hourly" | "fixed" | "package" })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="hourly">Hourly</option>
-                <option value="fixed">Fixed</option>
-                <option value="package">Package</option>
-              </select>
+              <div className="mt-1">
+                <Select
+                  id="service-pricing-type"
+                  value={formData.pricing_type}
+                  onChange={(value) => setFormData({ ...formData, pricing_type: value as any })}
+                  options={[
+                    { value: "hourly", label: "Hourly" },
+                    { value: "fixed", label: "Fixed" },
+                    { value: "package", label: "Package" },
+                  ]}
+                  searchable={false}
+                />
+              </div>
             </div>
             {formData.pricing_type === "hourly" && (
               <div>
@@ -193,7 +205,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
                   min="0"
                   step="0.01"
                   value={formData.pricing_rate}
-                  onChange={(e) => setFormData({ ...formData, pricing_rate: parseFloat(e.target.value) || 0 })}
+                  onChange={(e) => setFormData({ ...formData, pricing_rate: e.target.value })}
                   className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -207,7 +219,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
                   min="0"
                   step="0.01"
                   value={formData.pricing_amount}
-                  onChange={(e) => setFormData({ ...formData, pricing_amount: parseFloat(e.target.value) || 0 })}
+                  onChange={(e) => setFormData({ ...formData, pricing_amount: e.target.value })}
                   className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>

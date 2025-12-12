@@ -18,6 +18,7 @@ import {
   CheckCircleIcon,
   ArrowUpTrayIcon,
 } from "../../components/icons";
+import Select from "@/app/(tenant)/components/ui/Select";
 
 type ViewMode = "grid" | "list";
 
@@ -196,16 +197,20 @@ export default function MediaLibraryPage() {
         </div>
         <div className="flex items-center gap-2">
           <FunnelIcon className="h-4 w-4 text-gray-400" />
-            <select
-              value={type || ""}
-              onChange={(e) => setType(e.target.value || undefined)}
-              className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            >
-              <option value="">All Types</option>
-              <option value="image">Images</option>
-              <option value="video">Videos</option>
-              <option value="carousel">Carousels</option>
-            </select>
+          <div className="w-44">
+            <Select
+              value={(type ?? '') as 'image' | 'video' | 'carousel' | ''}
+              onChange={(value) => setType(value || undefined)}
+              options={[
+                { value: '', label: 'All Types' },
+                { value: 'image', label: 'Images' },
+                { value: 'video', label: 'Videos' },
+                { value: 'carousel', label: 'Carousels' },
+              ]}
+              searchable={false}
+              buttonClassName="px-3 py-2.5 text-sm rounded-lg"
+            />
+          </div>
             <button
               onClick={() => {
                 setType(undefined);

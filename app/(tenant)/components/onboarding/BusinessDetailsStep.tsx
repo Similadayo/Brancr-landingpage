@@ -3,6 +3,7 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { tenantApi } from '@/lib/api';
+import Select from '../ui/Select';
 
 // Currency mapping for different countries
 const CURRENCY_MAP: Record<string, { symbol: string; code: string; name: string }> = {
@@ -214,18 +215,18 @@ export function BusinessDetailsStep({
             Menu Items <span className="text-xs text-gray-500 font-normal">(optional)</span>
           </label>
           <div className="flex items-center gap-2">
-            <select
-              value={selectedCurrency}
-              onChange={(e) => setSelectedCurrency(e.target.value)}
-              className="rounded-lg border-2 border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              aria-label="Select currency"
-            >
-              {COMMON_CURRENCIES.map((currency) => (
-                <option key={currency.code} value={currency.code}>
-                  {currency.symbol} {currency.code}
-                </option>
-              ))}
-            </select>
+            <div className="min-w-[140px]">
+              <Select
+                value={selectedCurrency}
+                onChange={(value) => setSelectedCurrency(value || selectedCurrency)}
+                options={COMMON_CURRENCIES.map((currency) => ({
+                  value: currency.code,
+                  label: `${currency.symbol} ${currency.code}`,
+                }))}
+                searchable
+                buttonClassName="px-3 py-2 text-xs rounded-lg"
+              />
+            </div>
             <button
               type="button"
               onClick={addMenuItem}

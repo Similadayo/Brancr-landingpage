@@ -9,8 +9,10 @@ import {
   CheckCircleIcon,
   TrendingUpIcon,
   FunnelIcon,
+  MagnifyingGlassIcon,
   ArrowRightIcon,
 } from "../../components/icons";
+import Select from "@/app/(tenant)/components/ui/Select";
 
 const PRIORITY_COLORS: Record<string, string> = {
   low: "bg-gray-100 text-gray-700",
@@ -159,44 +161,56 @@ export default function EscalationsPage() {
         <div className="flex items-center gap-2">
           <FunnelIcon className="h-4 w-4 text-gray-400" />
           <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Priority</label>
-          <select
-            value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          >
-            <option value="all">All</option>
-            <option value="critical">Critical</option>
-            <option value="urgent">Urgent</option>
-            <option value="high">High</option>
-            <option value="normal">Normal</option>
-            <option value="low">Low</option>
-          </select>
+          <div className="w-40">
+            <Select
+              value={priorityFilter}
+              onChange={(value) => setPriorityFilter(value || 'all')}
+              searchable={false}
+              buttonClassName="px-3 py-2 text-sm rounded-lg"
+              options={[
+                { value: 'all', label: 'All' },
+                { value: 'critical', label: 'Critical' },
+                { value: 'urgent', label: 'Urgent' },
+                { value: 'high', label: 'High' },
+                { value: 'normal', label: 'Normal' },
+                { value: 'low', label: 'Low' },
+              ]}
+            />
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Platform</label>
-          <select
-            value={platformFilter}
-            onChange={(e) => setPlatformFilter(e.target.value)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          >
-            <option value="all">All</option>
-            <option value="instagram">Instagram</option>
-            <option value="facebook">Facebook</option>
-            <option value="whatsapp">WhatsApp</option>
-            <option value="tiktok">TikTok</option>
-            <option value="telegram">Telegram</option>
-          </select>
+          <div className="w-44">
+            <Select
+              value={platformFilter}
+              onChange={(value) => setPlatformFilter(value || 'all')}
+              searchable={false}
+              buttonClassName="px-3 py-2 text-sm rounded-lg"
+              options={[
+                { value: 'all', label: 'All' },
+                { value: 'instagram', label: 'Instagram' },
+                { value: 'facebook', label: 'Facebook' },
+                { value: 'whatsapp', label: 'WhatsApp' },
+                { value: 'tiktok', label: 'TikTok' },
+                { value: 'telegram', label: 'Telegram' },
+              ]}
+            />
+          </div>
         </div>
         <div className="ml-auto flex items-center gap-2">
           <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Sort</label>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as "newest" | "priority")}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          >
-            <option value="newest">Newest First</option>
-            <option value="priority">Priority</option>
-          </select>
+          <div className="w-44">
+            <Select
+              value={sortBy}
+              onChange={(value) => setSortBy((value || 'newest') as 'newest' | 'priority')}
+              searchable={false}
+              buttonClassName="px-3 py-2 text-sm rounded-lg"
+              options={[
+                { value: 'newest', label: 'Newest First' },
+                { value: 'priority', label: 'Priority' },
+              ]}
+            />
+          </div>
         </div>
       </div>
 

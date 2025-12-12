@@ -7,6 +7,7 @@ import { XIcon, TrashIcon, ArrowLeftIcon } from "../icons";
 import ImageUploader from "../shared/ImageUploader";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
+import Select from "../ui/Select";
 
 const DIETARY_OPTIONS = [
   'Vegetarian',
@@ -31,10 +32,10 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
   const [formData, setFormData] = useState({
     name: item?.name || "",
     description: item?.description || "",
-    price: item?.price || 0,
+    price: item?.price !== undefined ? String(item.price) : "",
     currency: item?.currency || "NGN",
     category: item?.category || "",
-    preparation_time: item?.preparation_time || 0,
+    preparation_time: item?.preparation_time !== undefined ? String(item.preparation_time) : "",
     dietary_info: item?.dietary_info || [],
     spice_level: item?.spice_level || "mild",
     availability: item?.availability || "available",
@@ -49,10 +50,10 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
       setFormData({
         name: item.name || "",
         description: item.description || "",
-        price: item.price || 0,
+        price: item.price !== undefined ? String(item.price) : "",
         currency: item.currency || "NGN",
         category: item.category || "",
-        preparation_time: item.preparation_time || 0,
+        preparation_time: item.preparation_time !== undefined ? String(item.preparation_time) : "",
         dietary_info: item.dietary_info || [],
         spice_level: item.spice_level || "mild",
         availability: item.availability || "available",
@@ -76,13 +77,16 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
     setIsSubmitting(true);
 
     try {
+      const parsedPrice = Number(formData.price);
+      const parsedPrep = formData.preparation_time === "" ? undefined : Number.parseInt(formData.preparation_time, 10);
+
       const payload = {
         name: formData.name,
         description: formData.description || undefined,
-        price: formData.price,
+        price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
         currency: formData.currency,
         category: formData.category || undefined,
-        preparation_time: formData.preparation_time || undefined,
+        preparation_time: Number.isFinite(parsedPrep as number) ? (parsedPrep as number) : undefined,
         dietary_info: formData.dietary_info.length > 0 ? formData.dietary_info : undefined,
         spice_level: formData.spice_level,
         availability: formData.availability,
@@ -186,41 +190,47 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
                 min="0"
                 step="0.01"
                 value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                 className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
             <div>
               <label htmlFor="menu-item-currency" className="block text-sm font-semibold text-gray-700">Currency</label>
-              <select
-                id="menu-item-currency"
-                value={formData.currency}
-                onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="NGN">NGN</option>
-                <option value="USD">USD</option>
-              </select>
+              <div className="mt-1">
+                <Select
+                  id="menu-item-currency"
+                  value={formData.currency}
+                  onChange={(value) => setFormData({ ...formData, currency: String(value) })}
+                  options={[
+                    { value: "NGN", label: "NGN" },
+                    { value: "USD", label: "USD" },
+                  ]}
+                  searchable={false}
+                />
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="menu-item-category" className="block text-sm font-semibold text-gray-700">Category *</label>
-              <select
-                id="menu-item-category"
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="">Select Category</option>
-                <option value="Appetizer">Appetizer</option>
-                <option value="Main Course">Main Course</option>
-                <option value="Dessert">Dessert</option>
-                <option value="Drink">Drink</option>
-                <option value="Side">Side</option>
-                <option value="Beverage">Beverage</option>
-              </select>
+              <div className="mt-1">
+                <Select
+                  id="menu-item-category"
+                  value={formData.category}
+                  onChange={(value) => setFormData({ ...formData, category: String(value) })}
+                  options={[
+                    { value: "", label: "Select Category" },
+                    { value: "Appetizer", label: "Appetizer" },
+                    { value: "Main Course", label: "Main Course" },
+                    { value: "Dessert", label: "Dessert" },
+                    { value: "Drink", label: "Drink" },
+                    { value: "Side", label: "Side" },
+                    { value: "Beverage", label: "Beverage" },
+                  ]}
+                  searchable={false}
+                />
+              </div>
             </div>
             <div>
               <label htmlFor="menu-item-prep-time" className="block text-sm font-semibold text-gray-700">Preparation Time (minutes)</label>
@@ -229,7 +239,7 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
                 type="number"
                 min="0"
                 value={formData.preparation_time}
-                onChange={(e) => setFormData({ ...formData, preparation_time: parseInt(e.target.value) || 0 })}
+                onChange={(e) => setFormData({ ...formData, preparation_time: e.target.value })}
                 className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
@@ -238,30 +248,36 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="menu-item-spice" className="block text-sm font-semibold text-gray-700">Spice Level</label>
-              <select
-                id="menu-item-spice"
-                value={formData.spice_level}
-                onChange={(e) => setFormData({ ...formData, spice_level: e.target.value as any })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="mild">None / Mild</option>
-                <option value="medium">Medium</option>
-                <option value="hot">Hot</option>
-                <option value="very_hot">Extra Hot</option>
-              </select>
+              <div className="mt-1">
+                <Select
+                  id="menu-item-spice"
+                  value={formData.spice_level}
+                  onChange={(value) => setFormData({ ...formData, spice_level: value as any })}
+                  options={[
+                    { value: "mild", label: "None / Mild" },
+                    { value: "medium", label: "Medium" },
+                    { value: "hot", label: "Hot" },
+                    { value: "very_hot", label: "Extra Hot" },
+                  ]}
+                  searchable={false}
+                />
+              </div>
             </div>
             <div>
               <label htmlFor="menu-item-availability" className="block text-sm font-semibold text-gray-700">Availability *</label>
-              <select
-                id="menu-item-availability"
-                value={formData.availability}
-                onChange={(e) => setFormData({ ...formData, availability: e.target.value as any })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="available">Available</option>
-                <option value="unavailable">Unavailable</option>
-                <option value="limited">Limited</option>
-              </select>
+              <div className="mt-1">
+                <Select
+                  id="menu-item-availability"
+                  value={formData.availability}
+                  onChange={(value) => setFormData({ ...formData, availability: value as any })}
+                  options={[
+                    { value: "available", label: "Available" },
+                    { value: "unavailable", label: "Unavailable" },
+                    { value: "limited", label: "Limited" },
+                  ]}
+                  searchable={false}
+                />
+              </div>
             </div>
           </div>
 

@@ -13,6 +13,7 @@ import {
   PencilIcon,
   CheckCircleIcon,
 } from "../../components/icons";
+import Select from "../../components/ui/Select";
 import { toast } from "react-hot-toast";
 
 type SortOption = 'name' | 'price' | 'stock' | 'date';
@@ -150,50 +151,58 @@ export default function ProductsPage() {
         </div>
         <div className="flex items-center gap-2">
           <FunnelIcon className="h-4 w-4 shrink-0 text-gray-400" />
-          <select
-            value={category || ""}
-            onChange={(e) => setCategory(e.target.value || undefined)}
-            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-          >
-            <option value="">All Categories</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-            </select>
+          <div className="flex-1 min-w-[220px]">
+            <Select
+              value={(category || "") as any}
+              onChange={(value) => setCategory(value ? String(value) : undefined)}
+              options={[
+                { value: "", label: "All Categories" },
+                ...categories.map((cat) => ({ value: cat, label: cat })),
+              ]}
+              searchable
+            />
+          </div>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <select
-            value={availability}
-            onChange={(e) => setAvailability(e.target.value as AvailabilityFilter)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-          >
-            <option value="all">All Availability</option>
-            <option value="in_stock">In Stock</option>
-            <option value="out_of_stock">Out of Stock</option>
-            <option value="low_stock">Low Stock</option>
-          </select>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as StatusFilter)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-          >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortOption)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-          >
-            <option value="date">Sort by Date</option>
-            <option value="name">Sort by Name</option>
-            <option value="price">Sort by Price</option>
-            <option value="stock">Sort by Stock</option>
-          </select>
+          <div className="min-w-[220px]">
+            <Select
+              value={availability}
+              onChange={(value) => setAvailability(value as AvailabilityFilter)}
+              options={[
+                { value: "all", label: "All Availability" },
+                { value: "in_stock", label: "In Stock" },
+                { value: "out_of_stock", label: "Out of Stock" },
+                { value: "low_stock", label: "Low Stock" },
+              ]}
+              searchable={false}
+            />
+          </div>
+          <div className="min-w-[200px]">
+            <Select
+              value={status}
+              onChange={(value) => setStatus(value as StatusFilter)}
+              options={[
+                { value: "all", label: "All Status" },
+                { value: "active", label: "Active" },
+                { value: "inactive", label: "Inactive" },
+              ]}
+              searchable={false}
+            />
+          </div>
+          <div className="min-w-[200px]">
+            <Select
+              value={sortBy}
+              onChange={(value) => setSortBy(value as SortOption)}
+              options={[
+                { value: "date", label: "Sort by Date" },
+                { value: "name", label: "Sort by Name" },
+                { value: "price", label: "Sort by Price" },
+                { value: "stock", label: "Sort by Stock" },
+              ]}
+              searchable={false}
+            />
+          </div>
           <button
             onClick={() => {
               setCategory(undefined);

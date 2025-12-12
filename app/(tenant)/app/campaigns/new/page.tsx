@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import Select from "@/app/(tenant)/components/ui/Select";
 
 export default function NewCampaignPage() {
   const [campaignName, setCampaignName] = useState("");
@@ -44,16 +45,19 @@ export default function NewCampaignPage() {
             <label htmlFor="type" className="block text-sm font-semibold text-gray-900">
               Campaign Type
             </label>
-            <select
-              id="type"
-              value={campaignType}
-              onChange={(e) => setCampaignType(e.target.value)}
-              className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            >
-              <option value="broadcast">Broadcast Message</option>
-              <option value="automated">Automated Sequence</option>
-              <option value="triggered">Triggered Campaign</option>
-            </select>
+            <div className="mt-2">
+              <Select
+                id="type"
+                value={campaignType as 'broadcast' | 'automated' | 'triggered'}
+                onChange={(value) => setCampaignType((value || 'broadcast') as any)}
+                searchable={false}
+                options={[
+                  { value: 'broadcast', label: 'Broadcast Message' },
+                  { value: 'automated', label: 'Automated Sequence' },
+                  { value: 'triggered', label: 'Triggered Campaign' },
+                ]}
+              />
+            </div>
           </div>
 
           <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">

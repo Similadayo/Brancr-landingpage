@@ -12,6 +12,7 @@ import {
   ClockIcon,
   ChevronLeftIcon,
 } from "../../../components/icons";
+import Select from "@/app/(tenant)/components/ui/Select";
 import { toast } from "react-hot-toast";
 import { useState, useMemo, useEffect } from "react";
 
@@ -274,17 +275,21 @@ export default function OrderDetailPage() {
               )}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700">Update Status</label>
-                <select
+                <Select
                   value={order.status}
-                  onChange={(e) => handleStatusUpdate(e.target.value as "pending" | "confirmed" | "processing" | "completed" | "cancelled")}
-                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="processing">Processing</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
+                  onChange={(value) =>
+                    handleStatusUpdate((value || order.status) as 'pending' | 'confirmed' | 'processing' | 'completed' | 'cancelled')
+                  }
+                  searchable={false}
+                  buttonClassName="px-3 py-2 text-sm rounded-lg"
+                  options={[
+                    { value: 'pending', label: 'Pending' },
+                    { value: 'confirmed', label: 'Confirmed' },
+                    { value: 'processing', label: 'Processing' },
+                    { value: 'completed', label: 'Completed' },
+                    { value: 'cancelled', label: 'Cancelled' },
+                  ]}
+                />
               </div>
             </div>
           </div>

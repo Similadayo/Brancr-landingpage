@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent, useEffect } from 'react';
+import Select from '../ui/Select';
 
 const INDUSTRIES = [
   'restaurant',
@@ -94,38 +95,17 @@ export function BusinessProfileStep({
           <span className="text-primary">🏭</span>
           Industry <span className="text-red-500">*</span>
         </label>
-        <div className="relative">
-          <select
-            id="industry"
-            required
-            value={formData.industry}
-            onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-            className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 pr-10 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300 appearance-none cursor-pointer"
-          >
-            <option value="">Select an industry</option>
-            {INDUSTRIES.map((industry) => (
-              <option key={industry} value={industry}>
-                {industry.charAt(0).toUpperCase() + industry.slice(1).replace('_', ' ')}
-              </option>
-            ))}
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-            <svg
-              className="h-5 w-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </div>
-        </div>
+        <Select
+          id="industry"
+          value={formData.industry}
+          onChange={(value) => setFormData({ ...formData, industry: value })}
+          placeholder="Select an industry"
+          options={INDUSTRIES.map((industry) => ({
+            value: industry,
+            label: industry.charAt(0).toUpperCase() + industry.slice(1).replace('_', ' '),
+          }))}
+          searchable
+        />
       </div>
 
       <div>

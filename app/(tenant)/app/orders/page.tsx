@@ -13,6 +13,7 @@ import {
   CheckCircleIcon,
   ClockIcon,
 } from "../../components/icons";
+import Select from "../../components/ui/Select";
 import { toast } from "react-hot-toast";
 
 export default function OrdersPage() {
@@ -228,17 +229,20 @@ export default function OrdersPage() {
 
           <div className="flex items-center gap-2">
             <FunnelIcon className="h-4 w-4 shrink-0 text-gray-400" />
-            <select
-              value={platformFilter || ""}
-              onChange={(e) => setPlatformFilter(e.target.value || undefined)}
-              className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-            >
-              <option value="">All Platforms</option>
-              <option value="whatsapp">WhatsApp</option>
-              <option value="instagram">Instagram</option>
-              <option value="telegram">Telegram</option>
-              <option value="facebook">Facebook</option>
-            </select>
+            <div className="min-w-[220px]">
+              <Select
+                value={(platformFilter || "") as any}
+                onChange={(value) => setPlatformFilter(value ? String(value) : undefined)}
+                options={[
+                  { value: "", label: "All Platforms" },
+                  { value: "whatsapp", label: "WhatsApp" },
+                  { value: "instagram", label: "Instagram" },
+                  { value: "telegram", label: "Telegram" },
+                  { value: "facebook", label: "Facebook" },
+                ]}
+                searchable={false}
+              />
+            </div>
 
             <button
               onClick={() => {

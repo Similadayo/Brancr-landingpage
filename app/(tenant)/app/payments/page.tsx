@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { usePayments, useVerifyPayment, useDisputePayment, type Payment } from "../../hooks/usePayments";
 import { MagnifyingGlassIcon, FunnelIcon, CreditCardIcon, XIcon } from "../../components/icons";
 import { ReceiptSection } from "../../components/ReceiptSection";
+import Select from "../../components/ui/Select";
 
 export default function PaymentsPage() {
 	const [query, setQuery] = useState("");
@@ -209,16 +210,19 @@ export default function PaymentsPage() {
 					<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 						<div className="flex items-center gap-2">
 							<FunnelIcon className="h-4 w-4 shrink-0 text-gray-400" />
-							<select
-								value={verificationFilter || ""}
-								onChange={(e) => setVerificationFilter(e.target.value || undefined)}
-								className="rounded-full border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-							>
-								<option value="">All Verification</option>
-								<option value="pending">Pending</option>
-								<option value="verified">Verified</option>
-								<option value="disputed">Disputed</option>
-							</select>
+							<div className="min-w-[220px]">
+								<Select
+									value={(verificationFilter || "") as any}
+									onChange={(value) => setVerificationFilter(value ? String(value) : undefined)}
+									options={[
+										{ value: "", label: "All Verification" },
+										{ value: "pending", label: "Pending" },
+										{ value: "verified", label: "Verified" },
+										{ value: "disputed", label: "Disputed" },
+									]}
+									searchable={false}
+								/>
+							</div>
 						</div>
 
 						<button

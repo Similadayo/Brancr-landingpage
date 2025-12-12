@@ -13,6 +13,7 @@ import {
   PencilIcon,
   CheckCircleIcon,
 } from "../../components/icons";
+import Select from "../../components/ui/Select";
 
 type SortOption = 'name' | 'price' | 'category' | 'preparation_time' | 'date';
 type AvailabilityFilter = 'all' | 'available' | 'unavailable' | 'limited';
@@ -164,62 +165,73 @@ export default function MenuItemsPage() {
         </div>
         <div className="flex items-center gap-2">
           <FunnelIcon className="h-4 w-4 text-gray-400" />
-          <select
-            value={category || ""}
-            onChange={(e) => setCategory(e.target.value || undefined)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          >
-            <option value="">All Categories</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-            </select>
+          <div className="min-w-[240px]">
+            <Select
+              value={(category || "") as any}
+              onChange={(value) => setCategory(value ? String(value) : undefined)}
+              options={[
+                { value: "", label: "All Categories" },
+                ...categories.map((cat) => ({ value: cat, label: cat })),
+              ]}
+              searchable
+            />
+          </div>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <select
-            value={availability}
-            onChange={(e) => setAvailability(e.target.value as AvailabilityFilter)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-          >
-            <option value="all">All Availability</option>
-            <option value="available">Available</option>
-            <option value="unavailable">Unavailable</option>
-            <option value="limited">Limited</option>
-          </select>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as StatusFilter)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-          >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-          <select
-            value={spiceLevel}
-            onChange={(e) => setSpiceLevel(e.target.value as SpiceLevelFilter)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-          >
-            <option value="all">All Spice Levels</option>
-            <option value="mild">Mild</option>
-            <option value="medium">Medium</option>
-            <option value="hot">Hot</option>
-            <option value="very_hot">Very Hot</option>
-          </select>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortOption)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-          >
-            <option value="date">Sort by Date</option>
-            <option value="name">Sort by Name</option>
-            <option value="price">Sort by Price</option>
-            <option value="category">Sort by Category</option>
-            <option value="preparation_time">Sort by Prep Time</option>
-          </select>
+          <div className="min-w-[200px]">
+            <Select
+              value={availability}
+              onChange={(value) => setAvailability(value as AvailabilityFilter)}
+              options={[
+                { value: "all", label: "All Availability" },
+                { value: "available", label: "Available" },
+                { value: "unavailable", label: "Unavailable" },
+                { value: "limited", label: "Limited" },
+              ]}
+              searchable={false}
+            />
+          </div>
+          <div className="min-w-[180px]">
+            <Select
+              value={status}
+              onChange={(value) => setStatus(value as StatusFilter)}
+              options={[
+                { value: "all", label: "All Status" },
+                { value: "active", label: "Active" },
+                { value: "inactive", label: "Inactive" },
+              ]}
+              searchable={false}
+            />
+          </div>
+          <div className="min-w-[200px]">
+            <Select
+              value={spiceLevel}
+              onChange={(value) => setSpiceLevel(value as SpiceLevelFilter)}
+              options={[
+                { value: "all", label: "All Spice Levels" },
+                { value: "mild", label: "Mild" },
+                { value: "medium", label: "Medium" },
+                { value: "hot", label: "Hot" },
+                { value: "very_hot", label: "Very Hot" },
+              ]}
+              searchable={false}
+            />
+          </div>
+          <div className="min-w-[220px]">
+            <Select
+              value={sortBy}
+              onChange={(value) => setSortBy(value as SortOption)}
+              options={[
+                { value: "date", label: "Sort by Date" },
+                { value: "name", label: "Sort by Name" },
+                { value: "price", label: "Sort by Price" },
+                { value: "category", label: "Sort by Category" },
+                { value: "preparation_time", label: "Sort by Prep Time" },
+              ]}
+              searchable={false}
+            />
+          </div>
           <button
             onClick={() => {
               setCategory(undefined);

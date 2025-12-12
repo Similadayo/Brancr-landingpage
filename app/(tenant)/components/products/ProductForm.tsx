@@ -8,6 +8,7 @@ import ImageUploader from "../shared/ImageUploader";
 import VariantBuilder from "../shared/VariantBuilder";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
+import Select from "../ui/Select";
 
 type ProductFormProps = {
   product?: Product | null;
@@ -22,7 +23,7 @@ export default function ProductForm({ product }: ProductFormProps) {
   const [formData, setFormData] = useState({
     name: product?.name || "",
     description: product?.description || "",
-    price: product?.price || 0,
+    price: product?.price !== undefined ? String(product.price) : "",
     currency: product?.currency || "NGN",
     category: product?.category || "",
     sku: (product as any)?.sku || "",
@@ -41,7 +42,7 @@ export default function ProductForm({ product }: ProductFormProps) {
       setFormData({
         name: product.name || "",
         description: product.description || "",
-        price: product.price || 0,
+        price: product.price !== undefined ? String(product.price) : "",
         currency: product.currency || "NGN",
         category: product.category || "",
         sku: (product as any)?.sku || "",
@@ -60,10 +61,11 @@ export default function ProductForm({ product }: ProductFormProps) {
     setIsSubmitting(true);
 
     try {
+      const parsedPrice = Number(formData.price);
       const payload = {
         name: formData.name,
         description: formData.description || undefined,
-        price: formData.price,
+        price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
         currency: formData.currency,
         category: formData.category || undefined,
         sku: formData.sku || undefined,
@@ -171,23 +173,26 @@ export default function ProductForm({ product }: ProductFormProps) {
                 min="0"
                 step="0.01"
                 value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                 className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
             <div>
               <label htmlFor="product-currency" className="block text-sm font-semibold text-gray-700">Currency</label>
-              <select
-                id="product-currency"
-                value={formData.currency}
-                onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="NGN">NGN</option>
-                <option value="USD">USD</option>
-                <option value="GBP">GBP</option>
-                <option value="EUR">EUR</option>
-              </select>
+              <div className="mt-1">
+                <Select
+                  id="product-currency"
+                  value={formData.currency}
+                  onChange={(value) => setFormData({ ...formData, currency: String(value) })}
+                  options={[
+                    { value: "NGN", label: "NGN" },
+                    { value: "USD", label: "USD" },
+                    { value: "GBP", label: "GBP" },
+                    { value: "EUR", label: "EUR" },
+                  ]}
+                  searchable={false}
+                />
+              </div>
             </div>
           </div>
 
@@ -224,7 +229,13 @@ export default function ProductForm({ product }: ProductFormProps) {
                 type="number"
                 min="-1"
                 value={formData.stock_count}
-                onChange={(e) => setFormData({ ...formData, stock_count: parseInt(e.target.value) || -1 })}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  setFormData({
+                    ...formData,
+                    stock_count: next === "" ? -1 : Number.parseInt(next, 10) || -1,
+                  });
+                }}
                 placeholder="Enter stock count or -1 for unlimited"
                 className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
@@ -232,16 +243,19 @@ export default function ProductForm({ product }: ProductFormProps) {
             </div>
             <div>
               <label htmlFor="product-availability" className="block text-sm font-semibold text-gray-700">Availability *</label>
-              <select
-                id="product-availability"
-                value={formData.availability}
-                onChange={(e) => setFormData({ ...formData, availability: e.target.value as any })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="in_stock">In Stock</option>
-                <option value="out_of_stock">Out of Stock</option>
-                <option value="low_stock">Low Stock</option>
-              </select>
+              <div className="mt-1">
+                <Select
+                  id="product-availability"
+                  value={formData.availability}
+                  onChange={(value) => setFormData({ ...formData, availability: value as any })}
+                  options={[
+                    { value: "in_stock", label: "In Stock" },
+                    { value: "out_of_stock", label: "Out of Stock" },
+                    { value: "low_stock", label: "Low Stock" },
+                  ]}
+                  searchable={false}
+                />
+              </div>
             </div>
           </div>
 

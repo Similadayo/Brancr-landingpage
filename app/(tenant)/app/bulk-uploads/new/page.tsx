@@ -11,6 +11,7 @@ import MediaUploader, { type UploadedMedia } from "@/app/(tenant)/components/pos
 import PlatformSelector from "@/app/(tenant)/components/posting/PlatformSelector";
 import SchedulePicker from "@/app/(tenant)/components/posting/SchedulePicker";
 import CaptionEditor from "@/app/(tenant)/components/posting/CaptionEditor";
+import Select from "@/app/(tenant)/components/ui/Select";
 
 type Step = "upload" | "strategy" | "captions" | "platforms" | "schedule" | "review";
 
@@ -40,7 +41,7 @@ export default function NewBulkUploadPage() {
   // Strategy state
   const [splitStrategy, setSplitStrategy] = useState<SplitStrategy>("");
   const [carouselCount, setCarouselCount] = useState<number>(0);
-  const [itemsPerCarousel, setItemsPerCarousel] = useState<number>(10);
+  const [itemsPerCarousel, setItemsPerCarousel] = useState<string>('10');
 
   // Caption state
   const [captionStrategy, setCaptionStrategy] = useState<"same" | "individual" | "ai_batch">("same");
@@ -55,10 +56,13 @@ export default function NewBulkUploadPage() {
 
   // Schedule state
   const [scheduleStrategy, setScheduleStrategy] = useState<ScheduleStrategy>("");
-  const [durationDays, setDurationDays] = useState<number>(30);
+  const [durationDays, setDurationDays] = useState<string>('30');
   const [frequency, setFrequency] = useState<"daily" | "every_2_days" | "weekly">("daily");
   const [startDate, setStartDate] = useState<string>("");
   const [timezone, setTimezone] = useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone);
+
+  const itemsPerCarouselNumber = Number(itemsPerCarousel);
+  const durationDaysNumber = Number(durationDays);
 
   // Auto-save draft
   useEffect(() => {
@@ -103,13 +107,13 @@ export default function NewBulkUploadPage() {
         if (draft.uploadedMedia) setUploadedMedia(draft.uploadedMedia);
         if (draft.splitStrategy) setSplitStrategy(draft.splitStrategy);
         if (draft.carouselCount) setCarouselCount(draft.carouselCount);
-        if (draft.itemsPerCarousel) setItemsPerCarousel(draft.itemsPerCarousel);
+        if (draft.itemsPerCarousel !== undefined && draft.itemsPerCarousel !== null) setItemsPerCarousel(String(draft.itemsPerCarousel));
         if (draft.captionStrategy) setCaptionStrategy(draft.captionStrategy);
         if (draft.sharedCaption) setSharedCaption(draft.sharedCaption);
         if (draft.carouselCaptions) setCarouselCaptions(draft.carouselCaptions);
         if (draft.selectedPlatforms) setSelectedPlatforms(draft.selectedPlatforms);
         if (draft.scheduleStrategy) setScheduleStrategy(draft.scheduleStrategy);
-        if (draft.durationDays) setDurationDays(draft.durationDays);
+        if (draft.durationDays !== undefined && draft.durationDays !== null) setDurationDays(String(draft.durationDays));
         if (draft.frequency) setFrequency(draft.frequency);
         if (draft.startDate) setStartDate(draft.startDate);
         if (draft.step) setStep(draft.step);
@@ -125,11 +129,14 @@ export default function NewBulkUploadPage() {
 
   // Auto-calculate carousel count
   useEffect(() => {
-    if (splitStrategy === "carousels" && uploadedMedia.length > 0 && itemsPerCarousel > 0) {
-      const calculated = Math.ceil(uploadedMedia.length / itemsPerCarousel);
-      setCarouselCount(calculated);
+    if (splitStrategy !== "carousels" || uploadedMedia.length === 0) return;
+    if (!Number.isFinite(itemsPerCarouselNumber) || itemsPerCarouselNumber <= 0) {
+      setCarouselCount(0);
+      return;
     }
-  }, [uploadedMedia.length, splitStrategy, itemsPerCarousel]);
+    const calculated = Math.ceil(uploadedMedia.length / itemsPerCarouselNumber);
+    setCarouselCount(calculated);
+  }, [uploadedMedia.length, splitStrategy, itemsPerCarouselNumber]);
 
   // Validation
   const canNext = useMemo(() => {
@@ -138,7 +145,7 @@ export default function NewBulkUploadPage() {
         return uploadedMedia.length > 0;
       case "strategy":
         if (splitStrategy === "carousels") {
-          return carouselCount > 0 && itemsPerCarousel > 0;
+          return carouselCount > 0 && Number.isFinite(itemsPerCarouselNumber) && itemsPerCarouselNumber > 0;
         }
         return splitStrategy !== "";
       case "captions":
@@ -150,7 +157,7 @@ export default function NewBulkUploadPage() {
         return selectedPlatforms.length > 0;
       case "schedule":
         if (scheduleStrategy === "spread") {
-          return startDate !== "" && durationDays > 0;
+          return startDate !== "" && Number.isFinite(durationDaysNumber) && durationDaysNumber > 0;
         }
         return scheduleStrategy !== "";
       case "review":
@@ -158,7 +165,7 @@ export default function NewBulkUploadPage() {
       default:
         return false;
     }
-  }, [step, uploadedMedia.length, splitStrategy, carouselCount, itemsPerCarousel, captionStrategy, sharedCaption, selectedPlatforms, scheduleStrategy, startDate, durationDays]);
+  }, [step, uploadedMedia.length, splitStrategy, carouselCount, itemsPerCarouselNumber, captionStrategy, sharedCaption, selectedPlatforms, scheduleStrategy, startDate, durationDaysNumber]);
 
   // Handlers
   const handleUploadComplete = useCallback((media: UploadedMedia[]) => {
@@ -483,7 +490,7 @@ export default function NewBulkUploadPage() {
                       min="1"
                       max="20"
                       value={itemsPerCarousel}
-                      onChange={(e) => setItemsPerCarousel(Number(e.target.value))}
+                      onChange={(e) => setItemsPerCarousel(e.target.value)}
                       aria-label="Items per carousel"
                       className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700"
                     />
@@ -491,7 +498,7 @@ export default function NewBulkUploadPage() {
                       Recommended: 10-15 items per carousel
                     </p>
                   </div>
-                  {uploadedMedia.length > 0 && itemsPerCarousel > 0 && (
+                  {uploadedMedia.length > 0 && itemsPerCarouselNumber > 0 && (
                     <div className="rounded-lg border border-blue-200 bg-white p-3">
                       <p className="text-sm font-semibold text-gray-900">
                         Will create approximately <span className="text-primary">{carouselCount}</span> carousel{carouselCount !== 1 ? "s" : ""}
@@ -514,17 +521,17 @@ export default function NewBulkUploadPage() {
             <div className="space-y-4">
               <div>
                 <label htmlFor="caption-strategy" className="block text-sm font-semibold text-gray-900 mb-2">Caption Strategy</label>
-            <select
+                <Select
                   id="caption-strategy"
                   value={captionStrategy}
-                  onChange={(e) => setCaptionStrategy(e.target.value as "same" | "individual" | "ai_batch")}
-                  aria-label="Caption strategy"
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700"
-                >
-                  <option value="same">Same caption for all</option>
-                  <option value="individual">Individual captions</option>
-                  <option value="ai_batch">AI generate for all</option>
-            </select>
+                  onChange={(value) => setCaptionStrategy(value as any)}
+                  options={[
+                    { value: "same", label: "Same caption for all" },
+                    { value: "individual", label: "Individual captions" },
+                    { value: "ai_batch", label: "AI generate for all" },
+                  ]}
+                  searchable={false}
+                />
           </div>
 
               {captionStrategy === "same" && (
@@ -660,24 +667,24 @@ export default function NewBulkUploadPage() {
                     min="1"
                     max="365"
                     value={durationDays}
-                    onChange={(e) => setDurationDays(Number(e.target.value))}
+                    onChange={(e) => setDurationDays(e.target.value)}
                     aria-label="Duration in days"
                     className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700"
                   />
                 </div>
                 <div>
                   <label htmlFor="frequency" className="block text-sm font-semibold text-gray-900 mb-2">Frequency</label>
-            <select
+                  <Select
                     id="frequency"
                     value={frequency}
-                    onChange={(e) => setFrequency(e.target.value as typeof frequency)}
-                    aria-label="Posting frequency"
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700"
-                  >
-                    <option value="daily">Daily</option>
-                    <option value="every_2_days">Every 2 days</option>
-                    <option value="weekly">Weekly</option>
-            </select>
+                    onChange={(value) => setFrequency(value as any)}
+                    options={[
+                      { value: "daily", label: "Daily" },
+                      { value: "every_2_days", label: "Every 2 days" },
+                      { value: "weekly", label: "Weekly" },
+                    ]}
+                    searchable={false}
+                  />
           </div>
         </div>
             )}

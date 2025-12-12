@@ -15,6 +15,7 @@ import {
   TrendingUpIcon,
   ClockIcon,
 } from "../../components/icons";
+import Select from "@/app/(tenant)/components/ui/Select";
 
 const DATE_FILTERS = ["Last 7 days", "Last 30 days", "Quarter to date", "Custom"];
 const CHANNEL_FILTERS = ["All channels", "WhatsApp", "Instagram", "Facebook", "TikTok"];
@@ -142,31 +143,27 @@ export default function AnalyticsPage() {
         <div className="flex flex-wrap gap-3">
           <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-sm">
             <CalendarIcon className="h-4 w-4 text-gray-400" />
-            <select
-              value={dateFilter}
-              onChange={(event) => setDateFilter(event.target.value)}
-              className="bg-transparent text-sm font-semibold text-gray-900 focus:outline-none"
-            >
-              {DATE_FILTERS.map((filter) => (
-                <option key={filter} value={filter}>
-                  {filter}
-                </option>
-              ))}
-            </select>
+            <div className="w-44">
+              <Select
+                value={dateFilter}
+                onChange={(value) => setDateFilter(value || dateFilter)}
+                searchable={false}
+                buttonClassName="border-0 bg-transparent shadow-none px-0 py-0 text-sm font-semibold text-gray-900 focus:ring-0"
+                options={DATE_FILTERS.map((filter) => ({ value: filter, label: filter }))}
+              />
+            </div>
           </div>
           <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-sm">
             <FunnelIcon className="h-4 w-4 text-gray-400" />
-            <select
-              value={channelFilter}
-              onChange={(event) => setChannelFilter(event.target.value)}
-              className="bg-transparent text-sm font-semibold text-gray-900 focus:outline-none"
-            >
-              {CHANNEL_FILTERS.map((filter) => (
-                <option key={filter} value={filter}>
-                  {filter}
-                </option>
-              ))}
-            </select>
+            <div className="w-44">
+              <Select
+                value={channelFilter}
+                onChange={(value) => setChannelFilter(value || channelFilter)}
+                searchable={false}
+                buttonClassName="border-0 bg-transparent shadow-none px-0 py-0 text-sm font-semibold text-gray-900 focus:ring-0"
+                options={CHANNEL_FILTERS.map((filter) => ({ value: filter, label: filter }))}
+              />
+            </div>
           </div>
         </div>
       </header>

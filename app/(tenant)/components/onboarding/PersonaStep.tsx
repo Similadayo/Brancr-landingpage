@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent, useEffect } from 'react';
+import Select from '../ui/Select';
 
 const LANGUAGES = [
   { value: 'en', label: 'English' },
@@ -105,37 +106,13 @@ export function PersonaStep({
             <span className="text-primary">🌍</span>
             Language <span className="text-red-500">*</span>
           </label>
-          <div className="relative">
-            <select
-              id="language"
-              required
-              value={formData.language}
-              onChange={(e) => setFormData({ ...formData, language: e.target.value })}
-              className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 pr-10 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300 appearance-none cursor-pointer"
-            >
-              {LANGUAGES.map((lang) => (
-                <option key={lang.value} value={lang.value}>
-                  {lang.label}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </div>
-          </div>
+          <Select
+            id="language"
+            value={formData.language}
+            onChange={(value) => setFormData({ ...formData, language: value || 'en' })}
+            options={LANGUAGES}
+            searchable
+          />
         </div>
 
         <div className="flex items-center">

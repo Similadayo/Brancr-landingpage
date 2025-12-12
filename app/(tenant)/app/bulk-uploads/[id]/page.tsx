@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useBulkUpload, useCancelBulkUpload, useUpdateBulkUpload } from "@/app/(tenant)/hooks/useBulkUploads";
+import Select from "@/app/(tenant)/components/ui/Select";
 
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-amber-100 text-amber-700",
@@ -21,6 +23,15 @@ export default function BulkUploadDetailPage() {
 
   const session = data?.session;
   const items = data?.items || [];
+
+  const [splitStrategy, setSplitStrategy] = useState<'' | 'carousels' | 'individual' | 'custom'>('');
+  const [scheduleStrategy, setScheduleStrategy] = useState<'' | 'spread' | 'optimal' | 'custom'>('');
+
+  useEffect(() => {
+    if (!session) return;
+    setSplitStrategy((session.split_strategy || '') as any);
+    setScheduleStrategy((session.schedule_strategy || '') as any);
+  }, [session]);
 
   return (
     <div className="space-y-8">
@@ -66,31 +77,47 @@ export default function BulkUploadDetailPage() {
             </div>
             <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
               <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Split strategy</p>
-              <select
-                defaultValue={session.split_strategy || ""}
-                onChange={(e) => updateMutation.mutate({ id, payload: { split_strategy: e.target.value || undefined } })}
-                className="mt-2 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700"
-                disabled={session.status !== "pending"}
-              >
-                <option value="">Automatic</option>
-                <option value="carousels">Carousels</option>
-                <option value="individual">Individual</option>
-                <option value="custom">Custom</option>
-              </select>
+              <div className="mt-2">
+                <Select
+                  value={splitStrategy}
+                  onChange={(value) => {
+                    const next = (value || '') as any;
+                    setSplitStrategy(next);
+                    updateMutation.mutate({ id, payload: { split_strategy: value || undefined } });
+                  }}
+                  disabled={session.status !== 'pending'}
+                  searchable={false}
+                  buttonClassName="px-3 py-2 text-xs rounded-xl"
+                  options={[
+                    { value: '', label: 'Automatic' },
+                    { value: 'carousels', label: 'Carousels' },
+                    { value: 'individual', label: 'Individual' },
+                    { value: 'custom', label: 'Custom' },
+                  ]}
+                />
+              </div>
             </div>
             <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
               <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Schedule strategy</p>
-              <select
-                defaultValue={session.schedule_strategy || ""}
-                onChange={(e) => updateMutation.mutate({ id, payload: { schedule_strategy: e.target.value || undefined } })}
-                className="mt-2 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700"
-                disabled={session.status !== "pending"}
-              >
-                <option value="">Automatic</option>
-                <option value="spread">Spread</option>
-                <option value="optimal">Optimal</option>
-                <option value="custom">Custom</option>
-              </select>
+              <div className="mt-2">
+                <Select
+                  value={scheduleStrategy}
+                  onChange={(value) => {
+                    const next = (value || '') as any;
+                    setScheduleStrategy(next);
+                    updateMutation.mutate({ id, payload: { schedule_strategy: value || undefined } });
+                  }}
+                  disabled={session.status !== 'pending'}
+                  searchable={false}
+                  buttonClassName="px-3 py-2 text-xs rounded-xl"
+                  options={[
+                    { value: '', label: 'Automatic' },
+                    { value: 'spread', label: 'Spread' },
+                    { value: 'optimal', label: 'Optimal' },
+                    { value: 'custom', label: 'Custom' },
+                  ]}
+                />
+              </div>
             </div>
           </section>
 

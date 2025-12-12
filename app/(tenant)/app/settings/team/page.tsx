@@ -5,6 +5,7 @@ import { useTenant } from "@/app/(tenant)/providers/TenantProvider";
 import { useQuery } from "@tanstack/react-query";
 import { tenantApi } from "@/lib/api";
 import { useTeamMembers, useInviteTeamMember, useDeleteTeamMember } from "@/app/(tenant)/hooks/useTeam";
+import Select from "@/app/(tenant)/components/ui/Select";
 
 const ROLES = ["Owner", "Admin", "Member"];
 
@@ -145,22 +146,21 @@ export default function TeamSettingsPage() {
                           </button>
                         )}
                         {!isCurrentUser && rolesData?.roles ? (
-                          <select
-                            className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700"
-                            defaultValue={member.role}
-                            onChange={async (e) => {
-                              try {
-                                await tenantApi.updateTeamMember(member.id, { role: e.target.value });
-                                location.reload();
-                              } catch {}
-                            }}
-                          >
-                            {rolesData.roles.map((r) => (
-                              <option key={r.id} value={r.name}>
-                                {r.name}
-                              </option>
-                            ))}
-                          </select>
+                          <div className="w-36">
+                            <Select
+                              value={member.role}
+                              onChange={async (value) => {
+                                if (!value) return;
+                                try {
+                                  await tenantApi.updateTeamMember(member.id, { role: value });
+                                  location.reload();
+                                } catch {}
+                              }}
+                              options={rolesData.roles.map((r) => ({ value: r.name, label: r.name }))}
+                              searchable={false}
+                              buttonClassName="px-2 py-1 text-xs rounded-lg"
+                            />
+                          </div>
                         ) : null}
                       </div>
                     </div>
@@ -255,6 +255,8 @@ export default function TeamSettingsPage() {
                   setInviteForm({ email: "", role: "Member" });
                 }}
                 className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                aria-label="Close"
+                title="Close"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -282,25 +284,14 @@ export default function TeamSettingsPage() {
                 <label htmlFor="invite-role" className="block text-sm font-semibold text-gray-900">
                   Role <span className="text-rose-500">*</span>
                 </label>
-                <div className="relative mt-2">
-                  <select
+                <div className="mt-2">
+                  <Select
                     id="invite-role"
-                    required
-                    value={inviteForm.role}
-                    onChange={(e) => setInviteForm((prev) => ({ ...prev, role: e.target.value }))}
-                    className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  >
-                    {ROLES.map((role) => (
-                      <option key={role} value={role}>
-                        {role}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
+                    value={inviteForm.role as any}
+                    onChange={(value) => setInviteForm((prev) => ({ ...prev, role: (value || prev.role) as any }))}
+                    searchable={false}
+                    options={ROLES.map((role) => ({ value: role, label: role }))}
+                  />
                 </div>
               </div>
 

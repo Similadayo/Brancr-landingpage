@@ -5,7 +5,7 @@ import { PlusIcon, XIcon, TrashIcon } from "../icons";
 
 type Package = {
   name: string;
-  price: number;
+  price: string;
   duration: string;
   description?: string;
   features?: string[];
@@ -22,7 +22,7 @@ export default function PackageBuilder({ packages, onChange }: PackageBuilderPro
       ...packages,
       {
         name: '',
-        price: 0,
+        price: '',
         duration: '',
         description: '',
         features: [],
@@ -107,7 +107,7 @@ export default function PackageBuilder({ packages, onChange }: PackageBuilderPro
                       min="0"
                       step="0.01"
                       value={pkg.price}
-                      onChange={(e) => updatePackage(index, 'price', parseFloat(e.target.value) || 0)}
+                      onChange={(e) => updatePackage(index, 'price', e.target.value)}
                       className="w-full rounded border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>

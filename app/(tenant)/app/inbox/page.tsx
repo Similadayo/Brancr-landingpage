@@ -20,6 +20,7 @@ import { getUserFriendlyErrorMessage, ErrorMessages } from "@/lib/error-messages
 import type { Message, ConversationDetail, ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
 import { MessageMedia } from "@/app/(tenant)/components/inbox/MessageMedia";
 import { PlatformAnalytics } from "../../components/inbox/PlatformAnalytics";
+import Select from "@/app/(tenant)/components/ui/Select";
 import {
   InboxIcon,
   MagnifyingGlassIcon,
@@ -926,18 +927,23 @@ export default function InboxPage() {
                     )}
                     <div className="flex justify-between">
                       <span className="text-gray-500">Status:</span>
-                      <select
-                        value={activeConversation.status}
-                        onChange={(e) => {
-                          const newStatus = e.target.value as "active" | "resolved" | "archived";
-                          updateStatusMutation.mutate({ status: newStatus });
-                        }}
-                        className="text-gray-900 font-medium border-0 bg-transparent focus:outline-none cursor-pointer"
-                      >
-                        <option value="active">Assigned</option>
-                        <option value="resolved">Resolved</option>
-                        <option value="archived">Archived</option>
-                      </select>
+                      <div className="w-32">
+                        <Select
+                          value={activeConversation.status}
+                          onChange={(value) => {
+                            if (!value) return;
+                            const newStatus = value as "active" | "resolved" | "archived";
+                            updateStatusMutation.mutate({ status: newStatus });
+                          }}
+                          searchable={false}
+                          buttonClassName="border-0 bg-transparent shadow-none px-0 py-0 text-xs font-medium text-gray-900 focus:ring-0"
+                          options={[
+                            { value: 'active', label: 'Assigned' },
+                            { value: 'resolved', label: 'Resolved' },
+                            { value: 'archived', label: 'Archived' },
+                          ]}
+                        />
+                      </div>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Start chat:</span>

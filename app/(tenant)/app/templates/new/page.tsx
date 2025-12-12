@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useTemplates, useCreateTemplate } from "@/app/(tenant)/hooks/useTemplates";
+import Select from "@/app/(tenant)/components/ui/Select";
 
 const CATEGORIES = [
   "Onboarding",
@@ -159,24 +160,14 @@ export default function NewTemplatePage() {
               <label htmlFor="category" className="block text-sm font-semibold text-gray-900">
                 Category <span className="text-rose-500">*</span>
               </label>
-              <div className="relative mt-2">
-                <select
+              <div className="mt-2">
+                <Select
                   id="category"
                   value={formData.category}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
-                  className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
+                  onChange={(value) => setFormData((prev) => ({ ...prev, category: value || prev.category }))}
+                  options={CATEGORIES.map((cat) => ({ value: cat, label: cat }))}
+                  searchable={false}
+                />
               </div>
             </div>
 

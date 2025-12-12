@@ -11,6 +11,7 @@ import {
   CheckCircleIcon,
 } from "../../../components/icons";
 import { toast } from "react-hot-toast";
+import Select from "@/app/(tenant)/components/ui/Select";
 
 export default function PaymentAccountsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -167,12 +168,16 @@ export default function PaymentAccountsPage() {
                       setIsCreateModalOpen(true);
                     }}
                     className="rounded-lg border border-gray-200 bg-white p-1.5 text-gray-600 transition hover:border-primary hover:text-primary"
+                    aria-label="Edit payment account"
+                    title="Edit"
                   >
                     <PencilIcon className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(account.id)}
                     className="rounded-lg border border-red-200 bg-red-50 p-1.5 text-red-600 transition hover:bg-red-100"
+                    aria-label="Delete payment account"
+                    title="Delete"
                   >
                     <TrashIcon className="h-4 w-4" />
                   </button>
@@ -266,7 +271,13 @@ function PaymentAccountFormModal({
       <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">{account ? "Edit Payment Account" : "Add Payment Account"}</h2>
-          <button type="button" onClick={onClose} className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+            aria-label="Close"
+            title="Close"
+          >
             <XIcon className="h-5 w-5" />
           </button>
         </div>
@@ -274,20 +285,27 @@ function PaymentAccountFormModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-700">Account Type *</label>
-            <select
-              value={formData.account_type}
-              onChange={(e) => setFormData({ ...formData, account_type: e.target.value as any })}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            >
-              <option value="bank">Bank Transfer</option>
-              <option value="mobile_money">Mobile Money</option>
-              <option value="cash">Cash</option>
-            </select>
+            <div className="mt-1">
+              <Select
+                value={formData.account_type}
+                onChange={(value) => {
+                  if (!value) return;
+                  setFormData({ ...formData, account_type: value as any });
+                }}
+                options={[
+                  { value: 'bank', label: 'Bank Transfer' },
+                  { value: 'mobile_money', label: 'Mobile Money' },
+                  { value: 'cash', label: 'Cash' },
+                ]}
+                searchable={false}
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700">Account Name *</label>
+            <label htmlFor="account_name" className="block text-sm font-semibold text-gray-700">Account Name *</label>
             <input
+              id="account_name"
               type="text"
               required
               value={formData.account_name}
@@ -299,8 +317,9 @@ function PaymentAccountFormModal({
           {formData.account_type === "bank" && (
             <>
               <div>
-                <label className="block text-sm font-semibold text-gray-700">Bank Name *</label>
+                <label htmlFor="bank_name" className="block text-sm font-semibold text-gray-700">Bank Name *</label>
                 <input
+                  id="bank_name"
                   type="text"
                   required
                   value={formData.bank_name}
@@ -309,8 +328,9 @@ function PaymentAccountFormModal({
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700">Account Number *</label>
+                <label htmlFor="account_number" className="block text-sm font-semibold text-gray-700">Account Number *</label>
                 <input
+                  id="account_number"
                   type="text"
                   required
                   value={formData.account_number}
@@ -324,8 +344,9 @@ function PaymentAccountFormModal({
           {formData.account_type === "mobile_money" && (
             <>
               <div>
-                <label className="block text-sm font-semibold text-gray-700">Provider *</label>
+                <label htmlFor="provider" className="block text-sm font-semibold text-gray-700">Provider *</label>
                 <input
+                  id="provider"
                   type="text"
                   required
                   value={formData.provider}
@@ -335,8 +356,9 @@ function PaymentAccountFormModal({
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700">Phone Number *</label>
+                <label htmlFor="phone_number" className="block text-sm font-semibold text-gray-700">Phone Number *</label>
                 <input
+                  id="phone_number"
                   type="tel"
                   required
                   value={formData.phone_number}
