@@ -68,9 +68,14 @@ export default function PaymentsPage() {
 		}
 	};
 
-	const canGenerateReceipt = (payment: Payment) => {
-		return payment.status !== "pending" && payment.status !== "disputed" && payment.status !== "failed";
-	};
+	const verificationTabs = [
+		{ key: undefined, label: "All", count },
+		{ key: "pending", label: "Pending", count: payments.filter((p) => p.verification_status === "pending").length },
+		{ key: "verified", label: "Verified", count: payments.filter((p) => p.verification_status === "verified").length },
+		{ key: "disputed", label: "Disputed", count: payments.filter((p) => p.verification_status === "disputed").length },
+	] as const;
+
+	const activeVerificationKey = (verificationFilter || undefined) as (typeof verificationTabs)[number]["key"];
 
 	const handleVerify = async () => {
 		if (!selectedPayment) return;
@@ -222,86 +227,162 @@ export default function PaymentsPage() {
 					<p className="mt-2 text-xs text-gray-600 sm:text-sm">Payments will appear here when customers make payments.</p>
 				</div>
 			) : (
-				<div className="space-y-2 sm:space-y-3">
-					{filteredPayments.map((payment) => (
-						<div
-							key={payment.id}
-							className="group rounded-xl border-2 border-gray-200 bg-white p-3 transition hover:border-primary/30 hover:shadow-md sm:p-4"
-						>
-							<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-								<div className="min-w-0 flex-1">
-									<div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-										<h3 className="text-base font-semibold text-gray-900 sm:text-lg">{payment.order_number}</h3>
-										<span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold sm:px-2 sm:text-xs ${getStatusColor(payment.status)}`}>
-											{payment.status}
+				<div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+					<div className="flex flex-col gap-3 border-b border-gray-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+						<div className="flex items-center gap-2">
+							<p className="text-sm font-semibold text-gray-900">Payments</p>
+							<span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700">{count}</span>
+						</div>
+						<div className="flex flex-wrap gap-2">
+							{verificationTabs.map((tab) => {
+								const active = tab.key === activeVerificationKey;
+								return (
+									<button
+										key={String(tab.key ?? "all")}
+										onClick={() => setVerificationFilter(tab.key ?? undefined)}
+										className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition active:scale-[0.98] sm:text-sm ${
+											active
+												? "border-primary/20 bg-primary text-white"
+												: "border-gray-200 bg-white text-gray-700 hover:border-primary/30 hover:text-primary"
+										}`}
+									>
+										<span>{tab.label}</span>
+										<span className={`rounded-full px-2 py-0.5 text-[10px] font-bold sm:text-xs ${active ? "bg-white/20 text-white" : "bg-gray-100 text-gray-700"}`}>
+											{tab.count}
 										</span>
-										<span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold sm:px-2 sm:text-xs ${getVerificationStatusColor(payment.verification_status)}`}>
-											{payment.verification_status}
-										</span>
-									</div>
-									<div className="mt-2 space-y-0.5 sm:space-y-1">
-										<p className="text-xs text-gray-600 sm:text-sm">
-											Customer: <span className="font-medium">{payment.customer_name}</span>
-										</p>
-										{payment.customer_phone && (
-											<p className="text-xs text-gray-600 sm:text-sm">
-												Phone: <span className="font-medium">{payment.customer_phone}</span>
-											</p>
-										)}
-										<p className="text-xs text-gray-600 sm:text-sm">
-											Payment Ref: <span className="font-mono font-medium">{payment.payment_reference}</span>
-										</p>
-										{payment.transaction_id && (
-											<p className="text-xs text-gray-600 sm:text-sm">
-												Transaction ID: <span className="font-mono font-medium">{payment.transaction_id}</span>
-											</p>
-										)}
+									</button>
+								);
+							})}
+						</div>
+					</div>
+
+					{/* Table header (desktop) */}
+					<div className="hidden grid-cols-12 gap-3 border-b border-gray-100 px-4 py-2 text-xs font-semibold text-gray-500 sm:grid">
+						<div className="col-span-3">Order</div>
+						<div className="col-span-3">Customer</div>
+						<div className="col-span-3">Payment Ref</div>
+						<div className="col-span-2 text-right">Amount</div>
+						<div className="col-span-1 text-right">Action</div>
+					</div>
+
+					<div className="divide-y divide-gray-100">
+						{filteredPayments.map((payment) => {
+							const canAct = payment.verification_status === "pending";
+							return (
+								<div key={payment.id} className="px-4 py-3">
+									{/* Mobile */}
+									<div className="space-y-2 sm:hidden">
+										<div className="flex flex-wrap items-center gap-2">
+											<p className="text-sm font-semibold text-gray-900">{payment.order_number}</p>
+											<span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getStatusColor(payment.status)}`}>{payment.status}</span>
+											<span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getVerificationStatusColor(payment.verification_status)}`}>{payment.verification_status}</span>
+										</div>
+										<p className="text-xs text-gray-600">Customer: <span className="font-medium">{payment.customer_name}</span></p>
+										<p className="text-xs text-gray-600">Ref: <span className="font-mono font-medium">{payment.payment_reference}</span></p>
 										{payment.verified_at && (
 											<p className="text-xs text-gray-500">Verified: {new Date(payment.verified_at).toLocaleString()}</p>
 										)}
-									</div>
-									<ReceiptSection
-										paymentId={payment.id}
-										status={payment.status}
-										receiptId={payment.receipt_id}
-										receiptUrl={payment.receipt_url}
-									/>
-								</div>
-								<div className="flex items-center justify-between border-t border-gray-100 pt-2 sm:ml-4 sm:flex-col sm:items-end sm:border-0 sm:pt-0">
-									<div className="text-left sm:text-right">
-										<p className="text-base font-bold text-gray-900 sm:text-lg">
-											{payment.currency} {payment.amount.toLocaleString()}
-										</p>
-										<p className="text-xs text-gray-500">
-											{new Date(payment.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-										</p>
-									</div>
-									{payment.verification_status === "pending" && (
-										<div className="flex gap-2 sm:mt-3 sm:flex-col">
-											<button
-												onClick={() => {
-													setSelectedPayment(payment);
-													setShowVerifyModal(true);
-												}}
-												className="rounded-lg bg-green-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-green-700 active:scale-95 sm:px-3"
-											>
-												Verify
-											</button>
-											<button
-												onClick={() => {
-													setSelectedPayment(payment);
-													setShowDisputeModal(true);
-												}}
-												className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100 active:scale-95 sm:px-3"
-											>
-												Dispute
-											</button>
+										<div className="flex items-center justify-between">
+											<p className="text-base font-bold text-gray-900">{payment.currency} {payment.amount.toLocaleString()}</p>
+											{canAct ? (
+												<div className="flex gap-2">
+													<button
+														onClick={() => {
+															setSelectedPayment(payment);
+															setShowVerifyModal(true);
+														}}
+														className="rounded-lg bg-green-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-green-700 active:scale-95"
+													>
+														Verify
+													</button>
+													<button
+														onClick={() => {
+															setSelectedPayment(payment);
+															setShowDisputeModal(true);
+														}}
+														className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 active:scale-95"
+													>
+														Dispute
+													</button>
+												</div>
+											) : (
+												<span className="text-xs font-semibold text-gray-400">—</span>
+											)}
 										</div>
-									)}
+										<ReceiptSection
+											paymentId={payment.id}
+											status={payment.status}
+											receiptId={payment.receipt_id}
+											receiptUrl={payment.receipt_url}
+										/>
+									</div>
+
+									{/* Desktop */}
+									<div className="hidden grid-cols-12 items-start gap-3 sm:grid">
+										<div className="col-span-3 min-w-0">
+											<div className="flex items-center gap-2">
+												<p className="truncate text-sm font-semibold text-gray-900">{payment.order_number}</p>
+												<span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getStatusColor(payment.status)}`}>{payment.status}</span>
+												<span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getVerificationStatusColor(payment.verification_status)}`}>{payment.verification_status}</span>
+											</div>
+											<p className="mt-0.5 text-xs text-gray-500">{new Date(payment.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
+										</div>
+
+										<div className="col-span-3 min-w-0">
+											<p className="truncate text-sm font-medium text-gray-900">{payment.customer_name}</p>
+											{payment.customer_phone && <p className="mt-0.5 text-xs text-gray-500">{payment.customer_phone}</p>}
+											{payment.verified_at && <p className="mt-0.5 text-xs text-gray-400">Verified: {new Date(payment.verified_at).toLocaleString()}</p>}
+										</div>
+
+										<div className="col-span-3 min-w-0">
+											<p className="truncate font-mono text-xs font-semibold text-gray-900">{payment.payment_reference}</p>
+											{payment.transaction_id && <p className="mt-0.5 truncate font-mono text-xs text-gray-500">Txn: {payment.transaction_id}</p>}
+										</div>
+
+										<div className="col-span-2 text-right">
+											<p className="text-sm font-semibold text-gray-900">{payment.currency} {payment.amount.toLocaleString()}</p>
+										</div>
+
+										<div className="col-span-1 flex justify-end">
+											{canAct ? (
+												<div className="flex flex-col items-end gap-2">
+													<button
+														onClick={() => {
+															setSelectedPayment(payment);
+															setShowVerifyModal(true);
+														}}
+														className="rounded-lg bg-green-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-green-700 active:scale-95"
+													>
+														Verify
+													</button>
+													<button
+														onClick={() => {
+															setSelectedPayment(payment);
+															setShowDisputeModal(true);
+														}}
+														className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 active:scale-95"
+													>
+														Dispute
+													</button>
+												</div>
+											) : (
+												<span className="text-xs font-semibold text-gray-400">—</span>
+											)}
+										</div>
+									</div>
+
+									<div className="hidden sm:block">
+										<ReceiptSection
+											paymentId={payment.id}
+											status={payment.status}
+											receiptId={payment.receipt_id}
+											receiptUrl={payment.receipt_url}
+										/>
+									</div>
 								</div>
-							</div>
-						</div>
-					))}
+							);
+						})}
+					</div>
 				</div>
 			)}
 

@@ -146,6 +146,16 @@ export default function OrdersPage() {
     return createdAt > tenMinutesAgo;
   };
 
+  const statusTabs = [
+    { key: undefined, label: "All", count: stats?.total_orders },
+    { key: "pending", label: "Pending", count: stats?.pending_orders },
+    { key: "processing", label: "Processing" },
+    { key: "completed", label: "Completed", count: stats?.completed_orders },
+    { key: "cancelled", label: "Cancelled" },
+  ] as const;
+
+  const activeStatusKey = (statusFilter || undefined) as (typeof statusTabs)[number]["key"];
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <header className="flex flex-col gap-3 sm:gap-4">
@@ -196,52 +206,69 @@ export default function OrdersPage() {
         </div>
       )}
 
-      {/* Filters */}
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:p-4">
-        <div className="relative flex-1">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:h-5 sm:w-5" />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search orders..."
-            className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 sm:pl-10 sm:pr-4 sm:py-2.5"
-          />
+      {/* Filters + Tabs */}
+      <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:h-5 sm:w-5" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search orders..."
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 sm:pl-10 sm:pr-4 sm:py-2.5"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <FunnelIcon className="h-4 w-4 shrink-0 text-gray-400" />
+            <select
+              value={platformFilter || ""}
+              onChange={(e) => setPlatformFilter(e.target.value || undefined)}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
+            >
+              <option value="">All Platforms</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="instagram">Instagram</option>
+              <option value="telegram">Telegram</option>
+              <option value="facebook">Facebook</option>
+            </select>
+
+            <button
+              onClick={() => {
+                setStatusFilter(undefined);
+                setPlatformFilter(undefined);
+                setQuery("");
+              }}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary active:scale-95"
+            >
+              Clear
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <FunnelIcon className="h-4 w-4 shrink-0 text-gray-400" />
-          <select
-            value={statusFilter || ""}
-            onChange={(e) => setStatusFilter(e.target.value || undefined)}
-            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-          >
-            <option value="">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="processing">Processing</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-          <select
-            value={platformFilter || ""}
-            onChange={(e) => setPlatformFilter(e.target.value || undefined)}
-            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-          >
-            <option value="">All Platforms</option>
-            <option value="whatsapp">WhatsApp</option>
-            <option value="instagram">Instagram</option>
-            <option value="telegram">Telegram</option>
-            <option value="facebook">Facebook</option>
-          </select>
-          <button
-            onClick={() => {
-              setStatusFilter(undefined);
-              setPlatformFilter(undefined);
-              setQuery("");
-            }}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary active:scale-95"
-          >
-            Clear
-          </button>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          {statusTabs.map((tab) => {
+            const active = tab.key === activeStatusKey;
+            return (
+              <button
+                key={String(tab.key ?? "all")}
+                onClick={() => setStatusFilter(tab.key ?? undefined)}
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition active:scale-[0.98] sm:text-sm ${
+                  active
+                    ? "border-primary/20 bg-primary text-white"
+                    : "border-gray-200 bg-white text-gray-700 hover:border-primary/30 hover:text-primary"
+                }`}
+              >
+                <span>{tab.label}</span>
+                {typeof tab.count === "number" && (
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold sm:text-xs ${active ? "bg-white/20 text-white" : "bg-gray-100 text-gray-700"}`}>
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -267,85 +294,95 @@ export default function OrdersPage() {
           <p className="mt-2 text-xs text-gray-600 sm:text-sm">Orders will appear here when customers commit to purchase.</p>
         </div>
       ) : (
-        <div className="space-y-2 sm:space-y-3">
-          {filteredOrders.map((order) => {
-            const isNew = isNewOrder(order);
-            const autoCreated = isAutoCreated(order);
-            return (
-              <Link
-                key={order.id}
-                href={`/app/orders/${order.id}`}
-                className={`group block rounded-xl border-2 p-3 transition hover:border-primary/30 hover:shadow-md active:scale-[0.98] sm:p-4 ${
-                  isNew
-                    ? "border-primary/50 bg-primary/5"
-                    : "border-gray-200 bg-white"
-                }`}
-              >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                      <h3 className="text-base font-semibold text-gray-900 sm:text-lg">{order.order_number}</h3>
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold text-gray-900">Orders</p>
+              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700">{count}</span>
+            </div>
+          </div>
+
+          {/* Table header (desktop) */}
+          <div className="hidden grid-cols-12 gap-3 border-b border-gray-100 px-4 py-2 text-xs font-semibold text-gray-500 sm:grid">
+            <div className="col-span-3">Order</div>
+            <div className="col-span-3">Customer</div>
+            <div className="col-span-3">Payment Ref</div>
+            <div className="col-span-2 text-right">Amount</div>
+            <div className="col-span-1 text-right">Status</div>
+          </div>
+
+          <div className="divide-y divide-gray-100">
+            {filteredOrders.map((order) => {
+              const isNew = isNewOrder(order);
+              const autoCreated = isAutoCreated(order);
+              const itemCount = order.items?.length ?? 0;
+
+              return (
+                <Link
+                  key={order.id}
+                  href={`/app/orders/${order.id}`}
+                  className={`block px-4 py-3 transition hover:bg-gray-50 ${isNew ? "bg-primary/5" : "bg-white"}`}
+                >
+                  {/* Mobile card */}
+                  <div className="space-y-2 sm:hidden">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-semibold text-gray-900">{order.order_number}</p>
                       {autoCreated && (
-                        <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700 sm:px-2 sm:text-xs">
-                          Auto-created
-                        </span>
+                        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">Auto</span>
                       )}
                       {isNew && (
-                        <span className="rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-semibold text-green-700 sm:px-2 sm:text-xs">
-                          New
-                        </span>
+                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-700">New</span>
                       )}
-                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold sm:px-2 sm:text-xs ${getStatusColor(order.status)}`}>
-                        {order.status}
-                      </span>
-                      <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600 capitalize sm:px-2 sm:text-xs">
-                        {order.platform}
-                      </span>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getStatusColor(order.status)}`}>{order.status}</span>
+                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600 capitalize">{order.platform}</span>
                     </div>
-                    <div className="mt-2 sm:mt-3">
-                      <div
-                        onClick={(e) => e.preventDefault()}
-                        className="mb-2"
-                      >
-                        <CopyToClipboard
-                          text={order.payment_reference}
-                          label="Payment Ref:"
-                          showLabel={true}
-                          className="text-xs sm:text-sm"
-                        />
+                    <p className="text-xs text-gray-600">Customer: <span className="font-medium">{order.customer_name}</span></p>
+                    <p className="text-xs text-gray-600">Items: <span className="font-medium">{itemCount}</span></p>
+                    <div onClick={(e) => e.preventDefault()}>
+                      <CopyToClipboard text={order.payment_reference} showLabel={false} className="text-xs" />
+                    </div>
+                    <div className="flex items-end justify-between">
+                      <p className="text-base font-bold text-gray-900">{order.currency} {(order.total_amount ?? 0).toLocaleString()}</p>
+                      <p className="text-xs text-gray-500">{new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</p>
+                    </div>
+                  </div>
+
+                  {/* Desktop row */}
+                  <div className="hidden grid-cols-12 items-center gap-3 sm:grid">
+                    <div className="col-span-3 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="truncate text-sm font-semibold text-gray-900">{order.order_number}</p>
+                        {autoCreated && (
+                          <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">Auto</span>
+                        )}
+                        {isNew && (
+                          <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-700">New</span>
+                        )}
                       </div>
+                      <p className="mt-0.5 text-xs text-gray-500">{new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
                     </div>
-                    <div className="mt-2 space-y-0.5 sm:space-y-1">
-                      <p className="text-xs text-gray-600 sm:text-sm">
-                        Customer: <span className="font-medium">{order.customer_name}</span>
-                      </p>
-                      {order.customer_phone && (
-                        <p className="text-xs text-gray-600 sm:text-sm">
-                          Phone: <span className="font-medium">{order.customer_phone}</span>
-                        </p>
-                      )}
-                      <p className="text-xs text-gray-600 sm:text-sm">
-                        Items: <span className="font-medium">{order.items.length} item(s)</span>
-                      </p>
+
+                    <div className="col-span-3 min-w-0">
+                      <p className="truncate text-sm font-medium text-gray-900">{order.customer_name}</p>
+                      <p className="mt-0.5 text-xs text-gray-500 capitalize">{order.platform} • {itemCount} item(s)</p>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between border-t border-gray-100 pt-2 sm:ml-4 sm:flex-col sm:items-end sm:border-0 sm:pt-0">
-                    <p className="text-base font-bold text-gray-900 sm:text-lg">
-                      {order.currency} {(order.total_amount ?? 0).toLocaleString()}
-                    </p>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-500">
-                        {new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {new Date(order.created_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
-                      </p>
+
+                    <div className="col-span-3 min-w-0" onClick={(e) => e.preventDefault()}>
+                      <CopyToClipboard text={order.payment_reference} showLabel={false} className="text-xs" />
+                    </div>
+
+                    <div className="col-span-2 text-right">
+                      <p className="text-sm font-semibold text-gray-900">{order.currency} {(order.total_amount ?? 0).toLocaleString()}</p>
+                    </div>
+
+                    <div className="col-span-1 flex justify-end">
+                      <span className={`rounded-full px-2 py-1 text-[10px] font-semibold ${getStatusColor(order.status)}`}>{order.status}</span>
                     </div>
                   </div>
-                </div>
-              </Link>
-            );
-          })}
+                </Link>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
