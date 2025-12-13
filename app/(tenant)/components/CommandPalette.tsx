@@ -150,13 +150,13 @@ export function CommandPalette() {
         <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white shadow-2xl">
           {/* Search Input */}
           <div className="flex items-center gap-3 border-b border-gray-200 px-4 py-3">
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            <MagnifyingGlassIcon className="h-5 w-5 text-gray-500" />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search commands, pages, or actions..."
-              className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+              className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none"
               autoFocus
             />
             <button

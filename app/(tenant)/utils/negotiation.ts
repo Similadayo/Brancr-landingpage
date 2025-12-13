@@ -49,3 +49,19 @@ export function formatNegotiationRule(item: NegotiationRule, tenantDefault?: Neg
   }
   return 'Negotiation: Range';
 }
+
+export function formatNegotiationBrief(item: NegotiationRule, tenantDefault?: NegotiationRule) {
+  const mode = (item.negotiation_mode ?? 'default') as NegotiationMode;
+
+  const resolved = mode === 'default' ? resolveNegotiationRule(item, tenantDefault) : item;
+  const resolvedMode = (resolved.negotiation_mode ?? 'disabled') as NegotiationMode;
+
+  if (resolvedMode === 'disabled') return 'No negotiation';
+
+  const min = resolved.negotiation_min_price;
+  const max = resolved.negotiation_max_price;
+  if (typeof min === 'number' && typeof max === 'number') {
+    return `Negotiable ₦${min.toLocaleString()}–₦${max.toLocaleString()}`;
+  }
+  return 'Negotiable range';
+}
