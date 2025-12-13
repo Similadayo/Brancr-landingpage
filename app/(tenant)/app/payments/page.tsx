@@ -143,13 +143,16 @@ export default function PaymentsPage() {
 					</div>
 
 					<div className="relative w-full sm:max-w-sm">
-						<MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:h-5 sm:w-5" />
+						<MagnifyingGlassIcon
+							className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 sm:h-5 sm:w-5"
+							aria-hidden="true"
+						/>
 						<input
 							type="search"
 							value={query}
 							onChange={(e) => setQuery(e.target.value)}
 							placeholder="Search payments..."
-							className="w-full rounded-full border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:pl-10"
+							className="w-full rounded-full border border-gray-200 bg-white py-2 pl-10 pr-3 text-sm text-gray-700 placeholder-gray-400 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:pl-11"
 						/>
 					</div>
 				</div>

@@ -59,7 +59,7 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
       return props.options.filter((o) => selected.has(o.value)).map((o) => o.label);
     }
 
-    if (!props.value) return [];
+    if (props.value === undefined || props.value === null) return [];
     const found = props.options.find((o) => o.value === props.value);
     return found ? [found.label] : [];
   }, [props.multiple, props.options, props.value]);
