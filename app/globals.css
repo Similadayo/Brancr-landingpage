@@ -25,20 +25,22 @@ body {
 }
 
 @layer base {
-  input[type='text'],
-  input[type='email'],
-  input[type='password'],
-  input[type='search'],
-  input[type='tel'],
-  input[type='url'],
-  input[type='number'],
-  input[type='date'],
-  input[type='datetime-local'],
-  input[type='time'],
-  input[type='month'],
-  input[type='week'],
-  textarea,
-  select {
+  :where(
+    input[type='text'],
+    input[type='email'],
+    input[type='password'],
+    input[type='search'],
+    input[type='tel'],
+    input[type='url'],
+    input[type='number'],
+    input[type='date'],
+    input[type='datetime-local'],
+    input[type='time'],
+    input[type='month'],
+    input[type='week'],
+    textarea,
+    select
+  ) {
     @apply min-h-11 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition;
     @apply placeholder:text-gray-400;
     @apply hover:border-primary/30;

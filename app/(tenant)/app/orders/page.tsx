@@ -226,7 +226,7 @@ export default function OrdersPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search orders..."
-              className="w-full h-10 rounded-lg border border-gray-300 bg-white pl-10 pr-3 text-sm text-gray-900 placeholder:text-gray-500 transition hover:border-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:pl-11 sm:pr-4"
+              className="w-full h-10 rounded-lg border border-gray-300 bg-white pl-11 pr-3 text-sm text-gray-900 placeholder:text-gray-500 transition hover:border-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:pr-4"
             />
           </div>
 
