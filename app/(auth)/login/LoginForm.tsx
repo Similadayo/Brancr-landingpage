@@ -32,22 +32,15 @@ export default function LoginForm() {
       // Check onboarding status after login
       try {
         const userData = await authApi.me();
-        console.log('[LoginForm] User data after login:', {
-          hasOnboarding: !!userData.onboarding,
-          onboardingComplete: userData.onboarding?.complete,
-          onboardingStep: userData.onboarding?.step,
-        });
         
         // Redirect based on onboarding status
         if (!userData.onboarding?.complete) {
-          console.log('[LoginForm] Onboarding not complete, redirecting to /app/onboarding');
           router.push('/app/onboarding');
         } else {
-          console.log('[LoginForm] Onboarding complete, redirecting to', nextUrl);
           router.push(nextUrl);
         }
       } catch (meError) {
-        console.error('[LoginForm] Failed to fetch user data:', meError);
+        void meError;
         // If me() fails, just go to nextUrl (user is logged in, just can't check onboarding)
         router.push(nextUrl);
       }
@@ -57,7 +50,6 @@ export default function LoginForm() {
         router.refresh();
       }, 100);
     } catch (err) {
-      console.error('[LoginForm] Login error:', err);
       if (err instanceof ApiError) {
         setError(err.message);
       } else {

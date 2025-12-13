@@ -31,16 +31,12 @@ export function useScheduledPosts(params?: { status?: string; page?: number; lim
     queryKey: ["scheduled-posts", params],
     queryFn: async () => {
       try {
-        console.log('[useScheduledPosts] Fetching with params:', params);
         const response = await tenantApi.scheduledPosts(params);
-        console.log('[useScheduledPosts] API response:', response);
         
         // Support both new paginated format (data) and old format (scheduled_posts) for backward compatibility
         const posts = response?.data || response?.scheduled_posts || [];
-        console.log('[useScheduledPosts] Posts extracted:', posts.length, posts);
         
         if (!Array.isArray(posts)) {
-          console.warn('[useScheduledPosts] Posts is not an array:', posts);
           return [];
         }
         
@@ -50,10 +46,8 @@ export function useScheduledPosts(params?: { status?: string; page?: number; lim
           platforms: Array.isArray(post.platforms) ? post.platforms : [],
           media_asset_ids: Array.isArray(post.media_asset_ids) ? post.media_asset_ids : [],
         }));
-        console.log('[useScheduledPosts] Normalized posts:', normalized.length, normalized.map(p => ({ id: p.id, status: p.status, name: p.name })));
         return normalized;
       } catch (error) {
-        console.error('[useScheduledPosts] Error:', error);
         if (error instanceof ApiError && error.status === 404) {
           return [];
         }

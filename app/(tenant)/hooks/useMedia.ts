@@ -41,7 +41,7 @@ export function useMedia(filters?: { type?: string; tag?: string; campaign?: str
         }));
       } catch (error) {
         // Return empty array on error to prevent crashes
-        console.error("Failed to load media:", error);
+        void error;
         return [];
       }
     },
@@ -52,37 +52,14 @@ export function useUploadMedia() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (form: FormData) => {
-      // Log FormData contents for debugging
-      const entries = Array.from(form.entries());
-      console.log('Uploading files:', entries.map(([key, value]) => {
-        if (value instanceof File) {
-          return { key, name: value.name, type: value.type, size: value.size };
-        }
-        return { key, value };
-      }));
-      
       return tenantApi.mediaUpload(form);
     },
     onSuccess: (data) => {
       // Invalidate queries to refresh the media list
       void queryClient.invalidateQueries({ queryKey: ["media"] });
-      
-      // Log success for debugging
-      if (data?.assets) {
-        console.log('Upload successful, assets created:', data.assets);
-        const videoAssets = data.assets.filter((asset: any) => asset.type === 'video');
-        const imageAssets = data.assets.filter((asset: any) => asset.type === 'image');
-        if (videoAssets.length > 0) {
-          console.log(`✅ ${videoAssets.length} video(s) saved successfully`);
-        }
-        if (imageAssets.length > 0) {
-          console.log(`✅ ${imageAssets.length} image(s) saved successfully`);
-        }
-      }
+      void data;
     },
     onError: (error) => {
-      console.error('Upload mutation error:', error);
-      
       if (error instanceof ApiError) {
         // Parse detailed JSON error response from API
         const errorMessage = error.body?.error || error.body?.message || error.message;

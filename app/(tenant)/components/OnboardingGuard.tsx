@@ -52,7 +52,6 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   }
 
   if (onboardingServiceUnavailable) {
-    console.warn('[OnboardingGuard] Onboarding status unavailable (5xx). Allowing access.');
     return <>{children}</>;
   }
 
@@ -67,14 +66,8 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   // Filter out 'complete' step - OnboardingWizard doesn't accept it
   const validStep = currentStep && currentStep !== 'complete' ? currentStep : undefined;
 
-  // Debug logging
-  console.log('[OnboardingGuard] Status check:', {
-    pathname,
-    onboardingStatusComplete: onboardingStatus?.complete,
-    userDataComplete: userData?.onboarding?.complete,
-    onboardingComplete,
-    isLoading,
-  });
+  void pathname;
+  void isLoading;
 
   // If onboarding is not complete, show wizard as overlay blocking other pages
   if (!onboardingComplete) {

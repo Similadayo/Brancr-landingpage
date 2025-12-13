@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { useScheduledPosts, useCancelScheduledPost, useUpdateScheduledPost, useCampaignStats } from "@/app/(tenant)/hooks/useScheduledPosts";
@@ -87,25 +87,15 @@ export default function CampaignsPage() {
   // Filter posts (client-side for status filter, platform filter, and search)
   const currentPosts = useMemo(() => {
     let posts = [...scheduledPosts];
-    
-    console.log('[CampaignsPage] Filtering posts - initial:', {
-      count: posts.length,
-      posts: posts.map(p => ({ id: p.id, name: p.name, status: p.status })),
-      activeTab,
-      statusFilter,
-    });
 
     // For scheduled tab, filter to show only "scheduled" and "posting" status posts
     if (activeTab === "scheduled") {
       const beforeCount = posts.length;
       posts = posts.filter((post) => {
         const isScheduled = post.status === "scheduled" || post.status === "posting";
-        if (!isScheduled) {
-          console.log('[CampaignsPage] Filtered out (not scheduled/posting):', { id: post.id, status: post.status, name: post.name });
-        }
         return isScheduled;
       });
-      console.log('[CampaignsPage] After scheduled tab filter:', { before: beforeCount, after: posts.length });
+      void beforeCount;
     }
 
     // Apply status filter (additional filtering beyond API)
@@ -113,12 +103,9 @@ export default function CampaignsPage() {
       const beforeCount = posts.length;
       posts = posts.filter((post) => {
         const matches = post.status === statusFilter.toLowerCase();
-        if (!matches) {
-          console.log('[CampaignsPage] Filtered out (status filter):', { id: post.id, status: post.status, filter: statusFilter });
-        }
         return matches;
       });
-      console.log('[CampaignsPage] After status filter:', { before: beforeCount, after: posts.length, filter: statusFilter });
+      void beforeCount;
     }
 
     // Apply platform filter
@@ -152,32 +139,7 @@ export default function CampaignsPage() {
     });
   }, [scheduledPosts, activeTab, statusFilter, platformFilter, searchQuery]);
 
-  // Debug logging
-  useEffect(() => {
-    console.log('[CampaignsPage] Debug:', {
-      activeTab,
-      apiStatusFilter,
-      scheduledPostsCount: scheduledPosts.length,
-      campaignStatsScheduled: campaignStats?.scheduled,
-      statusFilter,
-      platformFilter,
-      searchQuery,
-      currentPostsCount: currentPosts.length,
-      scheduledPosts: scheduledPosts.map(p => ({ 
-        id: p.id, 
-        name: p.name, 
-        status: p.status, 
-        platforms: p.platforms,
-        scheduled_at: p.scheduled_at 
-      })),
-      currentPosts: currentPosts.map(p => ({ 
-        id: p.id, 
-        name: p.name, 
-        status: p.status 
-      })),
-      rawData: scheduledPostsData,
-    });
-  }, [activeTab, apiStatusFilter, scheduledPosts, campaignStats, statusFilter, platformFilter, searchQuery, currentPosts, scheduledPostsData]);
+  void scheduledPostsData;
 
   const handleCancel = (postId: string, postName: string) => {
     if (confirm(`Are you sure you want to cancel "${postName}"? This cannot be undone.`)) {

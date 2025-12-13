@@ -76,18 +76,9 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
   // Update current step and saved data when status loads
   useEffect(() => {
     if (onboardingStatus) {
-      // Debug logging
-      console.log('[OnboardingWizard] Status loaded:', {
-        complete: onboardingStatus.complete,
-        step: onboardingStatus.step,
-        hasBusinessProfile: !!onboardingStatus.business_profile,
-        hasPersona: !!onboardingStatus.persona,
-      });
-      
       // If onboarding is complete, redirect immediately
       // Explicitly check for === true to prevent new users from skipping onboarding
       if (onboardingStatus.complete === true) {
-        console.log('[OnboardingWizard] Onboarding complete, redirecting to /app');
         // Invalidate and refetch queries to ensure fresh data
         void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
         void queryClient.invalidateQueries({ queryKey: ['onboarding', 'status'] });
@@ -109,12 +100,10 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       // This code should only run if complete is false, but handle edge cases
       if (onboardingStatus.step === 'complete') {
         // This shouldn't happen since we check complete above, but handle it
-        console.warn('[OnboardingWizard] Step is "complete" but complete flag is false');
         return;
       }
       
       const stepFromStatus = onboardingStatus.step || 'industry';
-      console.log('[OnboardingWizard] Setting step to:', stepFromStatus);
       setCurrentStep(stepFromStatus as OnboardingStep);
       
       // Load saved data for pre-filling forms
@@ -127,7 +116,6 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     } else if (!isLoadingStatus && !onboardingError) {
       // If status hasn't loaded yet but we're not in error state, ensure we have a default step
       // This handles the case where the API call hasn't completed yet
-      console.log('[OnboardingWizard] No status yet, using default step');
       if (currentStep === 'industry' || !currentStep) {
         setCurrentStep('industry');
       }
@@ -223,16 +211,6 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
  };
 
   const renderStep = () => {
-    // Debug logging
-    console.log('[OnboardingWizard] renderStep called:', {
-      isLoadingStatus,
-      hasError: !!onboardingError,
-      currentStep,
-      currentStepIndex,
-      hasOnboardingStatus: !!onboardingStatus,
-      isComplete: onboardingStatus?.complete,
-    });
-
     // If onboarding is complete, show redirect message (redirect should happen in useEffect)
     // Explicitly check for === true to prevent new users from skipping onboarding
     if (onboardingStatus?.complete === true) {
@@ -259,7 +237,6 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     }
 
     if (onboardingError) {
-      console.error('[OnboardingWizard] Error loading status:', onboardingError);
       return (
         <div className="flex flex-col items-center justify-center py-12">
           <div className="mb-4 rounded-full bg-red-100 p-3">
@@ -285,7 +262,6 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
 
     // If we don't have a valid step, default to industry
     if (!currentStep || currentStepIndex === -1) {
-      console.warn('[OnboardingWizard] Invalid step, defaulting to industry:', currentStep);
       return (
         <IndustryStep
           onComplete={(data) => handleStepComplete('industry', data)}

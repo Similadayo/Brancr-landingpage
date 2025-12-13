@@ -21,23 +21,9 @@ export async function POST(request: NextRequest) {
     // Extract tenant ID from request if available
     const tenantId = request.headers.get('x-tenant-id') || payload?.tenant_id;
 
-    // Log to console (in production, replace with your logging solution)
-    if (type === 'error') {
-      console.error('[Observability Error]', {
-        tenant_id: tenantId,
-        ...payload,
-      });
-    } else if (type === 'log') {
-      console.log('[Observability Log]', {
-        tenant_id: tenantId,
-        ...payload,
-      });
-    } else if (type === 'event') {
-      console.log('[Observability Event]', {
-        tenant_id: tenantId,
-        ...payload,
-      });
-    }
+    void type;
+    void payload;
+    void tenantId;
 
     // TODO: Store in your database/logging service
     // Example:
@@ -56,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.error('[Observability] Failed to process request:', error);
+    void error;
     return NextResponse.json(
       { success: false, error: 'Failed to process observability data' },
       { status: 500 }

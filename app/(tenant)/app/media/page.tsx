@@ -122,8 +122,6 @@ export default function MediaLibraryPage() {
     const form = new FormData();
     validFiles.forEach((file) => {
       form.append("file", file);
-      // Log file info for debugging
-      console.log(`Uploading ${file.type.startsWith('video/') ? 'video' : 'image'}: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
     });
     
     try {
@@ -146,8 +144,7 @@ export default function MediaLibraryPage() {
         toast.success(message);
       }
     } catch (error: any) {
-      // Error handling is done in the mutation, but log for debugging
-      console.error('Upload error:', error);
+      void error;
       // Don't close modal on error so user can retry
     }
   }
