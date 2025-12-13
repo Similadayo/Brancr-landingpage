@@ -27,6 +27,7 @@ import {
   FunnelIcon,
   ArrowUpIcon,
   PaperClipIcon,
+  XIcon,
   FacebookIcon,
   InstagramIcon,
   WhatsAppIcon,
@@ -636,8 +637,18 @@ export default function InboxPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                     </svg>
                   </button>
-                  <button className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                    Case Close X
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateStatusMutation.mutate({ status: 'resolved' as any });
+                      setMobileView('list');
+                    }}
+                    disabled={updateStatusMutation.isPending || !selectedConversationId}
+                    className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+                    aria-label="Close case"
+                    title="Close case"
+                  >
+                    <XIcon className="h-5 w-5" />
                   </button>
                 </div>
               </header>
