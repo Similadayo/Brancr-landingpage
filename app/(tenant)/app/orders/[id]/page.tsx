@@ -15,6 +15,7 @@ import {
 import Select from "@/app/(tenant)/components/ui/Select";
 import { toast } from "react-hot-toast";
 import { useState, useMemo, useEffect } from "react";
+import { formatDate } from '@/lib/date';
 
 export default function OrderDetailPage() {
   const params = useParams();
@@ -177,18 +178,16 @@ export default function OrderDetailPage() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Status</span>
                 <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(order.status)}`}>
-                  {order.status}
+                  {order.status ?? 'N/A'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Platform</span>
-                <span className="text-sm font-medium text-gray-900 capitalize">{order.platform}</span>
+                <span className="text-sm font-medium text-gray-900 capitalize">{order.platform ?? 'N/A'}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Created</span>
-                <span className="text-sm font-medium text-gray-900">
-                  {new Date(order.created_at).toLocaleString()}
-                </span>
+                <span className="text-sm font-medium text-gray-900">{formatDate(order.created_at)}</span>
               </div>
             </div>
           </div>
@@ -199,7 +198,7 @@ export default function OrderDetailPage() {
             <div className="space-y-3">
               <div>
                 <span className="text-sm text-gray-600">Name</span>
-                <p className="text-sm font-medium text-gray-900">{order.customer_name}</p>
+                <p className="text-sm font-medium text-gray-900">{order.customer_name ?? 'N/A'}</p>
               </div>
               {order.customer_phone && (
                 <div>
@@ -220,17 +219,21 @@ export default function OrderDetailPage() {
           <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-lg font-semibold text-gray-900">Order Items</h2>
             <div className="space-y-3">
-              {orderItems.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{item.name}</p>
-                    <p className="text-xs text-gray-500">Qty: {item.quantity} × {order.currency} {(item.unit_price ?? 0).toLocaleString()}</p>
+              {orderItems && orderItems.length > 0 ? (
+                orderItems.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{item.name ?? 'N/A'}</p>
+                      <p className="text-xs text-gray-500">Qty: {item.quantity ?? 0} × {order.currency ?? ''} {(item.unit_price ?? 0).toLocaleString()}</p>
+                    </div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {order.currency ?? ''} {(item.total_price ?? 0).toLocaleString()}
+                    </p>
                   </div>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {order.currency} {(item.total_price ?? 0).toLocaleString()}
-                  </p>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">No items found.</p>
+              )}
             </div>
             <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
               <span className="text-lg font-semibold text-gray-900">Total</span>
