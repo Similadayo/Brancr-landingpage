@@ -242,13 +242,6 @@ function CustomerPortalOrderPageContent() {
           </div>
         )}
 
-        {/* Customer Portal Link */}
-        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Customer Portal Link</h2>
-          <div className="flex items-center gap-2">
-            <CopyToClipboard text={`https://brancr.com/portal/${safe(order.order_number)}`} label="Portal Link" />
-          </div>
-        </div>
 
         {/* Business Contact */}
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">

@@ -17,6 +17,8 @@ import { toast } from "react-hot-toast";
 import { useState, useMemo, useEffect } from "react";
 import { formatDate } from '@/lib/date';
 
+// NOTE: This page consumes `GET /api/tenant/orders/{id}` and maps fields exactly as returned by the API.
+// See `docs/order-details.md` for exact endpoint names, field mappings, and debugging steps.
 export default function OrderDetailPage() {
   const params = useParams();
   const router = useRouter();
