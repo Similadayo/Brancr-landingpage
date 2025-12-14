@@ -1,5 +1,6 @@
 'use client';
 
+import React from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 
@@ -34,6 +35,18 @@ function CustomerPortalOrderPageContent() {
   const router = useRouter();
   const token = searchParams.get("token");
   const { data, isLoading, error } = usePortalOrder(token || "");
+
+  // Hooks must be called at the top level, before any early returns
+  const [status, setStatus] = React.useState<OrderStatus>('pending');
+  const updateOrder = useUpdateOrder();
+  const [statusLoading, setStatusLoading] = React.useState(false);
+
+  // Update status state when order data loads
+  React.useEffect(() => {
+    if (data?.order?.status) {
+      setStatus(data.order.status);
+    }
+  }, [data?.order?.status]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -75,9 +88,6 @@ function CustomerPortalOrderPageContent() {
   }
 
   const { order, payment, business } = data;
-  const [status, setStatus] = React.useState<OrderStatus>(order.status);
-  const updateOrder = useUpdateOrder();
-  const [statusLoading, setStatusLoading] = React.useState(false);
 
   // Helper for null/undefined display
   const safe = (val: any, fallback = 'N/A') => (val === null || val === undefined || val === '' ? fallback : val);
@@ -115,7 +125,7 @@ function CustomerPortalOrderPageContent() {
                 value={status}
                 onChange={handleStatusChange}
                 validTransitions={getValidStatusTransitions(status)}
-                disabled={statusLoading || updateOrder.isLoading}
+                disabled={statusLoading || updateOrder.isPending}
               />
               {statusLoading && <span className="ml-2 text-xs text-gray-500">Updating...</span>}
             </div>
