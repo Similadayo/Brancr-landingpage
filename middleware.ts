@@ -7,8 +7,16 @@ function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some((path) => pathname.startsWith(path));
 }
 
+
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search, hash } = request.nextUrl;
+  // Fallback: redirect any /dashboard* route to /app (preserve query/hash)
+  if (pathname.startsWith('/dashboard')) {
+    const appUrl = new URL('/app', request.url);
+    appUrl.search = search;
+    appUrl.hash = hash;
+    return NextResponse.redirect(appUrl, 308);
+  }
 
   if (pathname.startsWith("/api")) {
     return NextResponse.next();

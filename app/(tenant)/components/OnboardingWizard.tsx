@@ -222,7 +222,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
             </svg>
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Onboarding Complete!</h3>
-          <p className="text-sm text-gray-600">Redirecting to your dashboard...</p>
+          <p className="text-sm text-gray-600">Redirecting to your workspace...</p>
         </div>
       );
     }
@@ -330,7 +330,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Onboarding Complete!</h3>
-            <p className="text-sm text-gray-600">Redirecting to your dashboard...</p>
+            <p className="text-sm text-gray-600">Redirecting to your workspace...</p>
           </div>
         </div>
       </div>
