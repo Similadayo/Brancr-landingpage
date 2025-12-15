@@ -51,6 +51,14 @@ export function SocialConnectStep({
     return connected;
   }, [integrations, hasTelegramBot]);
 
+  const guideLinks: Record<string, { label: string; href: string }> = {
+    whatsapp: { label: 'How to Set Up →', href: '/docs#whatsapp-business' },
+    instagram_login: { label: 'How to Convert →', href: '/docs#instagram' },
+    facebook: { label: 'Setup Guide →', href: '/docs#facebook' },
+    telegram: { label: 'How to Create a Bot →', href: '/docs#telegram' },
+    tiktok: { label: 'Setup Guide →', href: '/docs#tiktok-shop' },
+  };
+
   const platforms = [
     {
       id: 'telegram',
@@ -59,6 +67,7 @@ export function SocialConnectStep({
       icon: '📱',
       href: 'https://t.me/brancrbot',
       external: true,
+      guide: guideLinks.telegram,
     },
     {
       id: 'whatsapp',
@@ -67,24 +76,17 @@ export function SocialConnectStep({
       icon: '💬',
       href: '/app/integrations#whatsapp',
       external: false,
-    },
-    {
-      id: 'instagram',
-      name: 'Instagram',
-      description: 'Connect your Instagram Business account',
-      icon: '📸',
-      href: '/app/integrations#instagram',
-      external: false,
-      loginMethod: 'meta', // Uses Meta OAuth (Facebook Login)
+      guide: guideLinks.whatsapp,
     },
     {
       id: 'instagram_login',
-      name: 'Instagram Login',
+      name: 'Instagram',
       description: 'Connect directly with Instagram (no Facebook Page required)',
       icon: '📸',
       href: '/app/integrations#instagram',
       external: false,
       loginMethod: 'instagram_login', // Uses Instagram Login OAuth
+      guide: guideLinks.instagram_login,
     },
     {
       id: 'facebook',
@@ -94,6 +96,7 @@ export function SocialConnectStep({
       href: '/app/integrations#facebook',
       external: false,
       loginMethod: 'meta', // Uses Meta OAuth (Facebook Login)
+      guide: guideLinks.facebook,
     },
     {
       id: 'tiktok',
@@ -102,6 +105,7 @@ export function SocialConnectStep({
       icon: '🎵',
       href: '/app/integrations#tiktok',
       external: false,
+      guide: guideLinks.tiktok,
     },
   ];
 
@@ -265,9 +269,6 @@ export function SocialConnectStep({
                     </svg>
                     <span className="text-[10px] font-bold text-white">Connected</span>
                     </div>
-                    {platform.id === 'instagram' && isConnected && (
-                      <span className="text-[9px] font-medium text-gray-500">via Facebook</span>
-                    )}
                     {platform.id === 'instagram_login' && isConnected && (
                       <span className="text-[9px] font-medium text-gray-500">via Instagram</span>
                     )}
@@ -275,6 +276,14 @@ export function SocialConnectStep({
                 )}
               </div>
               <div className="mt-4">
+                {platform.guide && (
+                  <Link
+                    href={platform.guide.href}
+                    className="inline-flex items-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary mb-2"
+                  >
+                    {platform.guide.label}
+                  </Link>
+                )}
                 {platform.external ? (
                   // Telegram - external link
                   <a
