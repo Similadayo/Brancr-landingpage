@@ -155,15 +155,8 @@ export default function OnboardingSummaryPage() {
               Edit
             </Link>
           </div>
-          <div className="relative mt-4 grid gap-4 sm:mt-6 sm:gap-6 md:grid-cols-3">
-            <DetailSection
-              title="Menu Items"
-              items={Array.isArray((details as any).menu_items) && (details as any).menu_items.length > 0
-                ? (details as any).menu_items.map((m: any) => 
-                    m?.name ? `${m.name}${m.price ? ` – ${m.price}` : ""}` : null
-                  ).filter(Boolean)
-                : null}
-            />
+          <div className="relative mt-4 grid gap-4 sm:mt-6 sm:gap-6 md:grid-cols-2">
+
             <DetailSection
               title="FAQs"
               items={Array.isArray((details as any).faqs) && (details as any).faqs.length > 0

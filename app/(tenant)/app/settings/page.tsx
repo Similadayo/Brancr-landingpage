@@ -9,6 +9,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { tenantApi, ApiError } from "@/lib/api";
 import { toast } from "react-hot-toast";
+import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import {
   SettingsIcon,
   UserIcon,
@@ -23,6 +24,7 @@ import {
   ChartBarIcon,
   BuildingOfficeIcon,
 } from "../../components/icons";
+import PersonaSummary from './persona/PersonaSummary';
 import { IndustrySelector } from "../../components/IndustrySelector";
 import { useTenantIndustry } from "../../hooks/useIndustry";
 
@@ -524,6 +526,11 @@ export default function SettingsPage() {
           </div>
         </div>
       </header>
+
+      {/* Quick Summary */}
+      <div className="mt-4 md:mt-6">
+        <PersonaSummary />
+      </div>
 
       {/* Tabs */}
       <div className="rounded-xl border border-gray-200 bg-white p-2 shadow-sm">

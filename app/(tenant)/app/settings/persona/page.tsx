@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { tenantApi, ApiError } from "@/lib/api";
 import { toast } from "react-hot-toast";
+import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 
 export default function PersonaSettingsPage() {
     // AI Mode state and API
@@ -21,7 +22,8 @@ export default function PersonaSettingsPage() {
         void queryClient.invalidateQueries({ queryKey: ["ai_mode"] });
       },
       onError: (err) => {
-        toast.error('Failed to update AI mode');
+        const msg = getUserFriendlyErrorMessage(err, { action: 'updating AI mode', resource: 'AI mode' });
+        toast.error(msg || 'Failed to update AI mode');
       },
     });
   const queryClient = useQueryClient();

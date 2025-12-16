@@ -264,6 +264,11 @@ export default function InboxPage() {
         if (err instanceof ApiError && err.status === 404) {
           setInboxAIMode(null);
           setAIModeError(null);
+        } else if (err instanceof ApiError && err.status === 405) {
+          // Method not allowed: indicate that this endpoint exists but the method isn't supported
+          setInboxAIMode(null);
+          const msg = getUserFriendlyErrorMessage(err, { action: 'fetching AI mode', resource: 'AI mode' });
+          setAIModeError(msg);
         } else {
           setAIModeError(getUserFriendlyErrorMessage(err, { action: 'fetching AI mode', resource: 'AI mode' }));
           setInboxAIMode(null);
@@ -994,11 +999,17 @@ export default function InboxPage() {
                           if (err instanceof ApiError && err.status === 404) {
                             // Backend doesn't support per-inbox mode
                             setInboxAIMode(null);
-                            setAIModeError('Per-inbox AI mode is not available for this inbox.');
-                            toast.error('Per-inbox AI mode is not available for this inbox.');
+                            const userMsg = 'Per-inbox AI mode is not available for this inbox.';
+                            setAIModeError(userMsg);
+                            toast.error(userMsg);
+                          } else if (err instanceof ApiError && err.status === 405) {
+                            const userMsg = getUserFriendlyErrorMessage(err, { action: 'updating AI mode', resource: 'AI mode' });
+                            setAIModeError(userMsg);
+                            toast.error(userMsg);
                           } else {
-                            setAIModeError(getUserFriendlyErrorMessage(err, { action: 'updating AI mode', resource: 'AI mode' }));
-                            toast.error(getUserFriendlyErrorMessage(err, { action: 'updating AI mode', resource: 'AI mode' }));
+                            const userMsg = getUserFriendlyErrorMessage(err, { action: 'updating AI mode', resource: 'AI mode' });
+                            setAIModeError(userMsg);
+                            toast.error(userMsg);
                           }
                         } finally {
                           setAIModeLoading(false);

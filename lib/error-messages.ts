@@ -80,6 +80,11 @@ export function getUserFriendlyErrorMessage(
         return context?.resource
           ? `${context.resource} not found. It may have been deleted or moved.`
           : 'The requested resource was not found.';
+      case 405:
+        // Method Not Allowed - usually indicates the backend doesn't support this operation
+        return context?.action
+          ? `Unable to ${context.action}: this operation is not supported.`
+          : 'This action is not allowed. Please check your permissions or contact support.';
       case 409:
         return 'This action conflicts with the current state. Please refresh and try again.';
       case 422:
