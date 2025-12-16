@@ -25,13 +25,13 @@ export default function NotificationSettingsPage() {
     },
   });
 
-  // Update local state when settings load
+  // Update local state when settings load (merge with defaults to avoid undefined nested fields)
   useEffect(() => {
     if (settings) {
-      setLocalSettings({
-        email_notifications: settings.email_notifications,
-        webhook: settings.webhook,
-      });
+      setLocalSettings((prev) => ({
+        email_notifications: settings.email_notifications ?? prev.email_notifications,
+        webhook: settings.webhook ?? prev.webhook,
+      }));
     }
   }, [settings]);
 
