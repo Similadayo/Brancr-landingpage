@@ -250,7 +250,9 @@ export default function InboxPage() {
     setAIModeError(null);
     tenantApi.getConversationAIMode(String(activeConversation.id))
       .then((res) => {
-        setInboxAIMode(res.mode);
+        // Guard if backend returns no content
+        setInboxAIMode(res?.mode ?? null);
+        setAIModeError(null);
       })
       .catch((err) => {
         setAIModeError(getUserFriendlyErrorMessage(err, { action: 'fetching AI mode', resource: 'AI mode' }));
