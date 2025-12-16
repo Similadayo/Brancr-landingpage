@@ -127,8 +127,23 @@ export default function IntegrationsPage() {
   }, [disconnectMutation]);
 
   // Handle OAuth connection
-  const handleConnect = useCallback((platform: string, platforms?: string, useInstagramLogin = false) => {
-    if (!tenantId) {
+  const handleConnect = useCallback(async (platform: string, platforms?: string, useInstagramLogin = false) => {
+    // If tenantId is missing, attempt to re-fetch the auth session (helps with transient auth state)
+    let activeTenantId = tenantId;
+    if (!activeTenantId) {
+      try {
+        const fresh = await authApi.me();
+        console.debug('Refetched auth.me on connect click:', fresh);
+        if (fresh?.tenant_id) {
+          queryClient.setQueryData(['auth', 'me'], fresh);
+          activeTenantId = fresh.tenant_id;
+        }
+      } catch (e) {
+        console.debug('Failed to refetch auth.me:', e);
+      }
+    }
+
+    if (!activeTenantId) {
       toast.error('Please login first');
       return;
     }
@@ -146,25 +161,26 @@ export default function IntegrationsPage() {
       if (platform === 'instagram' && useInstagramLogin) {
         // Instagram Login (separate OAuth flow)
         oauthUrl = tenantApi.getInstagramOAuthUrl({
-          tenant_id: tenantId,
+          tenant_id: activeTenantId,
           success_redirect: successRedirect,
         });
       } else if (platform === 'facebook' || platform === 'instagram') {
         // Meta platforms (Facebook Login, Instagram via Facebook)
         const platformsParam = platforms || platform;
         oauthUrl = tenantApi.getMetaOAuthUrl({
-          tenant_id: tenantId,
+          tenant_id: activeTenantId,
           platforms: platformsParam,
           success_redirect: successRedirect,
         });
       } else if (platform === 'tiktok') {
         // TikTok
         oauthUrl = tenantApi.getTikTokOAuthUrl({
-          tenant_id: tenantId,
+          tenant_id: activeTenantId,
           success_redirect: successRedirect,
         });
       } else {
         // For Telegram, use the existing link behavior
+        setIsConnecting(null);
         return;
       }
 
@@ -177,7 +193,7 @@ export default function IntegrationsPage() {
       toast.error('Failed to connect. Please try again.');
       setIsConnecting(null);
     }
-  }, [tenantId]);
+  }, [tenantId, queryClient]);
 
   // Check for OAuth callback in URL params
   useEffect(() => {

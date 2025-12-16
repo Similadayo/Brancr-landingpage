@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useIntegrations } from '@/app/(tenant)/hooks/useIntegrations';
 import { authApi, tenantApi } from '@/lib/api';
@@ -29,6 +29,7 @@ export function SocialConnectStep({
     retry: false,
   });
 
+  const queryClient = useQueryClient();
   const tenantId = userData?.tenant_id;
 
   // Check which platforms are connected
@@ -113,7 +114,22 @@ export function SocialConnectStep({
 
   // Handle OAuth connection
   const handleConnect = async (platform: string, platforms?: string) => {
-    if (!tenantId) {
+    // If tenantId missing, try to re-fetch auth.me so transient missing session doesn't block users
+    let activeTenantId = tenantId;
+    if (!activeTenantId) {
+      try {
+        const fresh = await authApi.me();
+        console.debug('Refetched auth.me from onboarding connect:', fresh);
+        if (fresh?.tenant_id) {
+          queryClient.setQueryData(['auth', 'me'], fresh);
+          activeTenantId = fresh.tenant_id;
+        }
+      } catch (err) {
+        console.debug('Failed to refresh auth.me in onboarding step:', err);
+      }
+    }
+
+    if (!activeTenantId) {
       toast.error('Please login first');
       return;
     }
@@ -131,25 +147,26 @@ export function SocialConnectStep({
       if (platform === 'instagram_login') {
         // Instagram Login (separate OAuth flow)
         oauthUrl = tenantApi.getInstagramOAuthUrl({
-          tenant_id: tenantId,
+          tenant_id: activeTenantId,
           success_redirect: successRedirect,
         });
       } else if (platform === 'facebook' || platform === 'instagram') {
         // Meta platforms (Facebook Login, Instagram via Facebook)
         const platformsParam = platforms || platform;
         oauthUrl = tenantApi.getMetaOAuthUrl({
-          tenant_id: tenantId,
+          tenant_id: activeTenantId,
           platforms: platformsParam,
           success_redirect: successRedirect,
         });
       } else if (platform === 'tiktok') {
         // TikTok
         oauthUrl = tenantApi.getTikTokOAuthUrl({
-          tenant_id: tenantId,
+          tenant_id: activeTenantId,
           success_redirect: successRedirect,
         });
       } else {
         // For WhatsApp and Telegram, use the existing link behavior
+        setIsConnecting(null);
         return;
       }
 
