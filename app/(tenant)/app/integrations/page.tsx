@@ -130,9 +130,10 @@ export default function IntegrationsPage() {
   const handleConnect = useCallback(async (platform: string, platforms?: string, useInstagramLogin = false) => {
     // If tenantId is missing, attempt to re-fetch the auth session (helps with transient auth state)
     let activeTenantId = tenantId;
+    let fresh: any = null;
     if (!activeTenantId) {
       try {
-        const fresh = await authApi.me();
+        fresh = await authApi.me();
         console.debug('Refetched auth.me on connect click:', fresh);
         if (fresh?.tenant_id) {
           queryClient.setQueryData(['auth', 'me'], fresh);
@@ -144,7 +145,12 @@ export default function IntegrationsPage() {
     }
 
     if (!activeTenantId) {
-      toast.error('Please login first');
+      console.debug('No tenant_id after refetch of auth.me:', fresh);
+      toast((t) => (
+        <div className="flex items-center gap-3">
+          <div>Could not verify workspace from your session. Please <a className="underline text-primary font-semibold" href="/login?redirect=/app/integrations">sign in again</a>.</div>
+        </div>
+      ));
       return;
     }
 
@@ -285,6 +291,27 @@ export default function IntegrationsPage() {
         <p className="font-semibold">⚠️ Important: WhatsApp number usage</p>
         <p className="mt-1">Once connected, this number cannot be used on the WhatsApp mobile app — messages will appear exclusively inside the Brancr Dashboard. If the number is currently registered on your phone, delete the account, wait 3 minutes, then connect. Or use a new number not previously associated with WhatsApp.</p>
       </div>
+
+      {/* DEV: Show session debug for troubleshooting transient auth issues */}
+      {process.env.NODE_ENV !== 'production' && (
+        <details className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs">
+          <summary className="cursor-pointer font-semibold">Session debug (dev only)</summary>
+          <div className="mt-2">
+            <pre className="max-h-48 overflow-auto text-[11px]">{JSON.stringify(userData || null, null, 2)}</pre>
+            <div className="mt-2">
+              <button
+                onClick={() => {
+                  void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+                  toast.success('Refetching session...');
+                }}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-700"
+              >
+                Refresh session
+              </button>
+            </div>
+          </div>
+        </details>
+      )}
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">

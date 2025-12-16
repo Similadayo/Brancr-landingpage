@@ -116,9 +116,10 @@ export function SocialConnectStep({
   const handleConnect = async (platform: string, platforms?: string) => {
     // If tenantId missing, try to re-fetch auth.me so transient missing session doesn't block users
     let activeTenantId = tenantId;
+    let fresh: any = null;
     if (!activeTenantId) {
       try {
-        const fresh = await authApi.me();
+        fresh = await authApi.me();
         console.debug('Refetched auth.me from onboarding connect:', fresh);
         if (fresh?.tenant_id) {
           queryClient.setQueryData(['auth', 'me'], fresh);
@@ -130,7 +131,12 @@ export function SocialConnectStep({
     }
 
     if (!activeTenantId) {
-      toast.error('Please login first');
+      console.debug('No tenant_id after refetch of auth.me (onboarding):', fresh);
+      toast((t) => (
+        <div className="flex items-center gap-3">
+          <div>Could not verify workspace from your session. Please <a className="underline text-primary font-semibold" href="/login?redirect=/app/onboarding">sign in again</a>.</div>
+        </div>
+      ));
       return;
     }
 
