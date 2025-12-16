@@ -169,13 +169,16 @@ export const authApi = {
 
   logout: () => post<undefined, void>("/api/auth/logout"),
 
-  me: () =>
-    get<{
-      tenant_id: number;
-      name: string;
-      email: string;
-      plan: string;
-      status: string;
+  me: async () => {
+    // Normalize auth/me payloads — some servers return a nested `tenant` object with `id`,
+    // while others include `tenant_id` at the top level. Make the client tolerant to both.
+    const raw = await get<{
+      tenant_id?: number;
+      tenant?: { id?: number };
+      name?: string;
+      email?: string;
+      plan?: string;
+      status?: string;
       onboarding?: {
         complete: boolean;
         step?: "business_profile" | "persona" | "business_details" | "social_connect";
@@ -189,7 +192,15 @@ export const authApi = {
         total: number;
         posted: number;
       };
-    }>("/api/auth/me"),
+    }>("/api/auth/me");
+
+    // If tenant_id is not present at the top level but there's a nested tenant.id, copy it over.
+    if ((raw as any)?.tenant && (raw as any).tenant.id && !(raw as any).tenant_id) {
+      (raw as any).tenant_id = (raw as any).tenant.id;
+    }
+
+    return raw as any;
+  },
 
   requestPasswordReset: (payload: { email: string }) =>
     post<typeof payload, void>("/api/auth/forgot-password", payload, { parseJson: false }),

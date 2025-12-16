@@ -30,7 +30,8 @@ export function SocialConnectStep({
   });
 
   const queryClient = useQueryClient();
-  const tenantId = userData?.tenant_id;
+  // Support both API response shapes: top-level `tenant_id` or nested `tenant.id`
+  const tenantId = userData?.tenant_id ?? (userData as any)?.tenant?.id ?? (userData as any)?.tenant?.tenant_id;
 
   // Check which platforms are connected
   const connectedPlatforms = useMemo(() => {

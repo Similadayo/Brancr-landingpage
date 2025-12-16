@@ -67,7 +67,14 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
   // Set observability user context when tenant is loaded
   useEffect(() => {
     if (data) {
-      setUserContext(data.tenant_id, data.email);
+      // Support both API shapes: top-level tenant_id or nested tenant.id
+      const resolvedTenantId = (data as any).tenant_id ?? (data as any).tenant?.id ?? null;
+      if (resolvedTenantId) {
+        setUserContext(resolvedTenantId, data.email);
+      } else {
+        // Still set context with email only if available
+        setUserContext(undefined as any, data.email);
+      }
     } else {
       clearUserContext();
     }
