@@ -462,7 +462,7 @@ export default function IntegrationsPage() {
                     <>
                       <button
                         onClick={() => handleConnect(platform, undefined, true)}
-                        disabled={isConnecting === platform || !tenantId}
+                        disabled={isConnecting === platform}
                         title={!tenantId ? 'Sign in to connect channels' : undefined}
                         className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-blue-200 disabled:hover:bg-blue-50"
                       >
@@ -496,7 +496,7 @@ export default function IntegrationsPage() {
                     <>
                       <button
                         onClick={() => handleConnect(platform)}
-                        disabled={isConnecting === platform || !tenantId}
+                        disabled={isConnecting === platform}
                         title={!tenantId ? 'Sign in to connect channels' : undefined}
                         className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-200 disabled:hover:bg-white"
                       >
