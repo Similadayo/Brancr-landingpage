@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useState, useEffect } from "react";
+import SessionDebug from './SessionDebug';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useIntegrations, useVerifyIntegration, useDisconnectIntegration } from "@/app/(tenant)/hooks/useIntegrations";
@@ -293,25 +294,9 @@ export default function IntegrationsPage() {
       </div>
 
       {/* DEV: Show session debug for troubleshooting transient auth issues */}
-      {process.env.NODE_ENV !== 'production' && (
-        <details className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs">
-          <summary className="cursor-pointer font-semibold">Session debug (dev only)</summary>
-          <div className="mt-2">
-            <pre className="max-h-48 overflow-auto text-[11px]">{JSON.stringify(userData || null, null, 2)}</pre>
-            <div className="mt-2">
-              <button
-                onClick={() => {
-                  void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
-                  toast.success('Refetching session...');
-                }}
-                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-700"
-              >
-                Refresh session
-              </button>
-            </div>
-          </div>
-        </details>
-      )}
+      {/* Optional session debug (show in dev or when ?debug=1 is present) */}
+      <SessionDebug userData={userData} />
+
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
