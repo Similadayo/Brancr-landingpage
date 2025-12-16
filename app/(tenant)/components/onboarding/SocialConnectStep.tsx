@@ -321,11 +321,13 @@ export function SocialConnectStep({
                     )}
                   </Link>
                 ) : (
-                  // Facebook, Instagram, TikTok - OAuth buttons
+                  <>
+                  {/* Facebook, Instagram, TikTok - OAuth buttons */}
                   <button
                     type="button"
                     onClick={() => handleConnect(platform.id)}
-                    disabled={isConnecting === platform.id || !tenantId}
+                    disabled={isConnecting === platform.id}
+                    title={!tenantId ? 'Sign in to connect channels' : undefined}
                     className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-4 py-2.5 text-xs font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:bg-primary/5 hover:text-primary hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-200 disabled:hover:bg-white"
                   >
                     {isConnecting === platform.id ? (
@@ -353,6 +355,11 @@ export function SocialConnectStep({
                       </>
                     )}
                   </button>
+                  {/* Show sign-in hint when user is not fully authenticated */}
+                  {!tenantId && (
+                    <p className="mt-3 text-xs text-gray-500">Sign in to connect channels</p>
+                  )}
+                </>
                 )}
               </div>
             </div>
