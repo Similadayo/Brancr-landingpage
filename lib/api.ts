@@ -1,3 +1,4 @@
+
 const DEFAULT_API_BASE_URL = "https://api.brancr.com";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL;
 
@@ -1139,6 +1140,28 @@ export const tenantApi = {
     put<typeof payload, { success: boolean; message?: string }>(
       "/api/tenant/settings/persona",
       payload
+    ),
+
+  // AI Mode endpoints
+  getAIMode: () =>
+    get<{ mode: 'ai' | 'human'; updated_at?: string; updated_by?: string }>(
+      '/api/tenant/settings/ai-mode'
+    ),
+  updateAIMode: (mode: 'ai' | 'human') =>
+    put<{ mode: 'ai' | 'human' }, { success: boolean; mode: 'ai' | 'human'; updated_at?: string; updated_by?: string }>(
+      '/api/tenant/settings/ai-mode',
+      { mode }
+    ),
+
+  // Per-inbox AI Mode endpoints (stub, to be implemented in backend)
+  getConversationAIMode: (conversationId: string) =>
+    get<{ mode: 'ai' | 'human'; updated_at?: string; updated_by?: string }>(
+      `/api/tenant/settings/inboxes/${conversationId}/ai-mode`
+    ),
+  updateConversationAIMode: (conversationId: string, mode: 'ai' | 'human') =>
+    put<{ mode: 'ai' | 'human' }, { success: boolean; mode: 'ai' | 'human'; updated_at?: string; updated_by?: string }>(
+      `/api/tenant/settings/inboxes/${conversationId}/ai-mode`,
+      { mode }
     ),
 
   updateBusinessDetails: (payload: {
