@@ -147,8 +147,15 @@ export default function IntegrationsPage() {
     }
 
     if (!activeTenantId) {
-      console.debug('No tenant_id after refetch of auth.me; proceeding without tenant_id and relying on server session:', fresh);
-      // Proceed without client-side tenant_id — server should derive tenant from session cookie
+      console.debug('No tenant_id after refetch of auth.me; blocking OAuth start and redirecting to login to re-establish tenant context:', fresh);
+      // The server OAuth start endpoints require tenant_id. If we can't determine it client-side,
+      // redirect to the login flow so the server session can be re-established with tenant scope.
+      toast.error('Please sign in to continue connecting channels. Redirecting to login...');
+      if (typeof window !== 'undefined') {
+        const nextPath = (typeof window !== 'undefined' && window.location?.pathname) ? window.location.pathname : '/app/integrations';
+        window.location.href = `/login?next=${encodeURIComponent(nextPath)}`;
+      }
+      return;
     }
 
     setIsConnecting(platform);

@@ -132,8 +132,12 @@ export function SocialConnectStep({
     }
 
     if (!activeTenantId) {
-      console.debug('No tenant_id after refetch of auth.me (onboarding); proceeding without tenant_id and relying on server session:', fresh);
-      // Proceed without client-side tenant_id - server should infer tenant from cookie/session
+      console.debug('No tenant_id after refetch of auth.me (onboarding); blocking OAuth start and redirecting to login to re-establish tenant context:', fresh);
+      toast.error('Please sign in to continue connecting channels. Redirecting to login...');
+      if (typeof window !== 'undefined') {
+        window.location.href = `/login?next=${encodeURIComponent('/app/onboarding')}`;
+      }
+      return;
     }
 
     setIsConnecting(platform);
