@@ -2290,7 +2290,7 @@ export const tenantApi = {
 
   // OAuth Endpoints (redirect-based, return URLs for window.location)
   getMetaOAuthUrl: (params: {
-    tenant_id: number;
+    tenant_id?: number;
     platforms?: string; // Comma-separated: "instagram,facebook" or single "instagram"
     platform?: string; // Alternative to platforms (single platform)
     success_redirect?: string;
@@ -2300,7 +2300,7 @@ export const tenantApi = {
     phone_number_id?: string;
   }) => {
     const queryParams = new URLSearchParams();
-    queryParams.append('tenant_id', params.tenant_id.toString());
+    if (params.tenant_id !== undefined) queryParams.append('tenant_id', params.tenant_id.toString());
     if (params.platforms) queryParams.append('platforms', params.platforms);
     if (params.platform) queryParams.append('platform', params.platform);
     if (params.success_redirect) queryParams.append('success_redirect', params.success_redirect);
@@ -2312,21 +2312,21 @@ export const tenantApi = {
   },
 
   getTikTokOAuthUrl: (params: {
-    tenant_id: number;
+    tenant_id?: number;
     success_redirect?: string;
   }) => {
     const queryParams = new URLSearchParams();
-    queryParams.append('tenant_id', params.tenant_id.toString());
+    if (params.tenant_id !== undefined) queryParams.append('tenant_id', params.tenant_id.toString());
     if (params.success_redirect) queryParams.append('success_redirect', params.success_redirect);
     return `${API_BASE_URL}/api/oauth/tiktok/start?${queryParams.toString()}`;
   },
 
   getInstagramOAuthUrl: (params: {
-    tenant_id: number;
+    tenant_id?: number;
     success_redirect?: string;
   }) => {
     const queryParams = new URLSearchParams();
-    queryParams.append('tenant_id', params.tenant_id.toString());
+    if (params.tenant_id !== undefined) queryParams.append('tenant_id', params.tenant_id.toString());
     if (params.success_redirect) queryParams.append('success_redirect', params.success_redirect);
     return `${API_BASE_URL}/api/oauth/instagram/start?${queryParams.toString()}`;
   },

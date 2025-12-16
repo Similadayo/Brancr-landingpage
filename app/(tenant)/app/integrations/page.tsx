@@ -146,13 +146,8 @@ export default function IntegrationsPage() {
     }
 
     if (!activeTenantId) {
-      console.debug('No tenant_id after refetch of auth.me:', fresh);
-      toast((t) => (
-        <div className="flex items-center gap-3">
-          <div>Could not verify workspace from your session. Please <a className="underline text-primary font-semibold" href="/login?redirect=/app/integrations">sign in again</a>.</div>
-        </div>
-      ));
-      return;
+      console.debug('No tenant_id after refetch of auth.me; proceeding without tenant_id and relying on server session:', fresh);
+      // Proceed without client-side tenant_id — server should derive tenant from session cookie
     }
 
     setIsConnecting(platform);
