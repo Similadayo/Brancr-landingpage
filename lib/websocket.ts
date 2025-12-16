@@ -121,21 +121,32 @@ class WebSocketClient {
   }
 }
 
-// Singleton instance
-let wsClient: WebSocketClient | null = null;
+// Keep a per-tenant map of websocket clients so different tenants don't reuse the same connection
+const wsClientsByTenant = new Map<number, WebSocketClient>();
 
 export function getWebSocketClient(tenantId: number): WebSocketClient {
-  if (!wsClient) {
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://api.brancr.com/ws';
-    wsClient = new WebSocketClient(`${wsUrl}?tenant_id=${tenantId}`);
-  }
-  return wsClient;
+  const existing = wsClientsByTenant.get(tenantId);
+  if (existing) return existing;
+
+  const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://api.brancr.com/ws';
+  const client = new WebSocketClient(`${wsUrl}?tenant_id=${tenantId}`);
+  wsClientsByTenant.set(tenantId, client);
+  return client;
 }
 
-export function disconnectWebSocket() {
-  if (wsClient) {
-    wsClient.disconnect();
-    wsClient = null;
+export function disconnectWebSocket(tenantId?: number) {
+  if (typeof tenantId === 'number') {
+    const c = wsClientsByTenant.get(tenantId);
+    if (c) {
+      c.disconnect();
+      wsClientsByTenant.delete(tenantId);
+    }
+  } else {
+    // Disconnect all
+    for (const [id, client] of wsClientsByTenant.entries()) {
+      client.disconnect();
+      wsClientsByTenant.delete(id);
+    }
   }
 }
 

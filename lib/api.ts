@@ -1154,10 +1154,22 @@ export const tenantApi = {
     ),
 
   // AI Mode endpoints
-  getAIMode: () =>
-    get<{ mode: 'ai' | 'human'; updated_at?: string; updated_by?: string }>(
-      '/api/tenant/settings/ai-mode'
-    ),
+  getAIMode: async () => {
+    try {
+      return await get<{ mode: 'ai' | 'human'; updated_at?: string; updated_by?: string }>(
+        '/api/tenant/settings/ai-mode'
+      );
+    } catch (err) {
+      // If the backend doesn't support ai-mode (405) or the call is not allowed,
+      // gracefully fall back to a default to avoid breaking the client UI.
+      // This keeps the app functional in environments where this feature isn't enabled.
+      if (err && typeof err === 'object' && (err as any).status === 405) {
+        // Return a shape compatible with callers that may access updated_at/updated_by
+        return { mode: 'ai', updated_at: undefined, updated_by: undefined } as { mode: 'ai' | 'human'; updated_at?: string; updated_by?: string };
+      }
+      throw err;
+    }
+  },
   updateAIMode: (mode: 'ai' | 'human') =>
     put<{ mode: 'ai' | 'human' }, { success: boolean; mode: 'ai' | 'human'; updated_at?: string; updated_by?: string }>(
       '/api/tenant/settings/ai-mode',

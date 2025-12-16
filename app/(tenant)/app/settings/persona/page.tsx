@@ -13,7 +13,7 @@ export default function PersonaSettingsPage() {
       queryKey: ["ai_mode"],
       queryFn: () => tenantApi.getAIMode(),
     });
-    const aiMode = aiModeData?.mode || 'ai';
+    const aiMode = (aiModeData?.mode || 'ai') as 'ai' | 'human';
     const [pendingAIMode, setPendingAIMode] = useState<'ai' | 'human'>(aiMode);
     const updateAIModeMutation = useMutation({
       mutationFn: (mode: 'ai' | 'human') => tenantApi.updateAIMode(mode),
