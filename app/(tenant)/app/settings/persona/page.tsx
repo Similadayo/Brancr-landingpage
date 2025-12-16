@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import { Switch } from '@headlessui/react';
+// Using a small local toggle instead of @headlessui/react to avoid extra dependency
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { tenantApi, ApiError } from "@/lib/api";
 import { toast } from "react-hot-toast";
@@ -63,20 +63,22 @@ export default function PersonaSettingsPage() {
       <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-2">AI Assistant</h2>
         <div className="flex items-center gap-4">
-          <Switch
-            checked={pendingAIMode === 'ai'}
-            onChange={(checked) => {
-              setPendingAIMode(checked ? 'ai' : 'human');
-              updateAIModeMutation.mutate(checked ? 'ai' : 'human');
+          <button
+            type="button"
+            onClick={() => {
+              const next = pendingAIMode === 'ai' ? 'human' : 'ai';
+              setPendingAIMode(next);
+              updateAIModeMutation.mutate(next);
             }}
             className={`${pendingAIMode === 'ai' ? 'bg-primary' : 'bg-gray-300'} relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
             disabled={updateAIModeMutation.isPending || isLoadingAIMode}
+            aria-pressed={pendingAIMode === 'ai' ? 'true' : 'false'}
           >
             <span className="sr-only">Toggle AI Assistant</span>
             <span
               className={`${pendingAIMode === 'ai' ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
             />
-          </Switch>
+          </button>
           <span className="text-sm font-medium text-gray-900">
             {pendingAIMode === 'ai' ? 'AI (enabled) — captions, suggestions, and AI replies may be used.' : 'Human (disabled) — AI features are turned off for this tenant.'}
           </span>
