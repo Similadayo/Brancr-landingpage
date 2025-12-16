@@ -264,6 +264,12 @@ export default function IntegrationsPage() {
         </div>
       </header>
 
+      {/* Important WhatsApp notice shown on integrations page */}
+      <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+        <p className="font-semibold">⚠️ Important: WhatsApp number usage</p>
+        <p className="mt-1">Once connected, this number cannot be used on the WhatsApp mobile app — messages will appear exclusively inside the Brancr Dashboard. If the number is currently registered on your phone, delete the account, wait 3 minutes, then connect. Or use a new number not previously associated with WhatsApp.</p>
+      </div>
+
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
@@ -335,20 +341,7 @@ export default function IntegrationsPage() {
 
                 <p className="mt-3 text-sm text-gray-700">{PLATFORM_REQUIREMENTS[platform]}</p>
 
-                {isWhatsApp && (
-                  <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                    <p className="text-sm font-semibold text-amber-900">⚠️ Important Notice</p>
-                    <div className="mt-2 space-y-2 text-sm text-amber-900">
-                      <p>Once connected, this number cannot be used on the WhatsApp mobile app.</p>
-                      <p>All WhatsApp messages will appear exclusively inside the Brancr Dashboard.</p>
-                      <p>
-                        If this number is currently registered on WhatsApp mobile, delete the WhatsApp account on your phone,
-                        wait 3 minutes, then connect.
-                      </p>
-                      <p>Or use a new number not previously associated with WhatsApp.</p>
-                    </div>
-                  </div>
-                )}
+
 
                 {!isWhatsApp && (
                   <>
@@ -470,6 +463,7 @@ export default function IntegrationsPage() {
                       <button
                         onClick={() => handleConnect(platform, undefined, true)}
                         disabled={isConnecting === platform || !tenantId}
+                        title={!tenantId ? 'Sign in to connect channels' : undefined}
                         className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-blue-200 disabled:hover:bg-blue-50"
                       >
                         {isConnecting === platform ? (
@@ -503,6 +497,7 @@ export default function IntegrationsPage() {
                       <button
                         onClick={() => handleConnect(platform)}
                         disabled={isConnecting === platform || !tenantId}
+                        title={!tenantId ? 'Sign in to connect channels' : undefined}
                         className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-200 disabled:hover:bg-white"
                       >
                         {isConnecting === platform ? (
@@ -532,6 +527,11 @@ export default function IntegrationsPage() {
                       )}
                     </>
                   )}
+
+                {/* Show sign-in hint when user is not fully authenticated */}
+                {!tenantId && (
+                  <p className="mt-3 text-xs text-gray-500">Sign in to connect channels</p>
+                )}
                 </div>
               </div>
             );
