@@ -370,7 +370,9 @@ export default function IntegrationsPage() {
                   <p className="mt-2 text-xs text-gray-500">@{integration.username}</p>
                 ) : null}
 
-                <p className="mt-3 text-sm text-gray-700">{PLATFORM_REQUIREMENTS[platform]}</p>
+                {platform !== 'whatsapp' && (
+                  <p className="mt-3 text-sm text-gray-700">{PLATFORM_REQUIREMENTS[platform]}</p>
+                )}
 
 
 
@@ -404,11 +406,6 @@ export default function IntegrationsPage() {
                 {/* WhatsApp number selector - shown prominently for WhatsApp */}
                 {isWhatsApp && (
                   <div className="mt-4">
-                    <p className="mb-3 text-sm text-gray-600">
-                      {connected
-                        ? "Brancr manages your WhatsApp Business Account. All set for messaging automation."
-                        : "Select or add your WhatsApp number to start messaging automation."}
-                    </p>
                     <WhatsAppNumberSelector />
                   </div>
                 )}
@@ -416,14 +413,6 @@ export default function IntegrationsPage() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   {isWhatsApp ? (
                     <>
-                      <button
-                        type="button"
-                        onClick={() => whatsappRefreshMutation.mutate()}
-                        disabled={whatsappRefreshMutation.isPending}
-                        className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50"
-                      >
-                        {whatsappRefreshMutation.isPending ? "Refreshing..." : "Refresh Status"}
-                      </button>
                       <button
                         type="button"
                         onClick={() => {

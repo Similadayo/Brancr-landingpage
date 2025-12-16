@@ -541,32 +541,9 @@ export function WhatsAppNumberSelector() {
             </div>
           )}
           
-          {connectionStatus?.status === 'pending_onboarding' && (
-            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-              <p className="text-xs font-semibold text-amber-800">
-                ⏳ Onboarding in progress. Please complete the setup in the popup window.
-              </p>
-              {connectionStatus.provider === 'gupshup_partner' && (
-                <button
-                  onClick={refreshWhatsAppStatus}
-                  className="mt-2 w-full rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
-                >
-                  🔄 Refresh Status
-                </button>
-              )}
-            </div>
-          )}
+
           
           <div className="mt-4 flex flex-wrap justify-center gap-2">
-            {connectionStatus?.provider === 'gupshup_partner' && (
-              <button
-                onClick={refreshWhatsAppStatus}
-                className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100"
-                title="Refresh status"
-              >
-                🔄 Refresh Status
-              </button>
-            )}
             <button
               onClick={handleDisconnect}
               className="rounded-lg border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-50"
@@ -577,19 +554,7 @@ export function WhatsAppNumberSelector() {
         </div>
       )}
 
-      {!loading && !connected && connectionStatus && !connectionStatus.connected && connectionStatus.status === 'pending_onboarding' && connectionStatus.provider === 'gupshup_partner' && (
-        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <p className="text-xs font-semibold text-amber-900 mb-2">
-            ⏳ Onboarding in progress. Status may be stuck.
-          </p>
-          <button
-            onClick={refreshWhatsAppStatus}
-            className="w-full rounded-lg border border-amber-300 bg-white px-4 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
-          >
-            🔄 Refresh Status
-          </button>
-        </div>
-      )}
+
 
       {!loading && !connected && (
         <div className="connect-prompt rounded-xl border border-gray-200 bg-gray-50 p-6">
@@ -606,14 +571,6 @@ export function WhatsAppNumberSelector() {
                 className="btn-primary flex-1 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
               >
                 Connect to WhatsApp
-              </button>
-              <button 
-                type="button"
-                onClick={() => refetchStatus()} 
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-                title="Refresh connection status"
-              >
-                🔄
               </button>
             </div>
           </form>
