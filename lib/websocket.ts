@@ -36,14 +36,28 @@ class WebSocketClient {
     return this.url;
   }
 
+  private manualDisconnect = false;
+
   connect(callbacks: WebSocketCallbacks = {}) {
     this.callbacks = callbacks;
 
+    // Avoid creating duplicate sockets if one is already open or connecting
     try {
+      // Use numeric readyState checks (0 = CONNECTING, 1 = OPEN) to be robust in test envs
+      const wsReadyState = this.ws?.readyState;
+      if (this.ws && (wsReadyState === 0 || wsReadyState === 1)) {
+        console.warn('WebSocketClient.connect: socket already open or connecting — skipping new connection');
+        return;
+      }
+
+      // reset manualDisconnect — explicit connect should clear manual shutdown state
+      this.manualDisconnect = false;
+
       this.ws = new WebSocket(this.url);
 
       this.ws.onopen = () => {
         this.reconnectAttempts = 0;
+        this.manualDisconnect = false;
         this.startHeartbeat();
         this.callbacks.onOpen?.();
       };
@@ -60,6 +74,7 @@ class WebSocketClient {
       this.ws.onerror = (error) => {
         console.error('WebSocket error event', error);
         this.callbacks.onError?.(error);
+        // Do not call attemptReconnect here; let onclose handle reconnects to avoid races
       };
 
       this.ws.onclose = (event) => {
@@ -71,7 +86,12 @@ class WebSocketClient {
         }
         this.stopHeartbeat();
         this.callbacks.onClose?.();
-        this.attemptReconnect();
+        // Only attempt reconnect if we didn't intentionally disconnect
+        if (!this.manualDisconnect) {
+          this.attemptReconnect();
+        } else {
+          console.warn('WebSocket closed after manual disconnect; not reconnecting');
+        }
       };
     } catch (error) {
       console.error('WebSocket connection error:', error);
@@ -80,6 +100,11 @@ class WebSocketClient {
   }
 
   private attemptReconnect() {
+    if (this.manualDisconnect) {
+      console.warn('attemptReconnect: manual disconnect in effect; skipping reconnect');
+      return;
+    }
+
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.error('Max reconnection attempts reached');
       return;
@@ -131,12 +156,27 @@ class WebSocketClient {
   }
 
   disconnect() {
+    // mark that this is a manual disconnect so reconnect logic will not kick in
+    this.manualDisconnect = true;
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
     this.stopHeartbeat();
-    this.ws?.close();
+    // Close politely if open
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      try {
+        this.ws.close(1000, 'client initiated disconnect');
+      } catch (e) {
+        // ignore
+      }
+    } else if (this.ws) {
+      try {
+        this.ws.close();
+      } catch (e) {
+        // ignore
+      }
+    }
     this.ws = null;
   }
 
