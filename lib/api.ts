@@ -1181,6 +1181,16 @@ export const tenantApi = {
 
   // AI Mode endpoints
   getAIMode: async () => {
+    // Some backend deployments do not expose a GET /tenant/settings/ai-mode (only PUT is implemented).
+    // To avoid noisy 405 responses in environments where the GET route is not available,
+    // optionally skip the GET entirely unless the runtime opt-in flag is set.
+    const doGet = process.env.NEXT_PUBLIC_SUPPORTS_AIMODE_GET === 'true';
+    if (!doGet) {
+      // Default to 'ai' when no server-side GET is available. Consumers should call `updateAIMode`
+      // to change mode; this avoids unnecessary 405 logs and keeps the UI functional.
+      return { mode: 'ai', updated_at: undefined, updated_by: undefined } as { mode: 'ai' | 'human'; updated_at?: string; updated_by?: string };
+    }
+
     try {
       return await get<{ mode: 'ai' | 'human'; updated_at?: string; updated_by?: string }>(
         '/api/tenant/settings/ai-mode'
@@ -1210,6 +1220,12 @@ export const tenantApi = {
   // Per-inbox AI Mode endpoints (stub, to be implemented in backend)
   getConversationAIMode: (conversationId: string) =>
     (async () => {
+      // Similar opt-in: do not issue a GET request if the environment does not support the route.
+      const doGet = process.env.NEXT_PUBLIC_SUPPORTS_AIMODE_GET === 'true';
+      if (!doGet) {
+        return { mode: 'ai', updated_at: undefined, updated_by: undefined } as { mode: 'ai' | 'human'; updated_at?: string; updated_by?: string };
+      }
+
       try {
         return await get<{ mode: 'ai' | 'human'; updated_at?: string; updated_by?: string }>(
           `/api/tenant/settings/inboxes/${conversationId}/ai-mode`
