@@ -53,6 +53,19 @@ describe('WebSocket connect guard', () => {
 
     expect(constructCount).toBe(1);
 
+    // Now simulate a clean close coming from elsewhere (wasClean: true)
+    const internalWs = (client as any).ws as any;
+    expect(internalWs).toBeDefined();
+
+    // Call onclose with wasClean true — should NOT trigger a reconnect
+    internalWs.onclose({ code: 1000, reason: 'normal', wasClean: true });
+
+    // wait slightly longer to ensure reconnect would have happened
+    await new Promise((r) => setTimeout(r, 50));
+
+    // No new constructor calls
+    expect(constructCount).toBe(1);
+
     client.disconnect();
   });
 });

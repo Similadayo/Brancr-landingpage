@@ -86,6 +86,11 @@ class WebSocketClient {
         }
         this.stopHeartbeat();
         this.callbacks.onClose?.();
+        // If the socket closed cleanly, do not attempt reconnect (avoids reconnect after intentional close)
+        if (event && (event as any).wasClean) {
+          console.warn('WebSocket closed cleanly; not reconnecting');
+          return;
+        }
         // Only attempt reconnect if we didn't intentionally disconnect
         if (!this.manualDisconnect) {
           this.attemptReconnect();
