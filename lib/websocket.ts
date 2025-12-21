@@ -31,6 +31,11 @@ class WebSocketClient {
     this.url = url;
   }
 
+  // Expose URL for diagnostics and tests
+  getUrl() {
+    return this.url;
+  }
+
   connect(callbacks: WebSocketCallbacks = {}) {
     this.callbacks = callbacks;
 
@@ -141,24 +146,30 @@ class WebSocketClient {
 }
 
 // Keep a per-tenant map of websocket clients so different tenants don't reuse the same connection
-const wsClientsByTenant = new Map<number, WebSocketClient>();
+const wsClientsByTenant = new Map<string, WebSocketClient>();
 
-export function getWebSocketClient(tenantId: number): WebSocketClient {
-  const existing = wsClientsByTenant.get(tenantId);
+export function getWebSocketClient(tenantId: string | number): WebSocketClient {
+  if (tenantId === undefined || tenantId === null || String(tenantId).trim() === '') {
+    throw new Error('getWebSocketClient: tenantId is required');
+  }
+
+  const key = String(tenantId);
+  const existing = wsClientsByTenant.get(key);
   if (existing) return existing;
 
   const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://api.brancr.com/ws';
-  const client = new WebSocketClient(`${wsUrl}?tenant_id=${tenantId}`);
-  wsClientsByTenant.set(tenantId, client);
+  const client = new WebSocketClient(`${wsUrl}?tenant_id=${encodeURIComponent(key)}`);
+  wsClientsByTenant.set(key, client);
   return client;
 }
 
-export function disconnectWebSocket(tenantId?: number) {
-  if (typeof tenantId === 'number') {
-    const c = wsClientsByTenant.get(tenantId);
+export function disconnectWebSocket(tenantId?: string | number) {
+  if (typeof tenantId === 'string' || typeof tenantId === 'number') {
+    const key = String(tenantId);
+    const c = wsClientsByTenant.get(key);
     if (c) {
       c.disconnect();
-      wsClientsByTenant.delete(tenantId);
+      wsClientsByTenant.delete(key);
     }
   } else {
     // Disconnect all

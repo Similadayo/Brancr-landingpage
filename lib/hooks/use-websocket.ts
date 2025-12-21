@@ -21,11 +21,11 @@ type TenantProvider = {
  */
 export function useWebSocket(
   onMessage: ((message: WebSocketMessage) => void) | undefined,
-  tenantId: number | undefined
+  tenantId: string | number | undefined
 ) {
   const [isConnected, setIsConnected] = useState(false);
   const wsClientRef = useRef<ReturnType<typeof getWebSocketClient> | null>(null);
-  const resolvedTenantIdRef = useRef<number | null>(null);
+  const resolvedTenantIdRef = useRef<string | number | null>(null);
 
   // Try to get tenant ID from context if not provided
   useEffect(() => {
@@ -50,10 +50,18 @@ export function useWebSocket(
   useEffect(() => {
     const id = tenantId || resolvedTenantIdRef.current;
     if (!id) {
+      // Do not attempt to connect when tenant id is not available; backend returns HTTP 400 when tenant_id is missing
+      console.error('useWebSocket: tenantId is required to open a WebSocket connection');
       return;
     }
 
-    const client = getWebSocketClient(id);
+    let client: ReturnType<typeof getWebSocketClient>;
+    try {
+      client = getWebSocketClient(id);
+    } catch (err) {
+      console.error('useWebSocket: failed to get WebSocket client', err);
+      return;
+    }
     wsClientRef.current = client;
 
     let toastId: string | undefined;
@@ -73,7 +81,8 @@ export function useWebSocket(
           toastId = toast.error('Real-time updates unavailable. Some features may be delayed.', { id: 'ws-fail', duration: 8000 });
         });
         import('../observability').then(({ captureException }) => {
-          captureException(new Error('WebSocket error'), { error, tenant_id: id, action: 'websocket_connect' });
+          const numericTenantId = typeof id === 'number' ? id : undefined;
+          captureException(new Error('WebSocket error'), { error, tenant_id: numericTenantId, tenant_identifier: String(id), action: 'websocket_connect' });
         });
         setIsConnected(false);
       },
