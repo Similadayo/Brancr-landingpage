@@ -15,6 +15,8 @@ import PlatformSelector from "@/app/(tenant)/components/posting/PlatformSelector
 import SchedulePicker from "@/app/(tenant)/components/posting/SchedulePicker";
 import PostReview from "@/app/(tenant)/components/posting/PostReview";
 import TikTokOptions from "@/app/(tenant)/components/posting/TikTokOptions";
+import ConfirmModal from '@/app/components/ConfirmModal';
+import useAutosaveDraft from '@/app/(tenant)/hooks/useDrafts';
 
 type Step = "upload" | "media" | "caption" | "platforms" | "schedule" | "review";
 
@@ -54,7 +56,10 @@ export default function NewPostPage() {
   const [tiktokDisableComment, setTiktokDisableComment] = useState(false);
   const [tiktokScheduleTime, setTiktokScheduleTime] = useState<string | null>(null);
 
-  // Auto-save draft to localStorage
+  // Remote draft availability
+  const [remoteDraftAvailable, setRemoteDraftAvailable] = useState<any | null>(null);
+
+  // Auto-save draft to localStorage (fast local fallback)
   useEffect(() => {
     const draft = {
       uploadedMedia,
@@ -68,7 +73,7 @@ export default function NewPostPage() {
     localStorage.setItem("post-draft", JSON.stringify(draft));
   }, [uploadedMedia, selectedMediaIds, caption, enhanceCaption, selectedPlatforms, scheduledAt, step]);
 
-  // Load draft on mount
+  // Load draft on mount (local fallback)
   useEffect(() => {
     const savedDraft = localStorage.getItem("post-draft");
     if (savedDraft) {
@@ -85,6 +90,29 @@ export default function NewPostPage() {
       }
     }
   }, []);
+
+  // Server-backed autosave via drafts API
+  const { content: remoteDraftContent, setContent: setRemoteContent, status: draftStatus, restoreRemote } = useAutosaveDraft({
+    key: 'compose.post',
+    initialContent: null,
+    debounceMs: 1000,
+    onRemoteNewer: (remote) => {
+      setRemoteDraftAvailable(remote as any);
+    },
+  });
+
+  // Sync page state into remote autosave
+  useEffect(() => {
+    setRemoteContent({
+      uploadedMedia,
+      selectedMediaIds,
+      caption,
+      enhanceCaption,
+      selectedPlatforms,
+      scheduledAt,
+      step,
+    });
+  }, [uploadedMedia, selectedMediaIds, caption, enhanceCaption, selectedPlatforms, scheduledAt, step, setRemoteContent]);
 
   const currentStepIndex = STEPS.indexOf(step);
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
@@ -104,9 +132,8 @@ export default function NewPostPage() {
       case "schedule":
         return true; // Can publish now (scheduledAt can be null)
       case "review":
-        // Must have either media or Facebook (which supports text-only)
-        const hasFacebook = selectedPlatforms.includes("facebook");
-        return selectedMediaIds.length > 0 || hasFacebook;
+        // Client: require at least one selected platform. Backend will validate platform-specific media requirements.
+        return selectedPlatforms.length > 0;
       default:
         return false;
     }
@@ -335,10 +362,13 @@ export default function NewPostPage() {
     }
   }, [currentStepIndex]);
 
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const handleCancel = useCallback(() => {
-    if (confirm("Are you sure you want to cancel? Your progress will be lost.")) {
-      router.push("/app/campaigns");
-    }
+    setShowCancelConfirm(true);
+  }, []);
+  const confirmCancel = useCallback(() => {
+    setShowCancelConfirm(false);
+    router.push("/app/campaigns");
   }, [router]);
 
   return (
@@ -349,8 +379,40 @@ export default function NewPostPage() {
           <p className="mt-2 max-w-2xl text-sm font-medium text-gray-700">
             Step {currentStepIndex + 1} of {STEPS.length}: {currentStepLabel}
           </p>
+          {remoteDraftAvailable && (
+            <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 flex items-center justify-between">
+              <div>Newer draft available — restored at {new Date(remoteDraftAvailable.updated_at).toLocaleString()}.</div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    restoreRemote(remoteDraftAvailable.id);
+                    setRemoteDraftAvailable(null);
+                  }}
+                  className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90"
+                >
+                  Restore
+                </button>
+                <button
+                  onClick={() => setRemoteDraftAvailable(null)}
+                  className="rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-50"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {draftStatus === 'saving' ? (
+              <span className="text-xs text-gray-500">Saving…</span>
+            ) : draftStatus === 'saved' ? (
+              <span className="text-xs text-gray-500">Saved</span>
+            ) : draftStatus === 'error' ? (
+              <span className="text-xs text-rose-600">Save failed</span>
+            ) : null}
+          </div>
+
           <button
             type="button"
             onClick={handleCancel}
@@ -366,6 +428,17 @@ export default function NewPostPage() {
           </Link>
         </div>
       </header>
+
+      {showCancelConfirm && (
+        <ConfirmModal
+          open={true}
+          title="Cancel post creation"
+          description="Are you sure you want to cancel? Your progress will be lost."
+          confirmText="Yes, cancel"
+          onConfirm={confirmCancel}
+          onCancel={() => setShowCancelConfirm(false)}
+        />
+      )}
 
       {/* Progress Bar */}
       <div className="space-y-2">

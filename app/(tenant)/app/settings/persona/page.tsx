@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // Using a small local toggle instead of @headlessui/react to avoid extra dependency
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { tenantApi, ApiError } from "@/lib/api";
@@ -41,6 +41,9 @@ export default function PersonaSettingsPage() {
     style_notes: "",
   });
 
+  const TONE_OPTIONS = ["friendly", "professional", "casual", "witty", "formal", "playful"]; 
+  const [selectedTones, setSelectedTones] = useState<string[]>([]);
+
   const updateMutation = useMutation({
     mutationFn: () =>
       tenantApi.updatePersona({
@@ -59,6 +62,15 @@ export default function PersonaSettingsPage() {
       else toast.error("Failed to update persona");
     },
   });
+
+  // Initialize selected tones from persona when loaded
+  useEffect(() => {
+    if (persona?.tone) {
+      const parts = persona.tone.split(",").map((s: string) => s.trim()).filter(Boolean);
+      setSelectedTones(parts);
+      setForm((p) => ({ ...p, tone: parts.join(', ') }));
+    }
+  }, [persona?.tone]);
 
   return (
     <div className="space-y-8">
@@ -117,12 +129,28 @@ export default function PersonaSettingsPage() {
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-900">Tone</label>
-              <input
-                defaultValue={persona?.tone || ""}
-                onChange={(e) => setForm((p) => ({ ...p, tone: e.target.value }))}
-                placeholder="friendly, professional, casual, witty"
-                className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
+              <div className="mt-2 flex flex-wrap gap-2">
+                {TONE_OPTIONS.map((opt) => {
+                  const active = selectedTones.includes(opt);
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => {
+                        setSelectedTones((prev) => {
+                          const next = prev.includes(opt) ? prev.filter((p) => p !== opt) : [...prev, opt];
+                          setForm((p) => ({ ...p, tone: next.join(', ') }));
+                          return next;
+                        });
+                      }}
+                      className={`rounded-full px-3 py-1 text-sm font-medium transition ${active ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-xs text-gray-500">Select at least two tones to guide the assistant.</p>
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-900">Language</label>
@@ -159,10 +187,10 @@ export default function PersonaSettingsPage() {
           <div className="mt-6 flex justify-end">
             <button
               onClick={() => updateMutation.mutate()}
-              disabled={updateMutation.isPending}
+              disabled={updateMutation.isPending || selectedTones.length < 2}
               className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow transition hover:bg-primary/90 disabled:opacity-50"
             >
-              {updateMutation.isPending ? "Saving..." : "Save changes"}
+              {updateMutation.isPending ? "Saving..." : (selectedTones.length < 2 ? 'Select at least 2 tones' : 'Save changes')}
             </button>
           </div>
         </section>

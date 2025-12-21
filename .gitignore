@@ -36,6 +36,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+/Attachments
+Brancr.md
+
 
 # Sentry Config File
 .env.sentry-build-plugin

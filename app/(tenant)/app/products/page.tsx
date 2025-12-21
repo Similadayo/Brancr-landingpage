@@ -17,6 +17,7 @@ import {
 } from "../../components/icons";
 import Select from "../../components/ui/Select";
 import { toast } from "react-hot-toast";
+import ConfirmModal from '@/app/components/ConfirmModal';
 
 type SortOption = 'name' | 'price' | 'stock' | 'date';
 type AvailabilityFilter = 'all' | 'in_stock' | 'out_of_stock' | 'low_stock';
@@ -78,7 +79,13 @@ export default function ProductsPage() {
     return products.slice(start, start + itemsPerPage);
   }, [products, currentPage, itemsPerPage]);
 
+  // Cleanup modals when navigating away
+  // (optional UX: close confirmation modal when page changes)
+  // useEffect(() => { setShowDeleteProductId(null); setShowBulkDeleteConfirm(false); }, [currentPage]);
+
   const deleteMutation = useDeleteProduct();
+  const [showDeleteProductId, setShowDeleteProductId] = useState<number | null>(null);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
   const categories = useMemo(() => {
     const cats = new Set<string>();
@@ -89,16 +96,22 @@ export default function ProductsPage() {
   }, [products]);
 
   const handleDelete = (productId: number) => {
-    if (confirm("Are you sure you want to delete this product?")) {
-      deleteMutation.mutate(productId);
-    }
+    setShowDeleteProductId(productId);
+  };
+
+  const confirmDeleteProduct = (productId: number) => {
+    deleteMutation.mutate(productId);
+    setShowDeleteProductId(null);
   };
 
   const handleBulkDelete = () => {
-    if (confirm(`Are you sure you want to delete ${selectedProductIds.length} product(s)?`)) {
-      selectedProductIds.forEach((id) => deleteMutation.mutate(id));
-      setSelectedProductIds([]);
-    }
+    setShowBulkDeleteConfirm(true);
+  };
+
+  const confirmBulkDelete = () => {
+    selectedProductIds.forEach((id) => deleteMutation.mutate(id));
+    setSelectedProductIds([]);
+    setShowBulkDeleteConfirm(false);
   };
 
   const toggleSelect = (productId: number) => {
@@ -109,6 +122,16 @@ export default function ProductsPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {showDeleteProductId && (
+        <ConfirmModal
+          open={true}
+          title="Delete product"
+          description="Are you sure you want to delete this product? This action cannot be undone."
+          confirmText="Delete"
+          onConfirm={() => { if (showDeleteProductId) confirmDeleteProduct(showDeleteProductId); }}
+          onCancel={() => setShowDeleteProductId(null)}
+        />
+      )}
       {/* Header */}
       <header className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
@@ -122,13 +145,23 @@ export default function ProductsPage() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {selectedProductIds.length > 0 && (
-            <button
-              onClick={handleBulkDelete}
-              className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm"
-            >
-              <TrashIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              Delete ({selectedProductIds.length})
-            </button>
+            <>
+              <button
+                onClick={handleBulkDelete}
+                className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm"
+              >
+                <TrashIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                Delete ({selectedProductIds.length})
+              </button>
+              <ConfirmModal
+                open={showBulkDeleteConfirm}
+                title="Delete selected products"
+                description={`Are you sure you want to delete ${selectedProductIds.length} product(s)? This cannot be undone.`}
+                confirmText="Delete"
+                onConfirm={confirmBulkDelete}
+                onCancel={() => setShowBulkDeleteConfirm(false)}
+              />
+            </>
           )}
           <Link
             href="/app/products/new"

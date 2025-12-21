@@ -16,6 +16,7 @@ import {
   CheckCircleIcon,
 } from "../../components/icons";
 import Select from "../../components/ui/Select";
+import ConfirmModal from '@/app/components/ConfirmModal';
 
 type SortOption = 'name' | 'price' | 'category' | 'preparation_time' | 'date';
 type AvailabilityFilter = 'all' | 'available' | 'unavailable' | 'limited';
@@ -97,6 +98,8 @@ export default function MenuItemsPage() {
   }, [items, currentPage, itemsPerPage]);
 
   const deleteMutation = useDeleteMenuItem();
+  const [showDeleteItemId, setShowDeleteItemId] = useState<number | null>(null);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
   const categories = useMemo(() => {
     const cats = new Set<string>();
@@ -107,16 +110,22 @@ export default function MenuItemsPage() {
   }, [items]);
 
   const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this menu item?")) {
-      deleteMutation.mutate(id);
-    }
+    setShowDeleteItemId(id);
+  };
+
+  const confirmDeleteItem = (id: number) => {
+    deleteMutation.mutate(id);
+    setShowDeleteItemId(null);
   };
 
   const handleBulkDelete = () => {
-    if (confirm(`Are you sure you want to delete ${selectedIds.length} menu item(s)?`)) {
-      selectedIds.forEach((id) => deleteMutation.mutate(id));
-      setSelectedIds([]);
-    }
+    setShowBulkDeleteConfirm(true);
+  };
+
+  const confirmBulkDelete = () => {
+    selectedIds.forEach((id) => deleteMutation.mutate(id));
+    setSelectedIds([]);
+    setShowBulkDeleteConfirm(false);
   };
 
   const toggleSelect = (id: number) => {
@@ -125,6 +134,26 @@ export default function MenuItemsPage() {
 
   return (
     <div className="space-y-6">
+      {showDeleteItemId && (
+        <ConfirmModal
+          open={true}
+          title="Delete menu item"
+          description="Are you sure you want to delete this menu item? This action cannot be undone."
+          confirmText="Delete"
+          onConfirm={() => { if (showDeleteItemId) confirmDeleteItem(showDeleteItemId); }}
+          onCancel={() => setShowDeleteItemId(null)}
+        />
+      )}
+      {showBulkDeleteConfirm && (
+        <ConfirmModal
+          open={true}
+          title="Delete selected menu items"
+          description={`Are you sure you want to delete ${selectedIds.length} menu item(s)? This cannot be undone.`}
+          confirmText="Delete"
+          onConfirm={confirmBulkDelete}
+          onCancel={() => setShowBulkDeleteConfirm(false)}
+        />
+      )}
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">

@@ -19,6 +19,7 @@ import {
   ArrowUpTrayIcon,
 } from "../../components/icons";
 import Select from "@/app/(tenant)/components/ui/Select";
+import ConfirmModal from '@/app/components/ConfirmModal';
 
 type ViewMode = "grid" | "list";
 
@@ -30,6 +31,7 @@ export default function MediaLibraryPage() {
   const [selectedMediaIds, setSelectedMediaIds] = useState<string[]>([]);
   const [previewMedia, setPreviewMedia] = useState<{ id: string; url: string; type?: string } | null>(null);
   const [isBulkActionOpen, setIsBulkActionOpen] = useState(false);
+  const [showDeleteMediaId, setShowDeleteMediaId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: assets = [], isLoading, error } = useMedia({ 
@@ -66,13 +68,16 @@ export default function MediaLibraryPage() {
     setIsBulkActionOpen(false);
   };
 
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const handleBulkDelete = () => {
-    if (confirm(`Are you sure you want to delete ${selectedMediaIds.length} media item(s)? This cannot be undone.`)) {
-      selectedMediaIds.forEach((id) => {
-        deleteMutation.mutate(id);
-      });
-      clearSelection();
-    }
+    setShowBulkDeleteConfirm(true);
+  };
+  const confirmBulkDelete = () => {
+    selectedMediaIds.forEach((id) => {
+      deleteMutation.mutate(id);
+    });
+    clearSelection();
+    setShowBulkDeleteConfirm(false);
   };
 
   async function handleUpload(files: FileList | null) {
@@ -462,9 +467,7 @@ export default function MediaLibraryPage() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (confirm("Are you sure you want to delete this media?")) {
-                            deleteMutation.mutate(String(asset.id));
-                          }
+                          setShowDeleteMediaId(String(asset.id));
                         }}
                         className="flex items-center gap-1 font-medium text-rose-600 hover:text-rose-700 transition"
                       >
@@ -561,9 +564,7 @@ export default function MediaLibraryPage() {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (confirm("Are you sure you want to delete this media?")) {
-                        deleteMutation.mutate(String(asset.id));
-                      }
+                      setShowDeleteMediaId(String(asset.id));
                     }}
                     className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
                   >
@@ -670,6 +671,29 @@ export default function MediaLibraryPage() {
           </div>
         </div>
       )}
+
+      {showDeleteMediaId && (
+        <ConfirmModal
+          open={true}
+          title="Delete media"
+          description="Are you sure you want to delete this media? This cannot be undone."
+          confirmText="Delete"
+          onConfirm={() => { deleteMutation.mutate(showDeleteMediaId); setShowDeleteMediaId(null); }}
+          onCancel={() => setShowDeleteMediaId(null)}
+        />
+      )}
+
+      {showBulkDeleteConfirm && (
+        <ConfirmModal
+          open={true}
+          title="Delete selected media"
+          description={`Are you sure you want to delete ${selectedMediaIds.length} media item(s)? This cannot be undone.`}
+          confirmText="Delete"
+          onConfirm={confirmBulkDelete}
+          onCancel={() => setShowBulkDeleteConfirm(false)}
+        />
+      )}
+
     </div>
   );
 }

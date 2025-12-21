@@ -304,6 +304,9 @@ export default function MediaUploader({
           <p className="text-xs text-gray-400">
             Supports images and videos • Max {maxFileSize}MB per file • Up to {maxFiles} files
           </p>
+          <p className="mt-2 text-xs text-gray-500">
+            <strong>Tip:</strong> Recommended image sizes — landscape/OG: 1200×630 px; square: 1080×1080 px; vertical (Reels/TikTok): 1080×1920 px. Videos should be MP4/WebM and under {maxFileSize}MB.
+          </p>
         </div>
       </div>
 

@@ -8,6 +8,7 @@ import { toast } from 'react-hot-toast';
 import { useIntegrations, useVerifyIntegration, useDisconnectIntegration } from "@/app/(tenant)/hooks/useIntegrations";
 import { WhatsAppNumberSelector } from "@/app/(tenant)/components/WhatsAppNumberSelector";
 import { authApi, tenantApi } from '@/lib/api';
+import ConfirmModal from '@/app/components/ConfirmModal';
 
 
 const STATUS_MAP: Record<
@@ -81,6 +82,7 @@ export default function IntegrationsPage() {
   const queryClient = useQueryClient();
   const [disconnectingPlatform, setDisconnectingPlatform] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
+  const [showDisconnectConfirmFor, setShowDisconnectConfirmFor] = useState<string | null>(null);
 
   const whatsappRefreshMutation = useMutation({
     mutationFn: () => tenantApi.whatsappRefreshStatus(),
@@ -118,14 +120,18 @@ export default function IntegrationsPage() {
   }, [verifyMutation]);
 
   const handleDisconnect = useCallback((platform: string) => {
-    if (confirm(`Are you sure you want to disconnect ${PLATFORM_NAMES[platform] || platform}?`)) {
-      setDisconnectingPlatform(platform);
-      disconnectMutation.mutate(platform, {
-        onSettled: () => {
-          setDisconnectingPlatform(null);
-        },
-      });
-    }
+    // Open confirmation modal first
+    setShowDisconnectConfirmFor(platform);
+  }, []);
+
+  const confirmDisconnect = useCallback((platform: string) => {
+    setShowDisconnectConfirmFor(null);
+    setDisconnectingPlatform(platform);
+    disconnectMutation.mutate(platform, {
+      onSettled: () => {
+        setDisconnectingPlatform(null);
+      },
+    });
   }, [disconnectMutation]);
 
   // Handle OAuth connection
@@ -417,8 +423,7 @@ export default function IntegrationsPage() {
                         type="button"
                         onClick={() => {
                           if (!connected) return;
-                          if (!confirm("Are you sure you want to disconnect WhatsApp?")) return;
-                          whatsappDisconnectMutation.mutate();
+                          setShowDisconnectConfirmFor('whatsapp');
                         }}
                         disabled={!connected || whatsappDisconnectMutation.isPending}
                         className="inline-flex items-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
@@ -598,6 +603,24 @@ export default function IntegrationsPage() {
           </div>
         </div>
       </section>
+      {showDisconnectConfirmFor && (
+        <ConfirmModal
+          open={true}
+          title={`Disconnect ${PLATFORM_NAMES[showDisconnectConfirmFor as string] || showDisconnectConfirmFor}`}
+          description={`Are you sure you want to disconnect ${PLATFORM_NAMES[showDisconnectConfirmFor as string] || showDisconnectConfirmFor}?`}
+          confirmText="Disconnect"
+          onConfirm={() => {
+            const p = showDisconnectConfirmFor as string;
+            setShowDisconnectConfirmFor(null);
+            if (p === 'whatsapp') {
+              whatsappDisconnectMutation.mutate();
+            } else {
+              confirmDisconnect(p);
+            }
+          }}
+          onCancel={() => setShowDisconnectConfirmFor(null)}
+        />
+      )}
     </div>
   );
 }

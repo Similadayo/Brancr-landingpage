@@ -12,6 +12,7 @@ import PlatformSelector from "@/app/(tenant)/components/posting/PlatformSelector
 import SchedulePicker from "@/app/(tenant)/components/posting/SchedulePicker";
 import CaptionEditor from "@/app/(tenant)/components/posting/CaptionEditor";
 import Select from "@/app/(tenant)/components/ui/Select";
+import ConfirmModal from '@/app/components/ConfirmModal';
 
 type Step = "upload" | "strategy" | "captions" | "platforms" | "schedule" | "review";
 
@@ -282,11 +283,14 @@ export default function NewBulkUploadPage() {
     }
   }, [currentStepIndex]);
 
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const handleCancel = useCallback(() => {
-    if (confirm("Are you sure you want to cancel? Your progress will be lost.")) {
-      localStorage.removeItem("bulk-upload-draft");
-      router.push("/app/bulk-uploads");
-    }
+    setShowCancelConfirm(true);
+  }, []);
+  const confirmCancel = useCallback(() => {
+    localStorage.removeItem("bulk-upload-draft");
+    router.push("/app/bulk-uploads");
+    setShowCancelConfirm(false);
   }, [router]);
 
   return (
@@ -313,6 +317,16 @@ export default function NewBulkUploadPage() {
           ← Back to Bulk Uploads
         </Link>
         </div>
+        {showCancelConfirm && (
+          <ConfirmModal
+            open={true}
+            title="Cancel bulk upload"
+            description="Are you sure you want to cancel? Your progress will be lost."
+            confirmText="Yes, cancel"
+            onConfirm={confirmCancel}
+            onCancel={() => setShowCancelConfirm(false)}
+          />
+        )}
       </header>
 
       {/* Progress Bar */}

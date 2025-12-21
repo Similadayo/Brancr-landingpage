@@ -8,6 +8,7 @@ import PackageBuilder from "../shared/PackageBuilder";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
 import Select from "../ui/Select";
+import ConfirmModal from '@/app/components/ConfirmModal';
 
 type ServiceFormProps = {
   service?: Service | null;
@@ -133,10 +134,10 @@ export default function ServiceForm({ service }: ServiceFormProps) {
     }
   };
 
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   const handleDelete = async () => {
     if (!service) return;
-    if (!confirm("Are you sure you want to delete this service?")) return;
-
     try {
       await deleteMutation.mutateAsync(service.id);
       toast.success("Service deleted successfully");
@@ -167,14 +168,24 @@ export default function ServiceForm({ service }: ServiceFormProps) {
           </div>
         </div>
         {service && (
-          <button
-            onClick={handleDelete}
-            disabled={deleteMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
-          >
-            <TrashIcon className="w-4 h-4" />
-            Delete
-          </button>
+          <>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={deleteMutation.isPending}
+              className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
+            >
+              <TrashIcon className="w-4 h-4" />
+              Delete
+            </button>
+            <ConfirmModal
+              open={showDeleteConfirm}
+              title="Delete service"
+              description="Are you sure you want to delete this service? This action cannot be undone."
+              confirmText="Delete"
+              onConfirm={() => { setShowDeleteConfirm(false); void handleDelete(); }}
+              onCancel={() => setShowDeleteConfirm(false)}
+            />
+          </>
         )}
       </div>
 

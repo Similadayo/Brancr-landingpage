@@ -1153,6 +1153,32 @@ export const tenantApi = {
       payload
     ),
 
+  // Drafts API (autosave/restore)
+  createDraft: (payload: { key: string; content: unknown; metadata?: unknown; owner_id?: number }) =>
+    post<typeof payload, { id: string; key: string; content: unknown; metadata?: unknown; owner_id?: number; created_at: string; updated_at: string }>(
+      "/api/tenant/drafts",
+      payload
+    ),
+
+  updateDraft: (id: string, payload: { content: unknown; metadata?: unknown }) =>
+    put<typeof payload, { id: string; key: string; content: unknown; metadata?: unknown; owner_id?: number; created_at: string; updated_at: string }>(
+      `/api/tenant/drafts/${id}`,
+      payload
+    ),
+
+  getDrafts: (key?: string) =>
+    get<{ drafts: Array<{ id: string; key: string; content: unknown; metadata?: unknown; owner_id?: number; created_at: string; updated_at: string }>}>(
+      `/api/tenant/drafts${key ? `?key=${encodeURIComponent(key)}` : ""}`
+    ),
+
+  getDraft: (id: string) =>
+    get<{ id: string; key: string; content: unknown; metadata?: unknown; owner_id?: number; created_at: string; updated_at: string }>(
+      `/api/tenant/drafts/${id}`
+    ),
+
+  deleteDraft: (id: string) =>
+    del<undefined>(`/api/tenant/drafts/${id}`),
+
   // AI Mode endpoints
   getAIMode: async () => {
     try {
@@ -1164,6 +1190,11 @@ export const tenantApi = {
       // gracefully fall back to a default to avoid breaking the client UI.
       // This keeps the app functional in environments where this feature isn't enabled.
       if (err && typeof err === 'object' && (err as any).status === 405) {
+        // Log to observability for backend follow-up
+        try {
+          const { captureException } = await import('./observability');
+          captureException(new Error('AI mode endpoint 405'), { action: 'getAIMode', status: 405 });
+        } catch {}
         // Return a shape compatible with callers that may access updated_at/updated_by
         return { mode: 'ai', updated_at: undefined, updated_by: undefined } as { mode: 'ai' | 'human'; updated_at?: string; updated_by?: string };
       }
@@ -1178,9 +1209,22 @@ export const tenantApi = {
 
   // Per-inbox AI Mode endpoints (stub, to be implemented in backend)
   getConversationAIMode: (conversationId: string) =>
-    get<{ mode: 'ai' | 'human'; updated_at?: string; updated_by?: string }>(
-      `/api/tenant/settings/inboxes/${conversationId}/ai-mode`
-    ),
+    (async () => {
+      try {
+        return await get<{ mode: 'ai' | 'human'; updated_at?: string; updated_by?: string }>(
+          `/api/tenant/settings/inboxes/${conversationId}/ai-mode`
+        );
+      } catch (err) {
+        if (err && typeof err === 'object' && (err as any).status === 405) {
+          try {
+            const { captureException } = await import('./observability');
+            captureException(new Error('Inbox AI mode endpoint 405'), { action: 'getConversationAIMode', status: 405, conversationId });
+          } catch {}
+          return { mode: 'ai', updated_at: undefined, updated_by: undefined } as { mode: 'ai' | 'human'; updated_at?: string; updated_by?: string };
+        }
+        throw err;
+      }
+    })(),
   updateConversationAIMode: (conversationId: string, mode: 'ai' | 'human') =>
     put<{ mode: 'ai' | 'human' }, { success: boolean; mode: 'ai' | 'human'; updated_at?: string; updated_by?: string }>(
       `/api/tenant/settings/inboxes/${conversationId}/ai-mode`,

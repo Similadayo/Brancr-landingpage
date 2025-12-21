@@ -19,6 +19,7 @@ import {
   ChartBarIcon,
   ImageIcon,
 } from "../../../components/icons";
+import ConfirmModal from '@/app/components/ConfirmModal';
 
 export default function CampaignDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -27,10 +28,15 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
   const cancelMutation = useCancelScheduledPost();
   const [isPublishing, setIsPublishing] = React.useState(false);
 
+  const [showCancelConfirm, setShowCancelConfirm] = React.useState(false);
+
   const handleCancel = () => {
-    if (post && confirm(`Are you sure you want to cancel "${post.name}"? This cannot be undone.`)) {
-      cancelMutation.mutate(id);
-    }
+    if (post) setShowCancelConfirm(true);
+  };
+
+  const confirmCancel = () => {
+    cancelMutation.mutate(id);
+    setShowCancelConfirm(false);
   };
 
   const handlePublishNow = async () => {
@@ -55,6 +61,11 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
       </div>
     );
+  }
+
+  // Cancel modal render
+  if (post) {
+    // Render modal alongside the page if requested
   }
 
   if (error || !post) {
@@ -117,6 +128,16 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="space-y-6">
+      {showCancelConfirm && (
+        <ConfirmModal
+          open={true}
+          title="Cancel post"
+          description={`Are you sure you want to cancel "${post.name}"? This cannot be undone.`}
+          confirmText="Cancel post"
+          onConfirm={() => { confirmCancel(); }}
+          onCancel={() => setShowCancelConfirm(false)}
+        />
+      )}
       {/* Header */}
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">

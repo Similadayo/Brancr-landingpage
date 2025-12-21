@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { tenantApi } from "@/lib/api";
+import ConfirmModal from '@/app/components/ConfirmModal';
 
 interface WhatsAppConnectionStatus {
   connected: boolean;
@@ -405,12 +406,29 @@ export function WhatsAppNumberSelector() {
     };
   }, []);
 
+  // Disconnect modal render
+  const renderDisconnectModal = () => {
+    if (!showDisconnectConfirm) return null;
+    return (
+      <ConfirmModal
+        open={true}
+        title="Disconnect WhatsApp number"
+        description="Are you sure you want to disconnect this WhatsApp number? This will stop all incoming messages."
+        confirmText="Disconnect"
+        onConfirm={() => { void confirmDisconnect(); setShowDisconnectConfirm(false); }}
+        onCancel={() => setShowDisconnectConfirm(false)}
+      />
+    );
+  };
+
+  const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
+
+  const handleDisconnect = useCallback(() => {
+    setShowDisconnectConfirm(true);
+  }, []);
+
   // Disconnect mutation
-  const handleDisconnect = async () => {
-    if (!confirm("Are you sure you want to disconnect this WhatsApp number?")) {
-      return;
-    }
-    
+  const confirmDisconnect = async () => {
     try {
       await tenantApi.disconnectWhatsApp();
       toast.success("✅ WhatsApp number disconnected");
@@ -427,6 +445,7 @@ export function WhatsAppNumberSelector() {
       toast.error(error.message || "Failed to disconnect. Please try again.");
     }
   };
+
 
   // Format phone number for display
   const formatPhoneNumber = (phone: string) => {

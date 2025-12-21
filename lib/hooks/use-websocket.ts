@@ -56,15 +56,25 @@ export function useWebSocket(
     const client = getWebSocketClient(id);
     wsClientRef.current = client;
 
+    let toastId: string | undefined;
     client.connect({
       onOpen: () => {
         setIsConnected(true);
+        if (toastId) {
+          import('react-hot-toast').then((mod) => mod.toast.dismiss(toastId));
+        }
       },
       onMessage: (message) => {
         onMessage?.(message);
       },
       onError: (error) => {
-        console.error('WebSocket error:', error);
+        // Show toast and log to observability
+        import('react-hot-toast').then(({ toast }) => {
+          toastId = toast.error('Real-time updates unavailable. Some features may be delayed.', { id: 'ws-fail', duration: 8000 });
+        });
+        import('../observability').then(({ captureException }) => {
+          captureException(new Error('WebSocket error'), { error, tenant_id: id, action: 'websocket_connect' });
+        });
         setIsConnected(false);
       },
       onClose: () => {
@@ -74,6 +84,9 @@ export function useWebSocket(
 
     return () => {
       client.disconnect();
+      if (toastId) {
+        import('react-hot-toast').then((mod) => mod.toast.dismiss(toastId));
+      }
     };
   }, [tenantId, onMessage]);
 

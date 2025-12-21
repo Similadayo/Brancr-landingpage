@@ -9,6 +9,7 @@ import VariantBuilder from "../shared/VariantBuilder";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
 import Select from "../ui/Select";
+import ConfirmModal from '@/app/components/ConfirmModal';
 
 type ProductFormProps = {
   product?: Product | null;
@@ -118,10 +119,10 @@ export default function ProductForm({ product }: ProductFormProps) {
     }
   };
 
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   const handleDelete = async () => {
     if (!product) return;
-    if (!confirm("Are you sure you want to delete this product?")) return;
-
     try {
       await deleteMutation.mutateAsync(product.id);
       toast.success("Product deleted successfully");
@@ -152,14 +153,27 @@ export default function ProductForm({ product }: ProductFormProps) {
           </div>
         </div>
         {product && (
-          <button
-            onClick={handleDelete}
-            disabled={deleteMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
-          >
-            <TrashIcon className="w-4 h-4" />
-            Delete
-          </button>
+          <>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={deleteMutation.isPending}
+              className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
+            >
+              <TrashIcon className="w-4 h-4" />
+              Delete
+            </button>
+            <ConfirmModal
+              open={showDeleteConfirm}
+              title="Delete product"
+              description="Are you sure you want to delete this product? This action cannot be undone."
+              confirmText="Delete"
+              onConfirm={() => {
+                setShowDeleteConfirm(false);
+                void handleDelete();
+              }}
+              onCancel={() => setShowDeleteConfirm(false)}
+            />
+          </>
         )}
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTenant } from "@/app/(tenant)/providers/TenantProvider";
+import ConfirmModal from '@/app/components/ConfirmModal';
 import { useQuery } from "@tanstack/react-query";
 import { tenantApi } from "@/lib/api";
 import { useTeamMembers, useInviteTeamMember, useDeleteTeamMember } from "@/app/(tenant)/hooks/useTeam";
@@ -39,16 +40,20 @@ export default function TeamSettingsPage() {
     }
   };
 
-  const handleDelete = async (memberId: string, memberName: string) => {
-    if (!confirm(`Are you sure you want to remove "${memberName}" from the team? This cannot be undone.`)) {
-      return;
-    }
+  const [showDeleteMemberId, setShowDeleteMemberId] = useState<string | null>(null);
+  const [showDeleteMemberName, setShowDeleteMemberName] = useState<string | null>(null);
 
+  const handleDelete = async (memberId: string) => {
     try {
       await deleteMutation.mutateAsync(memberId);
     } catch (error) {
       // Error is handled by the hook
     }
+  };
+
+  const requestDelete = (memberId: string, memberName: string) => {
+    setShowDeleteMemberId(memberId);
+    setShowDeleteMemberName(memberName);
   };
 
   return (
@@ -136,14 +141,25 @@ export default function TeamSettingsPage() {
                           </span>
                         )}
                         {!isCurrentUser && member.role !== "Owner" && (
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(member.id, member.name)}
-                            disabled={deleteMutation.isPending}
-                            className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 disabled:opacity-50"
-                          >
-                            Remove
-                          </button>
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => requestDelete(member.id, member.name)}
+                              disabled={deleteMutation.isPending}
+                              className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 disabled:opacity-50"
+                            >
+                              Remove
+                            </button>
+
+                            <ConfirmModal
+                              open={!!showDeleteMemberId}
+                              title="Remove team member"
+                              description={`Are you sure you want to remove "${showDeleteMemberName}" from the team? This cannot be undone.`}
+                              confirmText="Remove"
+                              onConfirm={() => { if (showDeleteMemberId) void handleDelete(showDeleteMemberId); setShowDeleteMemberId(null); setShowDeleteMemberName(null); }}
+                              onCancel={() => { setShowDeleteMemberId(null); setShowDeleteMemberName(null); }}
+                            />
+                          </>
                         )}
                         {!isCurrentUser && rolesData?.roles ? (
                           <div className="w-36">

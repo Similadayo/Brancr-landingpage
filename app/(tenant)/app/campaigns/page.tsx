@@ -25,6 +25,7 @@ import {
   ImageIcon,
   XIcon,
 } from "../../components/icons";
+import ConfirmModal from '@/app/components/ConfirmModal';
 import Select from "@/app/(tenant)/components/ui/Select";
 
 type Tab = "scheduled" | "published" | "drafts";
@@ -141,15 +142,23 @@ export default function CampaignsPage() {
 
   void scheduledPostsData;
 
+  const [showCancelPostId, setShowCancelPostId] = useState<string | null>(null);
+  const [showCancelPostName, setShowCancelPostName] = useState<string | null>(null);
+
   const handleCancel = (postId: string, postName: string) => {
-    if (confirm(`Are you sure you want to cancel "${postName}"? This cannot be undone.`)) {
-      setCancellingPostId(postId);
-      cancelMutation.mutate(postId, {
-        onSettled: () => {
-          setCancellingPostId(null);
-        },
-      });
-    }
+    setShowCancelPostId(postId);
+    setShowCancelPostName(postName);
+  };
+
+  const confirmCancelPost = (postId: string) => {
+    setCancellingPostId(postId);
+    cancelMutation.mutate(postId, {
+      onSettled: () => {
+        setCancellingPostId(null);
+      },
+    });
+    setShowCancelPostId(null);
+    setShowCancelPostName(null);
   };
 
   const handlePublishNow = async (postId: string) => {
@@ -168,8 +177,16 @@ export default function CampaignsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-6">      {showCancelPostId && (
+        <ConfirmModal
+          open={true}
+          title="Cancel post"
+          description={`Are you sure you want to cancel "${showCancelPostName}"? This cannot be undone.`}
+          confirmText="Cancel post"
+          onConfirm={() => { if (showCancelPostId) confirmCancelPost(showCancelPostId); }}
+          onCancel={() => { setShowCancelPostId(null); setShowCancelPostName(null); }}
+        />
+      )}      {/* Header */}
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">

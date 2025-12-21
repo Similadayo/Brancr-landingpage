@@ -12,6 +12,7 @@ import {
 } from "../../../components/icons";
 import { toast } from "react-hot-toast";
 import Select from "@/app/(tenant)/components/ui/Select";
+import ConfirmModal from '@/app/components/ConfirmModal';
 
 export default function PaymentAccountsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -23,10 +24,13 @@ export default function PaymentAccountsPage() {
   const deleteMutation = useDeletePaymentAccount();
   const setDefaultMutation = useSetDefaultPaymentAccount();
 
+  const [showDeleteAccountId, setShowDeleteAccountId] = useState<number | null>(null);
   const handleDelete = (accountId: number) => {
-    if (confirm("Are you sure you want to delete this payment account? This cannot be undone.")) {
-      deleteMutation.mutate(accountId);
-    }
+    setShowDeleteAccountId(accountId);
+  };
+  const confirmDeleteAccount = (accountId: number) => {
+    deleteMutation.mutate(accountId);
+    setShowDeleteAccountId(null);
   };
 
   const handleSetDefault = (accountId: number) => {
@@ -41,6 +45,16 @@ export default function PaymentAccountsPage() {
 
   return (
     <div className="space-y-6">
+      {showDeleteAccountId && (
+        <ConfirmModal
+          open={true}
+          title="Delete payment account"
+          description="Are you sure you want to delete this payment account? This cannot be undone."
+          confirmText="Delete"
+          onConfirm={() => { if (showDeleteAccountId) confirmDeleteAccount(showDeleteAccountId); }}
+          onCancel={() => setShowDeleteAccountId(null)}
+        />
+      )}
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">

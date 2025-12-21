@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthCard } from "../components/AuthCard";
 import { ApiError, authApi } from "@/lib/api";
+import { signupSchema, validateWithErrors } from "@/lib/validation";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function SignupPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   function handleGoogleSignup() {
     const redirect = encodeURIComponent('/app/onboarding');
@@ -30,6 +32,28 @@ export default function SignupPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setFieldErrors({});
+
+    // Client-side validation
+    const validation = validateWithErrors(signupSchema, {
+      name: formValues.name,
+      email: formValues.email,
+      password: formValues.password,
+      company_name: formValues.company_name,
+      phone: formValues.phone,
+    });
+
+    if (!validation.success) {
+      const map: Record<string, string> = {};
+      validation.errors.forEach((err) => {
+        const [path, message] = err.split(': ');
+        map[path] = message;
+      });
+      setFieldErrors(map);
+      setIsSubmitting(false);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -92,6 +116,7 @@ export default function SignupPage() {
               placeholder="Ada Lovelace"
               autoComplete="name"
             />
+            {fieldErrors['name'] && <p className="mt-2 text-xs text-rose-600">{fieldErrors['name']}</p>}
           </div>
 
           <div>
@@ -109,6 +134,7 @@ export default function SignupPage() {
               placeholder="Brancr Studio"
               autoComplete="organization"
             />
+            {fieldErrors['company_name'] && <p className="mt-2 text-xs text-rose-600">{fieldErrors['company_name']}</p>}
           </div>
         </div>
 
@@ -127,6 +153,7 @@ export default function SignupPage() {
             placeholder="you@company.com"
             autoComplete="email"
           />
+          {fieldErrors['email'] && <p className="mt-2 text-xs text-rose-600">{fieldErrors['email']}</p>}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -145,6 +172,7 @@ export default function SignupPage() {
               placeholder="+234 801 234 5678"
               autoComplete="tel"
             />
+            {fieldErrors['phone'] && <p className="mt-2 text-xs text-rose-600">{fieldErrors['phone']}</p>}
           </div>
           <div>
             <label htmlFor="password" className="mb-2 block text-sm font-medium text-gray-700">
@@ -162,6 +190,7 @@ export default function SignupPage() {
               placeholder="Create a strong password"
               autoComplete="new-password"
             />
+            {fieldErrors['password'] && <p className="mt-2 text-xs text-rose-600">{fieldErrors['password']}</p>}
           </div>
         </div>
 

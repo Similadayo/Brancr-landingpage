@@ -1,3 +1,61 @@
+# Copilot Instructions for Brancr Landing Page
+
+Welcome — this file contains focused, codebase-specific guidance for AI coding agents working on Brancr.
+
+## Quick Start
+- Dev: `npm install && npm run dev` (Next.js App Router on :3000)
+- Build: `npm run build`
+- Tests: `npm test` (Jest), coverage: `npm test:coverage`
+- Lint: `npm run lint`
+
+## Big Picture
+- Next.js 14 App Router with TypeScript and TailwindCSS. Root pages are `page.tsx`, layouts are `layout.tsx`.
+- Multi-tenant app lives under `app/(tenant)/` — tenant layouts provide tenant context and scope tenant UI and API usage.
+
+## Key Patterns & Conventions
+- Tenant access: always validate using `lib/tenant-validation.ts` before any tenant-sensitive API or data access.
+- API client: `lib/api.ts` is the single HTTP client. Include tenant id in path or headers and follow its retry rules: no retries for 4xx, up to 3 retries for 5xx.
+- Error -> user message: use `lib/error-messages.ts` and `getUserFriendlyErrorMessage(error, { platform })` for UI-facing errors.
+- Observability: use `lib/observability.ts` to `captureException` and send events to `/api/observability`; enabled by `NEXT_PUBLIC_ENABLE_OBSERVABILITY`.
+- Validation: Zod schemas live in `lib/validation.ts`; use `validateWithErrors()` to return error arrays for forms.
+- React Query config: defined in `app/providers.tsx` (30s staleTime, no refetchOnFocus, 3x retry for 5xx only). Follow that behavior for data fetching and mutations.
+
+## File & Folder Conventions
+- Public-facing components: `app/components/` (shared)
+- Tenant-only components: `app/(tenant)/components/`
+- API routes: `app/api/<area>/route.ts` (example: `app/api/waitlist/route.ts`)
+- Tests mirror structure under `__tests__/` (example: `__tests__/lib/validation.test.ts`)
+
+## Integrations & External Points
+- Waitlist: see `app/api/waitlist/route.ts` (placeholder; replace with Supabase or Airtable client if integrating DB).
+- Websocket helpers: `lib/websocket.ts` and hooks `hooks/use-websocket.ts` / `hooks/use-websocket-tenant.ts` for real-time features.
+
+## Testing & Debugging Notes
+- Jest setup is in `jest.setup.js`; tests live in `__tests__/` and follow the source layout.
+- For testing components that rely on tenant context, wrap them with the tenant provider from `app/(tenant)/app/layout.tsx` or use the helpers in `__tests__/`.
+
+## Styling & Design System
+- Tailwind config is `tailwind.config.ts`. Primary colors and theme are centralized there — follow these tokens for consistent UI.
+
+## Observability & Non-Sentry Policy
+- This project uses `lib/observability.ts` (self-hosted endpoint). **Do not** add Sentry; send events via existing observability helpers.
+
+## Helpful Examples (copy-ready)
+- Error handling in UI:
+```ts
+try { await sendMessage(); } catch (err) { toast.error(getUserFriendlyErrorMessage(err, { platform: 'instagram' })); }
+```
+- Capture errors:
+```ts
+captureException(error, { tenant_id, action: 'publish' });
+```
+
+## When to ask a human
+- Architectural changes to multi-tenant routing, security-sensitive logic, or observability pipeline.
+- Anything that requires credentials, secret material, or external infra provisioning (DB, Supabase/Airtable, Vercel secrets).
+
+---
+If anything here is unclear or you're missing a pattern to automate, tell me which area to expand and I'll iterate. ✅
 
 # Brancr Copilot Instructions
 

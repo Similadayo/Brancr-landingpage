@@ -15,6 +15,7 @@ import {
   PencilIcon,
 } from "../../components/icons";
 import Select from "../../components/ui/Select";
+import ConfirmModal from '@/app/components/ConfirmModal';
 
 type SortOption = 'name' | 'price' | 'duration' | 'category' | 'date';
 type PricingTypeFilter = 'all' | 'hourly' | 'fixed' | 'package';
@@ -80,6 +81,7 @@ export default function ServicesPage() {
   }, [services, currentPage, itemsPerPage]);
 
   const deleteMutation = useDeleteService();
+  const [showDeleteServiceId, setShowDeleteServiceId] = useState<number | null>(null);
 
   const categories = useMemo(() => {
     const cats = new Set<string>();
@@ -90,13 +92,26 @@ export default function ServicesPage() {
   }, [services]);
 
   const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this service?")) {
-      deleteMutation.mutate(id);
-    }
+    setShowDeleteServiceId(id);
+  };
+
+  const confirmDeleteService = (id: number) => {
+    deleteMutation.mutate(id);
+    setShowDeleteServiceId(null);
   };
 
   return (
     <div className="space-y-6">
+      {showDeleteServiceId && (
+        <ConfirmModal
+          open={true}
+          title="Delete service"
+          description="Are you sure you want to delete this service? This action cannot be undone."
+          confirmText="Delete"
+          onConfirm={() => { if (showDeleteServiceId) confirmDeleteService(showDeleteServiceId); }}
+          onCancel={() => setShowDeleteServiceId(null)}
+        />
+      )}
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
