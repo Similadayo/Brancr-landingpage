@@ -46,7 +46,9 @@ class WebSocketClient {
       // Use numeric readyState checks (0 = CONNECTING, 1 = OPEN) to be robust in test envs
       const wsReadyState = this.ws?.readyState;
       if (this.ws && (wsReadyState === 0 || wsReadyState === 1)) {
-        console.warn('WebSocketClient.connect: socket already open or connecting — skipping new connection');
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('WebSocketClient.connect: socket already open or connecting — skipping new connection');
+        }
         return;
       }
 
@@ -96,14 +98,18 @@ class WebSocketClient {
         this.callbacks.onClose?.();
         // If the socket closed cleanly, do not attempt reconnect (avoids reconnect after intentional close)
         if (event && (event as any).wasClean) {
-          console.warn('WebSocket closed cleanly; not reconnecting');
+          if (process.env.NODE_ENV === 'development') {
+            console.debug('WebSocket closed cleanly; not reconnecting');
+          }
           return;
         }
         // Only attempt reconnect if we didn't intentionally disconnect
         if (!this.manualDisconnect) {
           this.attemptReconnect();
         } else {
-          console.warn('WebSocket closed after manual disconnect; not reconnecting');
+          if (process.env.NODE_ENV === 'development') {
+            console.debug('WebSocket closed after manual disconnect; not reconnecting');
+          }
         }
       };
     } catch (error) {
