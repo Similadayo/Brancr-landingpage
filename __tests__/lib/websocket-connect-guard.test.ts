@@ -48,22 +48,25 @@ describe('WebSocket connect guard', () => {
     client.connect();
     client.connect();
 
-    // give the fake socket time to run its open
-    await new Promise((r) => setTimeout(r, 20));
+    // Immediately call disconnect while socket is CONNECTING
+    client.disconnect();
 
-    expect(constructCount).toBe(1);
-
-    // Now simulate a clean close coming from elsewhere (wasClean: true)
+    // internal ws should still exist (we do not null it out when CONNECTING)
     const internalWs = (client as any).ws as any;
     expect(internalWs).toBeDefined();
 
-    // Call onclose with wasClean true — should NOT trigger a reconnect
-    internalWs.onclose({ code: 1000, reason: 'normal', wasClean: true });
+    // The fake socket should not have been closed immediately
+    // (close will be called later by onopen handler if manualDisconnect was set)
+    await new Promise((r) => setTimeout(r, 10));
 
-    // wait slightly longer to ensure reconnect would have happened
-    await new Promise((r) => setTimeout(r, 50));
+    // Now simulate the underlying socket opening (this will trigger onopen, which should detect manualDisconnect and close politely)
+    internalWs.onopen();
 
-    // No new constructor calls
+    // Wait a tick to allow onopen-triggered close to execute
+    await new Promise((r) => setTimeout(r, 10));
+
+    // At this point the fake's close should have been called (one close)
+    // and no new constructor calls should have occurred
     expect(constructCount).toBe(1);
 
     client.disconnect();

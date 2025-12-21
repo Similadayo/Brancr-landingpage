@@ -57,9 +57,17 @@ class WebSocketClient {
 
       this.ws.onopen = () => {
         this.reconnectAttempts = 0;
-        this.manualDisconnect = false;
         this.startHeartbeat();
         this.callbacks.onOpen?.();
+        // If a manual disconnect happened while the socket was CONNECTING, close politely now.
+        if (this.manualDisconnect) {
+          try {
+            this.ws?.close(1000, 'client initiated disconnect');
+          } catch (e) {
+            // ignore
+          }
+          return;
+        }
       };
 
       this.ws.onmessage = (event) => {
@@ -168,21 +176,24 @@ class WebSocketClient {
       this.reconnectTimer = null;
     }
     this.stopHeartbeat();
-    // Close politely if open
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+
+    const state = this.ws?.readyState;
+
+    // Only close if OPEN — never close CONNECTING sockets; allow onopen to close politely instead
+    if (state === WebSocket.OPEN) {
       try {
-        this.ws.close(1000, 'client initiated disconnect');
+        this.ws?.close(1000, 'client initiated disconnect');
       } catch (e) {
         // ignore
       }
-    } else if (this.ws) {
-      try {
-        this.ws.close();
-      } catch (e) {
-        // ignore
-      }
+      this.ws = null;
+    } else if (state === WebSocket.CLOSING || state === WebSocket.CLOSED) {
+      // already closing/closed
+      this.ws = null;
+    } else {
+      // CONNECTING: keep the ws reference so onopen can perform a polite close when it fires
+      // do not null out this.ws here
     }
-    this.ws = null;
   }
 
   isConnected(): boolean {
