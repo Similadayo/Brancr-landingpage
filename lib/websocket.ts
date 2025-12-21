@@ -53,10 +53,17 @@ class WebSocketClient {
       };
 
       this.ws.onerror = (error) => {
+        console.error('WebSocket error event', error);
         this.callbacks.onError?.(error);
       };
 
-      this.ws.onclose = () => {
+      this.ws.onclose = (event) => {
+        // Provide richer diagnostics: close code, reason and wasClean
+        try {
+          console.error('WebSocket closed', { code: event.code, reason: event.reason, wasClean: event.wasClean });
+        } catch (e) {
+          console.error('WebSocket closed (unable to read event details)', e);
+        }
         this.stopHeartbeat();
         this.callbacks.onClose?.();
         this.attemptReconnect();
@@ -75,10 +82,22 @@ class WebSocketClient {
 
     this.reconnectAttempts++;
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
+    console.warn(`Scheduling WebSocket reconnect attempt ${this.reconnectAttempts} in ${delay}ms`);
+
+    // Clear any existing timer first
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
 
     this.reconnectTimer = setTimeout(() => {
-      if (this.ws?.readyState === WebSocket.CLOSED) {
+      // Always attempt to create a fresh connection regardless of previous readyState
+      try {
         this.connect(this.callbacks);
+      } catch (err) {
+        console.error('Reconnect attempt failed to create socket:', err);
+        // Schedule another reconnect attempt
+        this.attemptReconnect();
       }
     }, delay);
   }
