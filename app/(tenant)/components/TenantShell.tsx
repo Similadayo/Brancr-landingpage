@@ -4,8 +4,10 @@ import { ReactNode, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authApi, tenantApi } from "@/lib/api";
+import { toast } from 'react-hot-toast';
+import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 import { useTenant } from "../providers/TenantProvider";
 import { useIntegrations } from "../hooks/useIntegrations";
 import { useTenantIndustry } from "../hooks/useIndustry";
@@ -136,6 +138,42 @@ export function TenantShell({ children }: { children: ReactNode }) {
       escalations: pendingEscalations > 0 ? pendingEscalations : undefined,
     };
   }, [conversationsData, escalationsData]);
+
+  // AI mode query and header toggle mutation
+  const { data: aiModeData, isLoading: isLoadingAIMode } = useQuery({
+    queryKey: ['ai_mode'],
+    queryFn: () => tenantApi.getAIMode(),
+    enabled: !!tenant,
+  });
+  const queryClient = useQueryClient();
+  const supportsGetAIMode = process.env.NEXT_PUBLIC_SUPPORTS_AIMODE_GET === 'true';
+  const [displayAIMode, setDisplayAIMode] = useState<'ai' | 'human'>(() => {
+    if (typeof window === 'undefined') return 'ai';
+    const override = (localStorage.getItem('ai_mode_override') as 'ai' | 'human' | null);
+    return override ?? 'ai';
+  });
+  useEffect(() => {
+    if (aiModeData?.mode) setDisplayAIMode(aiModeData.mode);
+  }, [aiModeData]);
+  const updateAIModeMutation = useMutation({
+    mutationFn: (mode: 'ai' | 'human') => tenantApi.updateAIMode(mode),
+    onMutate: (mode) => {
+      setDisplayAIMode(mode);
+      queryClient.setQueryData(['ai_mode'], { mode });
+      if (!supportsGetAIMode && typeof window !== 'undefined') {
+        try { localStorage.setItem('ai_mode_override', mode); } catch {}
+      }
+    },
+    onSuccess: (data) => {
+      toast.success(`AI mode set to ${data.mode === 'ai' ? 'AI (enabled)' : 'Human (disabled)'}`);
+      queryClient.setQueryData(['ai_mode'], data);
+    },
+    onError: (err) => {
+      const msg = getUserFriendlyErrorMessage(err, { action: 'updating AI mode', resource: 'AI mode' });
+      toast.error(msg || 'Failed to update AI mode');
+      queryClient.invalidateQueries({ queryKey: ['ai_mode'] });
+    },
+  });
 
   const CORE_NAV_ITEMS = useMemo(() => getCoreNavItems(navBadges), [navBadges]);
 
@@ -613,6 +651,28 @@ export function TenantShell({ children }: { children: ReactNode }) {
                     <div className="text-right">
                       <p className="text-xs font-medium text-gray-500">Conversations</p>
                       <p className="text-sm font-bold text-gray-900">{stats.conversations}</p>
+                    </div>
+                  </div>
+                  {/* AI Mode Toggle */}
+                  <div className="hidden items-center gap-3 sm:flex">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = displayAIMode === 'ai' ? 'human' : 'ai';
+                          setDisplayAIMode(next);
+                          updateAIModeMutation.mutate(next);
+                        }}
+                        className={`${displayAIMode === 'ai' ? 'bg-primary' : 'bg-gray-300'} relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
+                        disabled={updateAIModeMutation.isPending || isLoadingAIMode}
+                        aria-pressed={displayAIMode === 'ai' ? 'true' : 'false'}
+                      >
+                        <span className="sr-only">Toggle AI Assistant</span>
+                        <span className={`${displayAIMode === 'ai' ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform`} />
+                      </button>
+                      <span className="text-sm font-medium text-gray-900 hidden sm:block">
+                        {displayAIMode === 'ai' ? 'AI' : 'Human'}
+                      </span>
                     </div>
                   </div>
                   <NotificationsBell />

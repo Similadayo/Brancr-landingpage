@@ -8,24 +8,12 @@ import { toast } from "react-hot-toast";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 
 export default function PersonaSettingsPage() {
-    // AI Mode state and API
-    const { data: aiModeData, isLoading: isLoadingAIMode } = useQuery({
+    // AI Mode is controlled from the header toggle. Show current mode as read-only here.
+    const { data: aiModeData } = useQuery({
       queryKey: ["ai_mode"],
       queryFn: () => tenantApi.getAIMode(),
     });
     const aiMode = (aiModeData?.mode || 'ai') as 'ai' | 'human';
-    const [pendingAIMode, setPendingAIMode] = useState<'ai' | 'human'>(aiMode);
-    const updateAIModeMutation = useMutation({
-      mutationFn: (mode: 'ai' | 'human') => tenantApi.updateAIMode(mode),
-      onSuccess: (data) => {
-        toast.success(`AI mode set to ${data.mode === 'ai' ? 'AI (enabled)' : 'Human (disabled)'}`);
-        void queryClient.invalidateQueries({ queryKey: ["ai_mode"] });
-      },
-      onError: (err) => {
-        const msg = getUserFriendlyErrorMessage(err, { action: 'updating AI mode', resource: 'AI mode' });
-        toast.error(msg || 'Failed to update AI mode');
-      },
-    });
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["onboarding", "status"],
@@ -76,33 +64,8 @@ export default function PersonaSettingsPage() {
     <div className="space-y-8">
       <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-2">AI Assistant</h2>
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={() => {
-              const next = pendingAIMode === 'ai' ? 'human' : 'ai';
-              setPendingAIMode(next);
-              updateAIModeMutation.mutate(next);
-            }}
-            className={`${pendingAIMode === 'ai' ? 'bg-primary' : 'bg-gray-300'} relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
-            disabled={updateAIModeMutation.isPending || isLoadingAIMode}
-            aria-pressed={pendingAIMode === 'ai' ? 'true' : 'false'}
-          >
-            <span className="sr-only">Toggle AI Assistant</span>
-            <span
-              className={`${pendingAIMode === 'ai' ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-            />
-          </button>
-          <span className="text-sm font-medium text-gray-900">
-            {pendingAIMode === 'ai' ? 'AI (enabled) — captions, suggestions, and AI replies may be used.' : 'Human (disabled) — AI features are turned off for this tenant.'}
-          </span>
-        </div>
-        <p className="mt-2 text-xs text-gray-500">
-          Turning off AI prevents automated caption generation and AI responses. Admins can override in /admin.<br />
-          {aiModeData?.updated_at && aiModeData?.updated_by && (
-            <span className="block mt-1 text-[11px] text-gray-400">Last changed: {new Date(aiModeData.updated_at).toLocaleString()} by {aiModeData.updated_by}</span>
-          )}
-        </p>
+        <p className="text-sm text-gray-700">The AI assistant toggle has been moved to the workspace header for quick access. Use the header toggle to enable or disable AI features for this tenant.</p>
+        <p className="mt-3 text-sm text-gray-600">Current: <span className="font-medium text-gray-900">{aiMode === 'ai' ? 'AI (enabled)' : 'Human (disabled)'}</span></p>
       </section>
       <header className="flex items-center justify-between">
         <div>
