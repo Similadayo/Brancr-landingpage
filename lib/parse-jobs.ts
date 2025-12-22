@@ -16,7 +16,6 @@ let redisClient: any = null;
 if (USE_REDIS) {
   try {
     // require lazily so environments without the package don't fail
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const redis = require('redis');
     redisClient = redis.createClient({ url: process.env.REDIS_URL });
     redisClient.connect().catch((e: any) => console.error('Redis connect failed:', e));

@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       }
 
       // Large file: create background job
-      const job = parseJobs.createJobFromBufferText(text);
+      const job = await parseJobs.createJobFromBufferText(text) as any;
       return NextResponse.json({ status: 'accepted', job_id: job.job_id }, { status: 202 });
     }
 

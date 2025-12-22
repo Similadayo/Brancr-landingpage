@@ -131,7 +131,7 @@ export default function ConsultationForm({ consultation }: ConsultationFormProps
             <div className="mt-4">
               <label className="block text-sm font-semibold text-gray-700">Pricing Type</label>
               <div className="mt-1 sm:w-56">
-                <Select id="consultation-pricing-type" value={formData.pricing_type} onChange={(v)=> setFormData({ ...formData, pricing_type: String(v) })} options={[{ value: 'fixed', label: 'Fixed' }, { value: 'hourly', label: 'Hourly' }]} searchable={false} />
+                <Select id="consultation-pricing-type" value={formData.pricing_type} onChange={(v)=> setFormData({ ...formData, pricing_type: v as 'fixed' | 'hourly' | 'package' })} options={[{ value: 'fixed', label: 'Fixed' }, { value: 'hourly', label: 'Hourly' }]} searchable={false} />
               </div>
 
               {formData.pricing_type === 'fixed' && (
