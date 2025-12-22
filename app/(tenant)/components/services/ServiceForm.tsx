@@ -6,6 +6,7 @@ import { useCreateService, useUpdateService, useDeleteService, type Service } fr
 import { XIcon, TrashIcon, ArrowLeftIcon } from "../icons";
 import PackageBuilder from "../shared/PackageBuilder";
 import { toast } from "react-hot-toast";
+import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 import Link from "next/link";
 import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
@@ -127,8 +128,14 @@ export default function ServiceForm({ service }: ServiceFormProps) {
         toast.success("Service created successfully");
       }
       router.push("/app/services");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Form submission error:", error);
+      if (error && error.status) {
+        console.error('API error details:', { status: error.status, body: error.body });
+        toast.error(getUserFriendlyErrorMessage(error, { action: service ? 'updating service' : 'creating service', resource: 'service' }));
+      } else {
+        toast.error('Failed to submit. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }

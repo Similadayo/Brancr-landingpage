@@ -11,6 +11,7 @@ import {
   CheckCircleIcon,
 } from "../../../components/icons";
 import { toast } from "react-hot-toast";
+import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 import Select from "@/app/(tenant)/components/ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
 
@@ -273,8 +274,15 @@ function PaymentAccountFormModal({
         await onCreate(payload);
       }
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Form submission error:", error);
+      // Prefer ApiError details where available
+      if (error && error.status) {
+        console.error('API error details:', { status: error.status, body: error.body });
+        toast.error(getUserFriendlyErrorMessage(error, { action: account ? 'updating payment account' : 'creating payment account', resource: 'payment account' }));
+      } else {
+        toast.error('Failed to submit. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }

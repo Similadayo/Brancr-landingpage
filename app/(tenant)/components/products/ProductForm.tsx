@@ -7,6 +7,7 @@ import { TrashIcon, ArrowLeftIcon } from "../icons";
 import ImageUploader from "../shared/ImageUploader";
 import VariantBuilder from "../shared/VariantBuilder";
 import { toast } from "react-hot-toast";
+import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 import Link from "next/link";
 import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
@@ -112,8 +113,14 @@ export default function ProductForm({ product }: ProductFormProps) {
         toast.success("Product created successfully");
       }
       router.push("/app/products");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Form submission error:", error);
+      if (error && error.status) {
+        console.error('API error details:', { status: error.status, body: error.body });
+        toast.error(getUserFriendlyErrorMessage(error, { action: product ? 'updating product' : 'creating product', resource: 'product' }));
+      } else {
+        toast.error('Failed to submit. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }

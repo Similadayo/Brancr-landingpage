@@ -81,7 +81,15 @@ async function parseError(response: Response): Promise<ApiError> {
     body = null;
   }
 
-  const message = body?.error || response.statusText || "Request failed";
+  // Prefer explicit server-provided messages when available (message, error),
+  // else include stringified body if helpful, otherwise fall back to statusText.
+  const message =
+    (body && (body as any).message) ||
+    (body && (body as any).error) ||
+    (body ? JSON.stringify(body) : undefined) ||
+    response.statusText ||
+    "Request failed";
+
   return new ApiError(message, response.status, body);
 }
 

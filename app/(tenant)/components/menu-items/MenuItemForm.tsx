@@ -6,6 +6,7 @@ import { useCreateMenuItem, useUpdateMenuItem, useDeleteMenuItem, type MenuItem 
 import { XIcon, TrashIcon, ArrowLeftIcon } from "../icons";
 import ImageUploader from "../shared/ImageUploader";
 import { toast } from "react-hot-toast";
+import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
 import Link from "next/link";
 import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
@@ -128,8 +129,14 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
         toast.success("Menu item created successfully");
       }
       router.push("/app/menu-items");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Form submission error:", error);
+      if (error && error.status) {
+        console.error('API error details:', { status: error.status, body: error.body });
+        toast.error(getUserFriendlyErrorMessage(error, { action: item ? 'updating menu item' : 'creating menu item', resource: 'menu item' }));
+      } else {
+        toast.error('Failed to submit. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }

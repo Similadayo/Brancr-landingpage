@@ -92,7 +92,7 @@ export default function NewPostPage() {
   }, []);
 
   // Server-backed autosave via drafts API
-  const { content: remoteDraftContent, setContent: setRemoteContent, status: draftStatus, restoreRemote } = useAutosaveDraft({
+  const { content: remoteDraftContent, setContent: setRemoteContent, status: draftStatus, restoreRemote, deleteDraft } = useAutosaveDraft({
     key: 'compose.post',
     initialContent: null,
     debounceMs: 1000,
@@ -260,8 +260,14 @@ export default function NewPostPage() {
 
       const response = await tenantApi.createPost(payload);
 
-      // Clear draft on success
+      // Clear draft on success (local + server)
       localStorage.removeItem("post-draft");
+      try {
+        // Fire-and-forget delete; hook will enqueue and process
+        void deleteDraft();
+      } catch (e) {
+        // ignore
+      }
 
       // Invalidate queries to refresh the campaigns page
       void queryClient.invalidateQueries({ queryKey: ["scheduled-posts"] });
