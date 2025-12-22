@@ -50,9 +50,20 @@ async function loadJob(job_id: string): Promise<Job | undefined> {
 
 export async function createJobFromText(text: string) {
   const job_id = randomId();
-  const job: Job = { job_id, status: 'pending' };
+  const job: Job = { job_id, status: 'pending', text } as any;
 
   await storeJob(job);
+
+  // If Redis queue is available, enqueue and return; worker will process
+  if (redisClient) {
+    try {
+      await redisClient.rPush('parse:queue', job_id);
+    } catch (e) {
+      console.error('Failed to rPush job to queue, falling back to local processing:', e);
+      // fallback to local processing below
+    }
+    return job;
+  }
 
   // Simulate background processing (in production this would be a worker)
   setTimeout(async () => {
