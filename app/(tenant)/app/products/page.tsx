@@ -164,6 +164,12 @@ export default function ProductsPage() {
             </>
           )}
           <Link
+            href="/app/products/quick-add"
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm"
+          >
+            Quick Add
+          </Link>
+          <Link
             href="/app/products/new"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm sm:shadow-md"
           >
