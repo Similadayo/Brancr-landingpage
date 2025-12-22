@@ -192,7 +192,37 @@ export default function CampaignsPage() {
         setLoadingDrafts(true);
         try {
           const res: any = await tenantApi.getDrafts('compose.post');
-          const list = (res?.drafts || []).slice().sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+          const serverList = (res?.drafts || []).slice();
+
+          // Try to include a local snapshot (compose.post) as a local-only draft when present
+          try {
+            const raw = localStorage.getItem('drafts-local-compose.post');
+            if (raw) {
+              const snap = JSON.parse(raw);
+              if (snap && snap.content) {
+                // Build a synthetic draft object for display. If there is a matching server draft id, skip adding.
+                const localId = snap.draftId || `local-${snap.updatedAt || Date.now()}`;
+                const already = serverList.find((d: any) => d.id === localId);
+                if (!already) {
+                  serverList.push({
+                    id: localId,
+                    key: 'compose.post',
+                    content: snap.content,
+                    metadata: snap.metadata,
+                    owner_id: undefined,
+                    created_at: snap.updatedAt ? new Date(snap.updatedAt).toISOString() : new Date().toISOString(),
+                    updated_at: snap.updatedAt ? new Date(snap.updatedAt).toISOString() : new Date().toISOString(),
+                    _local_only: true,
+                    _local_snapshot: snap,
+                  });
+                }
+              }
+            }
+          } catch (e) {
+            // ignore local snapshot parsing errors
+          }
+
+          const list = serverList.slice().sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
           if (mounted) setDrafts(list);
         } catch (e) {
           console.error('Failed to load drafts:', e);
@@ -203,8 +233,16 @@ export default function CampaignsPage() {
       return () => { mounted = false; };
     }, []);
 
-    const handleRestore = async (id: string) => {
+    const handleRestore = async (id: string, draft: any) => {
       try {
+        if (draft && draft._local_only) {
+          // Local-only snapshot: restore from snapshot content
+          const content = draft.content || draft._local_snapshot?.content;
+          localStorage.setItem('post-draft', JSON.stringify(content));
+          toast.success('Draft restored — opening composer');
+          router.push('/app/posts/new');
+          return;
+        }
         const res: any = await tenantApi.getDraft(id);
         const content = res.content;
         // Save to local snapshot for compose page to pick up
@@ -216,9 +254,22 @@ export default function CampaignsPage() {
       }
     };
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (id: string, draft: any) => {
       setDeletingId(id);
       try {
+        if (draft && draft._local_only) {
+          // Clear local snapshot
+          try {
+            localStorage.removeItem('drafts-local-compose.post');
+          } catch (e) {
+            // ignore
+          }
+          setDrafts((prev) => prev.filter((d) => d.id !== id));
+          toast.success('Draft removed');
+          setDeletingId(null);
+          return;
+        }
+
         await tenantApi.deleteDraft(id);
         setDrafts((prev) => prev.filter((d) => d.id !== id));
         toast.success('Draft deleted');
@@ -238,12 +289,12 @@ export default function CampaignsPage() {
           {drafts.map((d) => (
             <li key={d.id} className="flex items-start justify-between gap-4 rounded-lg border border-gray-100 p-3">
               <div className="min-w-0">
-                <div className="text-sm font-medium text-gray-900">Saved {new Date(d.updated_at).toLocaleString()}</div>
+                <div className="text-sm font-medium text-gray-900">Saved {new Date(d.updated_at).toLocaleString()} {d._local_only ? <span className="ml-2 text-xs font-medium text-amber-600">(Saved locally)</span> : null}</div>
                 <div className="mt-1 text-xs text-gray-600 line-clamp-2">{d.content?.caption ? d.content.caption.split('\n')[0].slice(0,200) : '(no caption)'}</div>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => void handleRestore(d.id)} className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90">Restore</button>
-                <button onClick={() => void handleDelete(d.id)} disabled={deletingId === d.id} className="rounded-md border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50">{deletingId===d.id ? 'Deleting…' : 'Delete'}</button>
+                <button onClick={() => void handleRestore(d.id, d)} className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90">Restore</button>
+                <button onClick={() => void handleDelete(d.id, d)} disabled={deletingId === d.id} className="rounded-md border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50">{deletingId===d.id ? 'Deleting…' : 'Delete'}</button>
               </div>
             </li>
           ))}
@@ -398,20 +449,22 @@ export default function CampaignsPage() {
               Refresh page
             </button>
           </div>
+        ) : activeTab === 'drafts' ? (
+          <DraftsList />
         ) : currentPosts.length === 0 ? (
           <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-12 text-center">
             {activeTab === "scheduled" && <ClockIcon className="mx-auto h-12 w-12 text-gray-400" />}
             {activeTab === "published" && <CheckCircleIcon className="mx-auto h-12 w-12 text-gray-400" />}
-            {activeTab === "drafts" && <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />}
+            {String(activeTab) === "drafts" && <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" /> }
             <p className="mt-3 text-sm font-semibold text-gray-900">
               {activeTab === "scheduled" && "No scheduled posts"}
               {activeTab === "published" && "No published posts"}
-              {activeTab === "drafts" && "No drafts"}
+              {String(activeTab) === "drafts" && "No drafts"}
             </p>
             <p className="mt-1 text-xs text-gray-500">
               {activeTab === "scheduled" && "Create your first scheduled post to get started"}
               {activeTab === "published" && "Published posts will appear here"}
-              {activeTab === "drafts" && "Draft posts will appear here"}
+              {String(activeTab) === "drafts" && "Draft posts will appear here"}
             </p>
             {activeTab === "scheduled" && (
               <Link
