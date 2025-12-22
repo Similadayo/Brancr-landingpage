@@ -37,6 +37,8 @@ class WebSocketClient {
   }
 
   private manualDisconnect = false;
+  // Guard to ensure we only log a socket close once per socket lifecycle
+  private hasLoggedClose = false;
 
   connect(callbacks: WebSocketCallbacks = {}) {
     this.callbacks = callbacks;
@@ -60,6 +62,7 @@ class WebSocketClient {
       this.ws.onopen = () => {
         this.reconnectAttempts = 0;
         this.startHeartbeat();
+        this.hasLoggedClose = false; // reset the close log guard for this new socket
         this.callbacks.onOpen?.();
         // If a manual disconnect happened while the socket was CONNECTING, close politely now.
         if (this.manualDisconnect) {
@@ -88,14 +91,30 @@ class WebSocketClient {
       };
 
       this.ws.onclose = (event) => {
-        // Provide richer diagnostics: close code, reason and wasClean
+        // Ensure we only log the close once per socket lifecycle (prevents noisy logs when multiple
+        // subscribers or handlers observe the same close event).
+        if (this.hasLoggedClose) {
+          this.stopHeartbeat();
+          this.callbacks.onClose?.();
+          return;
+        }
+        this.hasLoggedClose = true;
+
+        // Provide concise diagnostics: treat clean close (1000) as normal and only debug in dev;
+        // log unexpected close codes as errors so they surface in monitoring.
         try {
-          console.error('WebSocket closed', { code: event.code, reason: event.reason, wasClean: event.wasClean });
+          if (event.code !== 1000) {
+            console.error('WS closed unexpectedly', { code: event.code, reason: event.reason, wasClean: event.wasClean });
+          } else if (process.env.NODE_ENV === 'development') {
+            console.debug('WS closed cleanly');
+          }
         } catch (e) {
           console.error('WebSocket closed (unable to read event details)', e);
         }
+
         this.stopHeartbeat();
         this.callbacks.onClose?.();
+
         // If the socket closed cleanly, do not attempt reconnect (avoids reconnect after intentional close)
         if (event && (event as any).wasClean) {
           if (process.env.NODE_ENV === 'development') {
@@ -103,6 +122,7 @@ class WebSocketClient {
           }
           return;
         }
+
         // Only attempt reconnect if we didn't intentionally disconnect
         if (!this.manualDisconnect) {
           this.attemptReconnect();
