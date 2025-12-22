@@ -90,7 +90,7 @@ export default function CaptionEditor({
           <button
             type="button"
             onClick={() => void handleAIGenerate()}
-            disabled={isAIGenerating || selectedMediaIds.length === 0}
+            disabled={isAIGenerating}
             className="group flex items-center gap-2 rounded-xl border-2 border-primary/30 bg-primary/10 px-5 py-2.5 text-sm font-semibold text-primary transition-all hover:border-primary/50 hover:bg-primary/20 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
             aria-label="Generate caption with AI"
           >
@@ -107,7 +107,7 @@ export default function CaptionEditor({
             )}
           </button>
           {selectedMediaIds.length === 0 && (
-            <span className="text-xs text-gray-500">💡 Select media first to generate caption</span>
+            <span className="text-xs text-gray-500">💡 No media selected — Facebook will be used for text-only posts</span>
           )}
         </div>
       )}

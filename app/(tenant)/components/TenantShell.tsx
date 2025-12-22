@@ -35,6 +35,7 @@ import {
 } from "./icons";
 import { CommandPalette } from "./CommandPalette";
 import { NotificationsBell } from "./NotificationsBell";
+import AIToggle from './AIToggle';
 
 type NavItem = {
   label: string;
@@ -656,23 +657,15 @@ export function TenantShell({ children }: { children: ReactNode }) {
                   {/* AI Mode Toggle */}
                   <div className="hidden items-center gap-3 sm:flex">
                     <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const next = displayAIMode === 'ai' ? 'human' : 'ai';
+                      <AIToggle
+                        value={displayAIMode}
+                        onChange={(next) => {
                           setDisplayAIMode(next);
                           updateAIModeMutation.mutate(next);
                         }}
-                        className={`${displayAIMode === 'ai' ? 'bg-primary' : 'bg-gray-300'} relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
                         disabled={updateAIModeMutation.isPending || isLoadingAIMode}
-                        aria-pressed={displayAIMode === 'ai' ? 'true' : 'false'}
-                      >
-                        <span className="sr-only">Toggle AI Assistant</span>
-                        <span className={`${displayAIMode === 'ai' ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform`} />
-                      </button>
-                      <span className="text-sm font-medium text-gray-900 hidden sm:block">
-                        {displayAIMode === 'ai' ? 'AI' : 'Human'}
-                      </span>
+                        showLabel={true}
+                      />
                     </div>
                   </div>
                   <NotificationsBell />

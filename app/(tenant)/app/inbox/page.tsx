@@ -48,7 +48,7 @@ export default function InboxPage() {
   const [activePlatformFilter, setActivePlatformFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
-  const [selectedConversationId, setSelectedConversationId] = useState<string>("");
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [mobileView, setMobileView] = useState<"list" | "chat">("list");
@@ -883,152 +883,86 @@ export default function InboxPage() {
                       </div>
                       {/* Content - Scrollable */}
                       <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
-                {/* Contact Profile */}
-                <div className="mb-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    {activeConversation.customer_avatar ? (
-                      <Image
-                        src={activeConversation.customer_avatar}
-                        alt={activeConversation.customer_name}
-                        width={48}
-                        height={48}
-                        className="h-12 w-12 rounded-full object-cover flex-shrink-0"
-                        unoptimized
-                      />
-                    ) : (
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-base font-medium text-gray-600 flex-shrink-0">
-                        {(activeConversation.customer_name || "?").charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900">{activeConversation.customer_name}</p>
-                      {activeConversation.customer_phone ? (
-                        <p className="text-xs text-gray-500">
-                          {activeConversation.customer_country_code 
-                            ? `+${activeConversation.customer_country_code} ${activeConversation.customer_dial_code || activeConversation.customer_phone}`
-                            : activeConversation.customer_phone}
-                        </p>
-                      ) : (
-                        <p className="text-xs text-gray-400 italic">No phone number</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex gap-2 mb-4">
-                    <button className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white hover:bg-primary/90 transition-colors">
-                      Call
-                    </button>
-                    <button className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
-                      Chat
-                    </button>
-                  </div>
-                </div>
+                        {/* Contact Profile */}
+                        <div className="mb-6">
+                          <div className="flex items-center gap-3 mb-4">
+                            {activeConversation.customer_avatar ? (
+                              <Image
+                                src={activeConversation.customer_avatar}
+                                alt={activeConversation.customer_name}
+                                width={48}
+                                height={48}
+                                className="h-12 w-12 rounded-full object-cover flex-shrink-0"
+                                unoptimized
+                              />
+                            ) : (
+                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-base font-medium text-gray-600 flex-shrink-0">
+                                {(activeConversation.customer_name || "?").charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-gray-900">{activeConversation.customer_name}</p>
+                              {activeConversation.customer_phone ? (
+                                <p className="text-xs text-gray-500">
+                                  {activeConversation.customer_country_code 
+                                    ? `+${activeConversation.customer_country_code} ${activeConversation.customer_dial_code || activeConversation.customer_phone}`
+                                    : activeConversation.customer_phone}
+                                </p>
+                              ) : (
+                                <p className="text-xs text-gray-400 italic">No phone number</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex gap-2 mb-4">
+                            <button className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white hover:bg-primary/90 transition-colors">
+                              Call
+                            </button>
+                            <button className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+                              Chat
+                            </button>
+                          </div>
+                        </div>
 
+                        {/* AI Mode (tenant-wide only) */}
+                        <div className="mb-6">
+                          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">AI Mode</h4>
+                          <p className="text-xs text-gray-500">Tenant-wide setting: <span className="font-semibold">{tenantAIMode === 'ai' ? 'AI' : 'Human'}</span></p>
+                        </div>
 
-                {/* AI Mode (tenant-wide only) */}
-                <div className="mb-6">
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">AI Mode</h4>
-                  <p className="text-xs text-gray-500">Tenant-wide setting: <span className="font-semibold">{tenantAIMode === 'ai' ? 'AI' : 'Human'}</span></p>
-                </div>
-
-                {/* Contact Information */}
-                <div className="mb-6">
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Contact Information</h4>
-                  <div className="space-y-2 text-xs">
-                    {activeConversation.customer_phone && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Phone:</span>
-                        <span className="text-gray-900 font-medium">
-                          {activeConversation.customer_country_code 
-                            ? `+${activeConversation.customer_country_code} ${activeConversation.customer_dial_code || activeConversation.customer_phone}`
-                            : activeConversation.customer_phone}
-                        </span>
-                      </div>
-                    )}
-                    {activeConversation.customer_country_code && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Country Code:</span>
-                        <span className="text-gray-900 font-medium">+{activeConversation.customer_country_code}</span>
-                      </div>
-                    )}
-                    {activeConversation.customer_dial_code && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Dial Code:</span>
-                        <span className="text-gray-900 font-medium">{activeConversation.customer_dial_code}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Status:</span>
-                      <div className="w-32">
-                        <Select
-                          value={activeConversation.status}
-                          onChange={(value) => {
-                            if (!value) return;
-                            const newStatus = value as "active" | "resolved" | "archived";
-                            updateStatusMutation.mutate({ status: newStatus });
-                          }}
-                          searchable={false}
-                          buttonClassName="border-0 bg-transparent shadow-none px-0 py-0 text-xs font-medium text-gray-900 focus:ring-0"
-                          options={[
-                            { value: 'active', label: 'Assigned' },
-                            { value: 'resolved', label: 'Resolved' },
-                            { value: 'archived', label: 'Archived' },
-                          ]}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Start chat:</span>
-                      <span className="text-gray-900 font-medium">
-                        {new Date(activeConversation.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Add Tag */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Add tag</h4>
-                    <button 
-                      className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                      aria-label="Add tag"
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {Array.isArray(activeConversation.tags) && activeConversation.tags.length > 0 ? (
-                      activeConversation.tags.map((tag: string) => (
-                        <span
-                          key={tag}
-                          className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700"
-                        >
-                          {tag}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-xs text-gray-500">No tags</span>
-                    )}
-                  </div>
-                </div>
-
-
-                {/* Add Note */}
-                <div>
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Add Note</h4>
-                  <textarea
-                    placeholder="Type your note here.."
-                    className="min-h-[120px] w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-                    onBlur={async (e) => {
-                      const value = e.target.value.trim();
-                      if (value) {
-                        try {
-                          await updateConversationMutation.mutateAsync({ notes: value });
-                        } catch {}
-                      }
-                    }}
-                  />
-                </div>
+                        {/* Contact Information */}
+                        <div className="mb-6">
+                          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Contact Information</h4>
+                          <div className="space-y-2 text-xs">
+                            {activeConversation.customer_phone && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Phone:</span>
+                                <span className="text-gray-900 font-medium">
+                                  {activeConversation.customer_country_code 
+                                    ? `+${activeConversation.customer_country_code} ${activeConversation.customer_dial_code || activeConversation.customer_phone}`
+                                    : activeConversation.customer_phone}
+                                </span>
+                              </div>
+                            )}
+                            {activeConversation.customer_country_code && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Country Code:</span>
+                                <span className="text-gray-900 font-medium">+{activeConversation.customer_country_code}</span>
+                              </div>
+                            )}
+                            {activeConversation.customer_dial_code && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-500">Dial Code:</span>
+                                <span className="text-gray-900 font-medium">{activeConversation.customer_dial_code}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex justify-between mt-3">
+                            <span className="text-gray-500">Start chat:</span>
+                            <span className="text-gray-900 font-medium">
+                              {new Date(activeConversation.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </>
                   );

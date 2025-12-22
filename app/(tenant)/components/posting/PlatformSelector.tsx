@@ -11,10 +11,8 @@ type PlatformSelectorProps = {
 const AVAILABLE_PLATFORMS = [
   { id: "instagram", name: "Instagram", icon: "📷" },
   { id: "facebook", name: "Facebook", icon: "👥" },
-  { id: "whatsapp", name: "WhatsApp", icon: "💬" },
   { id: "tiktok", name: "TikTok", icon: "🎵" },
   { id: "telegram", name: "Telegram", icon: "✈️" },
-  { id: "youtube", name: "YouTube", icon: "▶️" },
 ];
 
 export default function PlatformSelector({
