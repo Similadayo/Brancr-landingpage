@@ -16,6 +16,7 @@ import SchedulePicker from "@/app/(tenant)/components/posting/SchedulePicker";
 import PostReview from "@/app/(tenant)/components/posting/PostReview";
 import TikTokOptions from "@/app/(tenant)/components/posting/TikTokOptions";
 import ConfirmModal from '@/app/components/ConfirmModal';
+import DraftsModal from '@/app/(tenant)/components/posting/DraftsModal';
 import useAutosaveDraft from '@/app/(tenant)/hooks/useDrafts';
 
 type Step = "upload" | "media" | "caption" | "platforms" | "schedule" | "review";
@@ -58,6 +59,8 @@ export default function NewPostPage() {
 
   // Remote draft availability
   const [remoteDraftAvailable, setRemoteDraftAvailable] = useState<any | null>(null);
+  const [showDraftsModal, setShowDraftsModal] = useState(false);
+  const [showRemoteConflict, setShowRemoteConflict] = useState<any | null>(null);
 
   // Auto-save draft to localStorage (fast local fallback)
   useEffect(() => {
@@ -92,11 +95,13 @@ export default function NewPostPage() {
   }, []);
 
   // Server-backed autosave via drafts API
-  const { content: remoteDraftContent, setContent: setRemoteContent, status: draftStatus, restoreRemote, deleteDraft } = useAutosaveDraft({
+  const { content: remoteDraftContent, setContent: setRemoteContent, status: draftStatus, draftId, lastSyncedAt, restoreRemote, deleteDraft } = useAutosaveDraft({
     key: 'compose.post',
     initialContent: null,
     debounceMs: 1000,
     onRemoteNewer: (remote) => {
+      // Open a conflict modal to let user decide
+      setShowRemoteConflict(remote);
       setRemoteDraftAvailable(remote as any);
     },
   });
@@ -388,12 +393,35 @@ export default function NewPostPage() {
           </p>
           {remoteDraftAvailable && (
             <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 flex items-center justify-between">
-              <div>Newer draft available — restored at {new Date(remoteDraftAvailable.updated_at).toLocaleString()}.</div>
+              <div>Newer draft available — saved at {new Date(remoteDraftAvailable.updated_at).toLocaleString()}.</div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => {
-                    restoreRemote(remoteDraftAvailable.id);
+                  onClick={async () => {
+                    await restoreRemote(remoteDraftAvailable.id);
                     setRemoteDraftAvailable(null);
+                    // Show toast with discard action
+                    const savedAgo = Math.max(0, Date.now() - new Date(remoteDraftAvailable.updated_at).getTime());
+                    const mins = Math.floor(savedAgo / 60000);
+                    const text = mins < 1 ? 'less than a minute ago' : `${mins} minute${mins > 1 ? 's' : ''} ago`;
+                    toast((t) => (
+                      <div className="flex items-center gap-3">
+                        <div>Restored draft — saved {text}</div>
+                        <button
+                          className="ml-4 rounded-md bg-white px-2 py-1 text-xs font-semibold text-rose-600 border border-rose-200"
+                          onClick={async () => {
+                            try {
+                              await deleteDraft(remoteDraftAvailable.id);
+                              toast.success('Draft discarded');
+                              toast.dismiss(t.id);
+                            } catch (e) {
+                              toast.error('Failed to discard draft');
+                            }
+                          }}
+                        >
+                          Discard
+                        </button>
+                      </div>
+                    ), { duration: 8000 });
                   }}
                   className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90"
                 >
@@ -408,16 +436,33 @@ export default function NewPostPage() {
               </div>
             </div>
           )}
+
+          {/* Drafts / Restore button */}
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setShowDraftsModal(true)}
+              className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-gray-300"
+            >
+              Drafts
+            </button>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-3">
-            {draftStatus === 'saving' ? (
-              <span className="text-xs text-gray-500">Saving…</span>
-            ) : draftStatus === 'saved' ? (
-              <span className="text-xs text-gray-500">Saved</span>
-            ) : draftStatus === 'error' ? (
-              <span className="text-xs text-rose-600">Save failed</span>
-            ) : null}
+            <div aria-live="polite" aria-atomic="true">
+              {navigator.onLine === false ? (
+                <span className="text-xs text-gray-500">Offline — Saved locally</span>
+              ) : draftStatus === 'saving' ? (
+                <span className="text-xs text-gray-500">Saving…</span>
+              ) : draftStatus === 'saved' ? (
+                <span className="text-xs text-gray-500">{lastSyncedAt ? `Saved at ${new Date(lastSyncedAt).toLocaleTimeString()}` : 'Saved'}</span>
+              ) : draftStatus === 'error' ? (
+                <span className="text-xs text-rose-600">Save failed (retrying)</span>
+              ) : (
+                <span className="text-xs text-gray-500">Draft status: {draftStatus}</span>
+              )}
+            </div>
           </div>
 
           <button
@@ -445,6 +490,91 @@ export default function NewPostPage() {
           onConfirm={confirmCancel}
           onCancel={() => setShowCancelConfirm(false)}
         />
+      )}
+
+      {/* Drafts modal */}
+      <DraftsModal
+        open={showDraftsModal}
+        onClose={() => setShowDraftsModal(false)}
+        keyName="compose.post"
+        onRestore={(d) => {
+          // restore and show toast with discard action
+          void restoreRemote(d.id);
+          const savedAgo = Math.max(0, Date.now() - new Date(d.updated_at).getTime());
+          const mins = Math.floor(savedAgo / 60000);
+          const text = mins < 1 ? 'less than a minute ago' : `${mins} minute${mins > 1 ? 's' : ''} ago`;
+          toast((t) => (
+            <div className="flex items-center gap-3">
+              <div>Restored draft — saved {text}</div>
+              <button
+                className="ml-4 rounded-md bg-white px-2 py-1 text-xs font-semibold text-rose-600 border border-rose-200"
+                onClick={async () => {
+                  try {
+                    await deleteDraft(d.id);
+                    toast.success('Draft discarded');
+                    toast.dismiss(t.id);
+                  } catch (e) {
+                    toast.error('Failed to discard draft');
+                  }
+                }}
+              >
+                Discard
+              </button>
+            </div>
+          ), { duration: 8000 });
+        }}
+        onDiscard={async (id) => {
+          try {
+            await deleteDraft(id);
+          } catch (e) {
+            // ignore
+          }
+        }}
+      />
+
+      {/* Remote conflict dialog (if remote draft appears different) */}
+      {showRemoteConflict && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="z-50 w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
+            <h3 className="text-lg font-semibold">Remote draft detected</h3>
+            <p className="mt-2 text-sm text-gray-600">A newer draft exists on the server. Would you like to restore it, keep your local draft, or review differences?</p>
+            <div className="mt-4 flex items-center gap-2 justify-end">
+              <button
+                onClick={() => {
+                  // Review differences -> open drafts modal
+                  setShowDraftsModal(true);
+                  setShowRemoteConflict(null);
+                }}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700"
+              >
+                Review differences
+              </button>
+              <button
+                onClick={async () => {
+                  // Keep local
+                  setShowRemoteConflict(null);
+                  setRemoteDraftAvailable(null);
+                }}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700"
+              >
+                Keep local
+              </button>
+              <button
+                onClick={async () => {
+                  // Restore remote
+                  await restoreRemote(showRemoteConflict.id);
+                  setShowRemoteConflict(null);
+                  setRemoteDraftAvailable(null);
+                  toast.success('Remote draft restored');
+                }}
+                className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-primary/90"
+              >
+                Restore remote
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Progress Bar */}

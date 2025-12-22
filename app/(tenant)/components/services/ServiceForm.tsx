@@ -6,7 +6,7 @@ import { useCreateService, useUpdateService, useDeleteService, type Service } fr
 import { XIcon, TrashIcon, ArrowLeftIcon } from "../icons";
 import PackageBuilder from "../shared/PackageBuilder";
 import { toast } from "react-hot-toast";
-import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
+import { getUserFriendlyErrorMessage, parseApiFieldErrors } from '@/lib/error-messages';
 import Link from "next/link";
 import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
@@ -38,6 +38,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (service) {
@@ -58,6 +59,34 @@ export default function ServiceForm({ service }: ServiceFormProps) {
       });
     }
   }, [service]);
+
+  // Client-side validation for negotiation fields
+  useEffect(() => {
+    const nextErrors: Record<string, string> = {};
+    if (formData.negotiation_mode === 'range') {
+      const min = formData.negotiation_min_price === '' ? NaN : Number(formData.negotiation_min_price);
+      const max = formData.negotiation_max_price === '' ? NaN : Number(formData.negotiation_max_price);
+      if (!Number.isFinite(min)) nextErrors.negotiation_min_price = 'Min price is required';
+      else if (min <= 0) nextErrors.negotiation_min_price = 'Min price must be greater than 0';
+      if (!Number.isFinite(max)) nextErrors.negotiation_max_price = 'Max price is required';
+      else if (max <= 0) nextErrors.negotiation_max_price = 'Max price must be greater than 0';
+      if (Number.isFinite(min) && Number.isFinite(max) && min > max) {
+        nextErrors.negotiation_min_price = 'Min must be less than or equal to Max';
+      }
+    }
+
+    setFieldErrors((prev) => {
+      // If negotiation mode is not range, remove any negotiation-specific errors but keep others
+      if (formData.negotiation_mode !== 'range') {
+        const { negotiation_min_price, negotiation_max_price, ...rest } = prev;
+        return rest;
+      }
+
+      // In range mode, merge existing server-side errors with client-side validation errors,
+      // allowing client-side validation to override the same keys when present.
+      return { ...prev, ...nextErrors };
+    });
+  }, [formData.negotiation_mode, formData.negotiation_min_price, formData.negotiation_max_price]);
 
   const addDeliverable = (deliverable: string) => {
     if (!deliverable.trim()) return;
@@ -131,6 +160,8 @@ export default function ServiceForm({ service }: ServiceFormProps) {
     } catch (error: any) {
       console.error("Form submission error:", error);
       if (error && error.status) {
+        const fields = parseApiFieldErrors(error);
+        if (Object.keys(fields).length) setFieldErrors((prev) => ({ ...prev, ...fields }));
         console.error('API error details:', { status: error.status, body: error.body });
         toast.error(getUserFriendlyErrorMessage(error, { action: service ? 'updating service' : 'creating service', resource: 'service' }));
       } else {
@@ -280,7 +311,15 @@ export default function ServiceForm({ service }: ServiceFormProps) {
                   <Select
                     id="service-negotiation-mode"
                     value={formData.negotiation_mode}
-                    onChange={(value) => setFormData({ ...formData, negotiation_mode: value as any })}
+                    onChange={(value) => {
+                      const mode = value as any;
+                      const next = { ...formData, negotiation_mode: mode };
+                      if (mode !== 'range') {
+                        next.negotiation_min_price = '';
+                        next.negotiation_max_price = '';
+                      }
+                      setFormData(next);
+                    }}
                     options={[
                       { value: "default", label: "Use tenant default" },
                       { value: "disabled", label: "No negotiation (fixed price)" },
@@ -302,8 +341,13 @@ export default function ServiceForm({ service }: ServiceFormProps) {
                       step="0.01"
                       value={formData.negotiation_min_price}
                       onChange={(e) => setFormData({ ...formData, negotiation_min_price: e.target.value })}
+                      aria-invalid={!!fieldErrors.negotiation_min_price}
+                      aria-describedby={fieldErrors.negotiation_min_price ? 'service-neg-min-error' : undefined}
                       className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
+                    {fieldErrors.negotiation_min_price && (
+                      <p id="service-neg-min-error" className="mt-1 text-xs text-rose-600">{fieldErrors.negotiation_min_price}</p>
+                    )}
                   </div>
                   <div>
                     <label htmlFor="service-negotiation-max" className="block text-sm font-semibold text-gray-700">Max Price</label>
@@ -314,8 +358,13 @@ export default function ServiceForm({ service }: ServiceFormProps) {
                       step="0.01"
                       value={formData.negotiation_max_price}
                       onChange={(e) => setFormData({ ...formData, negotiation_max_price: e.target.value })}
+                      aria-invalid={!!fieldErrors.negotiation_max_price}
+                      aria-describedby={fieldErrors.negotiation_max_price ? 'service-neg-max-error' : undefined}
                       className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
+                    {fieldErrors.negotiation_max_price && (
+                      <p id="service-neg-max-error" className="mt-1 text-xs text-rose-600">{fieldErrors.negotiation_max_price}</p>
+                    )}
                   </div>
                 </>
               )}
@@ -425,7 +474,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
             </Link>
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || Object.keys(fieldErrors).length > 0}
               className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:opacity-50 sm:shadow-md"
             >
               {isSubmitting ? "Saving..." : service ? "Update Service" : "Create Service"}

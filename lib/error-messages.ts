@@ -127,6 +127,69 @@ export function getUserFriendlyErrorMessage(
 }
 
 /**
+ * Parse API field-level errors from an ApiError body and return a field->message map
+ */
+export function parseApiFieldErrors(error: unknown): Record<string, string> {
+  try {
+    if (!error || typeof error !== 'object') return {};
+    const apiErr = error as { status?: number; body?: any };
+    const body = apiErr.body;
+    if (!body) return {};
+
+    const map: Record<string, string> = {};
+
+    // Common simple shape: { field: 'name', error: 'message' } or { field: 'name', message: 'message' }
+    if (body.field && (body.error || body.message)) {
+      map[body.field] = body.error || body.message;
+    }
+
+    // shape: { errors: { field: 'msg' } } or { errors: { field: ['msg1','msg2'] } }
+    if (body.errors && typeof body.errors === 'object') {
+      for (const k of Object.keys(body.errors)) {
+        const v = body.errors[k];
+        if (Array.isArray(v)) map[k] = v.join(', ');
+        else if (typeof v === 'string') map[k] = v;
+        else if (v && typeof v === 'object') map[k] = (v.message || JSON.stringify(v));
+      }
+    }
+
+    // Support validation arrays: { validation: [{ field: 'x', message: 'y' }] }
+    if (Array.isArray(body.validation)) {
+      for (const item of body.validation) {
+        if (item && item.field) map[item.field] = item.message || item.error || JSON.stringify(item);
+      }
+    }
+
+    // Some APIs embed field errors under body.details or body.error_details
+    if (body.details && typeof body.details === 'object') {
+      for (const k of Object.keys(body.details)) {
+        const v = body.details[k];
+        map[k] = typeof v === 'string' ? v : (v?.message || JSON.stringify(v));
+      }
+    }
+
+    // Log parsing details for observability / debugging
+    if (Object.keys(map).length) {
+      // Use debug-level log so it doesn't clutter production logs, but is visible during dev/tests
+      try {
+        console.debug('parseApiFieldErrors: parsed field errors', { status: apiErr.status, parsed: map, body });
+      } catch (e) {
+        // ignore logging failures
+      }
+    }
+
+    return map;
+  } catch (e) {
+    try {
+      console.debug('parseApiFieldErrors: failed to parse error', e);
+    } catch (e2) {
+      // ignore
+    }
+    return {};
+  }
+}
+
+/**
  * Get a user-friendly error message for specific actions
  */
 export const ErrorMessages = {

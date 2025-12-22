@@ -6,7 +6,7 @@ import { useCreateMenuItem, useUpdateMenuItem, useDeleteMenuItem, type MenuItem 
 import { XIcon, TrashIcon, ArrowLeftIcon } from "../icons";
 import ImageUploader from "../shared/ImageUploader";
 import { toast } from "react-hot-toast";
-import { getUserFriendlyErrorMessage } from '@/lib/error-messages';
+import { getUserFriendlyErrorMessage, parseApiFieldErrors } from '@/lib/error-messages';
 import Link from "next/link";
 import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
@@ -49,6 +49,7 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (item) {
@@ -70,6 +71,27 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
       });
     }
   }, [item]);
+
+  useEffect(() => {
+    const nextErrors: Record<string, string> = {};
+    if (formData.negotiation_mode === 'range') {
+      const min = formData.negotiation_min_price === '' ? NaN : Number(formData.negotiation_min_price);
+      const max = formData.negotiation_max_price === '' ? NaN : Number(formData.negotiation_max_price);
+      if (!Number.isFinite(min)) nextErrors.negotiation_min_price = 'Min price is required';
+      else if (min <= 0) nextErrors.negotiation_min_price = 'Min price must be greater than 0';
+      if (!Number.isFinite(max)) nextErrors.negotiation_max_price = 'Max price is required';
+      else if (max <= 0) nextErrors.negotiation_max_price = 'Max price must be greater than 0';
+      if (Number.isFinite(min) && Number.isFinite(max) && min > max) nextErrors.negotiation_min_price = 'Min must be less than or equal to Max';
+    }
+
+    setFieldErrors((prev) => {
+      if (formData.negotiation_mode !== 'range') {
+        const { negotiation_min_price, negotiation_max_price, ...rest } = prev;
+        return rest;
+      }
+      return { ...prev, ...nextErrors };
+    });
+  }, [formData.negotiation_mode, formData.negotiation_min_price, formData.negotiation_max_price]);
 
   const toggleDietaryInfo = (diet: string) => {
     setFormData({
@@ -132,6 +154,8 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
     } catch (error: any) {
       console.error("Form submission error:", error);
       if (error && error.status) {
+        const fields = parseApiFieldErrors(error);
+        if (Object.keys(fields).length) setFieldErrors((prev) => ({ ...prev, ...fields }));
         console.error('API error details:', { status: error.status, body: error.body });
         toast.error(getUserFriendlyErrorMessage(error, { action: item ? 'updating menu item' : 'creating menu item', resource: 'menu item' }));
       } else {

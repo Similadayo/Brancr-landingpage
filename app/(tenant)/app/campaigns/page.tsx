@@ -27,6 +27,9 @@ import {
 } from "../../components/icons";
 import ConfirmModal from '@/app/components/ConfirmModal';
 import Select from "@/app/(tenant)/components/ui/Select";
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
 
 type Tab = "scheduled" | "published" | "drafts";
 
@@ -175,6 +178,79 @@ export default function CampaignsPage() {
       setPublishingPostId(null);
     }
   };
+
+  const router = useRouter();
+
+  function DraftsList() {
+    const [drafts, setDrafts] = useState<any[]>([]);
+    const [loadingDrafts, setLoadingDrafts] = useState(false);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+
+    useEffect(() => {
+      let mounted = true;
+      (async () => {
+        setLoadingDrafts(true);
+        try {
+          const res: any = await tenantApi.getDrafts('compose.post');
+          const list = (res?.drafts || []).slice().sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+          if (mounted) setDrafts(list);
+        } catch (e) {
+          console.error('Failed to load drafts:', e);
+        } finally {
+          if (mounted) setLoadingDrafts(false);
+        }
+      })();
+      return () => { mounted = false; };
+    }, []);
+
+    const handleRestore = async (id: string) => {
+      try {
+        const res: any = await tenantApi.getDraft(id);
+        const content = res.content;
+        // Save to local snapshot for compose page to pick up
+        localStorage.setItem('post-draft', JSON.stringify(content));
+        toast.success('Draft restored — opening composer');
+        router.push('/app/posts/new');
+      } catch (e) {
+        toast.error('Failed to restore draft');
+      }
+    };
+
+    const handleDelete = async (id: string) => {
+      setDeletingId(id);
+      try {
+        await tenantApi.deleteDraft(id);
+        setDrafts((prev) => prev.filter((d) => d.id !== id));
+        toast.success('Draft deleted');
+      } catch (e) {
+        toast.error('Failed to delete draft');
+      } finally {
+        setDeletingId(null);
+      }
+    };
+
+    if (loadingDrafts) return <div className="p-4 text-sm text-gray-500">Loading drafts…</div>;
+    if (drafts.length === 0) return <div className="p-4 text-sm text-gray-500">No drafts found.</div>;
+
+    return (
+      <div className="p-4">
+        <ul className="space-y-3">
+          {drafts.map((d) => (
+            <li key={d.id} className="flex items-start justify-between gap-4 rounded-lg border border-gray-100 p-3">
+              <div className="min-w-0">
+                <div className="text-sm font-medium text-gray-900">Saved {new Date(d.updated_at).toLocaleString()}</div>
+                <div className="mt-1 text-xs text-gray-600 line-clamp-2">{d.content?.caption ? d.content.caption.split('\n')[0].slice(0,200) : '(no caption)'}</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => void handleRestore(d.id)} className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90">Restore</button>
+                <button onClick={() => void handleDelete(d.id)} disabled={deletingId === d.id} className="rounded-md border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50">{deletingId===d.id ? 'Deleting…' : 'Delete'}</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">      {showCancelPostId && (
