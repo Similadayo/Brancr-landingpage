@@ -17,7 +17,7 @@ import {
 } from "@/app/(tenant)/hooks/useConversations";
 import type { TenantNotification } from "@/lib/api";
 import { getUserFriendlyErrorMessage, ErrorMessages } from "@/lib/error-messages";
-import { tenantApi, ApiError } from "@/lib/api";
+import { tenantApi } from "@/lib/api";
 import { toast } from "react-hot-toast";
 import { useQuery } from '@tanstack/react-query';
 import type { Message, ConversationDetail, ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
@@ -233,49 +233,11 @@ export default function InboxPage() {
     }
   }, [selectedConversationId, markConversationAsRead]);
 
-  // Per-inbox AI mode state
-  const [inboxAIMode, setInboxAIMode] = useState<'ai' | 'human' | null>(null);
-  const [aiModeLoading, setAIModeLoading] = useState(false);
-  const [aiModeError, setAIModeError] = useState<string | null>(null);
-
   const activeConversation = conversationDetail;
 
-  // Tenant-level AI mode (used for 'Inherited' display)
+  // Tenant-level AI mode
   const { data: tenantAIModeData } = useQuery({ queryKey: ['ai_mode'], queryFn: () => tenantApi.getAIMode(), enabled: Boolean(activeConversation) });
   const tenantAIMode = tenantAIModeData?.mode ?? 'ai';
-
-  // Fetch per-inbox AI mode when conversation changes
-  useEffect(() => {
-    if (!activeConversation?.id) {
-      setInboxAIMode(null);
-      setAIModeError(null);
-      return;
-    }
-    setAIModeLoading(true);
-    setAIModeError(null);
-    tenantApi.getConversationAIMode(String(activeConversation.id))
-      .then((res) => {
-        // Guard if backend returns no content
-        setInboxAIMode(res?.mode ?? null);
-        setAIModeError(null);
-      })
-      .catch((err) => {
-        // If the backend doesn't implement per-inbox mode, treat as "not set" (inherit tenant-wide)
-        if (err instanceof ApiError && err.status === 404) {
-          setInboxAIMode(null);
-          setAIModeError(null);
-        } else if (err instanceof ApiError && err.status === 405) {
-          // Method not allowed: indicate that this endpoint exists but the method isn't supported
-          setInboxAIMode(null);
-          const msg = getUserFriendlyErrorMessage(err, { action: 'fetching AI mode', resource: 'AI mode' });
-          setAIModeError(msg);
-        } else {
-          setAIModeError(getUserFriendlyErrorMessage(err, { action: 'fetching AI mode', resource: 'AI mode' }));
-          setInboxAIMode(null);
-        }
-      })
-      .finally(() => setAIModeLoading(false));
-  }, [activeConversation?.id]);
   const messages = useMemo(() => {
     const msgs = conversationDetail?.messages ?? [];
     if (msgs.length > 0) {
@@ -962,71 +924,10 @@ export default function InboxPage() {
                 </div>
 
 
-                {/* AI/Human Mode Toggle */}
+                {/* AI Mode (tenant-wide only) */}
                 <div className="mb-6">
                   <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">AI Mode</h4>
-                  <div className="flex gap-2 mb-2">
-                    <button
-                      className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${inboxAIMode === 'ai' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                      onClick={async () => {
-                        if (!activeConversation?.id || inboxAIMode === 'ai') return;
-                        setAIModeLoading(true);
-                        try {
-                          await tenantApi.updateConversationAIMode(String(activeConversation.id), 'ai');
-                          setInboxAIMode('ai');
-                          toast.success('AI mode enabled for this inbox.');
-                        } catch (err) {
-                          setAIModeError(getUserFriendlyErrorMessage(err, { action: 'updating AI mode', resource: 'AI mode' }));
-                          toast.error(getUserFriendlyErrorMessage(err, { action: 'updating AI mode', resource: 'AI mode' }));
-                        } finally {
-                          setAIModeLoading(false);
-                        }
-                      }}
-                      disabled={inboxAIMode === 'ai' || aiModeLoading}
-                    >
-                      AI
-                    </button>
-                    <button
-                      className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${inboxAIMode === 'human' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                      onClick={async () => {
-                        if (!activeConversation?.id || inboxAIMode === 'human') return;
-                        setAIModeLoading(true);
-                        try {
-                          await tenantApi.updateConversationAIMode(String(activeConversation.id), 'human');
-                          setInboxAIMode('human');
-                          toast.success('Human mode enabled for this inbox.');
-                        } catch (err) {
-                          if (err instanceof ApiError && err.status === 404) {
-                            // Backend doesn't support per-inbox mode
-                            setInboxAIMode(null);
-                            const userMsg = 'Per-inbox AI mode is not available for this inbox.';
-                            setAIModeError(userMsg);
-                            toast.error(userMsg);
-                          } else if (err instanceof ApiError && err.status === 405) {
-                            const userMsg = getUserFriendlyErrorMessage(err, { action: 'updating AI mode', resource: 'AI mode' });
-                            setAIModeError(userMsg);
-                            toast.error(userMsg);
-                          } else {
-                            const userMsg = getUserFriendlyErrorMessage(err, { action: 'updating AI mode', resource: 'AI mode' });
-                            setAIModeError(userMsg);
-                            toast.error(userMsg);
-                          }
-                        } finally {
-                          setAIModeLoading(false);
-                        }
-                      }}
-                      disabled={inboxAIMode === 'human' || aiModeLoading}
-                    >
-                      Human
-                    </button>
-                  </div>
-                  {aiModeLoading && <p className="text-xs text-gray-400">Updating...</p>}
-                  {aiModeError && <p className="text-xs text-rose-500">{aiModeError}</p>}
-                  {inboxAIMode === null ? (
-                    <p className="text-xs text-gray-500">Inherited: <span className="font-semibold">{tenantAIMode === 'ai' ? 'AI' : 'Human'}</span> (tenant-wide)</p>
-                  ) : (
-                    <p className="text-xs text-gray-500">Override tenant-wide mode for this inbox.</p>
-                  )}
+                  <p className="text-xs text-gray-500">Tenant-wide setting: <span className="font-semibold">{tenantAIMode === 'ai' ? 'AI' : 'Human'}</span></p>
                 </div>
 
                 {/* Contact Information */}

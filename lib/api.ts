@@ -1217,35 +1217,7 @@ export const tenantApi = {
       { mode }
     ),
 
-  // Per-inbox AI Mode endpoints (stub, to be implemented in backend)
-  getConversationAIMode: (conversationId: string) =>
-    (async () => {
-      // Similar opt-in: do not issue a GET request if the environment does not support the route.
-      const doGet = process.env.NEXT_PUBLIC_SUPPORTS_AIMODE_GET === 'true';
-      if (!doGet) {
-        return { mode: 'ai', updated_at: undefined, updated_by: undefined } as { mode: 'ai' | 'human'; updated_at?: string; updated_by?: string };
-      }
 
-      try {
-        return await get<{ mode: 'ai' | 'human'; updated_at?: string; updated_by?: string }>(
-          `/api/tenant/settings/inboxes/${conversationId}/ai-mode`
-        );
-      } catch (err) {
-        if (err && typeof err === 'object' && (err as any).status === 405) {
-          try {
-            const { captureException } = await import('./observability');
-            captureException(new Error('Inbox AI mode endpoint 405'), { action: 'getConversationAIMode', status: 405, conversationId });
-          } catch {}
-          return { mode: 'ai', updated_at: undefined, updated_by: undefined } as { mode: 'ai' | 'human'; updated_at?: string; updated_by?: string };
-        }
-        throw err;
-      }
-    })(),
-  updateConversationAIMode: (conversationId: string, mode: 'ai' | 'human') =>
-    put<{ mode: 'ai' | 'human' }, { success: boolean; mode: 'ai' | 'human'; updated_at?: string; updated_by?: string }>(
-      `/api/tenant/settings/inboxes/${conversationId}/ai-mode`,
-      { mode }
-    ),
 
   updateBusinessDetails: (payload: {
     menu_items?: Array<{
