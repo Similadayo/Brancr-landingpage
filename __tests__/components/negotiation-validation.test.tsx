@@ -95,4 +95,50 @@ describe('Negotiation validation in ServiceForm', () => {
     // Server-side field error appears inline
     expect(await screen.findByText(/Minimum is too low/i)).toBeInTheDocument();
   });
+
+  it('clears server-side negotiation error when user corrects inputs', async () => {
+    (tenantApi.createService as jest.Mock).mockRejectedValue(new (ApiError as any)('Bad request', 400, { field: 'negotiation_min_price', error: 'Minimum is too low' }));
+
+    renderWithQuery(<ServiceForm />);
+
+    // Select range and set initial values
+    const selectButton = screen.getByRole('button', { name: /Use tenant default/i });
+    await act(async () => {
+      await userEvent.click(selectButton);
+    });
+    const rangeOption = await screen.findByRole('button', { name: /Allow negotiation within a range/i });
+    await act(async () => {
+      await userEvent.click(rangeOption);
+    });
+
+    const min = screen.getByLabelText(/Min Price/i);
+    const max = screen.getByLabelText(/Max Price/i);
+
+    await act(async () => {
+      await userEvent.type(min, '10');
+      await userEvent.type(max, '100');
+    });
+
+    // Submit to trigger server-side field error
+    const submit = screen.getByRole('button', { name: /Create Service|Update Service/i });
+    const form = submit?.closest('form') as HTMLFormElement;
+    await act(async () => {
+      fireEvent.submit(form);
+    });
+
+    expect(await screen.findByText(/Minimum is too low/i)).toBeInTheDocument();
+
+    // User corrects the min value - the client validation should clear the previous server error
+    await act(async () => {
+      await userEvent.clear(min);
+      await userEvent.type(min, '50');
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Minimum is too low/i)).not.toBeInTheDocument();
+    });
+
+    // With no validation errors the submit button should be enabled
+    expect(screen.getByRole('button', { name: /Create Service|Update Service/i })).not.toBeDisabled();
+  });
 });

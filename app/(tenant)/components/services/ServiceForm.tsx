@@ -82,9 +82,11 @@ export default function ServiceForm({ service }: ServiceFormProps) {
         return rest;
       }
 
-      // In range mode, merge existing server-side errors with client-side validation errors,
-      // allowing client-side validation to override the same keys when present.
-      return { ...prev, ...nextErrors };
+      // In range mode, discard previous negotiation-specific errors (server or old) and replace
+      // them with current client-side validation results so inputs that are now valid
+      // do not keep stale server-side errors.
+      const { negotiation_min_price, negotiation_max_price, ...rest } = prev;
+      return { ...rest, ...nextErrors };
     });
   }, [formData.negotiation_mode, formData.negotiation_min_price, formData.negotiation_max_price]);
 
