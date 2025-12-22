@@ -161,14 +161,15 @@ export default function NewPostPage() {
   }, [selectedMediaIds, uploadedMedia]);
 
   const handleGenerateCaption = useCallback(async () => {
-    if (selectedMediaIds.length === 0) {
-      toast.error("Please select media first");
-      return;
+    // Allow caption generation even when no media is selected. If there is no media
+    // and no platform selected, default to Facebook (supports text-only posts).
+    if (selectedMediaIds.length === 0 && selectedPlatforms.length === 0) {
+      setSelectedPlatforms(['facebook']);
     }
 
     try {
       setIsAIGenerating(true);
-      // Convert media IDs from strings to numbers
+      // Convert media IDs from strings to numbers (may be empty)
       const mediaIds = selectedMediaIds.map((id) => Number(id)).filter((id) => !isNaN(id));
       const res = await tenantApi.generateCaption({
         media_ids: mediaIds,
@@ -182,7 +183,7 @@ export default function NewPostPage() {
     } finally {
       setIsAIGenerating(false);
     }
-  }, [selectedMediaIds]);
+  }, [selectedMediaIds, selectedPlatforms]);
 
   const handlePublish = useCallback(async () => {
     if (!canNext) {

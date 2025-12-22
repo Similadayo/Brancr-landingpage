@@ -37,9 +37,9 @@ export default function CaptionEditor({
   const [draftSaved, setDraftSaved] = useState(false);
 
   const handleAIGenerate = async () => {
-    if (selectedMediaIds.length === 0) {
-      return;
-    }
+    // Allow AI generation even when no media is selected. The server will fall back to
+    // tenant-level defaults when media is absent; the page may also auto-select a
+    // platform (e.g., Facebook) when appropriate.
     if (onAIGenerate) {
       await onAIGenerate();
     }
