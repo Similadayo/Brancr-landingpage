@@ -1012,32 +1012,6 @@ export default function InboxPage() {
                   </div>
                 </div>
 
-                {/* Assigned by */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Assigned by</h4>
-                    <button 
-                      className="p-1 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                      aria-label="Add assignee"
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
-                        NA
-                      </div>
-                      <span className="text-xs text-gray-700">CS Niki Ayu</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
-                        GB
-                      </div>
-                      <span className="text-xs text-gray-700">CS Geeburn</span>
-                    </div>
-                  </div>
-                </div>
 
                 {/* Add Note */}
                 <div>
