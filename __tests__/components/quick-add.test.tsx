@@ -9,6 +9,8 @@ jest.mock('@/lib/api', () => ({
   tenantApi: {
     createDraft: jest.fn(),
     createProduct: jest.fn(),
+    createMenuItem: jest.fn(),
+    createService: jest.fn(),
   },
 }));
 
@@ -37,7 +39,8 @@ describe('Quick Add paste flow', () => {
 
     renderWithQuery(<QuickAddSimple />);
 
-    const textarea = screen.getByPlaceholderText(/Jollof Rice/i);
+    // Find textarea by label
+    const textarea = screen.getByLabelText(/Paste your text/i);
     await act(async () => {
       await userEvent.type(textarea, 'Jollof Rice - ₦3,500');
     });
@@ -51,8 +54,6 @@ describe('Quick Add paste flow', () => {
     const matches = await screen.findAllByDisplayValue(/Jollof Rice/i);
     expect(matches.length).toBeGreaterThan(0);
 
-
-
     (tenantApi.createDraft as jest.Mock).mockResolvedValue({ id: 'd1' });
     const saveBtn = screen.getByRole('button', { name: /Save as draft/i });
     await act(async () => {
@@ -64,14 +65,86 @@ describe('Quick Add paste flow', () => {
     });
   });
 
+  it('posts to the correct parse endpoint for the selected industry', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true, json: async () => [ { name: 'Fried Rice', price: 4000 } ] });
+
+    renderWithQuery(<QuickAddSimple />);
+
+    // change industry to menu (custom Select, find by button text)
+    const selectBtn = screen.getByRole('button', { name: /Products/i });
+    await act(async () => {
+      await userEvent.click(selectBtn);
+    });
+    // For custom Select, options are rendered as buttons with the option label
+    const menuOption = await screen.findByRole('button', { name: /^Menu$/i });
+    await act(async () => {
+      await userEvent.click(menuOption);
+    });
+
+    const textarea2 = screen.getByLabelText(/Paste your text/i);
+    await act(async () => {
+      await userEvent.type(textarea2, 'Fried Rice - ₦4,000');
+    });
+
+    const parseBtn = screen.getByRole('button', { name: /Parse/i });
+    await act(async () => {
+      await userEvent.click(parseBtn);
+    });
+
+    // ensure fetch called with menu parse endpoint
+    await waitFor(() => {
+      expect((global.fetch as jest.Mock).mock.calls.some((c: any[]) => String(c[0]).includes('/api/tenant/menu/parse'))).toBeTruthy();
+    });
+  });
+
+  it('shows confirm modal and creates items when confirmed', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true, json: async () => [ { name: 'T-Shirt', price: 3500 } ] });
+    (tenantApi.createProduct as jest.Mock).mockResolvedValue({ id: 'p1' });
+
+    renderWithQuery(<QuickAddSimple />);
+
+    const textarea3 = screen.getByLabelText(/Paste your text/i);
+    await act(async () => {
+      await userEvent.type(textarea3, 'T-Shirt - 3500 NGN');
+    });
+
+    const parseBtn = screen.getByRole('button', { name: /Parse/i });
+    await act(async () => {
+      await userEvent.click(parseBtn);
+    });
+
+    expect(await screen.findByText(/Review parsed items/i)).toBeInTheDocument();
+
+    const createBtn = screen.getByRole('button', { name: /Create products/i });
+    await act(async () => {
+      await userEvent.click(createBtn);
+    });
+
+    // confirm dialog should appear
+    expect(await screen.findByText(/Are you sure you want to create 1 item/i)).toBeInTheDocument();
+
+    // There are multiple 'Create' buttons, so get all and click the one in the modal (red button)
+    const createButtons = screen.getAllByRole('button', { name: /Create/i });
+    // The confirm modal's button has class 'bg-red-600', so pick the one with that class
+    const confirmBtn = createButtons.find(btn => btn.className.includes('bg-red-600'));
+    expect(confirmBtn).toBeTruthy();
+    await act(async () => {
+      await userEvent.click(confirmBtn!);
+    });
+
+    await waitFor(() => {
+      expect(tenantApi.createProduct).toHaveBeenCalled();
+    });
+  });
+
   it('shows missing price microcopy for parsed items without price', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true, json: async () => [ { name: 'Delivery Note' } ] });
 
     renderWithQuery(<QuickAddSimple />);
 
-    const textarea = screen.getByPlaceholderText(/Jollof Rice/i);
+    const textarea4 = screen.getByLabelText(/Paste your text/i);
     await act(async () => {
-      await userEvent.type(textarea, 'Delivery Note');
+      await userEvent.type(textarea4, 'Delivery Note');
     });
 
     const parseBtn = screen.getByRole('button', { name: /Parse/i });

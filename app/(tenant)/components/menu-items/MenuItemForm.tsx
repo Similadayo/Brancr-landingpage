@@ -240,8 +240,12 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
             />
           </div>
 
-          <div>
-            <label htmlFor="menu-item-description" className="block text-sm font-semibold text-gray-700">Description</label>
+          <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4">
+            <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900">Optional</summary>
+
+            <div className="mt-4 space-y-4">
+              <div>
+                <label htmlFor="menu-item-description" className="block text-sm font-semibold text-gray-700">Description</label>
             <textarea
               id="menu-item-description"
               value={formData.description}
@@ -422,6 +426,10 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
               ))}
             </div>
           </div>
+
+            </div>
+          </div>
+        </details>
 
           {/* Images */}
           <ImageUploader

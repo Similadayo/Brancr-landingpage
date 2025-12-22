@@ -93,4 +93,5 @@ export async function createJobFromBufferText(bufferText: string) {
   return await createJobFromText(bufferText);
 }
 
-export default { createJobFromText, getJob, createJobFromBufferText };
+const parseJobs = { createJobFromText, getJob, createJobFromBufferText };
+export default parseJobs;

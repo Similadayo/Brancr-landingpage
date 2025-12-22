@@ -185,10 +185,16 @@ export function TenantShell({ children }: { children: ReactNode }) {
       items.push({ label: "Products", href: "/app/products", icon: <PackageIcon className="w-5 h-5" /> });
     }
     if (tenantIndustry?.capabilities.has_menu) {
-      items.push({ label: "Menu Items", href: "/app/menu-items", icon: <PackageIcon className="w-5 h-5" /> });
+      items.push({ label: "Menu", href: "/app/menu-items", icon: <PackageIcon className="w-5 h-5" /> });
     }
+    // Show both Services and Consultations when industry supports services
     if (tenantIndustry?.capabilities.has_services) {
       items.push({ label: "Services", href: "/app/services", icon: <PackageIcon className="w-5 h-5" /> });
+      items.push({ label: "Consultations", href: "/app/consultations", icon: <PackageIcon className="w-5 h-5" /> });
+    }
+    // Offers (promotions) are useful for product-enabled industries
+    if (tenantIndustry?.capabilities.has_products) {
+      items.push({ label: "Offers", href: "/app/offers", icon: <PackageIcon className="w-5 h-5" /> });
     }
     return items;
   }, [tenantIndustry]);
@@ -463,7 +469,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                 return (
                   <>
                     {(tenant?.business_profile?.logo_url || tenant?.logo_url) ? (
-                      <img src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} className="h-10 w-10 rounded-full object-cover" />
+                      <Image src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
                     ) : (
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
                         {initialsUpper}
@@ -559,7 +565,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                       return (
                         <>
                           {(tenant?.business_profile?.logo_url || tenant?.logo_url) ? (
-                            <img src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} className="h-10 w-10 rounded-full object-cover" />
+                            <Image src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
                           ) : (
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
                               {initialsUpper}
@@ -584,7 +590,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                     return (
                       <>
                         {(tenant?.business_profile?.logo_url || tenant?.logo_url) ? (
-                          <img src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} className="h-10 w-10 rounded-full object-cover" />
+                          <Image src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
                         ) : (
                           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
                             {initialsUpper}
@@ -684,7 +690,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                         return (
                           <>
                             {(tenant?.business_profile?.logo_url || tenant?.logo_url) ? (
-                              <img src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} className="h-8 w-8 rounded-full object-cover" />
+                              <Image src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} width={32} height={32} className="h-8 w-8 rounded-full object-cover" />
                             ) : (
                               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
                                 {initialsUpper}

@@ -165,15 +165,15 @@ export default function ProductsPage() {
           )}
           <Link
             href="/app/products/quick-add"
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm"
-          >
-            Quick Add
-          </Link>
-          <Link
-            href="/app/products/new"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm sm:shadow-md"
           >
             <PlusIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            Quick Add / Import
+          </Link>
+          <Link
+            href="/app/products/new"
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm"
+          >
             Add Product
           </Link>
         </div>
@@ -286,11 +286,11 @@ export default function ProductsPage() {
           <p className="mt-4 text-base font-semibold text-gray-900 sm:text-lg">No products found</p>
           <p className="mt-2 text-xs text-gray-600 sm:text-sm">Add your first product to get started.</p>
           <Link
-            href="/app/products/new"
+            href="/app/products/quick-add"
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 sm:mt-6 sm:px-6 sm:py-3 sm:text-sm sm:shadow-md"
           >
             <PlusIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            Add Product
+            Quick Add / Import products
           </Link>
         </div>
       ) : (

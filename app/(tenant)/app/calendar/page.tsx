@@ -62,7 +62,9 @@ export default function CalendarPage() {
     retry: 0,
   });
   const { data: scheduledPostsData } = useScheduledPosts();
-  const scheduledPosts = Array.isArray(scheduledPostsData) ? scheduledPostsData : [];
+  const scheduledPosts = useMemo(() => {
+    return Array.isArray(scheduledPostsData) ? scheduledPostsData : [];
+  }, [scheduledPostsData]);
 
   const entriesByDate = useMemo(() => {
     const map = new Map<string, Array<{ id?: string; name: string; platforms: string[]; time?: string; status?: string }>>();

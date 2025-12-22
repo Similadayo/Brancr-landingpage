@@ -42,13 +42,44 @@ export default function DraftsModal({
       setLoading(true);
       try {
         const res: any = await tenantApi.getDrafts(keyName);
-        const list: Draft[] = (res?.drafts || []).slice().sort((a: Draft, b: Draft) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+        const serverList: Draft[] = (res?.drafts || []).slice();
+
+        // Try to include a local snapshot (key-based) as a local-only draft when present
+        try {
+          const raw = localStorage.getItem(`drafts-local-${keyName}`);
+          if (raw) {
+            const snap = JSON.parse(raw);
+            if (snap && snap.content) {
+              const localId = snap.draftId || `local-${snap.updatedAt || Date.now()}`;
+              const already = serverList.find((d) => d.id === localId);
+              if (!already) {
+                serverList.push({
+                  id: localId,
+                  key: keyName,
+                  content: snap.content,
+                  metadata: snap.metadata,
+                  owner_id: undefined,
+                  created_at: snap.updatedAt ? new Date(snap.updatedAt).toISOString() : new Date().toISOString(),
+                  updated_at: snap.updatedAt ? new Date(snap.updatedAt).toISOString() : new Date().toISOString(),
+                  // @ts-ignore temporary flag for UI
+                  _local_only: true,
+                  // @ts-ignore store snapshot for restore
+                  _local_snapshot: snap,
+                });
+              }
+            }
+          }
+        } catch (e) {
+          // ignore
+        }
+
+        const list: Draft[] = serverList.slice().sort((a: Draft, b: Draft) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
         if (!mounted) return;
         setDrafts(list);
 
         if (list.length === 1 && autoRestoreSingle) {
           const d = list[0];
-          // Auto-restore the single draft
+          // Auto-restore the single draft (works for both server and local-only synthetic drafts)
           await Promise.resolve(onRestore(d));
           const savedAgo = Math.max(0, Date.now() - new Date(d.updated_at).getTime());
           const mins = Math.floor(savedAgo / 60000);
@@ -63,6 +94,15 @@ export default function DraftsModal({
                   onClick={async () => {
                     try {
                       setDeletingId(d.id);
+                      if ((d as any)._local_only) {
+                        try { localStorage.removeItem(`drafts-local-${keyName}`); } catch (e) { /* ignore */ }
+                        setDeletingId(null);
+                        try { await Promise.resolve(onDiscard?.(d.id)); } catch (e) { /* ignore */ }
+                        toast.dismiss(t.id);
+                        toast.success('Draft discarded');
+                        return;
+                      }
+
                       await tenantApi.deleteDraft(d.id);
                       setDeletingId(null);
                       try { await Promise.resolve(onDiscard?.(d.id)); } catch (e) { /* ignore */ }
@@ -96,6 +136,17 @@ export default function DraftsModal({
     setConfirmDiscard({ open: false });
     setDeletingId(id);
     try {
+      // If local-only synthetic draft, remove local snapshot
+      const found = drafts.find((d) => d.id === id);
+      if ((found as any)?._local_only) {
+        try { localStorage.removeItem(`drafts-local-${keyName}`); } catch (e) { /* ignore */ }
+        setDrafts((prev) => prev.filter((d) => d.id !== id));
+        try { await Promise.resolve(onDiscard?.(id)); } catch (e) { /* ignore */ }
+        toast.success('Draft removed');
+        setDeletingId(null);
+        return;
+      }
+
       await tenantApi.deleteDraft(id);
       setDrafts((prev) => prev.filter((d) => d.id !== id));
       try { await Promise.resolve(onDiscard?.(id)); } catch (e) { /* ignore */ }
@@ -128,7 +179,12 @@ export default function DraftsModal({
               {drafts.map((d) => (
                 <li key={d.id} className="flex items-start justify-between gap-4 rounded-lg border border-gray-100 p-3">
                   <div className="min-w-0">
-                    <div className="text-sm font-medium text-gray-900">Saved {new Date(d.updated_at).toLocaleString()}</div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-sm font-medium text-gray-900">Saved {new Date(d.updated_at).toLocaleString()}</div>
+                      { (d as any)._local_only && (
+                        <div className="rounded-full bg-yellow-50 px-2 py-0.5 text-xs font-medium text-yellow-700 border border-yellow-100">Saved locally</div>
+                      )}
+                    </div>
                     <div className="mt-1 text-xs text-gray-600 line-clamp-2">
                       {d.content && d.content.caption ? d.content.caption.split('\n')[0].slice(0, 200) : '(no caption)'}
                     </div>

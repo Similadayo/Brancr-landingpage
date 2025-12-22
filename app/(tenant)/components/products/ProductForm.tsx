@@ -211,6 +211,7 @@ export default function ProductForm({ product }: ProductFormProps) {
       {/* Form */}
       <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="space-y-6">
+          {/* Essentials - always visible */}
           <div>
             <label htmlFor="product-name" className="block text-sm font-semibold text-gray-700">Product Name *</label>
             <input
@@ -219,17 +220,6 @@ export default function ProductForm({ product }: ProductFormProps) {
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="product-description" className="block text-sm font-semibold text-gray-700">Description</label>
-            <textarea
-              id="product-description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              rows={3}
               className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
@@ -267,159 +257,186 @@ export default function ProductForm({ product }: ProductFormProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="product-category" className="block text-sm font-semibold text-gray-700">Category</label>
-              <input
-                id="product-category"
-                type="text"
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                placeholder="Electronics, Clothing, etc."
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-            <div>
-              <label htmlFor="product-sku" className="block text-sm font-semibold text-gray-700">SKU (Optional)</label>
-              <input
-                id="product-sku"
-                type="text"
-                value={formData.sku}
-                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                placeholder="PROD-001"
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          <div>
+            <label htmlFor="product-availability" className="block text-sm font-semibold text-gray-700">Availability *</label>
+            <div className="mt-1 sm:w-56">
+              <Select
+                id="product-availability"
+                value={formData.availability}
+                onChange={(value) => setFormData({ ...formData, availability: value as any })}
+                options={[
+                  { value: "in_stock", label: "In Stock" },
+                  { value: "out_of_stock", label: "Out of Stock" },
+                  { value: "low_stock", label: "Low Stock" },
+                ]}
+                searchable={false}
               />
             </div>
           </div>
 
-          <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-            <h3 className="text-sm font-semibold text-gray-900">Negotiation Rules</h3>
-            <p className="mt-1 text-xs text-gray-600">Controls what the AI can negotiate for this product.</p>
+          {/* Optional - collapsed by default */}
+          <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4">
+            <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900">Optional</summary>
 
-            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <label htmlFor="product-negotiation-mode" className="block text-sm font-semibold text-gray-700">Negotiation</label>
-                <div className="mt-1">
-                  <Select
-                    id="product-negotiation-mode"
-                    value={formData.negotiation_mode}
-                    onChange={(value) => {
-                      const mode = value as any;
-                      const next = { ...formData, negotiation_mode: mode };
-                      if (mode !== 'range') {
-                        next.negotiation_min_price = '';
-                        next.negotiation_max_price = '';
-                      }
-                      setFormData(next);
-                    }}
-                    options={[
-                      { value: "default", label: "Use tenant default" },
-                      { value: "disabled", label: "No negotiation (fixed price)" },
-                      { value: "range", label: "Allow negotiation within a range" },
-                    ]}
-                    searchable={false}
+            <div className="mt-4 space-y-4">
+              <div>
+                <label htmlFor="product-description" className="block text-sm font-semibold text-gray-700">Description</label>
+                <textarea
+                  id="product-description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={3}
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="product-category" className="block text-sm font-semibold text-gray-700">Category</label>
+                  <input
+                    id="product-category"
+                    type="text"
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    placeholder="Electronics, Clothing, etc."
+                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="product-tags" className="block text-sm font-semibold text-gray-700">Tags (comma-separated)</label>
+                  <input
+                    id="product-tags"
+                    type="text"
+                    value={formData.tags}
+                    onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                    placeholder="electronics, computers, laptops"
+                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
 
-              {formData.negotiation_mode === "range" && (
-                <>
-                  <div>
-                    <label htmlFor="product-negotiation-min" className="block text-sm font-semibold text-gray-700">Min Price</label>
-                    <input
-                      id="product-negotiation-min"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={formData.negotiation_min_price}
-                      onChange={(e) => setFormData({ ...formData, negotiation_min_price: e.target.value })}
-                    aria-invalid={!!fieldErrors.negotiation_min_price}
-                    aria-describedby={fieldErrors.negotiation_min_price ? 'prod-neg-min-error' : undefined}
-                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                  {fieldErrors.negotiation_min_price && <p id="prod-neg-min-error" className="mt-1 text-xs text-rose-600">{fieldErrors.negotiation_min_price}</p>}
-                  </div>
-                  <div>
-                    <label htmlFor="product-negotiation-max" className="block text-sm font-semibold text-gray-700">Max Price</label>
-                    <input
-                      id="product-negotiation-max"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={formData.negotiation_max_price}
-                      onChange={(e) => setFormData({ ...formData, negotiation_max_price: e.target.value })}
-                    aria-invalid={!!fieldErrors.negotiation_max_price}
-                    aria-describedby={fieldErrors.negotiation_max_price ? 'prod-neg-max-error' : undefined}
-                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                  {fieldErrors.negotiation_max_price && <p id="prod-neg-max-error" className="mt-1 text-xs text-rose-600">{fieldErrors.negotiation_max_price}</p>}
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="product-stock" className="block text-sm font-semibold text-gray-700">Stock Count</label>
-              <input
-                id="product-stock"
-                type="number"
-                min="-1"
-                value={formData.stock_count}
-                onChange={(e) => {
-                  const next = e.target.value;
-                  setFormData({
-                    ...formData,
-                    stock_count: next === "" ? -1 : Number.parseInt(next, 10) || -1,
-                  });
-                }}
-                placeholder="Enter stock count or -1 for unlimited"
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              <VariantBuilder
+                variants={formData.variants}
+                onChange={(variants) => setFormData({ ...formData, variants })}
               />
-              <p className="mt-1 text-xs text-gray-500">Use -1 for unlimited stock</p>
-            </div>
-            <div>
-              <label htmlFor="product-availability" className="block text-sm font-semibold text-gray-700">Availability *</label>
-              <div className="mt-1">
-                <Select
-                  id="product-availability"
-                  value={formData.availability}
-                  onChange={(value) => setFormData({ ...formData, availability: value as any })}
-                  options={[
-                    { value: "in_stock", label: "In Stock" },
-                    { value: "out_of_stock", label: "Out of Stock" },
-                    { value: "low_stock", label: "Low Stock" },
-                  ]}
-                  searchable={false}
-                />
+
+              <ImageUploader
+                images={formData.images}
+                onChange={(images) => setFormData({ ...formData, images })}
+                maxImages={10}
+                label="Product Images"
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="product-stock" className="block text-sm font-semibold text-gray-700">Stock Count</label>
+                  <input
+                    id="product-stock"
+                    type="number"
+                    min="-1"
+                    value={formData.stock_count}
+                    onChange={(e) => {
+                      const next = e.target.value;
+                      setFormData({
+                        ...formData,
+                        stock_count: next === "" ? -1 : Number.parseInt(next, 10) || -1,
+                      });
+                    }}
+                    placeholder="Enter stock count or -1 for unlimited"
+                    className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Use -1 for unlimited stock</p>
+                </div>
+                <div />
               </div>
             </div>
-          </div>
+          </details>
 
-          <VariantBuilder
-            variants={formData.variants}
-            onChange={(variants) => setFormData({ ...formData, variants })}
-          />
+          {/* Advanced - collapsed by default */}
+          <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4">
+            <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900">Advanced</summary>
 
-          <ImageUploader
-            images={formData.images}
-            onChange={(images) => setFormData({ ...formData, images })}
-            maxImages={10}
-            label="Product Images"
-          />
+            <div className="mt-4 space-y-4">
+              <div>
+                <label htmlFor="product-sku" className="block text-sm font-semibold text-gray-700">SKU</label>
+                <input
+                  id="product-sku"
+                  type="text"
+                  value={formData.sku}
+                  onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                  placeholder="PROD-001"
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
 
-          <div>
-            <label htmlFor="product-tags" className="block text-sm font-semibold text-gray-700">Tags (comma-separated)</label>
-            <input
-              id="product-tags"
-              type="text"
-              value={formData.tags}
-              onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-              placeholder="electronics, computers, laptops"
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                <h3 className="text-sm font-semibold text-gray-900">Negotiation Rules</h3>
+                <p className="mt-1 text-xs text-gray-600">Controls what the AI can negotiate for this product.</p>
+
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <label htmlFor="product-negotiation-mode" className="block text-sm font-semibold text-gray-700">Negotiation</label>
+                    <div className="mt-1">
+                      <Select
+                        id="product-negotiation-mode"
+                        value={formData.negotiation_mode}
+                        onChange={(value) => {
+                          const mode = value as any;
+                          const next = { ...formData, negotiation_mode: mode };
+                          if (mode !== 'range') {
+                            next.negotiation_min_price = '';
+                            next.negotiation_max_price = '';
+                          }
+                          setFormData(next);
+                        }}
+                        options={[
+                          { value: "default", label: "Use tenant default" },
+                          { value: "disabled", label: "No negotiation (fixed price)" },
+                          { value: "range", label: "Allow negotiation within a range" },
+                        ]}
+                        searchable={false}
+                      />
+                    </div>
+                  </div>
+
+                  {formData.negotiation_mode === "range" && (
+                    <>
+                      <div>
+                        <label htmlFor="product-negotiation-min" className="block text-sm font-semibold text-gray-700">Min Price</label>
+                        <input
+                          id="product-negotiation-min"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={formData.negotiation_min_price}
+                          onChange={(e) => setFormData({ ...formData, negotiation_min_price: e.target.value })}
+                        aria-invalid={!!fieldErrors.negotiation_min_price}
+                        aria-describedby={fieldErrors.negotiation_min_price ? 'prod-neg-min-error' : undefined}
+                        className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        />
+                        {fieldErrors.negotiation_min_price && <p id="prod-neg-min-error" className="mt-1 text-xs text-rose-600">{fieldErrors.negotiation_min_price}</p>}
+                      </div>
+                      <div>
+                        <label htmlFor="product-negotiation-max" className="block text-sm font-semibold text-gray-700">Max Price</label>
+                        <input
+                          id="product-negotiation-max"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={formData.negotiation_max_price}
+                          onChange={(e) => setFormData({ ...formData, negotiation_max_price: e.target.value })}
+                        aria-invalid={!!fieldErrors.negotiation_max_price}
+                        aria-describedby={fieldErrors.negotiation_max_price ? 'prod-neg-max-error' : undefined}
+                        className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      />
+                      {fieldErrors.negotiation_max_price && <p id="prod-neg-max-error" className="mt-1 text-xs text-rose-600">{fieldErrors.negotiation_max_price}</p>}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </details>
 
           <div className="flex items-center gap-2">
             <input

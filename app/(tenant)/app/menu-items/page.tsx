@@ -175,10 +175,16 @@ export default function MenuItemsPage() {
             </button>
           )}
           <Link
-            href="/app/menu-items/new"
+            href="/app/menu-items/quick-add"
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
           >
             <PlusIcon className="w-4 h-4" />
+            Quick Add / Import
+          </Link>
+          <Link
+            href="/app/menu-items/new"
+            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+          >
             Add Menu Item
           </Link>
         </div>

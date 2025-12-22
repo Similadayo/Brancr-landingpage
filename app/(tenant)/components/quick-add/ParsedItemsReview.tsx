@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { tenantApi } from '@/lib/api';
 import { toast } from 'react-hot-toast';
+import ConfirmModal from '@/app/components/ConfirmModal';
 
 type ParsedItem = {
   name: string;
@@ -13,7 +14,7 @@ type ParsedItem = {
   [key: string]: any;
 };
 
-export default function ParsedItemsReview({ items, onSaved }: { items: ParsedItem[]; onSaved?: () => void }) {
+export default function ParsedItemsReview({ items, industry = 'products', onSaved }: { items: ParsedItem[]; industry?: string; onSaved?: () => void }) {
   const [localItems, setLocalItems] = useState<ParsedItem[]>(items);
   const [saving, setSaving] = useState(false);
 
@@ -33,7 +34,7 @@ export default function ParsedItemsReview({ items, onSaved }: { items: ParsedIte
     try {
       setSaving(true);
       const payload = {
-        key: 'import.products',
+        key: `import.${industry}`,
         title: `Imported items - ${new Date().toLocaleString()}`,
         content: { items: localItems },
       };
@@ -47,18 +48,30 @@ export default function ParsedItemsReview({ items, onSaved }: { items: ParsedIte
     }
   };
 
+  const [confirmCreateOpen, setConfirmCreateOpen] = useState(false);
+
   const createProducts = async () => {
     try {
       setSaving(true);
       for (const it of localItems) {
-        await tenantApi.createProduct({ name: it.name, price: it.price, currency: it.currency });
+        if (industry === 'products') {
+          await tenantApi.createProduct({ name: it.name, price: it.price ?? 0, currency: it.currency ?? 'NGN' });
+        } else if (industry === 'menu') {
+          await tenantApi.createMenuItem({ name: it.name, price: it.price ?? 0, currency: it.currency ?? 'NGN', description: it.description });
+        } else if (industry === 'services') {
+          await tenantApi.createService({ name: it.name, description: it.description, pricing: { type: 'fixed', rate: it.price ?? 0 } });
+        } else {
+          // fallback to product
+          await tenantApi.createProduct({ name: it.name, price: it.price ?? 0, currency: it.currency ?? 'NGN' });
+        }
       }
-      toast.success('Products created');
+      toast.success('Items created');
       onSaved?.();
     } catch (e) {
-      toast.error('Failed to create products');
+      toast.error('Failed to create items');
     } finally {
       setSaving(false);
+      setConfirmCreateOpen(false);
     }
   };
 
@@ -75,13 +88,24 @@ export default function ParsedItemsReview({ items, onSaved }: { items: ParsedIte
             {saving ? 'Saving…' : 'Save as draft'}
           </button>
           <button
-            onClick={createProducts}
+            onClick={() => setConfirmCreateOpen(true)}
             disabled={saving || localItems.length === 0}
             className="rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white"
           >
             {saving ? 'Creating…' : 'Create products'}
           </button>
         </div>
+
+        {confirmCreateOpen && (
+          <ConfirmModal
+            open={true}
+            title={`Create ${localItems.length} item(s)`}
+            description={`Are you sure you want to create ${localItems.length} item(s) in ${industry}? This will add them directly to your catalog.`}
+            confirmText="Create"
+            onConfirm={() => void createProducts()}
+            onCancel={() => setConfirmCreateOpen(false)}
+          />
+        )}
       </div>
 
       <ul className="grid gap-3">
