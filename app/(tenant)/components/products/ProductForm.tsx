@@ -166,5 +166,227 @@ export default function ProductForm({ product }: ProductFormProps) {
     }
   };
 
-  return null;
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/app/products"
+            className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+          >
+            <ArrowLeftIcon className="h-5 w-5" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">
+              {product ? "Edit Product" : "Add Product"}
+            </h1>
+            <p className="mt-1 text-sm text-gray-600">
+              {product ? "Update product details" : "Create a new product"}
+            </p>
+          </div>
+        </div>
+
+        {product && (
+          <>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={deleteMutation.isPending}
+              className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
+            >
+              <TrashIcon className="w-4 h-4" />
+              Delete
+            </button>
+            <ConfirmModal
+              open={showDeleteConfirm}
+              title="Delete product"
+              description="Are you sure you want to delete this product? This action cannot be undone."
+              confirmText="Delete"
+              onConfirm={() => { setShowDeleteConfirm(false); void handleDelete(); }}
+              onCancel={() => setShowDeleteConfirm(false)}
+            />
+          </>
+        )}
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+        <div>
+          <label htmlFor="product-name" className="block text-sm font-semibold text-gray-700">Product Name *</label>
+          <input
+            id="product-name"
+            type="text"
+            required
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+          {fieldErrors.name && <p className="mt-1 text-xs text-red-600">{fieldErrors.name}</p>}
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label htmlFor="product-price" className="block text-sm font-semibold text-gray-700">Price</label>
+            <input
+              id="product-price"
+              type="number"
+              min="0"
+              step="0.01"
+              value={formData.price}
+              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+            {fieldErrors.price && <p className="mt-1 text-xs text-red-600">{fieldErrors.price}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="product-currency" className="block text-sm font-semibold text-gray-700">Currency</label>
+            <Select
+              id="product-currency"
+              value={formData.currency}
+              onChange={(value) => setFormData({ ...formData, currency: value as any })}
+              options={[{ value: 'NGN', label: 'NGN' }, { value: 'USD', label: 'USD' }, { value: 'EUR', label: 'EUR' }]}
+              searchable={false}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="product-sku" className="block text-sm font-semibold text-gray-700">SKU</label>
+            <input
+              id="product-sku"
+              type="text"
+              value={formData.sku}
+              onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="product-stock" className="block text-sm font-semibold text-gray-700">Stock count</label>
+            <input
+              id="product-stock"
+              type="number"
+              value={String(formData.stock_count)}
+              onChange={(e) => setFormData({ ...formData, stock_count: Number(e.target.value) })}
+              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="product-availability" className="block text-sm font-semibold text-gray-700">Availability</label>
+            <Select
+              id="product-availability"
+              value={formData.availability}
+              onChange={(value) => setFormData({ ...formData, availability: value as any })}
+              options={[{ value: 'in_stock', label: 'In stock' }, { value: 'out_of_stock', label: 'Out of stock' }, { value: 'preorder', label: 'Preorder' }]}
+              searchable={false}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="product-category" className="block text-sm font-semibold text-gray-700">Category</label>
+          <input
+            id="product-category"
+            type="text"
+            value={formData.category}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="product-tags" className="block text-sm font-semibold text-gray-700">Tags</label>
+          <input
+            id="product-tags"
+            type="text"
+            placeholder="comma-separated tags"
+            value={formData.tags}
+            onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+            className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+        </div>
+
+        <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4">
+          <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900">Optional</summary>
+
+          <div className="mt-4 space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700">Images</label>
+              <ImageUploader
+                images={formData.images}
+                onChange={(images) => setFormData({ ...formData, images })}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700">Variants</label>
+              <VariantBuilder
+                variants={formData.variants}
+                onChange={(variants) => setFormData({ ...formData, variants })}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700">Negotiation Rules</label>
+              <div className="mt-2 grid grid-cols-3 gap-3">
+                <Select
+                  id="negotiation-mode"
+                  value={formData.negotiation_mode}
+                  onChange={(value) => setFormData({ ...formData, negotiation_mode: value as any })}
+                  options={[{ value: 'default', label: 'Default' }, { value: 'range', label: 'Range' }]}
+                  searchable={false}
+                />
+
+                {formData.negotiation_mode === 'range' && (
+                  <>
+                    <input
+                      type="number"
+                      placeholder="Min price"
+                      value={formData.negotiation_min_price}
+                      onChange={(e) => setFormData({ ...formData, negotiation_min_price: e.target.value })}
+                      className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Max price"
+                      value={formData.negotiation_max_price}
+                      onChange={(e) => setFormData({ ...formData, negotiation_max_price: e.target.value })}
+                      className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                  </>
+                )}
+                {(fieldErrors.negotiation_min_price || fieldErrors.negotiation_max_price) && (
+                  <p className="text-xs text-red-600">{fieldErrors.negotiation_min_price || fieldErrors.negotiation_max_price}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                id="product-active"
+                type="checkbox"
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                className="h-4 w-4 rounded border-gray-200 text-primary focus:ring-primary"
+              />
+              <label htmlFor="product-active" className="text-sm font-medium text-gray-700">Active</label>
+            </div>
+          </div>
+        </details>
+
+        <div className="flex items-center justify-end gap-2">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition disabled:opacity-60"
+          >
+            {isSubmitting ? (product ? 'Updating…' : 'Creating…') : (product ? 'Update product' : 'Create product')}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 }
