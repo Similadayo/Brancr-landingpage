@@ -51,10 +51,6 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 					<h1 className="text-2xl font-semibold">Quick Add — Paste or Upload</h1>
 					<p className="mt-1 text-sm text-gray-600">Paste product lines, menu items, or price lists and we will extract items for you.</p>
 				</div>
-				<div className="w-full sm:w-48">
-					<label className="block text-xs text-gray-500">Add to</label>
-					<Select value={industry} onChange={(v) => setIndustry(String(v))} options={INDUSTRIES} searchable={false} />
-				</div>
 			</div>
 
 			<div>
