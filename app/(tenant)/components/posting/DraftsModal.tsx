@@ -193,7 +193,26 @@ export default function DraftsModal({
           ) : (
             <ul className="space-y-3">
               {drafts.map((d) => (
-                <li key={d.id} className="flex items-start justify-between gap-4 rounded-lg border border-gray-100 p-3">
+                <li
+                  key={d.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Restore draft saved ${new Date(d.updated_at).toLocaleString()}`}
+                  onClick={async () => {
+                    await Promise.resolve(onRestore(d));
+                    toast.success('Draft restored');
+                    onClose();
+                  }}
+                  onKeyDown={async (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      await Promise.resolve(onRestore(d));
+                      toast.success('Draft restored');
+                      onClose();
+                    }
+                  }}
+                  className="flex items-start justify-between gap-4 rounded-lg border border-gray-100 p-3 cursor-pointer hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+                >
                   <div className="min-w-0">
                     <div className="flex items-center gap-3">
                       <div className="text-sm font-medium text-gray-900">Saved {new Date(d.updated_at).toLocaleString()}</div>
@@ -207,7 +226,8 @@ export default function DraftsModal({
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={async () => {
+                      onClick={async (e) => {
+                        e.stopPropagation();
                         await Promise.resolve(onRestore(d));
                         toast.success('Draft restored');
                         onClose();
@@ -217,7 +237,7 @@ export default function DraftsModal({
                       Restore
                     </button>
                     <button
-                      onClick={() => setConfirmDiscard({ open: true, id: d.id })}
+                      onClick={(e) => { e.stopPropagation(); setConfirmDiscard({ open: true, id: d.id }); }}
                       disabled={deletingId === d.id}
                       className="rounded-md border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50"
                     >
