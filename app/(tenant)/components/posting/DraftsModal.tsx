@@ -132,6 +132,22 @@ export default function DraftsModal({
     return () => { mounted = false; };
   }, [open, keyName, onRestore, autoRestoreSingle, onClose, onDiscard]);
 
+  // focus + escape handling for accessibility
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    // focus the title so screen readers land in the dialog
+    try {
+      const el = document.getElementById('drafts-title') as HTMLElement | null;
+      if (el) el.focus();
+    } catch (err) { /* ignore */ }
+
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
   const handleDiscard = async (id: string) => {
     setConfirmDiscard({ open: false });
     setDeletingId(id);
@@ -163,9 +179,9 @@ export default function DraftsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div role="dialog" aria-modal="true" className="z-50 w-full max-w-2xl rounded-xl bg-white p-4 shadow-lg">
+      <div role="dialog" aria-modal="true" aria-labelledby="drafts-title" className="z-50 w-full max-w-2xl rounded-xl bg-white p-4 shadow-lg">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Drafts</h2>
+          <h2 id="drafts-title" tabIndex={-1} className="text-lg font-semibold">Drafts</h2>
           <button onClick={onClose} aria-label="Close" className="text-sm text-gray-500">Close</button>
         </div>
 
