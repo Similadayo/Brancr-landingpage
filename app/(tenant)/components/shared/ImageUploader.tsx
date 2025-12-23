@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { tenantApi } from "@/lib/api";
 import { XIcon, ArrowUpIcon, ArrowDownIcon } from "../icons";
+import MediaLibraryModal from '@/app/(tenant)/components/media/MediaLibraryModal';
 
 type ImageUploaderProps = {
   images: string[];
@@ -15,6 +16,7 @@ type ImageUploaderProps = {
 export default function ImageUploader({ images, onChange, maxImages = 10, label = "Images" }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [libraryOpen, setLibraryOpen] = useState(false);
 
   const handleFileSelect = useCallback(
     async (files: FileList | File[]) => {
@@ -173,27 +175,53 @@ export default function ImageUploader({ images, onChange, maxImages = 10, label 
             className="hidden"
             disabled={isUploading}
           />
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-            className="w-full rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-primary hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isUploading ? (
-              <span className="flex items-center justify-center gap-2">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
-                Uploading...
-              </span>
-            ) : (
-              `+ Add Image${images.length < maxImages - 1 ? 's' : ''} (${images.length}/${maxImages})`
-            )}
-          </button>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="flex-1 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-primary hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isUploading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
+                  Uploading...
+                </span>
+              ) : (
+                `+ Add Image${images.length < maxImages - 1 ? 's' : ''} (${images.length}/${maxImages})`
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setLibraryOpen(true)}
+              disabled={isUploading}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+            >
+              Choose from library
+            </button>
+          </div>
         </div>
       )}
 
       {images.length >= maxImages && (
         <p className="text-xs text-gray-500">Maximum {maxImages} images reached</p>
       )}
+
+      {/* Media Library Modal */}
+      <MediaLibraryModal
+        open={libraryOpen}
+        onClose={() => setLibraryOpen(false)}
+        onSelect={(urls) => {
+          const remaining = maxImages - images.length;
+          const chosen = urls.slice(0, remaining);
+          if (chosen.length === 0) return;
+          onChange([...images, ...chosen]);
+          toast.success(`${chosen.length} image(s) added from library`);
+          setLibraryOpen(false);
+        }}
+      />
     </div>
   );
 }

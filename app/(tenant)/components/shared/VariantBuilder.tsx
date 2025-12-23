@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { PlusIcon, XIcon, TrashIcon } from "../icons";
 
 type VariantBuilderProps = {
@@ -10,27 +10,53 @@ type VariantBuilderProps = {
 
 export default function VariantBuilder({ variants, onChange }: VariantBuilderProps) {
   const [variantTypes, setVariantTypes] = useState<string[]>(Object.keys(variants));
+  const [editingNames, setEditingNames] = useState<Record<string, string>>(
+    Object.keys(variants).reduce((acc: Record<string,string>, k) => {
+      acc[k] = k;
+      return acc;
+    }, {})
+  );
+
+  const refs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const addVariantType = () => {
     const newType = `variant_${Date.now()}`;
-    setVariantTypes([...variantTypes, newType]);
+    setVariantTypes((prev) => [...prev, newType]);
+    setEditingNames((prev) => ({ ...prev, [newType]: '' }));
     onChange({ ...variants, [newType]: [] });
+
+    // focus the new input on next tick
+    setTimeout(() => {
+      const ref = refs.current[newType];
+      if (ref) ref.focus();
+    }, 0);
   };
 
   const removeVariantType = (type: string) => {
     const newTypes = variantTypes.filter((t) => t !== type);
     const newVariants = { ...variants };
     delete newVariants[type];
+    const newEditing = { ...editingNames };
+    delete newEditing[type];
     setVariantTypes(newTypes);
+    setEditingNames(newEditing);
     onChange(newVariants);
   };
 
-  const updateVariantTypeName = (oldName: string, newName: string) => {
-    if (newName === oldName || !newName.trim()) return;
-    
+  const finalizeVariantTypeName = (oldName: string) => {
+    const newName = (editingNames[oldName] || '').trim();
+    if (!newName || newName === oldName) return;
+
+    // Prevent duplicate names
+    if (variantTypes.some((t) => t === newName)) {
+      // If a duplicate exists, don't rename
+      setEditingNames((prev) => ({ ...prev, [oldName]: oldName }));
+      return;
+    }
+
     const newTypes = variantTypes.map((t) => (t === oldName ? newName : t));
     const newVariants: Record<string, string[]> = {};
-    
+
     Object.keys(variants).forEach((key) => {
       if (key === oldName) {
         newVariants[newName] = variants[key];
@@ -38,8 +64,18 @@ export default function VariantBuilder({ variants, onChange }: VariantBuilderPro
         newVariants[key] = variants[key];
       }
     });
-    
+
+    const newEditing: Record<string,string> = {};
+    Object.keys(editingNames).forEach((k) => {
+      if (k === oldName) {
+        newEditing[newName] = newName;
+      } else {
+        newEditing[k] = editingNames[k];
+      }
+    });
+
     setVariantTypes(newTypes);
+    setEditingNames(newEditing);
     onChange(newVariants);
   };
 
@@ -80,8 +116,16 @@ export default function VariantBuilder({ variants, onChange }: VariantBuilderPro
               <div className="mb-2 flex items-center gap-2">
                 <input
                   type="text"
-                  value={type}
-                  onChange={(e) => updateVariantTypeName(type, e.target.value)}
+                  ref={(el) => { refs.current[type] = el; }}
+                  value={editingNames[type] ?? ''}
+                  onChange={(e) => setEditingNames((prev) => ({ ...prev, [type]: e.target.value }))}
+                  onBlur={() => finalizeVariantTypeName(type)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      finalizeVariantTypeName(type);
+                    }
+                  }}
                   placeholder="e.g., Size, Color"
                   className="flex-1 rounded border border-gray-300 bg-white px-2 py-1 text-sm font-medium text-gray-700 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
@@ -119,7 +163,7 @@ export default function VariantBuilder({ variants, onChange }: VariantBuilderPro
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder={`Add ${type} value...`}
+                    placeholder={`Add ${editingNames[type] || 'value'}...`}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
