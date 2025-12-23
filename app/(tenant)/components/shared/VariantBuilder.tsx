@@ -100,7 +100,7 @@ export default function VariantBuilder({ variants, onChange }: VariantBuilderPro
         <button
           type="button"
           onClick={addVariantType}
-          className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
+          className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:shadow focus:outline-none"
         >
           <PlusIcon className="w-3.5 h-3.5" />
           Add Variant Type
@@ -160,7 +160,7 @@ export default function VariantBuilder({ variants, onChange }: VariantBuilderPro
                   ))}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
                     placeholder={`Add ${editingNames[type] || 'value'}...`}
@@ -172,7 +172,7 @@ export default function VariantBuilder({ variants, onChange }: VariantBuilderPro
                         input.value = '';
                       }
                     }}
-                    className="flex-1 rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full rounded border border-gray-300 bg-white px-2 py-2 text-sm text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                   <button
                     type="button"
@@ -183,7 +183,7 @@ export default function VariantBuilder({ variants, onChange }: VariantBuilderPro
                         input.value = '';
                       }
                     }}
-                    className="rounded border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
+                    className="w-full sm:w-auto rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                   >
                     Add
                   </button>

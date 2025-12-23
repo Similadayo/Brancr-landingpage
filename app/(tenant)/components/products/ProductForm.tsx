@@ -87,6 +87,7 @@ export default function ProductForm({ product }: ProductFormProps) {
       }, {} as Record<string,string>);
       return { ...base, ...nextErrors };
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.negotiation_mode, formData.negotiation_min_price, formData.negotiation_max_price]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -169,7 +170,7 @@ export default function ProductForm({ product }: ProductFormProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Link
             href="/app/products"
@@ -188,11 +189,11 @@ export default function ProductForm({ product }: ProductFormProps) {
         </div>
 
         {product && (
-          <>
+          <div className="mt-3 sm:mt-0">
             <button
               onClick={() => setShowDeleteConfirm(true)}
               disabled={deleteMutation.isPending}
-              className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
             >
               <TrashIcon className="w-4 h-4" />
               Delete
@@ -205,12 +206,12 @@ export default function ProductForm({ product }: ProductFormProps) {
               onConfirm={() => { setShowDeleteConfirm(false); void handleDelete(); }}
               onCancel={() => setShowDeleteConfirm(false)}
             />
-          </>
+          </div>
         )}
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-4">
         <div>
           <label htmlFor="product-name" className="block text-sm font-semibold text-gray-700">Product Name *</label>
           <input
@@ -224,7 +225,7 @@ export default function ProductForm({ product }: ProductFormProps) {
           {fieldErrors.name && <p className="mt-1 text-xs text-red-600">{fieldErrors.name}</p>}
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label htmlFor="product-price" className="block text-sm font-semibold text-gray-700">Price</label>
             <input
@@ -262,7 +263,7 @@ export default function ProductForm({ product }: ProductFormProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label htmlFor="product-stock" className="block text-sm font-semibold text-gray-700">Stock count</label>
             <input
@@ -310,7 +311,10 @@ export default function ProductForm({ product }: ProductFormProps) {
         </div>
 
         <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4">
-          <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900">Optional</summary>
+          <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900 flex items-center justify-between">
+            <span>Optional</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.939l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clipRule="evenodd"/></svg>
+          </summary>
 
           <div className="mt-4 space-y-4">
             <div>
@@ -331,7 +335,7 @@ export default function ProductForm({ product }: ProductFormProps) {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700">Negotiation Rules</label>
-              <div className="mt-2 grid grid-cols-3 gap-3">
+              <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Select
                   id="negotiation-mode"
                   value={formData.negotiation_mode}
@@ -381,7 +385,7 @@ export default function ProductForm({ product }: ProductFormProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition disabled:opacity-60"
+            className="w-full sm:w-auto inline-flex justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition disabled:opacity-60"
           >
             {isSubmitting ? (product ? 'Updating…' : 'Creating…') : (product ? 'Update product' : 'Create product')}
           </button>

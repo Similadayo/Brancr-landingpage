@@ -45,13 +45,13 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 	};
 
 	return (
-		<div className="space-y-6">
-			<div className="flex items-center justify-between">
+		<div className="space-y-6 max-w-3xl mx-auto">
+			<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 				<div>
 					<h1 className="text-2xl font-semibold">Quick Add — Paste or Upload</h1>
 					<p className="mt-1 text-sm text-gray-600">Paste product lines, menu items, or price lists and we will extract items for you.</p>
 				</div>
-				<div className="w-48">
+				<div className="w-full sm:w-48">
 					<label className="block text-xs text-gray-500">Add to</label>
 					<Select value={industry} onChange={(v) => setIndustry(String(v))} options={INDUSTRIES} searchable={false} />
 				</div>
@@ -69,11 +69,12 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 				/>
 			</div>
 
-			<div className="flex items-center gap-3">
-				<button onClick={handleParse} disabled={parsing} className="rounded-md bg-primary px-4 py-2 text-white font-semibold">
-					{parsing ? 'Parsing…' : 'Parse'}
-				</button>
-				<input type="file" accept=".csv,.txt,.docx" onChange={async (e) => {
+<div className="flex flex-col sm:flex-row items-center gap-3">
+			<button onClick={handleParse} disabled={parsing} className="w-full sm:w-auto rounded-lg bg-primary px-4 py-2 text-white font-semibold shadow-sm hover:bg-primary/90">
+				{parsing ? 'Parsing…' : 'Parse'}
+			</button>
+			<label className="w-full sm:w-auto inline-flex items-center gap-2 justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 cursor-pointer hover:bg-gray-50">
+				<input type="file" accept=".csv,.txt,.docx" className="hidden" onChange={async (e) => {
 					const file = e.target.files?.[0];
 					if (!file) return;
 					const form = new FormData();
@@ -134,6 +135,8 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 						setParsing(false);
 					}
 				}} />
+				Choose File
+			</label>
 			</div>
 
 			<div>
@@ -145,7 +148,7 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 				{parsed ? (
 					<ParsedItemsReview items={parsed} industry={industry} onSaved={() => setParsed(null)} />
 				) : (
-					<div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-8 text-center">
+					<div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-6 sm:p-8 text-center">
 						<p className="text-sm text-gray-600">No parsed items yet. Paste text or upload a small file to begin.</p>
 					</div>
 				)}

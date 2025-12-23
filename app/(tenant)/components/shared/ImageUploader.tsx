@@ -169,6 +169,7 @@ export default function ImageUploader({ images, onChange, maxImages = 10, label 
           <input
             ref={fileInputRef}
             type="file"
+            aria-label="Choose images to upload"
             multiple
             accept="image/jpeg,image/png,image/gif,image/webp"
             onChange={handleFileInput}
@@ -176,12 +177,12 @@ export default function ImageUploader({ images, onChange, maxImages = 10, label 
             disabled={isUploading}
           />
 
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="flex-1 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-primary hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:flex-1 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-primary hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isUploading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -197,7 +198,7 @@ export default function ImageUploader({ images, onChange, maxImages = 10, label 
               type="button"
               onClick={() => setLibraryOpen(true)}
               disabled={isUploading}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+              className="w-full sm:w-auto inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
             >
               Choose from library
             </button>
