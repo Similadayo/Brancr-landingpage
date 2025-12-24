@@ -96,16 +96,27 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // dark mode persisted via localStorage (toggle in shell)
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased bg-white">
+      <head>
         <script
           dangerouslySetInnerHTML={{
-            __html:
-              "(function(){try{var d=document.documentElement;d.classList.remove('dark');document.body&&document.body.classList&&document.body.classList.remove('dark');localStorage.removeItem('theme');localStorage.removeItem('theme:dark');}catch(e){}})();",
+            __html: `
+              (function() {
+                try {
+                  const theme = localStorage.getItem('theme');
+                  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  const shouldBeDark = theme === 'dark' || (!theme && systemPrefersDark);
+                  if (shouldBeDark) {
+                    document.documentElement.classList.add('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
           }}
         />
+      </head>
+      <body className="antialiased bg-white dark:bg-gray-900">
         <ErrorBoundary>
           <Providers>
             <GoogleAnalytics />

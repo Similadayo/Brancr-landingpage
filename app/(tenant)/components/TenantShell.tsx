@@ -36,6 +36,7 @@ import {
 import { CommandPalette } from "./CommandPalette";
 import { NotificationsBell } from "./NotificationsBell";
 import AIToggle from './AIToggle';
+import ThemeToggle from "@/app/components/ThemeToggle";
 
 type NavItem = {
   label: string;
@@ -72,6 +73,33 @@ const ONBOARDING_SUMMARY_ITEM: NavItem = { label: "Onboarding Summary", href: "/
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
+}
+
+// Helper function to get display name and initials from tenant
+function getTenantDisplayInfo(tenant: any) {
+  const displayName = (
+    tenant?.business_profile?.name?.trim() || 
+    tenant?.business_name?.trim() || 
+    tenant?.name?.trim() || 
+    tenant?.email?.split("@")[0] || 
+    "User"
+  );
+  
+  const nameParts = displayName.split(/\s+/).filter(Boolean);
+  let initials = "";
+  
+  if (nameParts.length > 0) {
+    const firstInitial = nameParts[0]?.charAt(0)?.toUpperCase() || "";
+    const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1]?.charAt(0)?.toUpperCase() || "" : "";
+    initials = firstInitial + lastInitial;
+  }
+  
+  // Ensure we always have at least one initial
+  if (!initials || initials.length === 0) {
+    initials = displayName.charAt(0).toUpperCase() || "U";
+  }
+  
+  return { displayName, initials };
 }
 
 export function TenantShell({ children }: { children: ReactNode }) {
@@ -259,7 +287,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-bg">
+      <div className="flex min-h-screen items-center justify-center bg-neutral-bg dark:bg-gray-900">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-accent/20 border-t-accent" />
       </div>
     );
@@ -267,10 +295,10 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-bg px-4">
-        <div className="max-w-md rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-xl">
-          <h1 className="text-2xl font-semibold text-gray-900">We couldn’t load your workspace</h1>
-          <p className="mt-3 text-sm text-gray-600">{error}</p>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-bg dark:bg-gray-900 px-4">
+        <div className="max-w-md rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 text-center shadow-xl">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">We couldn't load your workspace</h1>
+          <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">{error}</p>
           <button
             onClick={refresh}
             className="mt-6 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow hover:bg-accent/90"
@@ -295,16 +323,16 @@ export function TenantShell({ children }: { children: ReactNode }) {
         key={item.href}
         href={item.href}
         onClick={() => setIsMobileNavOpen(false)}
-        className={cn(
-          "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
-          isActive
-            ? "bg-accent/10 text-accent shadow-sm"
-            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-        )}
+          className={cn(
+            "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
+            isActive
+              ? "bg-accent/10 text-accent shadow-sm dark:bg-accent/20"
+              : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100"
+          )}
       >
         <span
           className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 transition group-hover:bg-accent/10 group-hover:text-accent",
+            "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 transition group-hover:bg-accent/10 dark:group-hover:bg-accent/20 group-hover:text-accent",
             isActive && "bg-accent text-white group-hover:bg-accent"
           )}
           aria-hidden
@@ -319,7 +347,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                 {typeof item.badge === "number" && item.badge > 99 ? "99+" : item.badge}
               </span>
             )}
-            <span className="text-xs text-gray-400 group-hover:text-accent" aria-hidden>
+            <span className="text-xs text-gray-400 dark:text-gray-500 group-hover:text-accent" aria-hidden>
               {isActive ? "•" : "→"}
             </span>
           </>
@@ -360,16 +388,16 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
         {/* Settings Section (Collapsible) */}
         {!compact && (
-          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={() => setIsSettingsExpanded(!isSettingsExpanded)}
-              className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition"
+              className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
             >
               <span className="flex items-center gap-2">
                 <SettingsIcon className="w-5 h-5" />
                 <span>Settings</span>
               </span>
-              <span className="text-xs text-gray-400" aria-hidden>
+              <span className="text-xs text-gray-400 dark:text-gray-500" aria-hidden>
                 {isSettingsExpanded ? (
                   <ChevronDownIcon className="w-4 h-4" />
                 ) : (
@@ -393,7 +421,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
         {/* Settings Section (Compact/Collapsed) */}
         {compact && (
-          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             {settingsNavItems.map((item) => {
               const isSettingsRoot = item.href === "/app/settings";
               const isActive = isSettingsRoot
@@ -411,7 +439,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
     <div
       data-tenant-shell
       data-tenant-page={isInboxPage ? "inbox" : "default"}
-      className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100"
+      className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900"
     >
       {/* Mobile overlay */}
       {isMobileNavOpen ? (
@@ -422,19 +450,19 @@ export function TenantShell({ children }: { children: ReactNode }) {
       ) : null}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-gray-200 bg-white px-6 py-6 shadow-2xl transition-transform lg:hidden",
+          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 px-6 py-6 shadow-2xl transition-transform lg:hidden",
           isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <div className="flex items-center justify-between">
-          <Link href="/app" className="flex items-center gap-3 text-lg font-semibold text-gray-900">
+          <Link href="/app" className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-gray-100">
             <Image src="/logo-dark.svg" alt="Brancr" width={36} height={36} />
             Brancr
           </Link>
           <button
             type="button"
             onClick={() => setIsMobileNavOpen(false)}
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+            className="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
             aria-label="Close navigation"
           >
             <XIcon className="w-5 h-5" />
@@ -445,39 +473,36 @@ export function TenantShell({ children }: { children: ReactNode }) {
             <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Navigate</p>
             {renderNavItems(false)}
           </div>
-          <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-sky-100 px-5 py-4 text-sm text-gray-600">
-            <p className="text-xs uppercase tracking-[0.3em] text-sky-600">Plan</p>
-            <p className="mt-2 text-base font-semibold text-gray-900 capitalize">{tenant.plan ?? "trial"}</p>
-            <p className="mt-2 text-xs text-gray-500">
+          <div className="rounded-2xl border border-sky-100 dark:border-sky-900 bg-gradient-to-br from-sky-50 via-white to-sky-100 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 px-5 py-4 text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-xs uppercase tracking-[0.3em] text-sky-600 dark:text-sky-400">Plan</p>
+            <p className="mt-2 text-base font-semibold text-gray-900 dark:text-gray-100 capitalize">{tenant.plan ?? "trial"}</p>
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
               Track usage, upgrade your plan, and manage billing from settings.
             </p>
                   <Link
                     href="/app/settings/billing"
-                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2 text-xs font-semibold text-sky-700 shadow-sm hover:bg-white"
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/70 dark:bg-gray-700/70 px-3 py-2 text-xs font-semibold text-sky-700 dark:text-sky-400 shadow-sm hover:bg-white dark:hover:bg-gray-700"
                   >
                     Manage plan <ExternalLinkIcon className="w-3 h-3" aria-hidden />
                   </Link>
           </div>
-          <div className="rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm">
-            <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Account</p>
-            <div className="mt-3 flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm">
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 p-4 shadow-sm">
+            <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Account</p>
+            <div className="mt-3 flex items-center gap-3 rounded-xl bg-white dark:bg-gray-700 px-4 py-3 shadow-sm">
               {(() => {
-                const displayName = (tenant?.business_profile?.name?.trim() || tenant?.business_name?.trim() || tenant?.name?.trim() || tenant?.email?.split("@")[0] || "User");
-                const nameParts = displayName.split(/\s+/).filter(Boolean);
-                const initials = (nameParts[0]?.charAt(0) || "U") + (nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "");
-                const initialsUpper = initials.toUpperCase();
+                const { displayName, initials } = getTenantDisplayInfo(tenant);
                 return (
                   <>
                     {(tenant?.business_profile?.logo_url || tenant?.logo_url) ? (
                       <Image src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
                     ) : (
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
-                        {initialsUpper}
+                        {initials}
                       </div>
                     )}
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{displayName}</p>
-                      <p className="text-xs text-gray-500">{tenant?.email}</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{displayName}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{tenant?.email}</p>
                     </div>
                   </>
                 );
@@ -499,12 +524,12 @@ export function TenantShell({ children }: { children: ReactNode }) {
         {/* Desktop sidebar */}
         <aside
           className={cn(
-          "sticky top-0 hidden h-screen shrink-0 border-r border-gray-200 bg-white px-4 py-6 transition-all duration-300 lg:flex lg:flex-col",
+          "sticky top-0 hidden h-screen shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-6 transition-all duration-300 lg:flex lg:flex-col",
           sidebarWidthClass
           )}
         >
           <div className={cn("flex items-center gap-3", isSidebarCollapsed && "justify-center")}>
-            <Link href="/app" className="flex items-center gap-3 text-lg font-semibold text-gray-900">
+            <Link href="/app" className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-gray-100">
               <Image src="/logo-dark.svg" alt="Brancr" width={36} height={36} />
               {!isSidebarCollapsed ? <span>Brancr</span> : null}
             </Link>
@@ -517,63 +542,60 @@ export function TenantShell({ children }: { children: ReactNode }) {
           >
             <div className="shrink-0">
               {!isSidebarCollapsed ? (
-                <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Navigate</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Navigate</p>
               ) : null}
               {renderNavItems(isSidebarCollapsed)}
             </div>
             <div
               className={cn(
-                "rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-sky-100 px-4 py-4 text-sm text-gray-600 transition",
+                "rounded-2xl border border-sky-100 dark:border-sky-900 bg-gradient-to-br from-sky-50 via-white to-sky-100 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 px-4 py-4 text-sm text-gray-600 dark:text-gray-400 transition",
                 isSidebarCollapsed && "px-3 text-center"
               )}
             >
               <p className="text-xs uppercase tracking-[0.3em] text-sky-600">Plan</p>
               {!isSidebarCollapsed ? (
                 <>
-                  <p className="mt-3 text-base font-semibold text-gray-900 capitalize">{tenant.plan ?? "trial"}</p>
-                  <p className="mt-2 text-xs text-gray-500">
+                  <p className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100 capitalize">{tenant.plan ?? "trial"}</p>
+                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                     Track usage, upgrade your plan, and manage billing from settings.
                   </p>
                   <Link
                     href="/app/settings/billing"
-                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/70 px-3 py-2 text-xs font-semibold text-sky-700 shadow-sm hover:bg-white"
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/70 dark:bg-gray-700/70 px-3 py-2 text-xs font-semibold text-sky-700 dark:text-sky-400 shadow-sm hover:bg-white dark:hover:bg-gray-700"
                   >
                     Manage plan <ExternalLinkIcon className="w-3 h-3" aria-hidden />
                   </Link>
                 </>
               ) : (
-                <span className="mt-3 block text-xs font-semibold capitalize text-gray-900">
+                <span className="mt-3 block text-xs font-semibold capitalize text-gray-900 dark:text-gray-100">
                   {tenant.plan ?? "trial"}
                 </span>
               )}
             </div>
             <div
               className={cn(
-                "rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm",
+                "rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 p-4 shadow-sm",
                 isSidebarCollapsed && "px-2 text-center"
               )}
             >
               {!isSidebarCollapsed ? (
                 <>
-                  <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Account</p>
-                  <div className="mt-3 flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm">
+                  <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Account</p>
+                  <div className="mt-3 flex items-center gap-3 rounded-xl bg-white dark:bg-gray-700 px-4 py-3 shadow-sm">
                     {(() => {
-                      const displayName = (tenant?.business_profile?.name?.trim() || tenant?.business_name?.trim() || tenant?.name?.trim() || tenant?.email?.split("@")[0] || "User");
-                      const nameParts = displayName.split(/\s+/).filter(Boolean);
-                      const initials = (nameParts[0]?.charAt(0) || "U") + (nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "");
-                      const initialsUpper = initials.toUpperCase();
+                      const { displayName, initials } = getTenantDisplayInfo(tenant);
                       return (
                         <>
                           {(tenant?.business_profile?.logo_url || tenant?.logo_url) ? (
                             <Image src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
                           ) : (
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
-                              {initialsUpper}
+                              {initials}
                             </div>
                           )}
                           <div>
-                            <p className="text-sm font-semibold text-gray-900">{displayName}</p>
-                            <p className="text-xs text-gray-500">{tenant?.email}</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{displayName}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{tenant?.email}</p>
                           </div>
                         </>
                       );
@@ -583,20 +605,17 @@ export function TenantShell({ children }: { children: ReactNode }) {
               ) : (
                 <div className="flex flex-col items-center gap-3">
                   {(() => {
-                    const displayName = (tenant?.business_profile?.name?.trim() || tenant?.business_name?.trim() || tenant?.name?.trim() || tenant?.email?.split("@")[0] || "User");
-                    const nameParts = displayName.split(/\s+/).filter(Boolean);
-                    const initials = (nameParts[0]?.charAt(0) || "U") + (nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "");
-                    const initialsUpper = initials.toUpperCase();
+                    const { displayName, initials } = getTenantDisplayInfo(tenant);
                     return (
                       <>
                         {(tenant?.business_profile?.logo_url || tenant?.logo_url) ? (
                           <Image src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
                         ) : (
                           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
-                            {initialsUpper}
+                            {initials}
                           </div>
                         )}
-                        <span className="text-xs font-semibold text-gray-600">Account</span>
+                        <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">{displayName}</span>
                       </>
                     );
                   })()}
@@ -606,7 +625,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                 type="button"
                 onClick={handleSignOut}
                 disabled={isSigningOut}
-                className="mt-4 w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-4 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSigningOut ? "Signing out…" : "Sign out"}
               </button>
@@ -615,7 +634,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => setIsSidebarCollapsed((prev) => !prev)}
-            className="mt-auto flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-500 transition hover:border-accent hover:text-accent"
+            className="mt-auto flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-500 dark:text-gray-400 transition hover:border-accent hover:text-accent"
             aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             <ChevronLeftIcon
@@ -626,38 +645,38 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
         <div className="flex min-h-screen flex-1 flex-col">
           {/* Top Header Bar with Stats */}
-          <header className="sticky top-0 z-20 border-b border-gray-200 bg-white shadow-sm">
+          <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
             <div className="px-4 lg:px-6">
               <div className="flex h-16 items-center justify-between">
                 <div className="flex items-center gap-4">
                   <button
                     type="button"
                     onClick={() => setIsMobileNavOpen(true)}
-                    className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-600 shadow-sm transition hover:border-accent hover:text-accent lg:hidden"
+                    className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 shadow-sm transition hover:border-accent hover:text-accent lg:hidden"
                     aria-label="Open navigation menu"
                   >
                     <MenuIcon className="w-5 h-5" />
                   </button>
                   <div>
-                    <h1 className="text-lg font-semibold text-gray-900">{currentNav?.label ?? "Overview"}</h1>
+                    <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{currentNav?.label ?? "Overview"}</h1>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   {/* Global Stats */}
                   <div className="hidden items-center gap-4 lg:flex">
                     <div className="text-right">
-                      <p className="text-xs font-medium text-gray-500">Connected</p>
-                      <p className="text-sm font-bold text-gray-900">
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Connected</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
                         {stats.connectedChannels}/{stats.totalChannels || 4}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-medium text-gray-500">Posts</p>
-                      <p className="text-sm font-bold text-gray-900">{stats.scheduledPosts}</p>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Posts</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{stats.scheduledPosts}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-medium text-gray-500">Conversations</p>
-                      <p className="text-sm font-bold text-gray-900">{stats.conversations}</p>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Conversations</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{stats.conversations}</p>
                     </div>
                   </div>
                   {/* AI Mode Toggle */}
@@ -674,52 +693,51 @@ export function TenantShell({ children }: { children: ReactNode }) {
                       />
                     </div>
                   </div>
+                  <ThemeToggle />
                   <NotificationsBell />
                   {/* User Profile */}
                   <div className="relative" ref={profileMenuRef}>
                     <button
                       type="button"
                       onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-                      className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-accent hover:text-accent"
+                      className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm transition hover:border-accent hover:text-accent"
                     >
                       {(() => {
-                        const displayName = (tenant?.business_profile?.name?.trim() || tenant?.business_name?.trim() || tenant?.name?.trim() || tenant?.email?.split("@")[0] || "User");
+                        const { displayName, initials } = getTenantDisplayInfo(tenant);
                         const nameParts = displayName.split(/\s+/).filter(Boolean);
-                        const initials = (nameParts[0]?.charAt(0) || "U") + (nameParts.length > 1 ? nameParts[nameParts.length - 1].charAt(0) : "");
-                        const initialsUpper = initials.toUpperCase();
                         return (
                           <>
                             {(tenant?.business_profile?.logo_url || tenant?.logo_url) ? (
                               <Image src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} width={32} height={32} className="h-8 w-8 rounded-full object-cover" />
                             ) : (
                               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
-                                {initialsUpper}
+                                {initials}
                               </span>
                             )}
                             <span className="hidden text-left leading-tight lg:block">
-                              <span className="block text-xs text-gray-500">{nameParts[0] || displayName}</span>
-                              <span className="text-xs capitalize">{tenant?.plan ?? "trial"}</span>
+                              <span className="block text-xs text-gray-500 dark:text-gray-400">{displayName}</span>
+                              <span className="text-xs capitalize text-gray-600 dark:text-gray-300">{tenant?.plan ?? "trial"}</span>
                             </span>
                           </>
                         );
                       })()}
                       <ChevronDownIcon
-                        className={cn("w-4 h-4 text-gray-400 transition-transform", isProfileMenuOpen && "rotate-180")}
+                        className={cn("w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform", isProfileMenuOpen && "rotate-180")}
                         aria-hidden
                       />
                     </button>
                     {isProfileMenuOpen ? (
-                      <div className="absolute right-0 z-30 mt-2 w-48 rounded-xl border border-gray-200 bg-white p-2 shadow-lg">
+                      <div className="absolute right-0 z-30 mt-2 w-48 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 shadow-lg">
                         <Link
                           href="/app/settings"
-                          className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-accent"
+                          className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-accent"
                           onClick={() => setIsProfileMenuOpen(false)}
                         >
                           Settings
                         </Link>
                         <Link
                           href="/app/settings/billing"
-                          className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-accent"
+                          className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-accent"
                           onClick={() => setIsProfileMenuOpen(false)}
                         >
                           Upgrade plan

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   return (
@@ -10,7 +11,7 @@ export default function Header() {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100"
+      className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800"
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
@@ -28,25 +29,26 @@ export default function Header() {
           <div className="hidden md:flex items-center space-x-8">
             <Link
               href="#features"
-              className="text-gray-700 hover:text-primary transition-colors text-sm font-medium"
+              className="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors text-sm font-medium"
             >
               Features
             </Link>
             <Link
               href="#about"
-              className="text-gray-700 hover:text-primary transition-colors text-sm font-medium"
+              className="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors text-sm font-medium"
             >
               About
             </Link>
             <Link
               href="#contact"
-              className="text-gray-700 hover:text-primary transition-colors text-sm font-medium"
+              className="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors text-sm font-medium"
             >
               Contact
             </Link>
           </div>
 
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <Link
               href="/waitlist"
               className="bg-primary text-white px-6 py-2.5 rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors shadow-sm"
