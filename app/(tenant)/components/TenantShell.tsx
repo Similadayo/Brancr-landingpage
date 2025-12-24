@@ -297,7 +297,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-bg dark:bg-gray-900 px-4">
         <div className="max-w-md rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 text-center shadow-xl">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">We couldn't load your workspace</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">We couldn&apos;t load your workspace</h1>
           <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">{error}</p>
           <button
             onClick={refresh}

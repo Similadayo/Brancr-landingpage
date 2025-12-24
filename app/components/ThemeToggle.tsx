@@ -1,10 +1,60 @@
 'use client';
 
-import { useTheme } from '../providers/ThemeProvider';
+import { useState, useEffect, useContext } from 'react';
+import { ThemeContext } from '../providers/ThemeProvider';
 
-export default function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+// Create a wrapper that handles the case where ThemeProvider might not be available
+function ThemeToggleInner() {
+  const context = useContext(ThemeContext);
+  
+  if (context) {
+    return <ThemeToggleButton theme={context.theme} toggleTheme={context.toggleTheme} />;
+  }
+  
+  // If ThemeProvider is not available, use standalone mode
+  return <StandaloneThemeToggle />;
+}
 
+function StandaloneThemeToggle() {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+      setTheme(initialTheme);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('theme', newTheme);
+      const root = document.documentElement;
+      if (newTheme === 'dark') {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    }
+  };
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center rounded-lg border border-gray-200 bg-white p-2 text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 w-[36px] h-[36px]">
+        <div className="h-5 w-5" />
+      </div>
+    );
+  }
+
+  return <ThemeToggleButton theme={theme} toggleTheme={toggleTheme} />;
+}
+
+function ThemeToggleButton({ theme, toggleTheme }: { theme: 'light' | 'dark'; toggleTheme: () => void }) {
   return (
     <button
       type="button"
@@ -47,5 +97,9 @@ export default function ThemeToggle() {
       )}
     </button>
   );
+}
+
+export default function ThemeToggle() {
+  return <ThemeToggleInner />;
 }
 
