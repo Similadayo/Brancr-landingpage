@@ -357,15 +357,15 @@ export default function InboxPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-120px)] -mx-4 -mt-2 -mb-8 overflow-hidden bg-white w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] md:-mx-6">
+    <div className="h-[calc(100vh-120px)] -mx-4 -mt-2 -mb-8 overflow-hidden bg-white dark:bg-gray-900 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] md:-mx-6">
       {/* Main Content - Three Panel Layout */}
       <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
         {/* Left Panel - Conversation List */}
-        <section className={`flex flex-col h-full border-r border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
+        <section className={`flex flex-col h-full border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-transform duration-300 overflow-hidden ${
           mobileView === "chat" ? "hidden md:flex" : "flex"
         }`}>
           {/* Status Tabs */}
-          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
+          <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 md:px-4 md:py-2.5">
             <div className="flex gap-1 flex-wrap">
               {STATUS_FILTERS.map((tab) => {
                 const isActive = activeStatusFilter === tab || (tab === "All" && activeStatusFilter === "All");
@@ -375,7 +375,7 @@ export default function InboxPage() {
                     className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                       isActive
                         ? "bg-primary text-white"
-                        : "text-gray-600 hover:bg-gray-100"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                     }`}
                     onClick={() => setActiveStatusFilter(tab)}
                   >
@@ -388,13 +388,13 @@ export default function InboxPage() {
 
           {/* Platform Filters */}
           {availablePlatforms.length > 0 && (
-            <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
+            <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 md:px-4 md:py-2.5">
               <div className="flex gap-1.5 flex-wrap">
                 <button
                   className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                     activePlatformFilter === "All"
-                      ? "bg-blue-100 text-primary border border-primary/20"
-                      : "text-gray-600 hover:bg-gray-100 border border-gray-200"
+                      ? "bg-blue-100 dark:bg-blue-900/30 text-primary dark:text-blue-400 border border-primary/20 dark:border-blue-800"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
                   }`}
                   onClick={() => setActivePlatformFilter("All")}
                 >
@@ -421,8 +421,8 @@ export default function InboxPage() {
                       key={platform}
                       className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                         isActive
-                          ? "bg-blue-100 text-primary border border-primary/20"
-                          : "text-gray-600 hover:bg-gray-100 border border-gray-200"
+                          ? "bg-blue-100 dark:bg-blue-900/30 text-primary dark:text-blue-400 border border-primary/20 dark:border-blue-800"
+                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
                       }`}
                       onClick={() => setActivePlatformFilter(platform)}
                     >
@@ -436,7 +436,7 @@ export default function InboxPage() {
           )}
           
           {/* Search */}
-          <div className="flex-shrink-0 border-b border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5">
+          <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 md:px-4 md:py-2.5">
             <div className="relative">
               <MagnifyingGlassIcon
                 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
@@ -447,7 +447,7 @@ export default function InboxPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by name"
-                className="w-full h-10 rounded-lg border border-gray-300 bg-white pl-11 pr-10 text-sm text-gray-900 placeholder:text-gray-500 transition hover:border-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full h-10 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 pl-11 pr-10 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 transition hover:border-gray-400 dark:hover:border-gray-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
               <FunnelIcon
                 className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
@@ -463,8 +463,8 @@ export default function InboxPage() {
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
               </div>
             ) : error ? (
-              <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 md:p-6 text-center m-3">
-                <p className="text-sm font-semibold text-rose-900">
+              <div className="rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20 p-4 md:p-6 text-center m-3">
+                <p className="text-sm font-semibold text-rose-900 dark:text-rose-300">
                   {getUserFriendlyErrorMessage(error, {
                     action: 'loading conversations',
                     resource: 'conversations',
@@ -478,21 +478,21 @@ export default function InboxPage() {
                 </button>
               </div>
             ) : sortedConversations.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 md:p-8 text-center m-3">
-                <InboxIcon className="mx-auto h-10 w-10 md:h-12 md:w-12 text-gray-400" />
-                <p className="mt-3 text-sm font-medium text-gray-900">
+              <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-6 md:p-8 text-center m-3">
+                <InboxIcon className="mx-auto h-10 w-10 md:h-12 md:w-12 text-gray-400 dark:text-gray-500" />
+                <p className="mt-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                   {searchQuery || activeStatusFilter !== "All"
                     ? "No conversations found"
                     : "No conversations yet"}
                 </p>
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   {searchQuery || activeStatusFilter !== "All"
                     ? "Try adjusting your filters"
                     : "Conversations will appear here when customers reach out"}
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-100 dark:divide-gray-700">
                 {sortedConversations.map((conversation) => {
                   const isActive = selectedConversationId === String(conversation.id);
                   const unread = conversation.unread_count > 0;
@@ -511,8 +511,8 @@ export default function InboxPage() {
                       onClick={() => handleConversationSelect(String(conversation.id))}
                       className={`group w-full px-3 py-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary/60 ${
                         isActive
-                          ? "bg-blue-50 border-l-4 border-primary shadow-sm"
-                          : "hover:bg-gray-50"
+                          ? "bg-blue-50 dark:bg-blue-900/20 border-l-4 border-primary shadow-sm"
+                          : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
                       }`}
                     >
                       <div className="flex items-start gap-3">
@@ -533,26 +533,26 @@ export default function InboxPage() {
                             </div>
                           )}
                           {/* Platform icon badge */}
-                          <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white border-2 border-white">
-                            <PlatformIcon className="h-3 w-3 text-gray-600" />
+                          <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white dark:bg-gray-800 border-2 border-white dark:border-gray-800">
+                            <PlatformIcon className="h-3 w-3 text-gray-600 dark:text-gray-400" />
                           </div>
                         </div>
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <span className={`text-sm ${unread ? "font-semibold" : "font-medium"} text-gray-900 truncate`}>{conversation.customer_name}</span>
+                            <span className={`text-sm ${unread ? "font-semibold" : "font-medium"} text-gray-900 dark:text-gray-100 truncate`}>{conversation.customer_name}</span>
                             <div className="flex items-center gap-2 flex-shrink-0 ml-2">
                               {unread && (
-                                <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                                <span className="inline-flex items-center rounded-full bg-primary/10 dark:bg-primary/20 px-2 py-0.5 text-[11px] font-semibold text-primary dark:text-blue-400">
                                   {conversation.unread_count > 9 ? "9+" : conversation.unread_count}
                                 </span>
                               )}
-                              <span className="text-xs text-gray-500">{formatTime(conversation.last_message_at)}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">{formatTime(conversation.last_message_at)}</span>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
                             {conversation.last_message_media?.type && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:text-gray-300">
                                 {conversation.last_message_media.type === 'audio' && '🎤 Audio'}
                                 {conversation.last_message_media.type === 'image' && '📷 Image'}
                                 {conversation.last_message_media.type === 'video' && '🎥 Video'}
@@ -560,7 +560,7 @@ export default function InboxPage() {
                                 {conversation.last_message_media.type === 'sticker' && '😊 Sticker'}
                               </span>
                             )}
-                            <p className="line-clamp-1 text-sm text-gray-600">{conversation.last_message || "No messages"}</p>
+                            <p className="line-clamp-1 text-sm text-gray-600 dark:text-gray-400">{conversation.last_message || "No messages"}</p>
                           </div>
                         </div>
                       </div>
@@ -573,19 +573,19 @@ export default function InboxPage() {
         </section>
 
         {/* Center Panel - Chat Conversation */}
-        <section className={`flex h-full flex-col bg-white border-r border-gray-200 transition-transform duration-300 overflow-hidden ${
+        <section className={`flex h-full flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-transform duration-300 overflow-hidden ${
           mobileView === "list" ? "hidden md:flex" : "flex"
         }`}>
           {activeConversation ? (
             <>
               {/* Chat Header - Fixed */}
-              <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 z-10">
+              <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 z-10">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back button - Mobile only */}
                   {mobileView === "chat" && (
                     <button
                       onClick={() => setMobileView("list")}
-                      className="flex-shrink-0 rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors md:hidden"
+                      className="flex-shrink-0 rounded-lg p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors md:hidden"
                       aria-label="Back to conversations"
                     >
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -608,7 +608,7 @@ export default function InboxPage() {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h2 className="text-base font-semibold text-gray-900 truncate">{activeConversation.customer_name}</h2>
+                    <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">{activeConversation.customer_name}</h2>
                     <div className="flex items-center gap-1 mt-0.5">
                       {(() => {
                         const platform = activeConversation.platform.toLowerCase();
@@ -684,7 +684,7 @@ export default function InboxPage() {
                         <div
                           className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-sm ${
                             isIncoming
-                              ? "bg-white border border-gray-100"
+                              ? "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
                               : "bg-primary text-white"
                           }`}
                           role="article"
@@ -698,7 +698,7 @@ export default function InboxPage() {
                               {message.content && 
                                !message.content.match(/^\[(Voice note|Image|Video|Document|Sticker)\]:\s*/i) && (
                                 <p className={`text-sm whitespace-pre-wrap break-words ${
-                                  isOutgoing ? "text-white/90" : "text-gray-600"
+                                  isOutgoing ? "text-white/90" : "text-gray-600 dark:text-gray-300"
                                 }`}>
                                   {message.content}
                                 </p>
@@ -708,7 +708,7 @@ export default function InboxPage() {
                             /* Text Content - Only show if no media */
                             message.content && (
                               <p className={`text-sm whitespace-pre-wrap break-words ${
-                                isOutgoing ? "text-white" : "text-gray-700"
+                                isOutgoing ? "text-white" : "text-gray-700 dark:text-gray-200"
                               }`}>
                                 {message.content}
                               </p>
@@ -717,7 +717,7 @@ export default function InboxPage() {
                           
                           {/* Timestamp */}
                           <div className={`mt-2 text-xs ${
-                            isOutgoing ? "text-white/70" : "text-gray-500"
+                            isOutgoing ? "text-white/70" : "text-gray-500 dark:text-gray-400"
                           }`}>
                             {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
                           </div>
@@ -727,7 +727,7 @@ export default function InboxPage() {
                   })}
                   {messages.length === 0 && (
                     <div className="flex items-center justify-center py-12">
-                      <p className="text-sm text-gray-500">No messages yet</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">No messages yet</p>
                     </div>
                   )}
                   <div ref={messagesEndRef} />
@@ -735,7 +735,7 @@ export default function InboxPage() {
               </div>
 
               {/* Message Input - Fixed */}
-              <div className="flex-shrink-0 border-t border-gray-200 bg-white px-4 py-3 z-10">
+              <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 z-10">
                 <div className="flex items-end gap-2">
                   <div className="relative">
                     <button 
@@ -770,7 +770,7 @@ export default function InboxPage() {
                     placeholder="Type message here.."
                     aria-label="Message input"
                     aria-describedby="message-input-hint"
-                    className="min-h-[44px] max-h-[120px] flex-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-700 transition-all focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                    className="min-h-[44px] max-h-[120px] flex-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 transition-all focus:border-primary focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                   />
                   <span id="message-input-hint" className="sr-only">
                     Press Cmd+Enter or Ctrl+Enter to send
@@ -824,12 +824,12 @@ export default function InboxPage() {
                 {attachments.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {attachments.map((file, index) => (
-                      <span key={`${file.name}-${index}`} className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-700 border border-gray-200">
+                      <span key={`${file.name}-${index}`} className="inline-flex items-center gap-2 rounded-full bg-gray-100 dark:bg-gray-700 px-3 py-1 text-xs text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
                         <span className="truncate max-w-[140px]" title={file.name}>{file.name}</span>
                         <button
                           type="button"
                           onClick={() => handleRemoveAttachment(index)}
-                          className="rounded-full p-1 text-gray-500 hover:bg-gray-200"
+                          className="rounded-full p-1 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
                           aria-label={`Remove ${file.name}`}
                         >
                           ✕
@@ -841,15 +841,15 @@ export default function InboxPage() {
               </div>
             </>
           ) : (
-            <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center text-gray-500 px-4">
-              <InboxIcon className="h-12 w-12 text-gray-400" />
+            <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center text-gray-500 dark:text-gray-400 px-4">
+              <InboxIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
               <p className="text-sm">Select a conversation to view messages</p>
             </div>
           )}
         </section>
 
         {/* Right Panel - Analytics or Chat Details */}
-        <aside className={`hidden md:flex flex-col h-full border-l border-gray-200 bg-white transition-transform duration-300 overflow-hidden ${
+        <aside className={`hidden md:flex flex-col h-full border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-transform duration-300 overflow-hidden ${
           mobileView === "list" ? "hidden" : ""
         }`}>
           {activeConversation ? (
@@ -863,8 +863,8 @@ export default function InboxPage() {
                   return (
                     <>
                       {/* Header - Fixed */}
-                      <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
-                        <h3 className="text-sm font-semibold text-gray-900">Platform Analytics</h3>
+                      <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Platform Analytics</h3>
                       </div>
                       {/* Analytics Content - Scrollable */}
                       <div className="flex-1 overflow-y-auto min-h-0">
@@ -878,8 +878,8 @@ export default function InboxPage() {
                   return (
                     <>
                       {/* Header - Fixed */}
-                      <div className="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-3">
-                        <h3 className="text-sm font-semibold text-gray-900">Chat Details</h3>
+                      <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Chat Details</h3>
                       </div>
                       {/* Content - Scrollable */}
                       <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
@@ -896,20 +896,20 @@ export default function InboxPage() {
                                 unoptimized
                               />
                             ) : (
-                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-base font-medium text-gray-600 flex-shrink-0">
+                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-base font-medium text-gray-600 dark:text-gray-300 flex-shrink-0">
                                 {(activeConversation.customer_name || "?").charAt(0).toUpperCase()}
                               </div>
                             )}
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-gray-900">{activeConversation.customer_name}</p>
+                              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{activeConversation.customer_name}</p>
                               {activeConversation.customer_phone ? (
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
                                   {activeConversation.customer_country_code 
                                     ? `+${activeConversation.customer_country_code} ${activeConversation.customer_dial_code || activeConversation.customer_phone}`
                                     : activeConversation.customer_phone}
                                 </p>
                               ) : (
-                                <p className="text-xs text-gray-400 italic">No phone number</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500 italic">No phone number</p>
                               )}
                             </div>
                           </div>
@@ -917,7 +917,7 @@ export default function InboxPage() {
                             <button className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white hover:bg-primary/90 transition-colors">
                               Call
                             </button>
-                            <button className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+                            <button className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
                               Chat
                             </button>
                           </div>
@@ -925,18 +925,18 @@ export default function InboxPage() {
 
                         {/* AI Mode (tenant-wide only) */}
                         <div className="mb-6">
-                          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">AI Mode</h4>
-                          <p className="text-xs text-gray-500">Tenant-wide setting: <span className="font-semibold">{tenantAIMode === 'ai' ? 'AI' : 'Human'}</span></p>
+                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">AI Mode</h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Tenant-wide setting: <span className="font-semibold">{tenantAIMode === 'ai' ? 'AI' : 'Human'}</span></p>
                         </div>
 
                         {/* Contact Information */}
                         <div className="mb-6">
-                          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Contact Information</h4>
+                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Contact Information</h4>
                           <div className="space-y-2 text-xs">
                             {activeConversation.customer_phone && (
                               <div className="flex justify-between">
-                                <span className="text-gray-500">Phone:</span>
-                                <span className="text-gray-900 font-medium">
+                                <span className="text-gray-500 dark:text-gray-400">Phone:</span>
+                                <span className="text-gray-900 dark:text-gray-100 font-medium">
                                   {activeConversation.customer_country_code 
                                     ? `+${activeConversation.customer_country_code} ${activeConversation.customer_dial_code || activeConversation.customer_phone}`
                                     : activeConversation.customer_phone}
@@ -945,20 +945,20 @@ export default function InboxPage() {
                             )}
                             {activeConversation.customer_country_code && (
                               <div className="flex justify-between">
-                                <span className="text-gray-500">Country Code:</span>
-                                <span className="text-gray-900 font-medium">+{activeConversation.customer_country_code}</span>
+                                <span className="text-gray-500 dark:text-gray-400">Country Code:</span>
+                                <span className="text-gray-900 dark:text-gray-100 font-medium">+{activeConversation.customer_country_code}</span>
                               </div>
                             )}
                             {activeConversation.customer_dial_code && (
                               <div className="flex justify-between">
-                                <span className="text-gray-500">Dial Code:</span>
-                                <span className="text-gray-900 font-medium">{activeConversation.customer_dial_code}</span>
+                                <span className="text-gray-500 dark:text-gray-400">Dial Code:</span>
+                                <span className="text-gray-900 dark:text-gray-100 font-medium">{activeConversation.customer_dial_code}</span>
                               </div>
                             )}
                           </div>
                           <div className="flex justify-between mt-3">
-                            <span className="text-gray-500">Start chat:</span>
-                            <span className="text-gray-900 font-medium">
+                            <span className="text-gray-500 dark:text-gray-400">Start chat:</span>
+                            <span className="text-gray-900 dark:text-gray-100 font-medium">
                               {new Date(activeConversation.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
                             </span>
                           </div>
@@ -973,7 +973,7 @@ export default function InboxPage() {
             </>
           ) : (
             <div className="flex flex-1 items-center justify-center">
-              <p className="text-sm text-gray-500">Select a conversation</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Select a conversation</p>
             </div>
           )}
         </aside>
