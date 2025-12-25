@@ -37,6 +37,7 @@ import { CommandPalette } from "./CommandPalette";
 import { NotificationsBell } from "./NotificationsBell";
 import AIToggle from './AIToggle';
 import ThemeToggle from "@/app/components/ThemeToggle";
+import { useScheduledPosts } from "../hooks/useScheduledPosts";
 
 type NavItem = {
   label: string;
@@ -129,11 +130,9 @@ export function TenantShell({ children }: { children: ReactNode }) {
   const { data: integrationsData } = useIntegrations();
   const integrations = Array.isArray(integrationsData) ? integrationsData : [];
   
-  const { data: scheduledPostsData } = useQuery({
-    queryKey: ["scheduled-posts"],
-    queryFn: () => tenantApi.scheduledPosts(),
-    enabled: !!tenant,
-  });
+  // Use the same hook as Overview page for consistency
+  const { data: scheduledPostsData } = useScheduledPosts();
+  const scheduledPosts = Array.isArray(scheduledPostsData) ? scheduledPostsData : [];
 
   const { data: conversationsData } = useQuery({
     queryKey: ["conversations"],
@@ -144,10 +143,11 @@ export function TenantShell({ children }: { children: ReactNode }) {
   const stats = useMemo(() => {
     const connectedChannels = integrations.filter((i) => i.connected).length;
     const totalChannels = 4; // Always 4 platforms: Facebook, Instagram, Telegram, WhatsApp
-    const scheduledPosts = scheduledPostsData?.scheduled_posts?.length || 0;
+    // Count all posts (same as Overview page)
+    const totalPosts = scheduledPosts.length;
     const conversations = conversationsData?.conversations?.length || 0;
-    return { connectedChannels, totalChannels, scheduledPosts, conversations };
-  }, [integrations, scheduledPostsData, conversationsData]);
+    return { connectedChannels, totalChannels, scheduledPosts: totalPosts, conversations };
+  }, [integrations, scheduledPosts, conversationsData]);
 
   // Fetch escalations for badge count
   const { data: escalationsData } = useQuery({
