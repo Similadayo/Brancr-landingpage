@@ -154,16 +154,25 @@ export default function MenuItemsPage() {
           onCancel={() => setShowBulkDeleteConfirm(false)}
         />
       )}
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <PackageIcon className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Menu Items</h1>
-            <p className="mt-1 text-sm text-gray-600">Manage your restaurant menu</p>
-          </div>
+      {/* Modern Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-700 dark:from-primary-dark dark:via-primary-dark/95 dark:to-primary-dark/90 sm:p-8 md:p-10">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
         </div>
+        <div className="relative z-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <PackageIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
+                <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Menu Items</h1>
+              </div>
+              <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+                Manage your restaurant menu
+              </p>
+            </div>
         <div className="flex flex-wrap items-center gap-2">
           {selectedIds.length > 0 && (
             <button
@@ -187,8 +196,10 @@ export default function MenuItemsPage() {
           >
             Add Menu Item
           </Link>
+            </div>
+          </div>
         </div>
-      </header>
+      </div>
 
       <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

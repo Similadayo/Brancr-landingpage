@@ -163,18 +163,26 @@ export default function MediaLibraryPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <ImageIcon className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Media Library</h1>
-            <p className="mt-1 text-sm text-gray-600">Manage your images and videos for posts and campaigns</p>
-          </div>
+      {/* Modern Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-700 dark:from-primary-dark dark:via-primary-dark/95 dark:to-primary-dark/90 sm:p-8 md:p-10">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="relative z-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <ImageIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
+                <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Media Library</h1>
+              </div>
+              <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+                Manage your images and videos for posts and campaigns
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setIsUploadOpen(true)}
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105"
@@ -182,8 +190,10 @@ export default function MediaLibraryPage() {
             <PlusIcon className="w-4 h-4" />
             Upload Media
           </button>
+            </div>
+          </div>
         </div>
-      </header>
+      </div>
 
       {/* Filters and Search */}
       <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
