@@ -31,24 +31,37 @@ export default function TemplatesPage() {
   };
 
   return (
-    <div className="space-y-10">
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Message Templates</h1>
-          <p className="mt-2 max-w-2xl text-sm text-gray-600">
-            Pre-approved message templates for WhatsApp Business and other platforms.
-          </p>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Modern Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-700 dark:from-primary-dark dark:via-primary-dark/95 dark:to-primary-dark/90 sm:p-8 md:p-10">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
         </div>
-        <Link
-          href="/app/templates/new"
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary/90"
-        >
-          Create Template
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-        </Link>
-      </header>
+        <div className="relative z-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Message Templates</h1>
+              <p className="mt-2 text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+                Pre-approved message templates for WhatsApp Business and other platforms.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/app/templates/new"
+                className="btn-primary w-full sm:w-auto justify-center"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Create Template
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">

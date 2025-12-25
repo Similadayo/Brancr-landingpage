@@ -384,87 +384,100 @@ export default function NewPostPage() {
   }, [router]);
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Create Post</h1>
-          <p className="mt-2 max-w-2xl text-sm font-medium text-gray-700">
-            Step {currentStepIndex + 1} of {STEPS.length}: {currentStepLabel}
-          </p>
-          {remoteDraftAvailable && (
-            <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 flex items-center justify-between">
-              <div>Newer draft available — saved at {new Date(remoteDraftAvailable.updated_at).toLocaleString()}.</div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={async () => {
-                    await restoreRemote(remoteDraftAvailable.id);
-                    setRemoteDraftAvailable(null);
-                    // Show toast with discard action
-                    const savedAgo = Math.max(0, Date.now() - new Date(remoteDraftAvailable.updated_at).getTime());
-                    const mins = Math.floor(savedAgo / 60000);
-                    const text = mins < 1 ? 'less than a minute ago' : `${mins} minute${mins > 1 ? 's' : ''} ago`;
-                    toast((t) => (
-                      <div className="flex items-center gap-3">
-                        <div>Restored draft — saved {text}</div>
-                        <button
-                          className="ml-4 rounded-md bg-white px-2 py-1 text-xs font-semibold text-rose-600 border border-rose-200"
-                          onClick={async () => {
-                            try {
-                              await deleteDraft(remoteDraftAvailable.id);
-                              toast.success('Draft discarded');
-                              toast.dismiss(t.id);
-                            } catch (e) {
-                              toast.error('Failed to discard draft');
-                            }
-                          }}
-                        >
-                          Discard
-                        </button>
-                      </div>
-                    ), { duration: 8000 });
-                  }}
-                  className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90"
-                >
-                  Restore
-                </button>
-                <button
-                  onClick={() => setRemoteDraftAvailable(null)}
-                  className="rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-50"
-                >
-                  Dismiss
-                </button>
-              </div>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Modern Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-accent via-accent/95 to-accent/90 p-6 shadow-xl dark:border-gray-700 dark:from-accent-dark dark:via-accent-dark/95 dark:to-accent-dark/90 sm:p-8 md:p-10">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
+        </div>
+        <div className="relative z-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Create Post</h1>
+              <p className="mt-2 text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+                Step {currentStepIndex + 1} of {STEPS.length}: {currentStepLabel}
+              </p>
             </div>
-          )}
+          </div>
+        </div>
+      </div>
 
-          {/* Drafts / Restore button */}
-          <div className="mt-3">
-            <button
-              type="button"
-              onClick={() => setShowDraftsModal(true)}
-              className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-gray-300"
-            >
-              Drafts
-            </button>
+      {/* Drafts / Restore button - moved outside hero */}
+      {remoteDraftAvailable && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          <div className="flex items-center justify-between">
+            <div>Newer draft available — saved at {new Date(remoteDraftAvailable.updated_at).toLocaleString()}.</div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={async () => {
+                  await restoreRemote(remoteDraftAvailable.id);
+                  setRemoteDraftAvailable(null);
+                  const savedAgo = Math.max(0, Date.now() - new Date(remoteDraftAvailable.updated_at).getTime());
+                  const mins = Math.floor(savedAgo / 60000);
+                  const text = mins < 1 ? 'less than a minute ago' : `${mins} minute${mins > 1 ? 's' : ''} ago`;
+                  toast((t) => (
+                    <div className="flex items-center gap-3">
+                      <div>Restored draft — saved {text}</div>
+                      <button
+                        className="ml-4 rounded-md bg-white px-2 py-1 text-xs font-semibold text-rose-600 border border-rose-200"
+                        onClick={async () => {
+                          try {
+                            await deleteDraft(remoteDraftAvailable.id);
+                            toast.success('Draft discarded');
+                            toast.dismiss(t.id);
+                          } catch (e) {
+                            toast.error('Failed to discard draft');
+                          }
+                        }}
+                      >
+                        Discard
+                      </button>
+                    </div>
+                  ), { duration: 8000 });
+                }}
+                className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90"
+              >
+                Restore
+              </button>
+              <button
+                onClick={() => setRemoteDraftAvailable(null)}
+                className="rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-50"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Drafts button and status */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowDraftsModal(true)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-gray-300"
+          >
+            Drafts
+          </button>
+          <div aria-live="polite" aria-atomic="true">
+            {navigator.onLine === false ? (
+              <span className="text-xs text-gray-500">Offline — Saved locally</span>
+            ) : draftStatus === 'saving' ? (
+              <span className="text-xs text-gray-500">Saving…</span>
+            ) : draftStatus === 'saved' ? (
+              <span className="text-xs text-gray-500">{lastSyncedAt ? `Saved at ${new Date(lastSyncedAt).toLocaleTimeString()}` : 'Saved'}</span>
+            ) : draftStatus === 'error' ? (
+              <span className="text-xs text-rose-600">Save failed (retrying)</span>
+            ) : (
+              <span className="text-xs text-gray-500">Draft status: {draftStatus}</span>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-3">
-            <div aria-live="polite" aria-atomic="true">
-              {navigator.onLine === false ? (
-                <span className="text-xs text-gray-500">Offline — Saved locally</span>
-              ) : draftStatus === 'saving' ? (
-                <span className="text-xs text-gray-500">Saving…</span>
-              ) : draftStatus === 'saved' ? (
-                <span className="text-xs text-gray-500">{lastSyncedAt ? `Saved at ${new Date(lastSyncedAt).toLocaleTimeString()}` : 'Saved'}</span>
-              ) : draftStatus === 'error' ? (
-                <span className="text-xs text-rose-600">Save failed (retrying)</span>
-              ) : (
-                <span className="text-xs text-gray-500">Draft status: {draftStatus}</span>
-              )}
-            </div>
-          </div>
-
           <button
             type="button"
             onClick={handleCancel}
@@ -479,7 +492,7 @@ export default function NewPostPage() {
             ← Back to Campaigns
           </Link>
         </div>
-      </header>
+      </div>
 
       {showCancelConfirm && (
         <ConfirmModal

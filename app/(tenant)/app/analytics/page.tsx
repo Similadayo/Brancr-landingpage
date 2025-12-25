@@ -126,47 +126,55 @@ export default function AnalyticsPage() {
   }, [analytics]);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <ChartBarIcon className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Analytics & Insights</h1>
-            <p className="mt-1 text-sm text-gray-600">
-              Monitor messaging efficiency and channel health
-            </p>
-          </div>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Modern Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-700 dark:from-primary-dark dark:via-primary-dark/95 dark:to-primary-dark/90 sm:p-8 md:p-10">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
         </div>
-        <div className="flex flex-wrap gap-3">
-          <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-sm">
-            <CalendarIcon className="h-4 w-4 text-gray-400" />
-            <div className="w-44">
-              <Select
-                value={dateFilter}
-                onChange={(value) => setDateFilter(value || dateFilter)}
-                searchable={false}
-                buttonClassName="border-0 bg-transparent shadow-none px-0 py-0 text-sm font-semibold text-gray-900 focus:ring-0"
-                options={DATE_FILTERS.map((filter) => ({ value: filter, label: filter }))}
-              />
+        <div className="relative z-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <ChartBarIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
+                <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Analytics & Insights</h1>
+              </div>
+              <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+                Monitor messaging efficiency and channel health
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <div className="flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2.5 shadow-sm">
+                <CalendarIcon className="h-4 w-4 text-white/90" />
+                <div className="w-44">
+                  <Select
+                    value={dateFilter}
+                    onChange={(value) => setDateFilter(value || dateFilter)}
+                    searchable={false}
+                    buttonClassName="border-0 bg-transparent shadow-none px-0 py-0 text-sm font-semibold text-white focus:ring-0"
+                    options={DATE_FILTERS.map((filter) => ({ value: filter, label: filter }))}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2.5 shadow-sm">
+                <FunnelIcon className="h-4 w-4 text-white/90" />
+                <div className="w-44">
+                  <Select
+                    value={channelFilter}
+                    onChange={(value) => setChannelFilter(value || channelFilter)}
+                    searchable={false}
+                    buttonClassName="border-0 bg-transparent shadow-none px-0 py-0 text-sm font-semibold text-white focus:ring-0"
+                    options={CHANNEL_FILTERS.map((filter) => ({ value: filter, label: filter }))}
+                  />
+                </div>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 shadow-sm">
-            <FunnelIcon className="h-4 w-4 text-gray-400" />
-            <div className="w-44">
-              <Select
-                value={channelFilter}
-                onChange={(value) => setChannelFilter(value || channelFilter)}
-                searchable={false}
-                buttonClassName="border-0 bg-transparent shadow-none px-0 py-0 text-sm font-semibold text-gray-900 focus:ring-0"
-                options={CHANNEL_FILTERS.map((filter) => ({ value: filter, label: filter }))}
-              />
-            </div>
-          </div>
         </div>
-      </header>
+      </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">

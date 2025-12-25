@@ -10,6 +10,7 @@ import {
   useIgnoreEscalation,
   useResolveEscalation,
 } from "@/app/(tenant)/hooks/useEscalations";
+import { ChevronLeftIcon } from "../../../components/icons";
 
 const PRIORITY_COLORS: Record<string, string> = {
   low: "bg-gray-100 text-gray-700",
@@ -126,18 +127,31 @@ export default function EscalationDetailPage() {
   };
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <Link
-            href="/app/escalations"
-            className="mb-2 inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-primary"
-          >
-            ← Back to Escalations
-          </Link>
-          <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Escalation Details</h1>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Modern Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-warning via-warning/95 to-warning/90 p-6 shadow-xl dark:border-gray-700 dark:from-warning dark:via-warning/95 dark:to-warning/90 sm:p-8 md:p-10">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
         </div>
-      </header>
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-3">
+            <Link
+              href="/app/escalations"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/30 bg-white/10 backdrop-blur-sm text-white transition hover:border-white/50 hover:bg-white/20"
+              aria-label="Back to escalations"
+            >
+              <ChevronLeftIcon className="h-5 w-5" />
+            </Link>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Escalation Details</h1>
+              <p className="mt-1 text-sm text-white/90">{customerName}</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
         {/* Main Content */}

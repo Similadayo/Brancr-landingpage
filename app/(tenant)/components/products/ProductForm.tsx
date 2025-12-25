@@ -168,47 +168,56 @@ export default function ProductForm({ product }: ProductFormProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/app/products"
-            className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
-          >
-            <ArrowLeftIcon className="h-5 w-5" />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">
-              {product ? "Edit Product" : "Add Product"}
-            </h1>
-            <p className="mt-1 text-sm text-gray-600">
-              {product ? "Update product details" : "Create a new product"}
-            </p>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Modern Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-700 dark:from-primary-dark dark:via-primary-dark/95 dark:to-primary-dark/90 sm:p-8 md:p-10">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
+        </div>
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-3">
+            <Link
+              href="/app/products"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/30 bg-white/10 backdrop-blur-sm text-white transition hover:border-white/50 hover:bg-white/20"
+              aria-label="Back to products"
+            >
+              <ArrowLeftIcon className="h-5 w-5" />
+            </Link>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">
+                {product ? "Edit Product" : "Add Product"}
+              </h1>
+              <p className="mt-1 text-sm text-white/90">
+                {product ? "Update product details" : "Create a new product"}
+              </p>
+            </div>
           </div>
         </div>
-
-        {product && (
-          <div className="mt-3 sm:mt-0">
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              disabled={deleteMutation.isPending}
-              className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
-            >
-              <TrashIcon className="w-4 h-4" />
-              Delete
-            </button>
-            <ConfirmModal
-              open={showDeleteConfirm}
-              title="Delete product"
-              description="Are you sure you want to delete this product? This action cannot be undone."
-              confirmText="Delete"
-              onConfirm={() => { setShowDeleteConfirm(false); void handleDelete(); }}
-              onCancel={() => setShowDeleteConfirm(false)}
-            />
-          </div>
-        )}
       </div>
+
+      {product && (
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            disabled={deleteMutation.isPending}
+            className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
+          >
+            <TrashIcon className="w-4 h-4" />
+            Delete
+          </button>
+          <ConfirmModal
+            open={showDeleteConfirm}
+            title="Delete product"
+            description="Are you sure you want to delete this product? This action cannot be undone."
+            confirmText="Delete"
+            onConfirm={() => { setShowDeleteConfirm(false); void handleDelete(); }}
+            onCancel={() => setShowDeleteConfirm(false)}
+          />
+        </div>
+      )}
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-4">

@@ -42,21 +42,37 @@ const statusStyles = {
 
 export default function IntegrationHistoryPage() {
   return (
-    <div className="space-y-10">
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Integration Audit Log</h1>
-          <p className="mt-2 max-w-2xl text-sm text-gray-600">
-            Track all integration events, connection changes, and authentication activity.
-          </p>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Modern Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-accent via-accent/95 to-accent/90 p-6 shadow-xl dark:border-gray-700 dark:from-accent-dark dark:via-accent-dark/95 dark:to-accent-dark/90 sm:p-8 md:p-10">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
         </div>
-        <Link
-          href="/app/integrations"
-          className="inline-flex items-center rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-primary hover:text-primary"
-        >
-          ← Back to Integrations
-        </Link>
-      </header>
+        <div className="relative z-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <Link
+                  href="/app/integrations"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/30 bg-white/10 backdrop-blur-sm text-white transition hover:border-white/50 hover:bg-white/20"
+                  aria-label="Back to integrations"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </Link>
+                <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Integration Audit Log</h1>
+              </div>
+              <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+                Track all integration events, connection changes, and authentication activity.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <section className="rounded-3xl border border-gray-200 bg-white/80 p-8 shadow-sm">
         <div className="space-y-4">

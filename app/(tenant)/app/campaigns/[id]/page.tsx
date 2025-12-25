@@ -138,41 +138,50 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
           onCancel={() => setShowCancelConfirm(false)}
         />
       )}
-      {/* Header */}
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/app/campaigns"
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-primary hover:text-primary"
-            aria-label="Back to campaigns"
-          >
-            <ChevronLeftIcon className="h-5 w-5" />
-          </Link>
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">{post.name}</h1>
-            <div className="mt-2 flex flex-wrap items-center gap-3">
-              <span className="text-sm text-gray-500">
-                Created {new Date(post.created_at).toLocaleDateString([], {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </span>
-              <span
-                className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}
-              >
-                {statusStyle.icon}
-                {post.status}
-              </span>
-              {post.posted_at && (
-                <span className="text-sm text-gray-500">
-                  Posted {post.posted_at ? new Date(post.posted_at).toLocaleDateString() : "N/A"}
+      {/* Modern Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-accent via-accent/95 to-accent/90 p-6 shadow-xl dark:border-gray-700 dark:from-accent dark:via-accent/95 dark:to-accent/90 sm:p-8 md:p-10">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
+        </div>
+        <div className="relative z-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <Link
+                  href="/app/campaigns"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/30 bg-white/10 backdrop-blur-sm text-white transition hover:border-white/50 hover:bg-white/20"
+                  aria-label="Back to campaigns"
+                >
+                  <ChevronLeftIcon className="h-5 w-5" />
+                </Link>
+                <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl truncate">{post.name}</h1>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-sm text-white/90">
+                  Created {new Date(post.created_at).toLocaleDateString([], {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </span>
-              )}
+                <span
+                  className={`inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/20 backdrop-blur-sm px-2.5 py-0.5 text-xs font-semibold capitalize text-white ${statusStyle.border}`}
+                >
+                  {statusStyle.icon}
+                  {post.status}
+                </span>
+                {post.posted_at && (
+                  <span className="text-sm text-white/90">
+                    Posted {post.posted_at ? new Date(post.posted_at).toLocaleDateString() : "N/A"}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3">
           {canPublish && (
             <button
               onClick={handlePublishNow}
@@ -211,8 +220,9 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
               )}
             </button>
           )}
+          </div>
         </div>
-      </header>
+      </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

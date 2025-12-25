@@ -181,15 +181,32 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
 
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/app/menu-items" className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
-            <ArrowLeftIcon className="h-5 w-5" />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">{item ? "Edit Menu Item" : "Add Menu Item"}</h1>
-            <p className="mt-1 text-sm text-gray-600">{item ? "Update menu item details" : "Create a new menu item for your restaurant"}</p>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Modern Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-700 dark:from-primary-dark dark:via-primary-dark/95 dark:to-primary-dark/90 sm:p-8 md:p-10">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
+        </div>
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-3">
+            <Link
+              href="/app/menu-items"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/30 bg-white/10 backdrop-blur-sm text-white transition hover:border-white/50 hover:bg-white/20"
+              aria-label="Back to menu items"
+            >
+              <ArrowLeftIcon className="h-5 w-5" />
+            </Link>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">
+                {item ? "Edit Menu Item" : "Add Menu Item"}
+              </h1>
+              <p className="mt-1 text-sm text-white/90">
+                {item ? "Update menu item details" : "Create a new menu item for your restaurant"}
+              </p>
+            </div>
           </div>
         </div>
       </div>
