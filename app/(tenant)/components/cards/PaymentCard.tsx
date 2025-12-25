@@ -48,7 +48,7 @@ export function PaymentCard({
           <div className="flex items-center gap-2 flex-wrap mb-3">
             <StatusBadge status={status}>
               {getStatusIcon(status)}
-              <span className="capitalize">{status}</span>
+              {status}
             </StatusBadge>
             {payment_method && (
               <Badge variant="neutral" size="sm">

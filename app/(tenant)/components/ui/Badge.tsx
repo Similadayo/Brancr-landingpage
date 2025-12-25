@@ -23,9 +23,9 @@ const variantStyles = {
 };
 
 const sizeStyles = {
-  sm: 'px-2 py-0.5 text-[10px]',
-  md: 'px-2.5 py-0.5 text-xs',
-  lg: 'px-3 py-1 text-sm',
+  sm: 'px-2 py-0.5 text-[10px] uppercase tracking-wider',
+  md: 'px-2.5 py-0.5 text-xs uppercase tracking-wider',
+  lg: 'px-3 py-1 text-sm uppercase tracking-wider',
 };
 
 export function Badge({
@@ -54,9 +54,11 @@ export function Badge({
 export function StatusBadge({
   status,
   children,
+  size = 'sm',
 }: {
   status: string;
   children?: ReactNode;
+  size?: 'sm' | 'md' | 'lg';
 }) {
   const statusLower = status.toLowerCase();
   
@@ -72,7 +74,7 @@ export function StatusBadge({
   }
 
   return (
-    <Badge variant={variant}>
+    <Badge variant={variant} size={size}>
       {children || status}
     </Badge>
   );

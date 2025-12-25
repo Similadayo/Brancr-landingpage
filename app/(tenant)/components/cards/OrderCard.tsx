@@ -60,7 +60,7 @@ export function OrderCard({
             )}
             <StatusBadge status={status}>
               {getStatusIcon(status)}
-              <span className="capitalize">{status}</span>
+              {status}
             </StatusBadge>
           </div>
           
