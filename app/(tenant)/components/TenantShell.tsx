@@ -324,17 +324,17 @@ export function TenantShell({ children }: { children: ReactNode }) {
         href={item.href}
         onClick={() => setIsMobileNavOpen(false)}
         className={cn(
-          "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+          "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
           isActive
             ? "bg-accent/10 text-accent border-l-4 border-accent shadow-sm dark:bg-accent/20"
-            : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 border-l-4 border-transparent"
+            : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-gray-100 border-l-4 border-transparent"
         )}
         aria-current={isActive ? "page" : undefined}
       >
         <span
           className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 transition-all duration-200 group-hover:bg-accent/10 dark:group-hover:bg-accent/20 group-hover:text-accent",
-            isActive && "bg-accent text-white group-hover:bg-accent shadow-sm"
+            "flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700 transition-all duration-200 group-hover:bg-accent/10 dark:group-hover:bg-accent/20 group-hover:text-accent",
+            isActive && "bg-gradient-to-br from-accent-500 to-accent-600 text-white group-hover:from-accent-600 group-hover:to-accent-700 shadow-md"
           )}
           aria-hidden
         >
@@ -344,14 +344,14 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <>
             <span className="flex-1 font-medium">{item.label}</span>
             {item.badge && (
-              <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-white shadow-sm">
+              <span className="badge badge-primary text-[10px]">
                 {typeof item.badge === "number" && item.badge > 99 ? "99+" : item.badge}
               </span>
             )}
           </>
         ) : (
           item.badge && (
-            <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[8px] font-bold text-white shadow-sm">
+            <span className="absolute right-1 top-1 badge badge-primary text-[8px] h-4 w-4 p-0 flex items-center justify-center">
               {typeof item.badge === "number" && item.badge > 9 ? "9+" : item.badge}
             </span>
           )
@@ -389,7 +389,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
             <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={() => setIsSettingsExpanded(!isSettingsExpanded)}
-              className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+              className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
             >
               <span className="flex items-center gap-2">
                 <SettingsIcon className="w-5 h-5" />
@@ -471,22 +471,22 @@ export function TenantShell({ children }: { children: ReactNode }) {
             <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Navigate</p>
             {renderNavItems(false)}
           </div>
-          <div className="rounded-2xl border border-sky-100 dark:border-sky-900 bg-gradient-to-br from-sky-50 via-white to-sky-100 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 px-5 py-4 text-sm text-gray-600 dark:text-gray-400">
-            <p className="text-xs uppercase tracking-[0.3em] text-sky-600 dark:text-sky-400">Plan</p>
-            <p className="mt-2 text-base font-semibold text-gray-900 dark:text-gray-100 capitalize">{tenant.plan ?? "trial"}</p>
-            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          <div className="card p-4 sm:p-5 bg-gradient-to-br from-accent/5 via-white to-accent/5 dark:from-accent/10 dark:via-gray-800 dark:to-accent/10 border-accent/20">
+            <p className="text-xs uppercase tracking-wider text-accent dark:text-accent-400 font-semibold">Plan</p>
+            <p className="mt-2 text-base font-bold text-gray-900 dark:text-gray-100 capitalize">{tenant.plan ?? "trial"}</p>
+            <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
               Track usage, upgrade your plan, and manage billing from settings.
             </p>
-                  <Link
-                    href="/app/settings/billing"
-                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/70 dark:bg-gray-700/70 px-3 py-2 text-xs font-semibold text-sky-700 dark:text-sky-400 shadow-sm hover:bg-white dark:hover:bg-gray-700"
-                  >
-                    Manage plan <ExternalLinkIcon className="w-3 h-3" aria-hidden />
-                  </Link>
+            <Link
+              href="/app/settings/billing"
+              className="btn-secondary mt-4 text-xs w-full justify-center"
+            >
+              Manage plan <ExternalLinkIcon className="w-3 h-3" aria-hidden />
+            </Link>
           </div>
-          <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 p-4 shadow-sm">
-            <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Account</p>
-            <div className="mt-3 flex items-center gap-3 rounded-xl bg-white dark:bg-gray-700 px-4 py-3 shadow-sm">
+          <div className="card p-4 sm:p-5">
+            <p className="text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500 font-semibold">Account</p>
+            <div className="mt-3 flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 px-4 py-3">
               {(() => {
                 const { displayName, initials } = getTenantDisplayInfo(tenant);
                 return (
@@ -510,7 +510,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
               type="button"
               onClick={handleSignOut}
               disabled={isSigningOut}
-              className="mt-4 w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-60"
+              className="btn-secondary mt-4 w-full"
             >
               {isSigningOut ? "Signing out…" : "Sign out"}
             </button>
@@ -546,40 +546,40 @@ export function TenantShell({ children }: { children: ReactNode }) {
             </div>
             <div
               className={cn(
-                "rounded-2xl border border-sky-100 dark:border-sky-900 bg-gradient-to-br from-sky-50 via-white to-sky-100 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 px-4 py-4 text-sm text-gray-600 dark:text-gray-400 transition",
+                "card p-4 bg-gradient-to-br from-accent/5 via-white to-accent/5 dark:from-accent/10 dark:via-gray-800 dark:to-accent/10 border-accent/20 transition",
                 isSidebarCollapsed && "px-3 text-center"
               )}
             >
-              <p className="text-xs uppercase tracking-[0.3em] text-sky-600">Plan</p>
+              <p className="text-xs uppercase tracking-wider text-accent dark:text-accent-400 font-semibold">Plan</p>
               {!isSidebarCollapsed ? (
                 <>
-                  <p className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100 capitalize">{tenant.plan ?? "trial"}</p>
-                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  <p className="mt-2 text-base font-bold text-gray-900 dark:text-gray-100 capitalize">{tenant.plan ?? "trial"}</p>
+                  <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
                     Track usage, upgrade your plan, and manage billing from settings.
                   </p>
                   <Link
                     href="/app/settings/billing"
-                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/70 dark:bg-gray-700/70 px-3 py-2 text-xs font-semibold text-sky-700 dark:text-sky-400 shadow-sm hover:bg-white dark:hover:bg-gray-700"
+                    className="btn-secondary mt-4 text-xs w-full justify-center"
                   >
                     Manage plan <ExternalLinkIcon className="w-3 h-3" aria-hidden />
                   </Link>
                 </>
               ) : (
-                <span className="mt-3 block text-xs font-semibold capitalize text-gray-900 dark:text-gray-100">
+                <span className="mt-3 block text-xs font-bold capitalize text-gray-900 dark:text-gray-100">
                   {tenant.plan ?? "trial"}
                 </span>
               )}
             </div>
             <div
               className={cn(
-                "rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 p-4 shadow-sm",
+                "card p-4",
                 isSidebarCollapsed && "px-2 text-center"
               )}
             >
               {!isSidebarCollapsed ? (
                 <>
-                  <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Account</p>
-                  <div className="mt-3 flex items-center gap-3 rounded-xl bg-white dark:bg-gray-700 px-4 py-3 shadow-sm">
+                  <p className="text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500 font-semibold">Account</p>
+                  <div className="mt-3 flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 px-4 py-3">
                     {(() => {
                       const { displayName, initials } = getTenantDisplayInfo(tenant);
                       return (
@@ -623,7 +623,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                 type="button"
                 onClick={handleSignOut}
                 disabled={isSigningOut}
-                className="mt-4 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-60"
+                className="btn-secondary mt-4 w-full"
               >
                 {isSigningOut ? "Signing out…" : "Sign out"}
               </button>
@@ -632,7 +632,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => setIsSidebarCollapsed((prev) => !prev)}
-            className="mt-auto flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-500 dark:text-gray-400 transition hover:border-accent hover:text-accent"
+            className="btn-ghost mt-auto w-full justify-center"
             aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             <ChevronLeftIcon
@@ -645,21 +645,21 @@ export function TenantShell({ children }: { children: ReactNode }) {
           {/* Top Header Bar with Stats */}
           <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-sm">
             <div className="px-4 lg:px-6">
-              <div className="flex h-16 items-center justify-between">
-                <div className="flex items-center gap-4">
+              <div className="flex h-16 items-center justify-between gap-4">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                   <button
                     type="button"
                     onClick={() => setIsMobileNavOpen(true)}
-                    className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 shadow-sm transition-all duration-200 hover:border-accent hover:text-accent hover:shadow-md active:scale-95 lg:hidden"
+                    className="btn-ghost lg:hidden shrink-0"
                     aria-label="Open navigation menu"
                   >
                     <MenuIcon className="w-5 h-5" />
                   </button>
-                  <div>
-                    <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{currentNav?.label ?? "Overview"}</h1>
+                  <div className="min-w-0">
+                    <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100 sm:text-xl truncate">{currentNav?.label ?? "Overview"}</h1>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4 shrink-0">
                   {/* Global Stats */}
                   <div className="hidden items-center gap-4 lg:flex">
                     <div className="text-right">
@@ -698,7 +698,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                     <button
                       type="button"
                       onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-                      className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm transition hover:border-accent hover:text-accent"
+                      className="btn-secondary flex items-center gap-2"
                     >
                       {(() => {
                         const { displayName, initials } = getTenantDisplayInfo(tenant);
@@ -725,7 +725,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                       />
                     </button>
                     {isProfileMenuOpen ? (
-                      <div className="absolute right-0 z-30 mt-2 w-48 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 shadow-lg">
+                      <div className="absolute right-0 z-30 mt-2 w-48 card p-2 shadow-xl">
                         <Link
                           href="/app/settings"
                           className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-accent"

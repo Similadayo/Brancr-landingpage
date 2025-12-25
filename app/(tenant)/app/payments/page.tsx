@@ -26,7 +26,7 @@ export default function PaymentsPage() {
 	const verifyMutation = useVerifyPayment();
 	const disputeMutation = useDisputePayment();
 
-	const payments = paymentsData?.payments || [];
+	const payments = useMemo(() => paymentsData?.payments || [], [paymentsData?.payments]);
 	const count = paymentsData?.count || 0;
 
 	const filteredPayments = useMemo(() => {
@@ -70,14 +70,14 @@ export default function PaymentsPage() {
 	};
 
 	// Unified filter options - combining status and verification into one filter
-	const filterOptions = [
+	const filterOptions = useMemo(() => [
 		{ value: "", label: "All Payments", status: undefined, verification: undefined },
 		{ value: "pending_verification", label: "Pending Verification", status: undefined, verification: "pending" },
 		{ value: "verified", label: "Verified", status: "verified", verification: "verified" },
 		{ value: "confirmed", label: "Confirmed", status: "confirmed", verification: undefined },
 		{ value: "disputed", label: "Disputed", status: "disputed", verification: "disputed" },
 		{ value: "failed", label: "Failed", status: "failed", verification: undefined },
-	];
+	], []);
 
 	const activeFilter = useMemo(() => {
 		if (statusFilter && verificationFilter) {
@@ -90,7 +90,7 @@ export default function PaymentsPage() {
 			return filterOptions.find(opt => !opt.status && opt.verification === verificationFilter)?.value || "";
 		}
 		return "";
-	}, [statusFilter, verificationFilter]);
+	}, [statusFilter, verificationFilter, filterOptions]);
 
 	const handleFilterChange = (value: string) => {
 		const option = filterOptions.find(opt => opt.value === value);

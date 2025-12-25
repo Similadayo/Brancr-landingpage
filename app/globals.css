@@ -212,7 +212,7 @@ html.dark .bg-neutral-bg { background-color: #111827 !important; }
 
   /* Stat Card */
   .stat-card {
-    @apply group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-soft transition-all duration-300;
+    @apply relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-soft transition-all duration-300;
     @apply hover:border-accent/30 hover:shadow-medium;
     @apply dark:border-gray-700 dark:bg-gray-800;
   }

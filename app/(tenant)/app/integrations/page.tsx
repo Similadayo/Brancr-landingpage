@@ -453,7 +453,7 @@ export default function IntegrationsPage() {
                   <div className="rounded-xl border border-info-200 bg-info-50 p-5 dark:border-info-800 dark:bg-info-900/20">
                     <p className="text-sm font-semibold text-info-900 dark:text-info-100">Redirecting...</p>
                     <p className="mt-2 text-sm text-info-700 dark:text-info-300">
-                      You'll be redirected to {selectedPlatformData.name} to authorize the connection. Once complete, you'll be brought back here.
+                      You&apos;ll be redirected to {selectedPlatformData.name} to authorize the connection. Once complete, you&apos;ll be brought back here.
                     </p>
                   </div>
                 </div>

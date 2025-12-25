@@ -147,16 +147,16 @@ export function CommandPalette() {
       
       {/* Command Palette */}
       <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh] px-4">
-        <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white shadow-2xl">
+        <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-2xl">
           {/* Search Input */}
-          <div className="flex items-center gap-3 border-b border-gray-200 px-4 py-3">
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-500" />
+          <div className="flex items-center gap-3 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+            <MagnifyingGlassIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search commands, pages, or actions..."
-              className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none"
+              className="flex-1 bg-transparent text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none"
               autoFocus
             />
             <button
@@ -197,18 +197,18 @@ export function CommandPalette() {
                             onClick={() => handleSelect(command)}
                             className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition ${
                               isSelected
-                                ? "bg-primary/10 text-primary"
-                                : "text-gray-700 hover:bg-gray-100"
+                                ? "bg-accent/10 text-accent dark:bg-accent/20 dark:text-accent-400"
+                                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                             }`}
                           >
-                            <div className={`${isSelected ? "text-primary" : "text-gray-400"}`}>
+                            <div className={`${isSelected ? "text-accent dark:text-accent-400" : "text-gray-400 dark:text-gray-500"}`}>
                               {command.icon}
                             </div>
                             <div className="flex-1">
                               <div className="font-medium">{command.label}</div>
                             </div>
                             {isSelected && (
-                              <ArrowRightIcon className="h-4 w-4 text-primary" />
+                              <ArrowRightIcon className="h-4 w-4 text-accent dark:text-accent-400" />
                             )}
                           </button>
                         );
@@ -221,19 +221,19 @@ export function CommandPalette() {
           </div>
 
           {/* Footer */}
-          <div className="border-t border-gray-200 px-4 py-2">
-            <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-2">
+            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
-                  <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono">↑↓</kbd>
+                  <kbd className="rounded bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 font-mono">↑↓</kbd>
                   <span>Navigate</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono">Enter</kbd>
+                  <kbd className="rounded bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 font-mono">Enter</kbd>
                   <span>Select</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono">Esc</kbd>
+                  <kbd className="rounded bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 font-mono">Esc</kbd>
                   <span>Close</span>
                 </div>
               </div>

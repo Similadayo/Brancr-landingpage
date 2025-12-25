@@ -181,6 +181,7 @@ export default function CalendarPage() {
             </button>
           ))}
         </div>
+        </div>
       </div>
 
       {/* Calendar Grid */}

@@ -374,7 +374,7 @@ export default function InboxPage() {
                     key={tab}
                     className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                       isActive
-                        ? "bg-primary text-white"
+                        ? "bg-accent text-white shadow-sm"
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                     }`}
                     onClick={() => setActiveStatusFilter(tab)}
@@ -393,7 +393,7 @@ export default function InboxPage() {
                 <button
                   className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                     activePlatformFilter === "All"
-                      ? "bg-blue-100 dark:bg-blue-900/30 text-primary dark:text-blue-400 border border-primary/20 dark:border-blue-800"
+                      ? "bg-accent/10 dark:bg-accent/20 text-accent dark:text-accent-400 border border-accent/20 dark:border-accent/30"
                       : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
                   }`}
                   onClick={() => setActivePlatformFilter("All")}
@@ -421,7 +421,7 @@ export default function InboxPage() {
                       key={platform}
                       className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                         isActive
-                          ? "bg-blue-100 dark:bg-blue-900/30 text-primary dark:text-blue-400 border border-primary/20 dark:border-blue-800"
+                          ? "bg-accent/10 dark:bg-accent/20 text-accent dark:text-accent-400 border border-accent/20 dark:border-accent/30"
                           : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
                       }`}
                       onClick={() => setActivePlatformFilter(platform)}
@@ -447,7 +447,7 @@ export default function InboxPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by name"
-                className="w-full h-10 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 pl-11 pr-10 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 transition hover:border-gray-400 dark:hover:border-gray-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full h-10 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 pl-11 pr-10 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 transition hover:border-gray-400 dark:hover:border-gray-500 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
               />
               <FunnelIcon
                 className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
@@ -460,7 +460,7 @@ export default function InboxPage() {
           <div className="flex-1 overflow-y-auto">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent/20 border-t-accent" />
               </div>
             ) : error ? (
               <div className="rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20 p-4 md:p-6 text-center m-3">
@@ -509,9 +509,9 @@ export default function InboxPage() {
                     <button
                       key={conversation.id}
                       onClick={() => handleConversationSelect(String(conversation.id))}
-                      className={`group w-full px-3 py-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary/60 ${
+                      className={`group w-full px-3 py-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent/60 ${
                         isActive
-                          ? "bg-blue-50 dark:bg-blue-900/20 border-l-4 border-primary shadow-sm"
+                          ? "bg-accent/5 dark:bg-accent/10 border-l-4 border-accent shadow-sm"
                           : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
                       }`}
                     >
@@ -543,7 +543,7 @@ export default function InboxPage() {
                             <span className={`text-sm ${unread ? "font-semibold" : "font-medium"} text-gray-900 dark:text-gray-100 truncate`}>{conversation.customer_name}</span>
                             <div className="flex items-center gap-2 flex-shrink-0 ml-2">
                               {unread && (
-                                <span className="inline-flex items-center rounded-full bg-primary/10 dark:bg-primary/20 px-2 py-0.5 text-[11px] font-semibold text-primary dark:text-blue-400">
+                                <span className="badge badge-primary text-[11px]">
                                   {conversation.unread_count > 9 ? "9+" : conversation.unread_count}
                                 </span>
                               )}
@@ -685,7 +685,7 @@ export default function InboxPage() {
                           className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-sm ${
                             isIncoming
                               ? "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
-                              : "bg-primary text-white"
+                              : "bg-accent text-white"
                           }`}
                           role="article"
                           aria-label={`${isIncoming ? 'Incoming' : 'Outgoing'} message`}
@@ -770,7 +770,7 @@ export default function InboxPage() {
                     placeholder="Type message here.."
                     aria-label="Message input"
                     aria-describedby="message-input-hint"
-                    className="min-h-[44px] max-h-[120px] flex-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 transition-all focus:border-primary focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                    className="min-h-[44px] max-h-[120px] flex-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-200 transition-all focus:border-accent focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                   />
                   <span id="message-input-hint" className="sr-only">
                     Press Cmd+Enter or Ctrl+Enter to send
@@ -808,7 +808,7 @@ export default function InboxPage() {
                     onClick={() => void handleSendReply()}
                     type="button"
                     disabled={sendReplyMutation.isPending || (!replyText.trim() && attachments.length === 0) || !selectedConversationId}
-                    className="flex-shrink-0 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px]"
+                    className="btn-primary min-h-[44px] flex-shrink-0"
                   >
                     {sendReplyMutation.isPending ? (
                       <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
@@ -914,7 +914,7 @@ export default function InboxPage() {
                             </div>
                           </div>
                           <div className="flex gap-2 mb-4">
-                            <button className="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white hover:bg-primary/90 transition-colors">
+                            <button className="btn-primary text-xs flex-1">
                               Call
                             </button>
                             <button className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
