@@ -171,6 +171,8 @@ export default function OrdersPage() {
     const option = filterOptions.find(opt => opt.value === value);
     if (option) {
       setStatusFilter(option.status);
+      // Clear platform filter when changing status filter to avoid confusing combined filtering
+      setPlatformFilter(undefined);
     }
   };
 

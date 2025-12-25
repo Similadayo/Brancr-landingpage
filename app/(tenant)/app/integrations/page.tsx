@@ -358,8 +358,11 @@ export default function IntegrationsPage() {
                 ].map((step, index) => {
                   const stepKey = step.key as ConnectionStep;
                   const isActive = connectionStep === stepKey;
-                  const isCompleted = ['requirements', 'connect'].indexOf(connectionStep) > index;
-                  const isAccessible = index === 0 || ['requirements', 'connect'].indexOf(connectionStep) >= index;
+                  // Define step order for comparison
+                  const stepOrder: ConnectionStep[] = ['requirements', 'connect', 'verify'];
+                  const currentStepIndex = stepOrder.indexOf(connectionStep);
+                  const isCompleted = currentStepIndex > index;
+                  const isAccessible = index === 0 || currentStepIndex >= index;
 
                   return (
                     <div key={step.key} className="flex flex-1 items-center">
