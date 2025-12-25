@@ -180,9 +180,19 @@ export default function NewPostPage() {
         media_ids: mediaIds,
         include_hashtags: true,
       });
-      setCaption(res.caption || "");
-      toast.success("Caption generated successfully");
+      
+      // Handle different possible response structures
+      const generatedCaption = res?.caption || res?.data?.caption || res?.body?.caption || "";
+      
+      if (generatedCaption) {
+        setCaption(generatedCaption);
+        toast.success("Caption generated successfully");
+      } else {
+        console.warn("Caption generation response:", res);
+        toast.error("Generated caption is empty. Please try again.");
+      }
     } catch (error: any) {
+      console.error("Caption generation error:", error);
       const errorMessage = error?.body?.message || error?.message || "Failed to generate caption";
       toast.error(errorMessage);
     } finally {

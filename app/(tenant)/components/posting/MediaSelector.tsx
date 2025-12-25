@@ -174,8 +174,9 @@ export default function MediaSelector({
                     <img
                       src={media.thumbnail_url || media.url}
                       alt={`Media ${index + 1}`}
-                      className="aspect-video w-full object-cover transition-transform group-hover:scale-105"
+                      className="aspect-video w-full max-h-64 object-cover transition-transform group-hover:scale-105"
                       loading="lazy"
+                      style={{ maxWidth: '100%', height: 'auto' }}
                       onError={() => {
                         setBrokenImages((prev) => new Set(prev).add(String(media.id)));
                       }}

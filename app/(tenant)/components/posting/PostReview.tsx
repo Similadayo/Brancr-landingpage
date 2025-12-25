@@ -98,7 +98,8 @@ export default function PostReview({
                       <img
                         src={media.thumbnail_url || media.url}
                         alt={`Media ${idx + 1}`}
-                        className="aspect-video w-full object-cover"
+                        className="aspect-video w-full max-h-64 object-cover"
+                        style={{ maxWidth: '100%', height: 'auto' }}
                       />
                     )}
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1">
@@ -129,7 +130,8 @@ export default function PostReview({
                       <img
                         src={media.thumbnail_url || media.url}
                         alt="media preview"
-                        className="aspect-video w-full object-cover"
+                        className="aspect-video w-full max-h-64 object-cover"
+                        style={{ maxWidth: '100%', height: 'auto' }}
                       />
                     )}
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1">
