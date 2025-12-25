@@ -179,6 +179,7 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
         className={`group relative flex w-full items-center justify-between gap-2 rounded-2xl border-2 border-gray-200 bg-white px-4 py-3 text-left text-sm text-gray-700 shadow-sm transition focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60 ${
           props.buttonClassName ?? ''
         }`}
+        style={props.buttonClassName?.includes('bg-transparent') ? { backgroundColor: 'transparent', border: 'none' } : undefined}
       >
         <div className="min-w-0 flex-1">
           {props.multiple ? (
@@ -236,13 +237,13 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
             </button>
           )}
           <ChevronDownIcon
-            className={`h-4 w-4 text-gray-400 transition ${open ? 'rotate-180' : ''}`}
+            className={`h-4 w-4 transition ${props.buttonClassName?.includes('text-white') ? 'text-white/90' : 'text-gray-400'} ${open ? 'rotate-180' : ''}`}
           />
         </div>
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-full z-[100] mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl">
+        <div className="absolute left-0 right-0 top-full z-[100] mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl ring-1 ring-black/5 min-w-[200px] max-w-[400px]">
           {searchable && (
             <div className="border-b border-gray-100 p-2">
               <input
@@ -251,7 +252,7 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search..."
                 aria-label="Search options"
-                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 transition focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
               />
             </div>
           )}
@@ -260,10 +261,10 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
             ref={listRef}
             tabIndex={-1}
             onKeyDown={onListKeyDown}
-            className="max-h-60 overflow-auto p-1 focus:outline-none"
+            className="max-h-60 overflow-auto p-1.5 focus:outline-none"
           >
             {filteredOptions.length === 0 ? (
-              <div className="px-3 py-2 text-sm text-gray-500">No results</div>
+              <div className="px-3 py-2.5 text-sm text-gray-500">No results</div>
             ) : (
               filteredOptions.map((opt, idx) => {
                 const selected = isSelected(opt.value);
@@ -283,12 +284,16 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
                         commitSingle(opt.value);
                       }
                     }}
-                    className={`flex w-full items-start justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                      active ? 'bg-gray-50' : 'bg-transparent'
-                    } ${selected ? 'text-gray-900' : 'text-gray-700'} hover:bg-gray-50`}
+                    className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
+                      selected
+                        ? 'bg-primary/10 text-primary font-semibold'
+                        : active
+                        ? 'bg-gray-100 text-gray-900'
+                        : 'bg-transparent text-gray-700'
+                    } ${!selected && !active ? 'hover:bg-gray-50' : ''}`}
                   >
-                    <div className="min-w-0">
-                      <div className="truncate font-medium">{opt.label}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate">{opt.label}</div>
                       {opt.description ? (
                         <div className="mt-0.5 line-clamp-2 text-xs text-gray-500">
                           {opt.description}
@@ -296,9 +301,9 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
                       ) : null}
                     </div>
                     {selected ? (
-                      <CheckCircleIcon className="mt-0.5 h-4 w-4 text-primary" />
+                      <CheckCircleIcon className="h-4 w-4 flex-shrink-0 text-primary" />
                     ) : (
-                      <span className="h-4 w-4" />
+                      <span className="h-4 w-4 flex-shrink-0" />
                     )}
                   </button>
                 );
