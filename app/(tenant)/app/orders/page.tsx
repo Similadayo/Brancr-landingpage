@@ -177,19 +177,25 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-3 sm:gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 text-white shadow-md sm:h-12 sm:w-12">
-            <PackageIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Orders</h1>
-            <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">Manage customer orders from sales conversations</p>
-          </div>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Modern Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-700 dark:from-primary-dark dark:via-primary-dark/95 dark:to-primary-dark/90 sm:p-8 md:p-10">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
         </div>
-      </header>
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-3">
+            <PackageIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
+            <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Orders</h1>
+          </div>
+          <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+            Manage customer orders from sales conversations
+          </p>
+        </div>
+      </div>
 
       {/* Stats Cards */}
       {stats && (

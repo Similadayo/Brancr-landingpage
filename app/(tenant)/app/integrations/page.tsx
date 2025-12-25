@@ -273,7 +273,7 @@ export default function IntegrationsPage() {
   const selectedPlatformData = selectedPlatform ? platformsWithData.find(p => p.platform === selectedPlatform) : null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3 sm:gap-4">

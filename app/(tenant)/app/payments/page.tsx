@@ -147,19 +147,25 @@ export default function PaymentsPage() {
 	}, [count, payments]);
 
 	return (
-		<div className="space-y-6">
-			{/* Page Header */}
-			<header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-				<div className="flex items-start gap-3 sm:gap-4">
-					<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 text-white shadow-md sm:h-12 sm:w-12">
-						<CreditCardIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-					</div>
-					<div className="min-w-0 flex-1">
-						<h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Payments</h1>
-						<p className="mt-1.5 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">Verify and manage customer payments</p>
-					</div>
+		<div className="space-y-4 sm:space-y-6">
+			{/* Modern Hero Section */}
+			<div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-700 dark:from-primary-dark dark:via-primary-dark/95 dark:to-primary-dark/90 sm:p-8 md:p-10">
+				<div className="absolute inset-0 opacity-10">
+					<div className="absolute inset-0" style={{
+						backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+						backgroundSize: '40px 40px'
+					}} />
 				</div>
-			</header>
+				<div className="relative z-10">
+					<div className="flex items-center gap-3 mb-3">
+						<CreditCardIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
+						<h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Payments</h1>
+					</div>
+					<p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+						Verify and manage customer payments with ease
+					</p>
+				</div>
+			</div>
 
 			{/* Stats Cards */}
 			<div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-3">
@@ -186,18 +192,18 @@ export default function PaymentsPage() {
 				</div>
 			</div>
 
-			{/* Unified Search and Filter Section */}
-			<div className="card p-4 sm:p-6">
+			{/* Modern Search and Filter Section */}
+			<div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6">
 				<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 					{/* Search */}
-					<div className="search-bar flex-1 sm:max-w-md lg:max-w-lg">
-						<MagnifyingGlassIcon className="input-icon" aria-hidden="true" />
+					<div className="relative flex-1 sm:max-w-md lg:max-w-lg">
+						<MagnifyingGlassIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" aria-hidden="true" />
 						<input
 							type="search"
 							value={query}
 							onChange={(e) => setQuery(e.target.value)}
 							placeholder="Search by order number, customer name, or payment reference..."
-							className="search-input"
+							className="w-full rounded-xl border border-gray-200 bg-gray-50 pl-11 pr-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:border-accent focus:bg-white focus:outline-none focus:ring-2 focus:ring-accent/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-accent dark:focus:bg-gray-600"
 						/>
 					</div>
 

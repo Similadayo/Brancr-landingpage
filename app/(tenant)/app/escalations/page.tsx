@@ -96,27 +96,33 @@ export default function EscalationsPage() {
   }, [escalations, platformFilter, sortBy, searchQuery]);
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-3 sm:gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-warning-500 to-warning-600 text-white shadow-md sm:h-12 sm:w-12">
-            <AlertIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Escalations</h1>
-            <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
-              Review and respond to customer escalations that require your attention
-            </p>
-          </div>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Modern Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-warning via-warning/95 to-warning/90 p-6 shadow-xl dark:border-gray-700 dark:from-warning dark:via-warning/95 dark:to-warning/90 sm:p-8 md:p-10">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
         </div>
-        {pendingCount > 0 && (
-          <div className="inline-flex items-center gap-2 rounded-xl border-2 border-error-200 bg-error-50 px-4 py-2.5 dark:border-error-800 dark:bg-error-900/20">
-            <div className="h-2.5 w-2.5 rounded-full bg-error-500 animate-pulse" />
-            <span className="text-sm font-bold text-error-700 dark:text-error-400">{pendingCount} Pending</span>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <AlertIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
+              <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Escalations</h1>
+            </div>
+            {pendingCount > 0 && (
+              <div className="inline-flex items-center gap-2 rounded-xl border-2 border-white/30 bg-white/20 backdrop-blur-sm px-4 py-2.5">
+                <div className="h-2.5 w-2.5 rounded-full bg-white animate-pulse" />
+                <span className="text-sm font-bold text-white">{pendingCount} Pending</span>
+              </div>
+            )}
           </div>
-        )}
-      </header>
+          <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+            Review and respond to customer escalations that require your attention
+          </p>
+        </div>
+      </div>
 
       {/* Stats Cards */}
       {stats && (

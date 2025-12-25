@@ -116,27 +116,35 @@ export default function CalendarPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-3 sm:gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 text-white shadow-md sm:h-12 sm:w-12">
-            <CalendarIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Content Calendar</h1>
-            <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">Plan and schedule your content across all platforms</p>
+      {/* Modern Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-accent via-accent/95 to-accent/90 p-6 shadow-xl dark:border-gray-700 dark:from-accent dark:via-accent/95 dark:to-accent/90 sm:p-8 md:p-10">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
+        </div>
+        <div className="relative z-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <CalendarIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
+                <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Content Calendar</h1>
+              </div>
+              <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+                Plan and schedule your content across all platforms
+              </p>
+            </div>
+            <Link
+              href="/app/posts/new"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-accent shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 sm:px-6 sm:py-3.5"
+            >
+              <PlusIcon className="w-5 h-5" />
+              <span>Schedule Post</span>
+            </Link>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/app/posts/new"
-            className="btn-primary w-full sm:w-auto justify-center"
-          >
-            <PlusIcon className="w-4 h-4" />
-            Schedule Post
-          </Link>
-        </div>
-      </header>
+      </div>
 
       {/* Navigation and View Toggle */}
       <div className="card p-4 sm:p-6">

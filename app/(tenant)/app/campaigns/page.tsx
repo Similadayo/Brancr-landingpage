@@ -301,7 +301,8 @@ export default function CampaignsPage() {
   }
 
   return (
-    <div className="space-y-6">      {showCancelPostId && (
+    <div className="space-y-4 sm:space-y-6">
+      {showCancelPostId && (
         <ConfirmModal
           open={true}
           title="Cancel post"
@@ -310,85 +311,104 @@ export default function CampaignsPage() {
           onConfirm={() => { if (showCancelPostId) confirmCancelPost(showCancelPostId); }}
           onCancel={() => { setShowCancelPostId(null); setShowCancelPostName(null); }}
         />
-      )}      {/* Header */}
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-3 sm:gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 text-white shadow-md sm:h-12 sm:w-12">
-            <RocketIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Posts & Campaigns</h1>
-            <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
-              Manage scheduled posts, published content, and drafts
-            </p>
+      )}
+      
+      {/* Modern Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-accent via-accent/95 to-accent/90 p-6 shadow-xl dark:border-gray-700 dark:from-accent dark:via-accent/95 dark:to-accent/90 sm:p-8 md:p-10">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }} />
+        </div>
+        <div className="relative z-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <RocketIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
+                <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Posts & Campaigns</h1>
+              </div>
+              <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+                Manage scheduled posts, published content, and drafts all in one place
+              </p>
+            </div>
+            <Link 
+              href="/app/posts/new" 
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-accent shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 sm:px-6 sm:py-3.5"
+            >
+              <PlusIcon className="w-5 h-5" />
+              <span>Create Post</span>
+            </Link>
           </div>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <Link href="/app/posts/new" className="btn-primary w-full sm:w-auto justify-center">
-            <PlusIcon className="w-4 h-4" />
-            Create Post
-          </Link>
-        </div>
-      </header>
-
-      {/* Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto border-b border-gray-200 dark:border-gray-700 pb-1">
-        <button
-          onClick={() => setActiveTab("scheduled")}
-          className={`shrink-0 flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
-            activeTab === "scheduled"
-              ? "border-accent text-accent"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-          }`}
-        >
-          <ClockIcon className="w-4 h-4" />
-          Scheduled
-          <span className={`badge ${activeTab === "scheduled" ? "badge-primary" : "badge-gray"}`}>
-            {campaignStats?.scheduled ?? 0}
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab("published")}
-          className={`shrink-0 flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
-            activeTab === "published"
-              ? "border-accent text-accent"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-          }`}
-        >
-          <CheckCircleIcon className="w-4 h-4" />
-          Published
-          <span className={`badge ${activeTab === "published" ? "badge-primary" : "badge-gray"}`}>
-            {campaignStats?.published ?? 0}
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab("drafts")}
-          className={`shrink-0 flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
-            activeTab === "drafts"
-              ? "border-accent text-accent"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-          }`}
-        >
-          <DocumentTextIcon className="w-4 h-4" />
-          Drafts
-          <span className={`badge ${activeTab === "drafts" ? "badge-primary" : "badge-gray"}`}>
-            {campaignStats?.draft ?? 0}
-          </span>
-        </button>
       </div>
 
-      {/* Unified Search and Filter Section */}
-      <div className="card p-4 sm:p-6">
+      {/* Modern Tabs */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-2 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="flex items-center gap-2 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab("scheduled")}
+            className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
+              activeTab === "scheduled"
+                ? "bg-accent text-white shadow-md"
+                : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+            }`}
+          >
+            <ClockIcon className="w-4 h-4" />
+            Scheduled
+            <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+              activeTab === "scheduled" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300"
+            }`}>
+              {campaignStats?.scheduled ?? 0}
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveTab("published")}
+            className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
+              activeTab === "published"
+                ? "bg-accent text-white shadow-md"
+                : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+            }`}
+          >
+            <CheckCircleIcon className="w-4 h-4" />
+            Published
+            <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+              activeTab === "published" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300"
+            }`}>
+              {campaignStats?.published ?? 0}
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveTab("drafts")}
+            className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
+              activeTab === "drafts"
+                ? "bg-accent text-white shadow-md"
+                : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+            }`}
+          >
+            <DocumentTextIcon className="w-4 h-4" />
+            Drafts
+            <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+              activeTab === "drafts" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300"
+            }`}>
+              {campaignStats?.draft ?? 0}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Modern Search and Filter Section */}
+      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {/* Search */}
-          <div className="search-bar flex-1 sm:max-w-md lg:max-w-lg">
-            <MagnifyingGlassIcon className="input-icon" aria-hidden="true" />
+          <div className="relative flex-1 sm:max-w-md lg:max-w-lg">
+            <MagnifyingGlassIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" aria-hidden="true" />
             <input
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search posts by name, caption, or platform..."
-              className="search-input"
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 pl-11 pr-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 transition-all focus:border-accent focus:bg-white focus:outline-none focus:ring-2 focus:ring-accent/20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:focus:border-accent dark:focus:bg-gray-600"
             />
           </div>
 
@@ -434,7 +454,7 @@ export default function CampaignsPage() {
                   setStatusFilter("All");
                   setPlatformFilter("All");
                 }}
-                className="btn-ghost text-xs sm:text-sm w-full sm:w-auto"
+                className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 sm:text-sm"
               >
                 Clear
               </button>
@@ -444,7 +464,7 @@ export default function CampaignsPage() {
       </div>
 
       {/* Posts List */}
-      <div className="card overflow-hidden p-0">
+      <div className="space-y-4">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
@@ -502,7 +522,7 @@ export default function CampaignsPage() {
             )}
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="space-y-4">
             {currentPosts.map((post) => {
               const canCancel = post.status === "scheduled" || post.status === "posting";
               const canPublish = post.status === "scheduled";
@@ -510,11 +530,11 @@ export default function CampaignsPage() {
               const isPublishing = publishingPostId === post.id;
 
               return (
-                <div key={post.id} className="px-4 py-4 transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/30 sm:px-6 sm:py-5">
-                  <div className="flex items-start gap-3 sm:gap-4">
+                <div key={post.id} className="rounded-xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-accent/50 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 sm:p-6">
+                  <div className="flex items-start gap-4">
                     {/* Media Preview Placeholder */}
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
-                      <ImageIcon className="h-6 w-6 text-gray-400" />
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 dark:border-gray-600 dark:from-gray-700 dark:to-gray-800">
+                      <ImageIcon className="h-7 w-7 text-gray-400 dark:text-gray-500" />
                     </div>
 
                     {/* Post Details */}
