@@ -312,19 +312,19 @@ export default function CampaignsPage() {
         />
       )}      {/* Header */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 text-white shadow-md">
-            <RocketIcon className="h-6 w-6" />
+        <div className="flex items-start gap-3 sm:gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 text-white shadow-md sm:h-12 sm:w-12">
+            <RocketIcon className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Posts & Campaigns</h1>
-            <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-400">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Posts & Campaigns</h1>
+            <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
               Manage scheduled posts, published content, and drafts
             </p>
           </div>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Link href="/app/posts/new" className="btn-primary">
+          <Link href="/app/posts/new" className="btn-primary w-full sm:w-auto justify-center">
             <PlusIcon className="w-4 h-4" />
             Create Post
           </Link>
@@ -381,7 +381,7 @@ export default function CampaignsPage() {
       <div className="card p-4 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {/* Search */}
-          <div className="search-bar flex-1 sm:max-w-md">
+          <div className="search-bar flex-1 sm:max-w-md lg:max-w-lg">
             <MagnifyingGlassIcon className="input-icon" aria-hidden="true" />
             <input
               type="search"
@@ -393,37 +393,39 @@ export default function CampaignsPage() {
           </div>
 
           {/* Filters */}
-          <div className="flex items-center gap-3">
-            <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
-            {activeTab === "scheduled" && (
-              <div className="min-w-[160px]">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-3">
+              <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
+              {activeTab === "scheduled" && (
+                <div className="flex-1 sm:flex-none sm:min-w-[160px]">
+                  <Select
+                    value={statusFilter as 'All' | 'scheduled' | 'posting'}
+                    onChange={(value) => setStatusFilter((value || 'All') as any)}
+                    searchable={false}
+                    options={[
+                      { value: 'All', label: 'All Status' },
+                      { value: 'scheduled', label: 'Scheduled' },
+                      { value: 'posting', label: 'Posting' },
+                    ]}
+                  />
+                </div>
+              )}
+              <div className="flex-1 sm:flex-none sm:min-w-[180px]">
                 <Select
-                  value={statusFilter as 'All' | 'scheduled' | 'posting'}
-                  onChange={(value) => setStatusFilter((value || 'All') as any)}
+                  value={platformFilter as any}
+                  onChange={(value) => setPlatformFilter((value || 'All') as any)}
                   searchable={false}
                   options={[
-                    { value: 'All', label: 'All Status' },
-                    { value: 'scheduled', label: 'Scheduled' },
-                    { value: 'posting', label: 'Posting' },
+                    { value: 'All', label: 'All Platforms' },
+                    { value: 'facebook', label: 'Facebook' },
+                    { value: 'instagram', label: 'Instagram' },
+                    { value: 'tiktok', label: 'TikTok' },
+                    { value: 'whatsapp', label: 'WhatsApp' },
+                    { value: 'telegram', label: 'Telegram' },
+                    { value: 'youtube', label: 'YouTube' },
                   ]}
                 />
               </div>
-            )}
-            <div className="min-w-[180px]">
-              <Select
-                value={platformFilter as any}
-                onChange={(value) => setPlatformFilter((value || 'All') as any)}
-                searchable={false}
-                options={[
-                  { value: 'All', label: 'All Platforms' },
-                  { value: 'facebook', label: 'Facebook' },
-                  { value: 'instagram', label: 'Instagram' },
-                  { value: 'tiktok', label: 'TikTok' },
-                  { value: 'whatsapp', label: 'WhatsApp' },
-                  { value: 'telegram', label: 'Telegram' },
-                  { value: 'youtube', label: 'YouTube' },
-                ]}
-              />
             </div>
             {(searchQuery || statusFilter !== "All" || platformFilter !== "All") && (
               <button
@@ -432,7 +434,7 @@ export default function CampaignsPage() {
                   setStatusFilter("All");
                   setPlatformFilter("All");
                 }}
-                className="btn-ghost text-xs"
+                className="btn-ghost text-xs sm:text-sm w-full sm:w-auto"
               >
                 Clear
               </button>
@@ -508,8 +510,8 @@ export default function CampaignsPage() {
               const isPublishing = publishingPostId === post.id;
 
               return (
-                <div key={post.id} className="px-6 py-5 transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
-                  <div className="flex items-start gap-4">
+                <div key={post.id} className="px-4 py-4 transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/30 sm:px-6 sm:py-5">
+                  <div className="flex items-start gap-3 sm:gap-4">
                     {/* Media Preview Placeholder */}
                     <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
                       <ImageIcon className="h-6 w-6 text-gray-400" />
@@ -584,7 +586,7 @@ export default function CampaignsPage() {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
                           <Link
                             href={`/app/campaigns/${post.id}`}
                             className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
@@ -661,7 +663,7 @@ export default function CampaignsPage() {
       {/* Edit / Reschedule Modal */}
       {isEditOpen && editPostId && (
         <div className="modal-overlay" onClick={() => setIsEditOpen(false)}>
-          <div className="modal-content animate-scale-in max-w-lg" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content animate-scale-in w-full max-w-lg mx-4 sm:mx-auto" onClick={(e) => e.stopPropagation()}>
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Edit Scheduled Post</h2>
               <button

@@ -226,26 +226,26 @@ export default function TenantOverviewPage() {
     <div className="space-y-6">
       {/* Welcome Header */}
       <div className="card p-6 sm:p-8">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0 flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              Welcome back{firstWord ? `, ${firstWord}` : ""}
-            </h1>
-            <p className="mt-2 text-base text-gray-600 dark:text-gray-400">
-              Here&apos;s a quick snapshot of your automation, conversations, and campaign health today.
-            </p>
+          <div className="flex flex-col gap-4 sm:gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">
+                Welcome back{firstWord ? `, ${firstWord}` : ""}
+              </h1>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 sm:text-base">
+                Here&apos;s a quick snapshot of your automation, conversations, and campaign health today.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Link href="/app/posts/new" className="btn-primary w-full sm:w-auto justify-center">
+                <PlusIcon className="w-4 h-4" />
+                Create Post
+              </Link>
+              <Link href="/app/integrations" className="btn-secondary w-full sm:w-auto justify-center">
+                <LinkIcon className="w-4 h-4" />
+                View Integrations
+              </Link>
+            </div>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Link href="/app/posts/new" className="btn-primary">
-              <PlusIcon className="w-4 h-4" />
-              Create Post
-            </Link>
-            <Link href="/app/integrations" className="btn-secondary">
-              <LinkIcon className="w-4 h-4" />
-              View Integrations
-            </Link>
-          </div>
-        </div>
       </div>
 
       {/* Notifications Panel */}

@@ -150,38 +150,38 @@ export default function PaymentsPage() {
 		<div className="space-y-6">
 			{/* Page Header */}
 			<header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-				<div className="flex items-start gap-4">
-					<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 text-white shadow-md">
-						<CreditCardIcon className="h-6 w-6" />
+				<div className="flex items-start gap-3 sm:gap-4">
+					<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 text-white shadow-md sm:h-12 sm:w-12">
+						<CreditCardIcon className="h-5 w-5 sm:h-6 sm:w-6" />
 					</div>
 					<div className="min-w-0 flex-1">
-						<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Payments</h1>
-						<p className="mt-1.5 text-sm text-gray-600 dark:text-gray-400">Verify and manage customer payments</p>
+						<h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Payments</h1>
+						<p className="mt-1.5 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">Verify and manage customer payments</p>
 					</div>
 				</div>
 			</header>
 
 			{/* Stats Cards */}
-			<div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+			<div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-3">
 				<div className="stat-card group">
-					<div className="absolute right-0 top-0 h-20 w-20 -translate-y-4 translate-x-4 rounded-full bg-gradient-to-br from-info-400/20 to-info-500/20 blur-2xl transition-transform group-hover:scale-150" />
+					<div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-info-400/20 to-info-500/20 blur-2xl transition-transform group-hover:scale-150" />
 					<div className="relative">
-						<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Payments</p>
-						<p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
+						<p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total Payments</p>
+						<p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">{stats.total}</p>
 					</div>
 				</div>
 				<div className="stat-card group">
-					<div className="absolute right-0 top-0 h-20 w-20 -translate-y-4 translate-x-4 rounded-full bg-gradient-to-br from-warning-400/20 to-warning-500/20 blur-2xl transition-transform group-hover:scale-150" />
+					<div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-warning-400/20 to-warning-500/20 blur-2xl transition-transform group-hover:scale-150" />
 					<div className="relative">
-						<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Verification</p>
-						<p className="mt-2 text-3xl font-bold text-warning-600 dark:text-warning-400">{stats.pendingVerification}</p>
+						<p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Pending Verification</p>
+						<p className="mt-2 text-2xl font-bold text-warning-600 dark:text-warning-400 sm:text-3xl">{stats.pendingVerification}</p>
 					</div>
 				</div>
 				<div className="stat-card group">
-					<div className="absolute right-0 top-0 h-20 w-20 -translate-y-4 translate-x-4 rounded-full bg-gradient-to-br from-success-400/20 to-success-500/20 blur-2xl transition-transform group-hover:scale-150" />
+					<div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-success-400/20 to-success-500/20 blur-2xl transition-transform group-hover:scale-150" />
 					<div className="relative">
-						<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Verified</p>
-						<p className="mt-2 text-3xl font-bold text-success-600 dark:text-success-400">{stats.verified}</p>
+						<p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Verified</p>
+						<p className="mt-2 text-2xl font-bold text-success-600 dark:text-success-400 sm:text-3xl">{stats.verified}</p>
 					</div>
 				</div>
 			</div>
@@ -190,7 +190,7 @@ export default function PaymentsPage() {
 			<div className="card p-4 sm:p-6">
 				<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 					{/* Search */}
-					<div className="search-bar flex-1 sm:max-w-md">
+					<div className="search-bar flex-1 sm:max-w-md lg:max-w-lg">
 						<MagnifyingGlassIcon className="input-icon" aria-hidden="true" />
 						<input
 							type="search"
@@ -202,15 +202,17 @@ export default function PaymentsPage() {
 					</div>
 
 					{/* Unified Filter */}
-					<div className="flex items-center gap-3">
-						<FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
-						<div className="min-w-[200px]">
-							<Select
-								value={activeFilter}
-								onChange={(value) => handleFilterChange(value as string)}
-								options={filterOptions.map(opt => ({ value: opt.value, label: opt.label }))}
-								searchable={false}
-							/>
+					<div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+						<div className="flex items-center gap-3">
+							<FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
+							<div className="flex-1 sm:flex-none sm:min-w-[200px]">
+								<Select
+									value={activeFilter}
+									onChange={(value) => handleFilterChange(value as string)}
+									options={filterOptions.map(opt => ({ value: opt.value, label: opt.label }))}
+									searchable={false}
+								/>
+							</div>
 						</div>
 						{(query || statusFilter || verificationFilter) && (
 							<button
@@ -219,7 +221,7 @@ export default function PaymentsPage() {
 									setVerificationFilter(undefined);
 									setQuery("");
 								}}
-								className="btn-ghost text-xs"
+								className="btn-ghost text-xs sm:text-sm w-full sm:w-auto"
 							>
 								Clear
 							</button>
@@ -260,17 +262,17 @@ export default function PaymentsPage() {
 				</div>
 			) : (
 				<div className="card overflow-hidden p-0">
-					<div className="border-b border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-800/50">
+					<div className="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800/50 sm:px-6 sm:py-4">
 						<div className="flex items-center justify-between">
-							<div className="flex items-center gap-3">
-								<p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Payment List</p>
-								<span className="badge badge-gray">{filteredPayments.length}</span>
+							<div className="flex items-center gap-2 sm:gap-3">
+								<p className="text-xs font-semibold text-gray-900 dark:text-gray-100 sm:text-sm">Payment List</p>
+								<span className="badge badge-gray text-[10px] sm:text-xs">{filteredPayments.length}</span>
 							</div>
 						</div>
 					</div>
 
 					{/* Desktop Table Header */}
-					<div className="hidden grid-cols-12 gap-4 border-b border-gray-200 bg-gray-50 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-400 sm:grid">
+					<div className="hidden grid-cols-12 gap-4 border-b border-gray-200 bg-gray-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-400 md:grid lg:px-6">
 						<div className="col-span-3">Order</div>
 						<div className="col-span-3">Customer</div>
 						<div className="col-span-3">Payment Reference</div>
@@ -283,7 +285,7 @@ export default function PaymentsPage() {
 							const canAct = payment.verification_status === "pending";
 							const showReceiptActions = Boolean(payment.receipt_url) || !["pending", "disputed", "failed"].includes(payment.status);
 							return (
-								<div key={payment.id} className="px-6 py-4 transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
+								<div key={payment.id} className="px-4 py-4 transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/30 sm:px-6">
 									{/* Mobile View */}
 									<div className="space-y-3 sm:hidden">
 										<div className="flex flex-wrap items-center gap-2">
@@ -346,7 +348,7 @@ export default function PaymentsPage() {
 									</div>
 
 									{/* Desktop View */}
-									<div className="hidden grid-cols-12 items-center gap-4 sm:grid">
+									<div className="hidden grid-cols-12 items-center gap-3 md:grid lg:gap-4">
 										<div className="col-span-3 min-w-0">
 											<div className="flex items-center gap-2">
 												<p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">{payment.order_number}</p>
@@ -448,7 +450,7 @@ export default function PaymentsPage() {
 					setVerifyNotes("");
 					setTransactionId("");
 				}}>
-					<div className="modal-content animate-scale-in" onClick={(e) => e.stopPropagation()}>
+					<div className="modal-content animate-scale-in w-full max-w-md mx-4 sm:mx-auto" onClick={(e) => e.stopPropagation()}>
 						<div className="mb-6 flex items-center justify-between">
 							<div className="flex items-center gap-3">
 								<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-success-100 dark:bg-success-900/30">
@@ -530,7 +532,7 @@ export default function PaymentsPage() {
 					setSelectedPayment(null);
 					setDisputeReason("");
 				}}>
-					<div className="modal-content animate-scale-in" onClick={(e) => e.stopPropagation()}>
+					<div className="modal-content animate-scale-in w-full max-w-md mx-4 sm:mx-auto" onClick={(e) => e.stopPropagation()}>
 						<div className="mb-6 flex items-center justify-between">
 							<div className="flex items-center gap-3">
 							<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-error-100 dark:bg-error-900/30">
