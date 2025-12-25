@@ -67,7 +67,7 @@ export default function OrdersPage() {
               <Link
                 href={`/app/orders/${order.id}`}
                 onClick={() => toast.dismiss(t.id)}
-                className="mt-2 text-sm font-medium text-primary underline"
+                className="mt-2 text-sm font-medium text-accent underline"
               >
                 View Order
               </Link>
@@ -114,20 +114,19 @@ export default function OrdersPage() {
     );
   }, [orders, query]);
 
-  const getStatusColor = (status: Order["status"]) => {
+  const getStatusBadge = (status: Order["status"]) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-700";
+        return "badge-warning";
       case "confirmed":
-        return "bg-green-100 text-green-700";
-      case "processing":
-        return "bg-purple-100 text-purple-700";
       case "completed":
-        return "bg-green-100 text-green-700";
+        return "badge-success";
+      case "processing":
+        return "badge-info";
       case "cancelled":
-        return "bg-red-100 text-red-700";
+        return "badge-error";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "badge-gray";
     }
   };
 
@@ -138,7 +137,6 @@ export default function OrdersPage() {
   };
 
   const isAutoCreated = (order: Order) => {
-    // If API provides is_auto_created, use it. Otherwise, infer from timestamp (created in last 10 minutes)
     if (order.is_auto_created !== undefined) {
       return order.is_auto_created;
     }
@@ -147,65 +145,79 @@ export default function OrdersPage() {
     return createdAt > tenMinutesAgo;
   };
 
-  type StatusTab = {
-    key: Order["status"] | undefined;
-    label: string;
-    count?: number;
-  };
-
-  const statusTabs: StatusTab[] = [
-    { key: undefined, label: "All", count: stats?.total_orders },
-    { key: "pending", label: "Pending", count: stats?.pending_orders },
-    { key: "processing", label: "Processing" },
-    { key: "completed", label: "Completed", count: stats?.completed_orders },
-    { key: "cancelled", label: "Cancelled" },
+  // Unified filter options
+  const filterOptions = [
+    { value: "", label: "All Orders", status: undefined, platform: undefined },
+    { value: "pending", label: "Pending", status: "pending", platform: undefined },
+    { value: "processing", label: "Processing", status: "processing", platform: undefined },
+    { value: "completed", label: "Completed", status: "completed", platform: undefined },
+    { value: "cancelled", label: "Cancelled", status: "cancelled", platform: undefined },
   ];
 
-  const activeStatusKey = (statusFilter || undefined) as StatusTab["key"];
+  const activeFilter = useMemo(() => {
+    if (statusFilter && platformFilter) {
+      return filterOptions.find(opt => opt.status === statusFilter && opt.platform === platformFilter)?.value || "";
+    }
+    if (statusFilter) {
+      return filterOptions.find(opt => opt.status === statusFilter && !opt.platform)?.value || "";
+    }
+    if (platformFilter) {
+      return "";
+    }
+    return "";
+  }, [statusFilter, platformFilter]);
+
+  const handleFilterChange = (value: string) => {
+    const option = filterOptions.find(opt => opt.value === value);
+    if (option) {
+      setStatusFilter(option.status);
+    }
+  };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <header className="flex flex-col gap-3 sm:gap-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <PackageIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+    <div className="space-y-6">
+      {/* Page Header */}
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start gap-3 sm:gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 text-white shadow-md sm:h-12 sm:w-12">
+            <PackageIcon className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl lg:text-4xl">Orders</h1>
-            <p className="mt-0.5 text-xs text-gray-600 sm:mt-1 sm:text-sm">Manage customer orders from sales conversations</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Orders</h1>
+            <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">Manage customer orders from sales conversations</p>
           </div>
         </div>
       </header>
 
-      {/* Stats */}
+      {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-4">
-            <div className="absolute right-0 top-0 h-12 w-12 -translate-y-3 translate-x-3 rounded-full bg-blue-50 transition-transform group-hover:scale-150 sm:h-16 sm:w-16 sm:-translate-y-4 sm:translate-x-4" />
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          <div className="stat-card group">
+            <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-info-400/20 to-info-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs text-gray-600 sm:text-sm">Total Orders</p>
-              <p className="mt-1 text-xl font-bold text-gray-900 sm:text-2xl">{stats.total_orders}</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total Orders</p>
+              <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">{stats.total_orders}</p>
             </div>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-4">
-            <div className="absolute right-0 top-0 h-12 w-12 -translate-y-3 translate-x-3 rounded-full bg-yellow-50 transition-transform group-hover:scale-150 sm:h-16 sm:w-16 sm:-translate-y-4 sm:translate-x-4" />
+          <div className="stat-card group">
+            <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-warning-400/20 to-warning-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs text-gray-600 sm:text-sm">Pending</p>
-              <p className="mt-1 text-xl font-bold text-yellow-600 sm:text-2xl">{stats.pending_orders}</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Pending</p>
+              <p className="mt-2 text-2xl font-bold text-warning-600 dark:text-warning-400 sm:text-3xl">{stats.pending_orders}</p>
             </div>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-4">
-            <div className="absolute right-0 top-0 h-12 w-12 -translate-y-3 translate-x-3 rounded-full bg-green-50 transition-transform group-hover:scale-150 sm:h-16 sm:w-16 sm:-translate-y-4 sm:translate-x-4" />
+          <div className="stat-card group">
+            <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-success-400/20 to-success-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs text-gray-600 sm:text-sm">Completed</p>
-              <p className="mt-1 text-xl font-bold text-green-600 sm:text-2xl">{stats.completed_orders}</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Completed</p>
+              <p className="mt-2 text-2xl font-bold text-success-600 dark:text-success-400 sm:text-3xl">{stats.completed_orders}</p>
             </div>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-4 col-span-2 lg:col-span-1">
-            <div className="absolute right-0 top-0 h-12 w-12 -translate-y-3 translate-x-3 rounded-full bg-purple-50 transition-transform group-hover:scale-150 sm:h-16 sm:w-16 sm:-translate-y-4 sm:translate-x-4" />
+          <div className="stat-card group col-span-2 lg:col-span-1">
+            <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-accent-400/20 to-accent-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs text-gray-600 sm:text-sm">Total Revenue</p>
-              <p className="mt-1 text-xl font-bold text-gray-900 sm:text-2xl">
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total Revenue</p>
+              <p className="mt-2 text-xl font-bold text-gray-900 dark:text-gray-100 sm:text-2xl lg:text-3xl">
                 {stats.currency} {(stats.total_revenue ?? 0).toLocaleString()}
               </p>
             </div>
@@ -213,118 +225,115 @@ export default function OrdersPage() {
         </div>
       )}
 
-      {/* Filters + Tabs */}
-      <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative flex-1">
-            <MagnifyingGlassIcon
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 sm:h-5 sm:w-5"
-              aria-hidden="true"
-            />
+      {/* Unified Search and Filter Section */}
+      <div className="card p-4 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* Search */}
+          <div className="search-bar flex-1 sm:max-w-md lg:max-w-lg">
+            <MagnifyingGlassIcon className="input-icon" aria-hidden="true" />
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search orders..."
-              className="w-full h-10 rounded-lg border border-gray-300 bg-white pl-11 pr-3 text-sm text-gray-900 placeholder:text-gray-500 transition hover:border-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:pr-4"
+              placeholder="Search by order number, customer name, or payment reference..."
+              className="search-input"
             />
           </div>
 
-          <div className="flex items-center gap-2">
-            <FunnelIcon className="h-4 w-4 shrink-0 text-gray-400" />
-            <div className="min-w-[220px]">
-              <Select
-                value={(platformFilter || "") as any}
-                onChange={(value) => setPlatformFilter(value ? String(value) : undefined)}
-                options={[
-                  { value: "", label: "All Platforms" },
-                  { value: "whatsapp", label: "WhatsApp" },
-                  { value: "instagram", label: "Instagram" },
-                  { value: "telegram", label: "Telegram" },
-                  { value: "facebook", label: "Facebook" },
-                ]}
-                searchable={false}
-              />
+          {/* Filters */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-3">
+              <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
+              <div className="flex-1 sm:flex-none sm:min-w-[180px]">
+                <Select
+                  value={activeFilter}
+                  onChange={(value) => handleFilterChange(value as string)}
+                  options={filterOptions.map(opt => ({ value: opt.value, label: opt.label }))}
+                  searchable={false}
+                />
+              </div>
+              <div className="flex-1 sm:flex-none sm:min-w-[180px]">
+                <Select
+                  value={(platformFilter || "") as any}
+                  onChange={(value) => setPlatformFilter(value ? String(value) : undefined)}
+                  options={[
+                    { value: "", label: "All Platforms" },
+                    { value: "whatsapp", label: "WhatsApp" },
+                    { value: "instagram", label: "Instagram" },
+                    { value: "telegram", label: "Telegram" },
+                    { value: "facebook", label: "Facebook" },
+                  ]}
+                  searchable={false}
+                />
+              </div>
             </div>
-
-            <button
-              onClick={() => {
-                setStatusFilter(undefined);
-                setPlatformFilter(undefined);
-                setQuery("");
-              }}
-              className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary active:scale-95"
-            >
-              Clear
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-3 flex flex-wrap gap-2">
-          {statusTabs.map((tab) => {
-            const active = tab.key === activeStatusKey;
-            return (
+            {(query || statusFilter || platformFilter) && (
               <button
-                key={String(tab.key ?? "all")}
-                onClick={() => setStatusFilter(tab.key ?? undefined)}
-                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition active:scale-[0.98] sm:text-sm ${
-                  active
-                    ? "border-primary/20 bg-primary text-white"
-                    : "border-gray-200 bg-white text-gray-700 hover:border-primary/30 hover:text-primary"
-                }`}
+                onClick={() => {
+                  setStatusFilter(undefined);
+                  setPlatformFilter(undefined);
+                  setQuery("");
+                }}
+                className="btn-ghost text-xs sm:text-sm w-full sm:w-auto"
               >
-                <span>{tab.label}</span>
-                {typeof tab.count === "number" && (
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold sm:text-xs ${active ? "bg-white/20 text-white" : "bg-gray-100 text-gray-700"}`}>
-                    {tab.count}
-                  </span>
-                )}
+                Clear
               </button>
-            );
-          })}
+            )}
+          </div>
         </div>
       </div>
 
       {/* Orders List */}
       {isLoading ? (
         <div className="space-y-4">
-          <div className="h-6 w-48 animate-pulse rounded bg-gray-200" />
+          <div className="h-6 w-48 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
           <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 animate-pulse rounded-xl bg-gray-200" />
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-24 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-700" />
             ))}
           </div>
         </div>
       ) : error ? (
-        <div className="rounded-xl border-2 border-rose-200 bg-rose-50 p-8 text-center">
-          <XIcon className="mx-auto h-12 w-12 text-rose-400" />
-          <p className="mt-3 text-sm font-semibold text-rose-900">Failed to load orders</p>
+        <div className="card p-12 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-error-100 dark:bg-error-900/30">
+            <XIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
+          </div>
+          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load orders</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Please try refreshing the page</p>
         </div>
       ) : filteredOrders.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-8 text-center sm:p-16">
-          <PackageIcon className="mx-auto h-12 w-12 text-gray-400 sm:h-16 sm:w-16" />
-          <p className="mt-4 text-base font-semibold text-gray-900 sm:text-lg">No orders found</p>
-          <p className="mt-2 text-xs text-gray-600 sm:text-sm">Orders will appear here when customers commit to purchase.</p>
+        <div className="card p-12 text-center sm:p-16">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+            <PackageIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+          </div>
+          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">No orders found</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            {query || statusFilter || platformFilter
+              ? "Try adjusting your search or filters"
+              : "Orders will appear here when customers commit to purchase"}
+          </p>
         </div>
       ) : (
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold text-gray-900">Orders</p>
-              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700">{count}</span>
+        <div className="card overflow-hidden p-0">
+          <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800/50 sm:px-6 sm:py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 sm:text-sm">Order List</p>
+                <span className="badge badge-gray text-[10px] sm:text-xs">{filteredOrders.length}</span>
+              </div>
             </div>
           </div>
 
-          {/* Table header (desktop) */}
-          <div className="hidden grid-cols-12 gap-3 border-b border-gray-100 px-4 py-2 text-xs font-semibold text-gray-500 sm:grid">
+          {/* Desktop Table Header */}
+          <div className="hidden grid-cols-12 gap-3 border-b border-gray-200 bg-gray-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-400 md:grid lg:px-6">
             <div className="col-span-3">Order</div>
             <div className="col-span-3">Customer</div>
-            <div className="col-span-3">Payment Ref</div>
+            <div className="col-span-3">Payment Reference</div>
             <div className="col-span-2 text-right">Amount</div>
             <div className="col-span-1 text-right">Status</div>
           </div>
 
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
             {filteredOrders.map((order) => {
               const isNew = isNewOrder(order);
               const autoCreated = isAutoCreated(order);
@@ -334,50 +343,60 @@ export default function OrdersPage() {
                 <Link
                   key={order.id}
                   href={`/app/orders/${order.id}`}
-                  className={`block px-4 py-3 transition hover:bg-gray-50 ${isNew ? "bg-primary/5" : "bg-white"}`}
+                  className={`block px-4 py-4 transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/30 sm:px-6 ${isNew ? "bg-success-50/50 dark:bg-success-900/10" : ""}`}
                 >
-                  {/* Mobile card */}
-                  <div className="space-y-2 sm:hidden">
+                  {/* Mobile View */}
+                  <div className="space-y-3 sm:hidden">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-semibold text-gray-900">{order.order_number}</p>
-                      {autoCreated && (
-                        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">Auto</span>
-                      )}
-                      {isNew && (
-                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-700">New</span>
-                      )}
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getStatusColor(order.status)}`}>{order.status}</span>
-                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600 capitalize">{order.platform}</span>
+                      <p className="text-base font-semibold text-gray-900 dark:text-gray-100">{order.order_number}</p>
+                      {autoCreated && <span className="badge badge-info text-[10px]">Auto</span>}
+                      {isNew && <span className="badge badge-success text-[10px]">New</span>}
+                      <span className={`badge ${getStatusBadge(order.status)} text-[10px]`}>{order.status}</span>
+                      <span className="badge badge-gray text-[10px] capitalize">{order.platform}</span>
                     </div>
-                    <p className="text-xs text-gray-600">Customer: <span className="font-medium">{order.customer_name}</span></p>
-                    <p className="text-xs text-gray-600">Items: <span className="font-medium">{itemCount}</span></p>
-                    <div onClick={(e) => e.preventDefault()}>
-                      <CopyToClipboard text={order.payment_reference} showLabel={false} className="text-xs" />
+                    <div className="space-y-1.5">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Customer: <span className="font-medium text-gray-900 dark:text-gray-100">{order.customer_name}</span>
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Items: <span className="font-medium text-gray-900 dark:text-gray-100">{itemCount}</span>
+                      </p>
+                      <div onClick={(e) => e.preventDefault()}>
+                        <CopyToClipboard text={order.payment_reference} showLabel={false} className="text-xs" />
+                      </div>
                     </div>
                     <div className="flex items-end justify-between">
-                      <p className="text-base font-bold text-gray-900">{order.currency} {(order.total_amount ?? 0).toLocaleString()}</p>
-                      <p className="text-xs text-gray-500">{new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {order.currency} {(order.total_amount ?? 0).toLocaleString()}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Desktop row */}
-                  <div className="hidden grid-cols-12 items-center gap-3 sm:grid">
+                  {/* Desktop View */}
+                  <div className="hidden grid-cols-12 items-center gap-3 md:grid lg:gap-4">
                     <div className="col-span-3 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="truncate text-sm font-semibold text-gray-900">{order.order_number}</p>
-                        {autoCreated && (
-                          <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">Auto</span>
-                        )}
-                        {isNew && (
-                          <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-700">New</span>
-                        )}
+                        <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">{order.order_number}</p>
+                        {autoCreated && <span className="badge badge-info text-[10px]">Auto</span>}
+                        {isNew && <span className="badge badge-success text-[10px]">New</span>}
                       </div>
-                      <p className="mt-0.5 text-xs text-gray-500">{new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
+                      <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(order.created_at).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </p>
                     </div>
 
                     <div className="col-span-3 min-w-0">
-                      <p className="truncate text-sm font-medium text-gray-900">{order.customer_name}</p>
-                      <p className="mt-0.5 text-xs text-gray-500 capitalize">{order.platform} • {itemCount} item(s)</p>
+                      <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{order.customer_name}</p>
+                      <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400 capitalize">
+                        {order.platform} • {itemCount} item(s)
+                      </p>
                     </div>
 
                     <div className="col-span-3 min-w-0" onClick={(e) => e.preventDefault()}>
@@ -385,11 +404,13 @@ export default function OrdersPage() {
                     </div>
 
                     <div className="col-span-2 text-right">
-                      <p className="text-sm font-semibold text-gray-900">{order.currency} {(order.total_amount ?? 0).toLocaleString()}</p>
+                      <p className="text-base font-bold text-gray-900 dark:text-gray-100">
+                        {order.currency} {(order.total_amount ?? 0).toLocaleString()}
+                      </p>
                     </div>
 
                     <div className="col-span-1 flex justify-end">
-                      <span className={`rounded-full px-2 py-1 text-[10px] font-semibold ${getStatusColor(order.status)}`}>{order.status}</span>
+                      <span className={`badge ${getStatusBadge(order.status)} text-[10px]`}>{order.status}</span>
                     </div>
                   </div>
                 </Link>
@@ -401,4 +422,3 @@ export default function OrdersPage() {
     </div>
   );
 }
-

@@ -9,7 +9,7 @@ import { useIntegrations, useVerifyIntegration, useDisconnectIntegration } from 
 import { WhatsAppNumberSelector } from "@/app/(tenant)/components/WhatsAppNumberSelector";
 import { authApi, tenantApi } from '@/lib/api';
 import ConfirmModal from '@/app/components/ConfirmModal';
-
+import { LinkIcon, CheckCircleIcon, XIcon, ChevronRightIcon, AlertIcon } from "../../components/icons";
 
 const STATUS_MAP: Record<
   "connected" | "pending" | "action_required" | "not_connected",
@@ -17,25 +17,25 @@ const STATUS_MAP: Record<
 > = {
   connected: {
     label: "Connected",
-    badge: "bg-emerald-100 text-emerald-700",
+    badge: "badge-success",
     description: "All set. We're syncing data and events.",
     helper: "Monitor analytics to keep performance sharp.",
   },
   pending: {
     label: "Pending",
-    badge: "bg-amber-100 text-amber-700",
+    badge: "badge-warning",
     description: "Waiting for external approval. We'll notify you once complete.",
     helper: "If this takes longer than 15 minutes, retry the connection.",
   },
   action_required: {
     label: "Action required",
-    badge: "bg-rose-100 text-rose-700",
+    badge: "badge-error",
     description: "Additional steps needed to finish the connection.",
     helper: "Open the checklist below to complete outstanding steps.",
   },
   not_connected: {
     label: "Not connected",
-    badge: "bg-gray-100 text-gray-500",
+    badge: "badge-gray",
     description: "Connect to unlock automations and analytics.",
     helper: "Start from Telegram or connect your channels.",
   },
@@ -74,6 +74,8 @@ const connectionHistory = [
   { id: "log-003", action: "Webhook verification required", at: "Jul 6, 2025 • 09:21" },
 ];
 
+type ConnectionStep = 'select' | 'requirements' | 'connect' | 'verify';
+
 export default function IntegrationsPage() {
   const { data: integrationsData, isLoading, error, refetch: refetchIntegrations } = useIntegrations();
   const integrations = Array.isArray(integrationsData) ? integrationsData : [];
@@ -83,6 +85,11 @@ export default function IntegrationsPage() {
   const [disconnectingPlatform, setDisconnectingPlatform] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
   const [showDisconnectConfirmFor, setShowDisconnectConfirmFor] = useState<string | null>(null);
+  
+  // Stepper flow state
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+  const [connectionStep, setConnectionStep] = useState<ConnectionStep>('select');
+  const [showStepper, setShowStepper] = useState(false);
 
   const whatsappRefreshMutation = useMutation({
     mutationFn: () => tenantApi.whatsappRefreshStatus(),
@@ -120,7 +127,6 @@ export default function IntegrationsPage() {
   }, [verifyMutation]);
 
   const handleDisconnect = useCallback((platform: string) => {
-    // Open confirmation modal first
     setShowDisconnectConfirmFor(platform);
   }, []);
 
@@ -134,9 +140,15 @@ export default function IntegrationsPage() {
     });
   }, [disconnectMutation]);
 
+  // Start connection flow
+  const startConnection = useCallback((platform: string) => {
+    setSelectedPlatform(platform);
+    setConnectionStep('requirements');
+    setShowStepper(true);
+  }, []);
+
   // Handle OAuth connection
   const handleConnect = useCallback(async (platform: string, platforms?: string, useInstagramLogin = false) => {
-    // If tenantId is missing, attempt to re-fetch the auth session (helps with transient auth state)
     let activeTenantId = tenantId;
     let fresh: any = null;
     if (!activeTenantId) {
@@ -154,8 +166,6 @@ export default function IntegrationsPage() {
 
     if (!activeTenantId) {
       console.debug('No tenant_id after refetch of auth.me; blocking OAuth start and redirecting to login to re-establish tenant context:', fresh);
-      // The server OAuth start endpoints require tenant_id. If we can't determine it client-side,
-      // redirect to the login flow so the server session can be re-established with tenant scope.
       toast.error('Please sign in to continue connecting channels. Redirecting to login...');
       if (typeof window !== 'undefined') {
         const nextPath = (typeof window !== 'undefined' && window.location?.pathname) ? window.location.pathname : '/app/integrations';
@@ -165,9 +175,9 @@ export default function IntegrationsPage() {
     }
 
     setIsConnecting(platform);
+    setConnectionStep('connect');
 
     try {
-      // Construct success redirect URL (redirect back to integrations page)
       const successRedirect = typeof window !== 'undefined' 
         ? `${window.location.origin}/app/integrations?platform=${platform}&status=success`
         : `/app/integrations?platform=${platform}&status=success`;
@@ -175,13 +185,11 @@ export default function IntegrationsPage() {
       let oauthUrl = '';
 
       if (platform === 'instagram' && useInstagramLogin) {
-        // Instagram Login (separate OAuth flow)
         oauthUrl = tenantApi.getInstagramOAuthUrl({
           tenant_id: activeTenantId,
           success_redirect: successRedirect,
         });
       } else if (platform === 'facebook' || platform === 'instagram') {
-        // Meta platforms (Facebook Login, Instagram via Facebook)
         const platformsParam = platforms || platform;
         oauthUrl = tenantApi.getMetaOAuthUrl({
           tenant_id: activeTenantId,
@@ -189,18 +197,15 @@ export default function IntegrationsPage() {
           success_redirect: successRedirect,
         });
       } else if (platform === 'tiktok') {
-        // TikTok
         oauthUrl = tenantApi.getTikTokOAuthUrl({
           tenant_id: activeTenantId,
           success_redirect: successRedirect,
         });
       } else {
-        // For Telegram, use the existing link behavior
         setIsConnecting(null);
         return;
       }
 
-      // Redirect to OAuth
       if (typeof window !== 'undefined') {
         window.location.href = oauthUrl;
       }
@@ -208,6 +213,7 @@ export default function IntegrationsPage() {
       console.error('Failed to initiate OAuth:', error);
       toast.error('Failed to connect. Please try again.');
       setIsConnecting(null);
+      setConnectionStep('requirements');
     }
   }, [tenantId, queryClient]);
 
@@ -224,16 +230,14 @@ export default function IntegrationsPage() {
     const errorReason = urlParams.get('error_reason');
 
     if (status === 'success') {
-      // Show success message
       const platformName = platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : 'platform';
       toast.success(`Successfully connected ${platformName}! 🎉`);
-      // Reload integrations
       void refetchIntegrations();
-      // Clean URL
       window.history.replaceState({}, '', window.location.pathname);
       setIsConnecting(null);
+      setShowStepper(false);
+      setSelectedPlatform(null);
     } else if (status === 'error' || error) {
-      // Handle OAuth errors
       let errorMessage = message || 'Unknown error';
       
       if (error === 'access_denied' || errorReason === 'user_denied') {
@@ -245,9 +249,9 @@ export default function IntegrationsPage() {
       }
       
       toast.error(errorMessage);
-      // Clean URL
       window.history.replaceState({}, '', window.location.pathname);
       setIsConnecting(null);
+      setConnectionStep('requirements');
     }
   }, [refetchIntegrations]);
 
@@ -266,22 +270,27 @@ export default function IntegrationsPage() {
     };
   });
 
+  const selectedPlatformData = selectedPlatform ? platformsWithData.find(p => p.platform === selectedPlatform) : null;
+
   return (
-    <div className="space-y-10">
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Social & Messaging Connections</h1>
-          <p className="mt-2 max-w-2xl text-sm text-gray-600">
-            Link Meta, TikTok, and Telegram accounts to automate content, messaging, and analytics in Brancr.
-          </p>
-          <p className="mt-2 max-w-2xl text-xs text-gray-500">
-            <strong>Instagram:</strong> Connect using Instagram Login.
-          </p>
+    <div className="space-y-6">
+      {/* Header */}
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start gap-3 sm:gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 text-white shadow-md sm:h-12 sm:w-12">
+            <LinkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Social & Messaging Connections</h1>
+            <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
+              Link Meta, TikTok, and Telegram accounts to automate content, messaging, and analytics in Brancr.
+            </p>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Link
             href="/app/integrations/history"
-            className="inline-flex items-center rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-primary hover:text-primary"
+            className="btn-secondary w-full sm:w-auto justify-center"
           >
             View audit log
           </Link>
@@ -289,35 +298,186 @@ export default function IntegrationsPage() {
             href="https://t.me/brancrbot"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary/90"
+            className="btn-primary w-full sm:w-auto justify-center"
           >
             Launch Telegram assistant
           </Link>
         </div>
       </header>
 
-      {/* Important WhatsApp notice shown on integrations page */}
-      <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-        <p className="font-semibold">⚠️ Important: WhatsApp number usage</p>
-        <p className="mt-1">Once connected, this number cannot be used on the WhatsApp mobile app — messages will appear exclusively inside the Brancr Dashboard. If the number is currently registered on your phone, delete the account, wait 3 minutes, then connect. Or use a new number not previously associated with WhatsApp.</p>
+      {/* Important WhatsApp notice */}
+      <div className="rounded-xl border border-warning-200 bg-warning-50 p-4 dark:border-warning-800 dark:bg-warning-900/20">
+        <div className="flex items-start gap-3">
+          <AlertIcon className="h-5 w-5 shrink-0 text-warning-600 dark:text-warning-400 mt-0.5" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-warning-900 dark:text-warning-100">⚠️ Important: WhatsApp number usage</p>
+            <p className="mt-1.5 text-xs text-warning-700 dark:text-warning-300 sm:text-sm">
+              Once connected, this number cannot be used on the WhatsApp mobile app — messages will appear exclusively inside the Brancr Dashboard. If the number is currently registered on your phone, delete the account, wait 3 minutes, then connect. Or use a new number not previously associated with WhatsApp.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* DEV: Show session debug for troubleshooting transient auth issues */}
-      {/* Optional session debug (show in dev or when ?debug=1 is present) */}
       <SessionDebug userData={userData} />
 
+      {/* Connection Stepper Modal */}
+      {showStepper && selectedPlatform && selectedPlatformData && (
+        <div className="modal-overlay" onClick={() => {
+          setShowStepper(false);
+          setSelectedPlatform(null);
+          setConnectionStep('select');
+        }}>
+          <div className="modal-content animate-scale-in w-full max-w-2xl mx-4 sm:mx-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Connect {selectedPlatformData.name}</h2>
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Follow these steps to connect your account</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowStepper(false);
+                  setSelectedPlatform(null);
+                  setConnectionStep('select');
+                }}
+                className="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                aria-label="Close modal"
+              >
+                <XIcon className="h-5 w-5" />
+              </button>
+            </div>
 
+            {/* Stepper Progress */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between">
+                {[
+                  { key: 'requirements', label: 'Requirements' },
+                  { key: 'connect', label: 'Connect' },
+                  { key: 'verify', label: 'Verify' },
+                ].map((step, index) => {
+                  const stepKey = step.key as ConnectionStep;
+                  const isActive = connectionStep === stepKey;
+                  const isCompleted = ['requirements', 'connect'].indexOf(connectionStep) > index;
+                  const isAccessible = index === 0 || ['requirements', 'connect'].indexOf(connectionStep) >= index;
+
+                  return (
+                    <div key={step.key} className="flex flex-1 items-center">
+                      <div className="flex flex-col items-center">
+                        <div
+                          className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition ${
+                            isCompleted
+                              ? 'border-success-500 bg-success-500 text-white'
+                              : isActive
+                              ? 'border-accent-500 bg-accent-500 text-white'
+                              : isAccessible
+                              ? 'border-gray-300 bg-white text-gray-400 dark:border-gray-600 dark:bg-gray-800'
+                              : 'border-gray-200 bg-gray-50 text-gray-300 dark:border-gray-700 dark:bg-gray-800/50'
+                          }`}
+                        >
+                          {isCompleted ? (
+                            <CheckCircleIcon className="h-5 w-5" />
+                          ) : (
+                            <span className="text-sm font-semibold">{index + 1}</span>
+                          )}
+                        </div>
+                        <p className={`mt-2 text-xs font-medium ${isActive ? 'text-accent-600 dark:text-accent-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                          {step.label}
+                        </p>
+                      </div>
+                      {index < 2 && (
+                        <div className={`mx-2 h-0.5 flex-1 ${isCompleted ? 'bg-success-500' : 'bg-gray-200 dark:bg-gray-700'}`} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Step Content */}
+            <div className="min-h-[300px]">
+              {connectionStep === 'requirements' && (
+                <div className="space-y-6">
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-800/50">
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Requirements</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      {PLATFORM_REQUIREMENTS[selectedPlatform]}
+                    </p>
+                    {GUIDE_LINKS[selectedPlatform] && (
+                      <Link
+                        href={GUIDE_LINKS[selectedPlatform].href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:text-accent/80 transition-colors"
+                      >
+                        {GUIDE_LINKS[selectedPlatform].label}
+                        <ChevronRightIcon className="h-4 w-4" />
+                      </Link>
+                    )}
+                  </div>
+                  <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                    <button
+                      onClick={() => {
+                        setShowStepper(false);
+                        setSelectedPlatform(null);
+                        setConnectionStep('select');
+                      }}
+                      className="btn-secondary"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (selectedPlatform === 'telegram') {
+                          window.open('https://t.me/brancrbot', '_blank');
+                          setShowStepper(false);
+                          setSelectedPlatform(null);
+                          setConnectionStep('select');
+                        } else if (selectedPlatform === 'instagram') {
+                          handleConnect(selectedPlatform, undefined, true);
+                        } else {
+                          handleConnect(selectedPlatform);
+                        }
+                      }}
+                      disabled={isConnecting === selectedPlatform || !tenantId}
+                      className="btn-primary"
+                    >
+                      {isConnecting === selectedPlatform ? 'Connecting...' : 'Continue to Connect'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {connectionStep === 'connect' && (
+                <div className="space-y-6">
+                  <div className="rounded-xl border border-info-200 bg-info-50 p-5 dark:border-info-800 dark:bg-info-900/20">
+                    <p className="text-sm font-semibold text-info-900 dark:text-info-100">Redirecting...</p>
+                    <p className="mt-2 text-sm text-info-700 dark:text-info-300">
+                      You'll be redirected to {selectedPlatformData.name} to authorize the connection. Once complete, you'll be brought back here.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Platforms Grid */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-accent/20 border-t-accent" />
         </div>
       ) : error ? (
-        <div className="rounded-3xl border border-rose-200 bg-rose-50 p-6 text-center">
-          <p className="text-sm font-semibold text-rose-900">Failed to load integrations</p>
-          <p className="mt-2 text-xs text-rose-700">{error.message}</p>
+        <div className="card p-8 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-error-100 dark:bg-error-900/30">
+            <XIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
+          </div>
+          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load integrations</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{error.message}</p>
         </div>
       ) : (
-        <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {platformsWithData.map(({ platform, name, connected, updatedAt, integration }) => {
             const statusKey = connected ? "connected" : "not_connected";
             const status = STATUS_MAP[statusKey];
@@ -326,114 +486,84 @@ export default function IntegrationsPage() {
             const guide = GUIDE_LINKS[platform];
 
             return (
-              <div key={platform} className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm shadow-primary/5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-semibold text-gray-900">
-                      {isWhatsApp ? "WhatsApp Business (Brancr Official Number Integration)" : name}
-                    </h2>
+              <div key={platform} className="card p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg">
+                      {isWhatsApp ? "WhatsApp Business" : name}
+                    </h3>
                     {isWhatsApp && connected && (
-                      <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-primary">
-                        Brancr-Managed
-                      </span>
+                      <span className="mt-1.5 inline-block badge badge-primary text-[10px]">Brancr-Managed</span>
                     )}
                     {platform === "instagram" && connected && integration?.login_method === 'instagram_login' && (
-                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-blue-700">
-                        Instagram Login
-                      </span>
-                    )}
-                    {platform === "instagram" && connected && integration?.login_method === 'facebook_login' && (
-                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-gray-700">
-                        Facebook Login
-                      </span>
+                      <span className="mt-1.5 inline-block badge badge-info text-[10px]">Instagram Login</span>
                     )}
                   </div>
-                  <span className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-widest ${status.badge}`}>
+                  <span className={`badge ${status.badge} shrink-0 text-[10px]`}>
                     {isWhatsApp && !connected ? "No Number Assigned" : status.label}
                   </span>
                 </div>
+
+                {/* Platform Details */}
                 {isWhatsApp && connected && integration?.external_id ? (
-                  <p className="mt-2 text-xs text-gray-500">Number: {integration.external_id}</p>
+                  <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">Number: {integration.external_id}</p>
                 ) : platform === "facebook" && connected && integration?.page_name ? (
-                  <p className="mt-2 text-xs text-gray-500">{integration.page_name}</p>
+                  <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">{integration.page_name}</p>
                 ) : platform === "instagram" && connected ? (
-                  <div className="mt-2 space-y-1">
+                  <div className="mb-3 space-y-1">
                     {integration?.instagram_handle ? (
-                      <p className="text-xs text-gray-500">@{integration.instagram_handle}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">@{integration.instagram_handle}</p>
                     ) : integration?.username ? (
-                      <p className="text-xs text-gray-500">@{integration.username}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">@{integration.username}</p>
                     ) : null}
-                    {integration?.page_name && (
-                      <p className="text-xs text-gray-400">Page: {integration.page_name}</p>
-                    )}
-                    {integration?.login_method && (
-                      <p className="text-xs text-gray-400">
-                        Login: {integration.login_method === 'instagram_login' ? 'Instagram Login' : 'Facebook Login'}
-                      </p>
-                    )}
                   </div>
                 ) : connected && integration?.username && !isWhatsApp ? (
-                  <p className="mt-2 text-xs text-gray-500">@{integration.username}</p>
+                  <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">@{integration.username}</p>
                 ) : null}
 
-                {platform !== 'whatsapp' && (
-                  <p className="mt-3 text-sm text-gray-700">{PLATFORM_REQUIREMENTS[platform]}</p>
-                )}
-
-
-
+                {/* Status Description */}
                 {!isWhatsApp && (
-                  <>
-                    <p className="mt-2 text-sm text-gray-600">{status.description}</p>
-                    {connected && integration && "webhook_status" in integration ? (
-                      <div className="mt-3">
-                        <div className="rounded-lg border border-gray-200 bg-white px-3 py-2">
-                          <p className="uppercase tracking-[0.3em] text-gray-400">Webhook</p>
-                          <p className={`mt-1 inline-flex items-center gap-2 font-semibold ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "text-emerald-700" : "text-amber-700"}`}>
-                            <span className={`h-2 w-2 rounded-full ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "bg-emerald-500" : "bg-amber-500"}`} aria-hidden />
-                            {(integration as any).webhook_status ?? "unknown"}
-                          </p>
-                        </div>
-                      </div>
-                    ) : null}
-                    <p className="mt-3 text-xs uppercase tracking-[0.3em] text-gray-400">
-                      Last updated{" "}
-                      {new Date(updatedAt).toLocaleString([], {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                    <p className="mt-2 text-xs text-gray-500">{status.helper}</p>
-                  </>
+                  <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">{status.description}</p>
                 )}
 
-                {/* WhatsApp number selector - shown prominently for WhatsApp */}
+                {/* Webhook Status */}
+                {connected && integration && "webhook_status" in integration && (
+                  <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Webhook</p>
+                    <div className="flex items-center gap-2">
+                      <span className={`h-2 w-2 rounded-full ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "bg-success-500" : "bg-warning-500"}`} aria-hidden />
+                      <p className={`text-sm font-semibold ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "text-success-700 dark:text-success-400" : "text-warning-700 dark:text-warning-400"}`}>
+                        {(integration as any).webhook_status ?? "unknown"}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* WhatsApp number selector */}
                 {isWhatsApp && (
-                  <div className="mt-4">
+                  <div className="mb-4">
                     <WhatsAppNumberSelector />
                   </div>
                 )}
 
-                <div className="mt-4 flex flex-wrap gap-2">
+                {/* Actions */}
+                <div className="flex flex-wrap gap-2">
                   {isWhatsApp ? (
                     <>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (!connected) return;
-                          setShowDisconnectConfirmFor('whatsapp');
-                        }}
-                        disabled={!connected || whatsappDisconnectMutation.isPending}
-                        className="inline-flex items-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
-                      >
-                        {whatsappDisconnectMutation.isPending ? "Disconnecting..." : "Disconnect"}
-                      </button>
+                      {connected && (
+                        <button
+                          type="button"
+                          onClick={() => setShowDisconnectConfirmFor('whatsapp')}
+                          disabled={whatsappDisconnectMutation.isPending}
+                          className="btn-danger text-xs"
+                        >
+                          {whatsappDisconnectMutation.isPending ? "Disconnecting..." : "Disconnect"}
+                        </button>
+                      )}
                       {guide && (
                         <Link
                           href={guide.href}
-                          className="inline-flex items-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                          className="btn-secondary text-xs"
                         >
                           {guide.label}
                         </Link>
@@ -444,21 +574,21 @@ export default function IntegrationsPage() {
                       <button
                         onClick={() => handleVerify(platform)}
                         disabled={verifyMutation.isPending}
-                        className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary disabled:opacity-50"
+                        className="btn-secondary text-xs"
                       >
                         {verifyMutation.isPending ? "Verifying..." : "Verify"}
                       </button>
                       <button
                         onClick={() => handleDisconnect(platform)}
                         disabled={isDisconnecting || disconnectMutation.isPending}
-                        className="inline-flex items-center rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
+                        className="btn-danger text-xs"
                       >
                         {isDisconnecting ? "Disconnecting..." : "Disconnect"}
                       </button>
                       {guide && (
                         <Link
                           href={guide.href}
-                          className="inline-flex items-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                          className="btn-secondary text-xs"
                         >
                           {guide.label}
                         </Link>
@@ -470,48 +600,14 @@ export default function IntegrationsPage() {
                         href="https://t.me/brancrbot"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center rounded-xl border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:border-primary hover:text-primary"
+                        className="btn-primary text-xs"
                       >
                         Open bot deep link
                       </a>
                       {guide && (
                         <Link
                           href={guide.href}
-                          className="inline-flex items-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
-                        >
-                          {guide.label}
-                        </Link>
-                      )}
-                    </>
-                  ) : platform === "instagram" ? (
-                    <>
-                      <button
-                        onClick={() => handleConnect(platform, undefined, true)}
-                        disabled={isConnecting === platform}
-                        title={!tenantId ? 'Sign in to connect channels' : undefined}
-                        className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-blue-200 disabled:hover:bg-blue-50"
-                      >
-                        {isConnecting === platform ? (
-                          <>
-                            <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Connecting...
-                          </>
-                        ) : (
-                          <>
-                            Connect
-                            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                          </>
-                        )}
-                      </button>
-                      {guide && (
-                        <Link
-                          href={guide.href}
-                          className="inline-flex items-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                          className="btn-secondary text-xs"
                         >
                           {guide.label}
                         </Link>
@@ -520,94 +616,85 @@ export default function IntegrationsPage() {
                   ) : (
                     <>
                       <button
-                        onClick={() => handleConnect(platform)}
+                        onClick={() => startConnection(platform)}
                         disabled={isConnecting === platform}
                         title={!tenantId ? 'Sign in to connect channels' : undefined}
-                        className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-200 disabled:hover:bg-white"
+                        className="btn-primary text-xs"
                       >
-                        {isConnecting === platform ? (
-                          <>
-                            <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Connecting...
-                          </>
-                        ) : (
-                          <>
-                            Connect
-                            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                          </>
-                        )}
+                        {isConnecting === platform ? "Connecting..." : "Connect"}
                       </button>
                       {guide && (
                         <Link
                           href={guide.href}
-                          className="inline-flex items-center rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                          className="btn-secondary text-xs"
                         >
                           {guide.label}
                         </Link>
                       )}
                     </>
                   )}
-
-                {/* Show sign-in hint when user is not fully authenticated */}
-                {!tenantId && (
-                  <p className="mt-3 text-xs text-gray-500">Sign in to connect channels</p>
-                )}
                 </div>
+
+                {/* Helper text */}
+                {!isWhatsApp && (
+                  <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">{status.helper}</p>
+                )}
               </div>
             );
           })}
-        </section>
+        </div>
       )}
 
-      <section className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-900">Provider-Owned WhatsApp</h3>
-          <p className="mt-3 text-sm text-gray-600">
+      {/* Info Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
+        <div className="card p-5 sm:p-6">
+          <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg">Provider-Owned WhatsApp</h3>
+          <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
             Brancr manages your WhatsApp Business Account. Select a number from our pool or add your own number for verification.
           </p>
-          <div className="mt-4 space-y-3 text-sm text-gray-600">
+          <div className="mt-4 space-y-3 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-start gap-3">
-              <span className="mt-1 h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
+              <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-success-500" aria-hidden />
               <span>Brancr handles WhatsApp Business Account setup and billing</span>
             </div>
             <div className="flex items-start gap-3">
-              <span className="mt-1 h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
+              <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-success-500" aria-hidden />
               <span>Select from available numbers or verify your own number</span>
             </div>
             <div className="flex items-start gap-3">
-              <span className="mt-1 h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
+              <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-success-500" aria-hidden />
               <span>All WhatsApp usage charges appear on your Brancr invoice</span>
             </div>
           </div>
         </div>
-        <div className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-900">Connection history</h3>
-          <p className="mt-3 text-sm text-gray-600">
+        <div className="card p-5 sm:p-6">
+          <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg">Connection History</h3>
+          <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
             Brancr logs key integration events to help you audit onboarding.
           </p>
-          <div className="mt-4 space-y-4 text-xs text-gray-500">
-            {connectionHistory.map((entry) => (
-              <div key={entry.id} className="rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
-                <p className="text-sm font-semibold text-gray-900">{entry.action}</p>
-                <p className="mt-1 text-xs text-gray-500">{entry.at}</p>
+          <div className="mt-4 space-y-3">
+            {connectionHistory.slice(0, 2).map((entry) => (
+              <div key={entry.id} className="rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{entry.action}</p>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{entry.at}</p>
               </div>
             ))}
-            <p className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-center text-xs text-gray-500">
-              Real-time audit logs will display once integrations go live.
-            </p>
+            <Link
+              href="/app/integrations/history"
+              className="block rounded-xl border border-dashed border-gray-200 bg-gray-50 p-3 text-center text-xs text-gray-500 transition hover:border-accent hover:text-accent dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-accent"
+            >
+              View full history →
+            </Link>
           </div>
         </div>
-      </section>
+      </div>
+
+      {/* Disconnect Confirmation Modal */}
       {showDisconnectConfirmFor && (
         <ConfirmModal
           open={true}
           title={`Disconnect ${PLATFORM_NAMES[showDisconnectConfirmFor as string] || showDisconnectConfirmFor}`}
-          description={`Are you sure you want to disconnect ${PLATFORM_NAMES[showDisconnectConfirmFor as string] || showDisconnectConfirmFor}?`}
+          description={`Are you sure you want to disconnect ${PLATFORM_NAMES[showDisconnectConfirmFor as string] || showDisconnectConfirmFor}? This action cannot be undone.`}
           confirmText="Disconnect"
           onConfirm={() => {
             const p = showDisconnectConfirmFor as string;
