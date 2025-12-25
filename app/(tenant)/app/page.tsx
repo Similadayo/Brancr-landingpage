@@ -131,7 +131,7 @@ export default function TenantOverviewPage() {
           timestamp: new Date(post.scheduled_at || post.created_at),
           icon: <RocketIcon className="w-4 h-4" />,
           href: `/app/campaigns`,
-          color: "text-blue-600 bg-blue-50",
+          color: "text-info-600 bg-info-50 dark:text-info-400 dark:bg-info-900/30",
         });
       });
 
@@ -148,7 +148,7 @@ export default function TenantOverviewPage() {
           timestamp: new Date(conv.updated_at),
           icon: <InboxIcon className="w-4 h-4" />,
           href: `/app/inbox?conversation=${conv.id}`,
-          color: "text-green-600 bg-green-50",
+          color: "text-success-600 bg-success-50 dark:text-success-400 dark:bg-success-900/30",
         });
       });
 
@@ -165,7 +165,7 @@ export default function TenantOverviewPage() {
           timestamp: new Date(esc.createdAt),
           icon: <AlertIcon className="w-4 h-4" />,
           href: `/app/escalations/${esc.id}`,
-          color: "text-orange-600 bg-orange-50",
+          color: "text-warning-600 bg-warning-50 dark:text-warning-400 dark:bg-warning-900/30",
         });
       });
 
@@ -182,7 +182,7 @@ export default function TenantOverviewPage() {
           timestamp: new Date(media.created_at),
           icon: <ImageIcon className="w-4 h-4" />,
           href: `/app/media`,
-          color: "text-purple-600 bg-purple-50",
+          color: "text-accent-600 bg-accent-50 dark:text-accent-400 dark:bg-accent-900/30",
         });
       });
 
@@ -216,35 +216,31 @@ export default function TenantOverviewPage() {
     return date.toLocaleDateString();
   };
 
+  const displayName = useMemo(() => {
+    return tenant?.business_profile?.name?.trim() || tenant?.business_name?.trim() || tenant?.name?.trim() || "";
+  }, [tenant]);
+
+  const firstWord = displayName.split(/\s+/).filter(Boolean)[0];
+
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="card p-6 sm:p-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-              {(() => {
-                const displayName = (tenant?.business_profile?.name?.trim() || tenant?.business_name?.trim() || tenant?.name?.trim() || "");
-                const firstWord = displayName.split(/\s+/).filter(Boolean)[0];
-                return `Welcome back${firstWord ? ", " + firstWord : ""}`;
-              })()}
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Welcome back{firstWord ? `, ${firstWord}` : ""}
             </h1>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mt-2 text-base text-gray-600 dark:text-gray-400">
               Here&apos;s a quick snapshot of your automation, conversations, and campaign health today.
             </p>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
-            <Link
-              href="/app/posts/new"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.98]"
-            >
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <Link href="/app/posts/new" className="btn-primary">
               <PlusIcon className="w-4 h-4" />
               Create Post
             </Link>
-            <Link
-              href="/app/integrations"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
-            >
+            <Link href="/app/integrations" className="btn-secondary">
               <LinkIcon className="w-4 h-4" />
               View Integrations
             </Link>
@@ -279,8 +275,8 @@ export default function TenantOverviewPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Posts */}
-        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-          <div className="absolute right-0 top-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-blue-50 transition-transform group-hover:scale-150 dark:bg-blue-900/20" />
+        <div className="stat-card group">
+          <div className="absolute right-0 top-0 h-24 w-24 -translate-y-6 translate-x-6 rounded-full bg-gradient-to-br from-info-400/20 to-info-500/20 blur-2xl transition-transform group-hover:scale-150" />
           <div className="relative flex items-center justify-between">
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Posts</p>
@@ -289,45 +285,45 @@ export default function TenantOverviewPage() {
                 {stats.publishedPosts} published
               </p>
             </div>
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 transition-all duration-200 group-hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-info-100 text-info-600 transition-all duration-200 group-hover:bg-info-200 dark:bg-info-900/30 dark:text-info-400">
               <RocketIcon className="w-6 h-6" />
             </div>
           </div>
         </div>
 
         {/* Active Conversations */}
-        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-          <div className="absolute right-0 top-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-green-50 transition-transform group-hover:scale-150 dark:bg-green-900/20" />
+        <div className="stat-card group">
+          <div className="absolute right-0 top-0 h-24 w-24 -translate-y-6 translate-x-6 rounded-full bg-gradient-to-br from-success-400/20 to-success-500/20 blur-2xl transition-transform group-hover:scale-150" />
           <div className="relative flex items-center justify-between">
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Active Conversations</p>
               <p className="mt-3 text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.activeConversations}</p>
               <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">In progress</p>
             </div>
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600 transition-all duration-200 group-hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-success-100 text-success-600 transition-all duration-200 group-hover:bg-success-200 dark:bg-success-900/30 dark:text-success-400">
               <UserGroupIcon className="w-6 h-6" />
             </div>
           </div>
         </div>
 
         {/* Pending Escalations */}
-        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-          <div className="absolute right-0 top-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-orange-50 transition-transform group-hover:scale-150 dark:bg-orange-900/20" />
+        <div className="stat-card group">
+          <div className="absolute right-0 top-0 h-24 w-24 -translate-y-6 translate-x-6 rounded-full bg-gradient-to-br from-warning-400/20 to-warning-500/20 blur-2xl transition-transform group-hover:scale-150" />
           <div className="relative flex items-center justify-between">
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pending Escalations</p>
               <p className="mt-3 text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.pendingEscalations}</p>
               <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Requires attention</p>
             </div>
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600 transition-all duration-200 group-hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-400">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-warning-100 text-warning-600 transition-all duration-200 group-hover:bg-warning-200 dark:bg-warning-900/30 dark:text-warning-400">
               <AlertIcon className="w-6 h-6" />
             </div>
           </div>
         </div>
 
         {/* Connected Platforms */}
-        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-          <div className="absolute right-0 top-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-purple-50 transition-transform group-hover:scale-150 dark:bg-purple-900/20" />
+        <div className="stat-card group">
+          <div className="absolute right-0 top-0 h-24 w-24 -translate-y-6 translate-x-6 rounded-full bg-gradient-to-br from-accent-400/20 to-accent-500/20 blur-2xl transition-transform group-hover:scale-150" />
           <div className="relative flex items-center justify-between">
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Connected Platforms</p>
@@ -339,7 +335,7 @@ export default function TenantOverviewPage() {
               </p>
               <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Platforms syncing</p>
             </div>
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-600 transition-all duration-200 group-hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-400">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-100 text-accent-600 transition-all duration-200 group-hover:bg-accent-200 dark:bg-accent-900/30 dark:text-accent-400">
               <LinkIcon className="w-6 h-6" />
             </div>
           </div>
@@ -351,15 +347,15 @@ export default function TenantOverviewPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Recent Orders */}
           {orders.length > 0 && (
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-              <div className="flex items-center justify-between mb-4">
+            <div className="card p-6">
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Orders</h2>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Recent Orders</h2>
                   <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Latest orders</p>
                 </div>
                 <Link
                   href="/app/orders"
-                  className="inline-flex items-center text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+                  className="inline-flex items-center text-sm font-semibold text-accent hover:text-accent/80 transition-colors"
                 >
                   View all
                   <ArrowRightIcon className="ml-1 h-4 w-4" />
@@ -386,15 +382,15 @@ export default function TenantOverviewPage() {
 
           {/* Recent Payments */}
           {payments.length > 0 && (
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-              <div className="flex items-center justify-between mb-4">
+            <div className="card p-6">
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Payments</h2>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Recent Payments</h2>
                   <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Latest payments</p>
                 </div>
                 <Link
                   href="/app/payments"
-                  className="inline-flex items-center text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+                  className="inline-flex items-center text-sm font-semibold text-accent hover:text-accent/80 transition-colors"
                 >
                   View all
                   <ArrowRightIcon className="ml-1 h-4 w-4" />
@@ -422,19 +418,19 @@ export default function TenantOverviewPage() {
       )}
 
       {/* Main Content Grid */}
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column: Activity Feed */}
-        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           {/* Activity Feed */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0 mb-6">
+          <div className="card p-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
               <div className="min-w-0 flex-1">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Activity Feed</h2>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Activity Feed</h2>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Recent posts, conversations, and updates</p>
               </div>
               <Link
                 href="/app/inbox"
-                className="inline-flex items-center text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+                className="inline-flex items-center text-sm font-semibold text-accent hover:text-accent/80 transition-colors"
               >
                 View all
                 <ArrowRightIcon className="ml-1 h-4 w-4" />
@@ -442,19 +438,19 @@ export default function TenantOverviewPage() {
             </div>
             <div className="space-y-3">
               {activityFeed.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-700 dark:bg-gray-800/50">
-                  <ClockIcon className="mx-auto h-8 w-8 text-gray-400 dark:text-gray-500" />
-                  <p className="mt-3 text-base font-medium text-gray-900 dark:text-gray-100">No recent activity</p>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Activity will appear here as you use the platform</p>
+                <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-12 text-center dark:border-gray-700 dark:bg-gray-800/50">
+                  <ClockIcon className="mx-auto h-10 w-10 text-gray-400 dark:text-gray-500" />
+                  <p className="mt-4 text-base font-semibold text-gray-900 dark:text-gray-100">No recent activity</p>
+                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Activity will appear here as you use the platform</p>
                 </div>
               ) : (
                 activityFeed.map((activity) => (
                   <Link
                     key={activity.id}
                     href={activity.href}
-                    className="flex items-start gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 transition-all duration-200 hover:border-primary/30 hover:bg-primary/5 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-700/50 dark:hover:bg-gray-700"
+                    className="flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-accent/30 hover:shadow-soft active:scale-[0.98] dark:border-gray-700 dark:bg-gray-800"
                   >
-                    <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", activity.color, "dark:opacity-80")}>
+                    <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", activity.color)}>
                       {activity.icon}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -469,34 +465,34 @@ export default function TenantOverviewPage() {
           </div>
 
           {/* Performance Summary */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div className="card p-6">
             <div className="mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Performance Summary</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Performance Summary</h2>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Last 7 days overview</p>
             </div>
             {!performanceSummary || performanceSummary.total_posts === 0 ? (
               <div className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/50">
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-800/50">
                     <div className="flex items-center gap-2">
-                      <TrendingUpIcon className="h-5 w-5 shrink-0 text-green-600 dark:text-green-400" />
+                      <TrendingUpIcon className="h-5 w-5 shrink-0 text-success-600 dark:text-success-400" />
                       <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Engagement Rate</p>
                     </div>
                     <p className="mt-3 text-2xl font-bold text-gray-900 dark:text-gray-100">--</p>
                     <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Coming soon</p>
                   </div>
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/50">
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-800/50">
                     <div className="flex items-center gap-2">
-                      <FireIcon className="h-5 w-5 shrink-0 text-orange-600 dark:text-orange-400" />
+                      <FireIcon className="h-5 w-5 shrink-0 text-warning-600 dark:text-warning-400" />
                       <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Top Performing Post</p>
                     </div>
                     <p className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100">--</p>
                     <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Analytics coming soon</p>
                   </div>
                 </div>
-                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/30">
-                  <p className="text-sm font-semibold text-blue-900 dark:text-blue-300">💡 Tip</p>
-                  <p className="mt-1 text-sm text-blue-700 dark:text-blue-400">
+                <div className="rounded-xl border border-info-200 bg-info-50 p-4 dark:border-info-800 dark:bg-info-900/30">
+                  <p className="text-sm font-semibold text-info-900 dark:text-info-300">💡 Tip</p>
+                  <p className="mt-1.5 text-sm text-info-700 dark:text-info-400">
                     Connect more platforms and publish regularly to see detailed performance metrics.
                   </p>
                 </div>
@@ -504,9 +500,9 @@ export default function TenantOverviewPage() {
             ) : (
               <div className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/50">
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-800/50">
                     <div className="flex items-center gap-2">
-                      <TrendingUpIcon className="h-5 w-5 shrink-0 text-green-600 dark:text-green-400" />
+                      <TrendingUpIcon className="h-5 w-5 shrink-0 text-success-600 dark:text-success-400" />
                       <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Engagement Rate</p>
                     </div>
                     <p className="mt-3 text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -518,9 +514,9 @@ export default function TenantOverviewPage() {
                       {performanceSummary.total_posts} posts
                     </p>
                   </div>
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/50">
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-800/50">
                     <div className="flex items-center gap-2">
-                      <FireIcon className="h-5 w-5 shrink-0 text-orange-600 dark:text-orange-400" />
+                      <FireIcon className="h-5 w-5 shrink-0 text-warning-600 dark:text-warning-400" />
                       <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Top Performing Post</p>
                     </div>
                     {performanceSummary.top_performing_post ? (
@@ -542,21 +538,21 @@ export default function TenantOverviewPage() {
                 </div>
                 {performanceSummary.total_impressions > 0 && (
                   <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-700/50">
+                    <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800/50">
                       <p className="text-gray-500 dark:text-gray-400">Impressions</p>
-                      <p className="mt-2 font-semibold text-gray-900 dark:text-gray-100">{performanceSummary.total_impressions.toLocaleString()}</p>
+                      <p className="mt-2 font-bold text-gray-900 dark:text-gray-100">{performanceSummary.total_impressions.toLocaleString()}</p>
                     </div>
-                    <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-700/50">
+                    <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800/50">
                       <p className="text-gray-500 dark:text-gray-400">Reach</p>
-                      <p className="mt-2 font-semibold text-gray-900 dark:text-gray-100">{performanceSummary.total_reach.toLocaleString()}</p>
+                      <p className="mt-2 font-bold text-gray-900 dark:text-gray-100">{performanceSummary.total_reach.toLocaleString()}</p>
                     </div>
-                    <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-700/50">
+                    <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800/50">
                       <p className="text-gray-500 dark:text-gray-400">Likes</p>
-                      <p className="mt-2 font-semibold text-gray-900 dark:text-gray-100">{performanceSummary.total_likes.toLocaleString()}</p>
+                      <p className="mt-2 font-bold text-gray-900 dark:text-gray-100">{performanceSummary.total_likes.toLocaleString()}</p>
                     </div>
-                    <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-700/50">
+                    <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800/50">
                       <p className="text-gray-500 dark:text-gray-400">Comments</p>
-                      <p className="mt-2 font-semibold text-gray-900 dark:text-gray-100">{performanceSummary.total_comments.toLocaleString()}</p>
+                      <p className="mt-2 font-bold text-gray-900 dark:text-gray-100">{performanceSummary.total_comments.toLocaleString()}</p>
                     </div>
                   </div>
                 )}
@@ -566,16 +562,16 @@ export default function TenantOverviewPage() {
         </div>
 
         {/* Right Column: Quick Actions & Upcoming */}
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-6">
           {/* Quick Actions */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">Quick Actions</h2>
+          <div className="card p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-6 dark:text-gray-100">Quick Actions</h2>
             <div className="space-y-3">
               {/* Industry-specific actions */}
               {tenantIndustry?.capabilities.has_products && (
                 <Link
                   href="/app/products"
-                  className="flex w-full items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-700/50 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
+                  className="btn-secondary w-full justify-start"
                 >
                   <PackageIcon className="w-5 h-5" />
                   <span>Add Product</span>
@@ -584,7 +580,7 @@ export default function TenantOverviewPage() {
               {tenantIndustry?.capabilities.has_menu && (
                 <Link
                   href="/app/menu-items"
-                  className="flex w-full items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-700/50 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
+                  className="btn-secondary w-full justify-start"
                 >
                   <PackageIcon className="w-5 h-5" />
                   <span>Add Menu Item</span>
@@ -593,7 +589,7 @@ export default function TenantOverviewPage() {
               {tenantIndustry?.capabilities.has_services && (
                 <Link
                   href="/app/services"
-                  className="flex w-full items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-700/50 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
+                  className="btn-secondary w-full justify-start"
                 >
                   <PackageIcon className="w-5 h-5" />
                   <span>Add Service</span>
@@ -603,21 +599,21 @@ export default function TenantOverviewPage() {
               {/* General actions */}
               <Link
                 href="/app/posts/new"
-                className="flex w-full items-center gap-3 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.98]"
+                className="btn-primary w-full justify-start"
               >
                 <PlusIcon className="w-5 h-5" />
                 <span>Create Post</span>
               </Link>
               <Link
                 href="/app/calendar"
-                className="flex w-full items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-700/50 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
+                className="btn-secondary w-full justify-start"
               >
                 <CalendarIcon className="w-5 h-5" />
                 <span>View Calendar</span>
               </Link>
               <Link
                 href="/app/inbox"
-                className="flex w-full items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-700/50 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
+                className="btn-secondary w-full justify-start"
               >
                 <InboxIcon className="w-5 h-5" />
                 <span>Check Inbox</span>
@@ -627,16 +623,16 @@ export default function TenantOverviewPage() {
 
           {/* Recent Items - Industry Specific */}
           {(tenantIndustry?.capabilities.has_products || tenantIndustry?.capabilities.has_menu || tenantIndustry?.capabilities.has_services) && (
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Items</h2>
+            <div className="card p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Recent Items</h2>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {tenantIndustry?.capabilities.has_products && products.length > 0 && (
                   <div>
                     <Link
                       href="/app/products"
-                      className="mb-3 flex items-center justify-between text-sm font-semibold text-gray-700 hover:text-primary transition-colors dark:text-gray-300 dark:hover:text-primary"
+                      className="mb-3 flex items-center justify-between text-sm font-semibold text-gray-700 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-accent"
                     >
                       <span>Recent Products</span>
                       <ArrowRightIcon className="h-4 w-4" />
@@ -646,7 +642,7 @@ export default function TenantOverviewPage() {
                         <Link
                           key={product.id}
                           href="/app/products"
-                          className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5 dark:border-gray-700 dark:bg-gray-700/50 dark:hover:bg-gray-700"
+                          className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 transition-all duration-200 hover:border-accent/50 hover:bg-accent/5 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-800"
                         >
                           <PackageIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                           <div className="min-w-0 flex-1">
@@ -665,7 +661,7 @@ export default function TenantOverviewPage() {
                   <div className={products.length > 0 ? "mt-4" : ""}>
                     <Link
                       href="/app/menu-items"
-                      className="mb-3 flex items-center justify-between text-sm font-semibold text-gray-700 hover:text-primary transition-colors dark:text-gray-300 dark:hover:text-primary"
+                      className="mb-3 flex items-center justify-between text-sm font-semibold text-gray-700 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-accent"
                     >
                       <span>Recent Menu Items</span>
                       <ArrowRightIcon className="h-4 w-4" />
@@ -675,7 +671,7 @@ export default function TenantOverviewPage() {
                         <Link
                           key={item.id}
                           href="/app/menu-items"
-                          className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5 dark:border-gray-700 dark:bg-gray-700/50 dark:hover:bg-gray-700"
+                          className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 transition-all duration-200 hover:border-accent/50 hover:bg-accent/5 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-800"
                         >
                           <PackageIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                           <div className="min-w-0 flex-1">
@@ -694,7 +690,7 @@ export default function TenantOverviewPage() {
                   <div className={(products.length > 0 || menuItems.length > 0) ? "mt-4" : ""}>
                     <Link
                       href="/app/services"
-                      className="mb-3 flex items-center justify-between text-sm font-semibold text-gray-700 hover:text-primary transition-colors dark:text-gray-300 dark:hover:text-primary"
+                      className="mb-3 flex items-center justify-between text-sm font-semibold text-gray-700 hover:text-accent transition-colors dark:text-gray-300 dark:hover:text-accent"
                     >
                       <span>Recent Services</span>
                       <ArrowRightIcon className="h-4 w-4" />
@@ -704,7 +700,7 @@ export default function TenantOverviewPage() {
                         <Link
                           key={service.id}
                           href="/app/services"
-                          className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5 dark:border-gray-700 dark:bg-gray-700/50 dark:hover:bg-gray-700"
+                          className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 transition-all duration-200 hover:border-accent/50 hover:bg-accent/5 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-800"
                         >
                           <PackageIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                           <div className="min-w-0 flex-1">
@@ -724,10 +720,10 @@ export default function TenantOverviewPage() {
                 )}
                 
                 {(products.length === 0 && menuItems.length === 0 && services.length === 0) && (
-                  <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-6 text-center dark:border-gray-700 dark:bg-gray-800/50">
-                    <PackageIcon className="mx-auto h-8 w-8 text-gray-400 dark:text-gray-500" />
-                    <p className="mt-3 text-base font-medium text-gray-900 dark:text-gray-100">No items yet</p>
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Add your first item to get started</p>
+                  <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-700 dark:bg-gray-800/50">
+                    <PackageIcon className="mx-auto h-10 w-10 text-gray-400 dark:text-gray-500" />
+                    <p className="mt-4 text-base font-semibold text-gray-900 dark:text-gray-100">No items yet</p>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Add your first item to get started</p>
                   </div>
                 )}
               </div>
@@ -735,15 +731,15 @@ export default function TenantOverviewPage() {
           )}
 
           {/* Upcoming Posts */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0 mb-6">
+          <div className="card p-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
               <div className="min-w-0 flex-1">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Upcoming Posts</h2>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Upcoming Posts</h2>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Next scheduled</p>
               </div>
               <Link
                 href="/app/campaigns"
-                className="inline-flex items-center text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+                className="inline-flex items-center text-sm font-semibold text-accent hover:text-accent/80 transition-colors"
               >
                 View all
                 <ArrowRightIcon className="ml-1 h-4 w-4" />
@@ -751,19 +747,19 @@ export default function TenantOverviewPage() {
             </div>
             <div className="space-y-3">
               {upcomingPosts.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-6 text-center dark:border-gray-700 dark:bg-gray-800/50">
-                  <ClockIcon className="mx-auto h-8 w-8 text-gray-400 dark:text-gray-500" />
-                  <p className="mt-3 text-base font-medium text-gray-900 dark:text-gray-100">No upcoming posts</p>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Schedule your first post to get started</p>
+                <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-700 dark:bg-gray-800/50">
+                  <ClockIcon className="mx-auto h-10 w-10 text-gray-400 dark:text-gray-500" />
+                  <p className="mt-4 text-base font-semibold text-gray-900 dark:text-gray-100">No upcoming posts</p>
+                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Schedule your first post to get started</p>
                 </div>
               ) : (
                 upcomingPosts.map((post) => (
                   <Link
                     key={post.id}
                     href="/app/campaigns"
-                    className="flex items-start gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5 dark:border-gray-700 dark:bg-gray-700/50 dark:hover:bg-gray-700"
+                    className="flex items-start gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 transition-all duration-200 hover:border-accent/50 hover:bg-accent/5 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-800"
                   >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-info-100 text-info-600 dark:bg-info-900/30 dark:text-info-400">
                       <ClockIcon className="w-5 h-5" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -774,8 +770,8 @@ export default function TenantOverviewPage() {
                           : "No platforms"}
                       </p>
                       {post.scheduled_at && (
-                        <p className="mt-1 text-xs text-gray-400">
-                          {post.scheduled_at && new Date(post.scheduled_at).toLocaleString([], {
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          {new Date(post.scheduled_at).toLocaleString([], {
                             month: "short",
                             day: "numeric",
                             hour: "2-digit",
@@ -791,13 +787,13 @@ export default function TenantOverviewPage() {
           </div>
 
           {/* Status Card */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <div className="card p-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-success-100 text-success-600 dark:bg-success-900/30 dark:text-success-400">
                 <CheckCircleIcon className="w-6 h-6" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-base font-semibold text-gray-900 capitalize dark:text-gray-100">{tenant?.status ?? "active"}</p>
+                <p className="text-base font-bold text-gray-900 capitalize dark:text-gray-100">{tenant?.status ?? "active"}</p>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Workspace is healthy</p>
               </div>
             </div>

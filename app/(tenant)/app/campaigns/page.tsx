@@ -311,23 +311,20 @@ export default function CampaignsPage() {
           onCancel={() => { setShowCancelPostId(null); setShowCancelPostName(null); }}
         />
       )}      {/* Header */}
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <RocketIcon className="w-6 h-6" />
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 text-white shadow-md">
+            <RocketIcon className="h-6 w-6" />
           </div>
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Posts & Campaigns</h1>
-            <p className="mt-1 max-w-2xl text-sm text-gray-600">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Posts & Campaigns</h1>
+            <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-400">
               Manage scheduled posts, published content, and drafts
             </p>
           </div>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Link
-            href="/app/posts/new"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105"
-          >
+          <Link href="/app/posts/new" className="btn-primary">
             <PlusIcon className="w-4 h-4" />
             Create Post
           </Link>
@@ -335,97 +332,117 @@ export default function CampaignsPage() {
       </header>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-gray-200">
+      <div className="flex items-center gap-2 overflow-x-auto border-b border-gray-200 dark:border-gray-700 pb-1">
         <button
           onClick={() => setActiveTab("scheduled")}
-          className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
+          className={`shrink-0 flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
             activeTab === "scheduled"
-              ? "border-primary text-primary"
-              : "border-transparent text-gray-500 hover:text-gray-700"
+              ? "border-accent text-accent"
+              : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
           }`}
         >
           <ClockIcon className="w-4 h-4" />
-          Scheduled ({campaignStats?.scheduled ?? 0})
+          Scheduled
+          <span className={`badge ${activeTab === "scheduled" ? "badge-primary" : "badge-gray"}`}>
+            {campaignStats?.scheduled ?? 0}
+          </span>
         </button>
         <button
           onClick={() => setActiveTab("published")}
-          className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
+          className={`shrink-0 flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
             activeTab === "published"
-              ? "border-primary text-primary"
-              : "border-transparent text-gray-500 hover:text-gray-700"
+              ? "border-accent text-accent"
+              : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
           }`}
         >
           <CheckCircleIcon className="w-4 h-4" />
-          Published ({campaignStats?.published ?? 0})
+          Published
+          <span className={`badge ${activeTab === "published" ? "badge-primary" : "badge-gray"}`}>
+            {campaignStats?.published ?? 0}
+          </span>
         </button>
         <button
           onClick={() => setActiveTab("drafts")}
-          className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
+          className={`shrink-0 flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
             activeTab === "drafts"
-              ? "border-primary text-primary"
-              : "border-transparent text-gray-500 hover:text-gray-700"
+              ? "border-accent text-accent"
+              : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
           }`}
         >
           <DocumentTextIcon className="w-4 h-4" />
-          Drafts ({campaignStats?.draft ?? 0})
+          Drafts
+          <span className={`badge ${activeTab === "drafts" ? "badge-primary" : "badge-gray"}`}>
+            {campaignStats?.draft ?? 0}
+          </span>
         </button>
       </div>
 
-      {/* Filters and Search */}
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-3 sm:p-4 shadow-sm sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <MagnifyingGlassIcon
-            className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500"
-            aria-hidden="true"
-          />
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search posts by name, caption, or platform..."
-            aria-label="Search posts"
-            className="w-full h-10 rounded-lg border border-gray-300 bg-white pl-11 pr-4 text-sm text-gray-900 placeholder:text-gray-500 transition hover:border-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <FunnelIcon className="h-4 w-4 text-gray-400" />
-          {activeTab === "scheduled" && (
-            <div className="w-40">
+      {/* Unified Search and Filter Section */}
+      <div className="card p-4 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* Search */}
+          <div className="search-bar flex-1 sm:max-w-md">
+            <MagnifyingGlassIcon className="input-icon" aria-hidden="true" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search posts by name, caption, or platform..."
+              className="search-input"
+            />
+          </div>
+
+          {/* Filters */}
+          <div className="flex items-center gap-3">
+            <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
+            {activeTab === "scheduled" && (
+              <div className="min-w-[160px]">
+                <Select
+                  value={statusFilter as 'All' | 'scheduled' | 'posting'}
+                  onChange={(value) => setStatusFilter((value || 'All') as any)}
+                  searchable={false}
+                  options={[
+                    { value: 'All', label: 'All Status' },
+                    { value: 'scheduled', label: 'Scheduled' },
+                    { value: 'posting', label: 'Posting' },
+                  ]}
+                />
+              </div>
+            )}
+            <div className="min-w-[180px]">
               <Select
-                value={statusFilter as 'All' | 'scheduled' | 'posting'}
-                onChange={(value) => setStatusFilter((value || 'All') as any)}
+                value={platformFilter as any}
+                onChange={(value) => setPlatformFilter((value || 'All') as any)}
                 searchable={false}
-                buttonClassName="px-3 py-2.5 text-sm rounded-lg"
                 options={[
-                  { value: 'All', label: 'All Status' },
-                  { value: 'scheduled', label: 'Scheduled' },
-                  { value: 'posting', label: 'Posting' },
+                  { value: 'All', label: 'All Platforms' },
+                  { value: 'facebook', label: 'Facebook' },
+                  { value: 'instagram', label: 'Instagram' },
+                  { value: 'tiktok', label: 'TikTok' },
+                  { value: 'whatsapp', label: 'WhatsApp' },
+                  { value: 'telegram', label: 'Telegram' },
+                  { value: 'youtube', label: 'YouTube' },
                 ]}
               />
             </div>
-          )}
-          <div className="w-44">
-            <Select
-              value={platformFilter as any}
-              onChange={(value) => setPlatformFilter((value || 'All') as any)}
-              searchable={false}
-              buttonClassName="px-3 py-2.5 text-sm rounded-lg"
-              options={[
-                { value: 'All', label: 'All Platforms' },
-                { value: 'facebook', label: 'Facebook' },
-                { value: 'instagram', label: 'Instagram' },
-                { value: 'tiktok', label: 'TikTok' },
-                { value: 'whatsapp', label: 'WhatsApp' },
-                { value: 'telegram', label: 'Telegram' },
-                { value: 'youtube', label: 'YouTube' },
-              ]}
-            />
+            {(searchQuery || statusFilter !== "All" || platformFilter !== "All") && (
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setStatusFilter("All");
+                  setPlatformFilter("All");
+                }}
+                className="btn-ghost text-xs"
+              >
+                Clear
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       {/* Posts List */}
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="card overflow-hidden p-0">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
@@ -449,25 +466,34 @@ export default function CampaignsPage() {
         ) : activeTab === 'drafts' ? (
           <DraftsList />
         ) : currentPosts.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-12 text-center">
-            {activeTab === "scheduled" && <ClockIcon className="mx-auto h-12 w-12 text-gray-400" />}
-            {activeTab === "published" && <CheckCircleIcon className="mx-auto h-12 w-12 text-gray-400" />}
-            {String(activeTab) === "drafts" && <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" /> }
-            <p className="mt-3 text-sm font-semibold text-gray-900">
+          <div className="card p-12 text-center sm:p-16">
+            {activeTab === "scheduled" && (
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                <ClockIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+              </div>
+            )}
+            {activeTab === "published" && (
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                <CheckCircleIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+              </div>
+            )}
+            {String(activeTab) === "drafts" && (
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                <DocumentTextIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+              </div>
+            )}
+            <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
               {activeTab === "scheduled" && "No scheduled posts"}
               {activeTab === "published" && "No published posts"}
               {String(activeTab) === "drafts" && "No drafts"}
             </p>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               {activeTab === "scheduled" && "Create your first scheduled post to get started"}
               {activeTab === "published" && "Published posts will appear here"}
               {String(activeTab) === "drafts" && "Draft posts will appear here"}
             </p>
             {activeTab === "scheduled" && (
-              <Link
-                href="/app/posts/new"
-                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
-              >
+              <Link href="/app/posts/new" className="btn-primary mt-6">
                 <PlusIcon className="w-4 h-4" />
                 Create Post
               </Link>
@@ -482,7 +508,7 @@ export default function CampaignsPage() {
               const isPublishing = publishingPostId === post.id;
 
               return (
-                <div key={post.id} className="p-5 transition hover:bg-gray-50">
+                <div key={post.id} className="px-6 py-5 transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
                   <div className="flex items-start gap-4">
                     {/* Media Preview Placeholder */}
                     <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
@@ -634,14 +660,14 @@ export default function CampaignsPage() {
 
       {/* Edit / Reschedule Modal */}
       {isEditOpen && editPostId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-6 shadow-xl">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Edit Scheduled Post</h2>
+        <div className="modal-overlay" onClick={() => setIsEditOpen(false)}>
+          <div className="modal-content animate-scale-in max-w-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Edit Scheduled Post</h2>
               <button
                 type="button"
                 onClick={() => setIsEditOpen(false)}
-                className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                className="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
                 aria-label="Close modal"
               >
                 <XIcon className="h-5 w-5" />
@@ -674,11 +700,11 @@ export default function CampaignsPage() {
               </div>
             </div>
 
-            <div className="mt-6 flex items-center justify-end gap-3">
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={() => setIsEditOpen(false)}
-                className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                className="btn-secondary"
               >
                 Cancel
               </button>
@@ -706,7 +732,7 @@ export default function CampaignsPage() {
                   );
                 }}
                 disabled={updateMutation.isPending}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 disabled:opacity-50"
+                className="btn-primary"
               >
                 {updateMutation.isPending ? "Saving..." : "Save Changes"}
               </button>
