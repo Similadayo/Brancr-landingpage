@@ -14,21 +14,21 @@ import {
 } from "../../components/icons";
 import Select from "@/app/(tenant)/components/ui/Select";
 
-const PRIORITY_COLORS: Record<string, string> = {
-  low: "bg-gray-100 text-gray-700",
-  normal: "bg-blue-100 text-blue-700",
-  high: "bg-orange-100 text-orange-700",
-  urgent: "bg-red-100 text-red-700",
-  critical: "bg-purple-100 text-purple-700",
+const PRIORITY_BADGES: Record<string, string> = {
+  low: "badge-gray",
+  normal: "badge-info",
+  high: "badge-warning",
+  urgent: "badge-error",
+  critical: "badge-error",
 };
 
-const PLATFORM_COLORS: Record<string, string> = {
-  instagram: "bg-fuchsia-100 text-fuchsia-700",
-  facebook: "bg-blue-100 text-blue-700",
-  whatsapp: "bg-emerald-100 text-emerald-700",
-  tiktok: "bg-neutral-900 text-white",
-  telegram: "bg-sky-100 text-sky-700",
-  email: "bg-purple-100 text-purple-700",
+const PLATFORM_BADGES: Record<string, string> = {
+  instagram: "badge-info",
+  facebook: "badge-info",
+  whatsapp: "badge-success",
+  tiktok: "badge-gray",
+  telegram: "badge-info",
+  email: "badge-gray",
 };
 
 function formatTimeAgo(dateString: string): string {
@@ -50,6 +50,7 @@ export default function EscalationsPage() {
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [platformFilter, setPlatformFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"newest" | "priority">("newest");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const apiParams = useMemo(() => {
     const params: { priority?: "low" | "normal" | "high" | "urgent" | "critical"; limit?: number } = { limit: 50 };
@@ -65,12 +66,25 @@ export default function EscalationsPage() {
   const escalations = escalationsData?.escalations ?? [];
   const pendingCount = stats?.pending ?? escalations.length;
 
-  // Filter by platform (client-side since API doesn't support it yet)
+  // Filter by platform and search (client-side)
   const filteredEscalations = useMemo(() => {
     let filtered = [...escalations];
+    
     if (platformFilter !== "all") {
       filtered = filtered.filter((e) => e.platform.toLowerCase() === platformFilter.toLowerCase());
     }
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (e) =>
+          e.customerName.toLowerCase().includes(query) ||
+          e.customerUsername?.toLowerCase().includes(query) ||
+          e.message.toLowerCase().includes(query) ||
+          e.intent.toLowerCase().includes(query)
+      );
+    }
+    
     // Sort
     if (sortBy === "newest") {
       filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -79,163 +93,179 @@ export default function EscalationsPage() {
       filtered.sort((a, b) => (priorityOrder[b.priority] ?? 0) - (priorityOrder[a.priority] ?? 0));
     }
     return filtered;
-  }, [escalations, platformFilter, sortBy]);
+  }, [escalations, platformFilter, sortBy, searchQuery]);
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <section className="flex flex-col gap-4">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
-              <AlertIcon className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Escalations</h1>
-              <p className="mt-1 max-w-2xl text-sm text-gray-600">
-                Review and respond to customer escalations that require your attention
-              </p>
-            </div>
+    <div className="space-y-6">
+      {/* Page Header */}
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start gap-3 sm:gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-warning-500 to-warning-600 text-white shadow-md sm:h-12 sm:w-12">
+            <AlertIcon className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
-          {pendingCount > 0 && (
-            <div className="inline-flex items-center gap-2 rounded-xl border-2 border-red-200 bg-red-50 px-4 py-2.5">
-              <div className="h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-sm font-bold text-red-700">{pendingCount} Pending</span>
-            </div>
-          )}
+          <div className="min-w-0 flex-1">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Escalations</h1>
+            <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
+              Review and respond to customer escalations that require your attention
+            </p>
+          </div>
         </div>
-      </section>
+        {pendingCount > 0 && (
+          <div className="inline-flex items-center gap-2 rounded-xl border-2 border-error-200 bg-error-50 px-4 py-2.5 dark:border-error-800 dark:bg-error-900/20">
+            <div className="h-2.5 w-2.5 rounded-full bg-error-500 animate-pulse" />
+            <span className="text-sm font-bold text-error-700 dark:text-error-400">{pendingCount} Pending</span>
+          </div>
+        )}
+      </header>
 
-      {/* Stats Widget */}
+      {/* Stats Cards */}
       {stats && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Total</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900">{stats.total}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-600 transition group-hover:bg-gray-200">
-                <AlertIcon className="w-6 h-6" />
-              </div>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          <div className="stat-card group">
+            <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-info-400/20 to-info-500/20 blur-2xl transition-transform group-hover:scale-150" />
+            <div className="relative">
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total</p>
+              <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">{stats.total}</p>
             </div>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Pending</p>
-                <p className="mt-2 text-3xl font-bold text-orange-600">{stats.pending}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-100 text-orange-600 transition group-hover:bg-orange-200">
-                <ClockIcon className="w-6 h-6" />
-              </div>
+          <div className="stat-card group">
+            <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-warning-400/20 to-warning-500/20 blur-2xl transition-transform group-hover:scale-150" />
+            <div className="relative">
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Pending</p>
+              <p className="mt-2 text-2xl font-bold text-warning-600 dark:text-warning-400 sm:text-3xl">{stats.pending}</p>
             </div>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Resolved</p>
-                <p className="mt-2 text-3xl font-bold text-green-600">{stats.resolved}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-100 text-green-600 transition group-hover:bg-green-200">
-                <CheckCircleIcon className="w-6 h-6" />
-              </div>
+          <div className="stat-card group">
+            <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-success-400/20 to-success-500/20 blur-2xl transition-transform group-hover:scale-150" />
+            <div className="relative">
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Resolved</p>
+              <p className="mt-2 text-2xl font-bold text-success-600 dark:text-success-400 sm:text-3xl">{stats.resolved}</p>
             </div>
           </div>
-          <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Avg Response</p>
-                <p className="mt-2 text-lg font-bold text-gray-900">{stats.avgResponseTime}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 transition group-hover:bg-blue-200">
-                <TrendingUpIcon className="w-6 h-6" />
-              </div>
+          <div className="stat-card group col-span-2 lg:col-span-1">
+            <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-accent-400/20 to-accent-500/20 blur-2xl transition-transform group-hover:scale-150" />
+            <div className="relative">
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Avg Response</p>
+              <p className="mt-2 text-lg font-bold text-gray-900 dark:text-gray-100 sm:text-xl lg:text-2xl">{stats.avgResponseTime}</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="flex items-center gap-2">
-          <FunnelIcon className="h-4 w-4 text-gray-400" />
-          <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Priority</label>
-          <div className="w-40">
-            <Select
-              value={priorityFilter}
-              onChange={(value) => setPriorityFilter(value || 'all')}
-              searchable={false}
-              buttonClassName="px-3 py-2 text-sm rounded-lg"
-              options={[
-                { value: 'all', label: 'All' },
-                { value: 'critical', label: 'Critical' },
-                { value: 'urgent', label: 'Urgent' },
-                { value: 'high', label: 'High' },
-                { value: 'normal', label: 'Normal' },
-                { value: 'low', label: 'Low' },
-              ]}
+      {/* Unified Search and Filter Section */}
+      <div className="card p-4 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* Search */}
+          <div className="search-bar flex-1 sm:max-w-md lg:max-w-lg">
+            <MagnifyingGlassIcon className="input-icon" aria-hidden="true" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by customer name, username, or message..."
+              className="search-input"
             />
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Platform</label>
-          <div className="w-44">
-            <Select
-              value={platformFilter}
-              onChange={(value) => setPlatformFilter(value || 'all')}
-              searchable={false}
-              buttonClassName="px-3 py-2 text-sm rounded-lg"
-              options={[
-                { value: 'all', label: 'All' },
-                { value: 'instagram', label: 'Instagram' },
-                { value: 'facebook', label: 'Facebook' },
-                { value: 'whatsapp', label: 'WhatsApp' },
-                { value: 'tiktok', label: 'TikTok' },
-                { value: 'telegram', label: 'Telegram' },
-              ]}
-            />
-          </div>
-        </div>
-        <div className="ml-auto flex items-center gap-2">
-          <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Sort</label>
-          <div className="w-44">
-            <Select
-              value={sortBy}
-              onChange={(value) => setSortBy((value || 'newest') as 'newest' | 'priority')}
-              searchable={false}
-              buttonClassName="px-3 py-2 text-sm rounded-lg"
-              options={[
-                { value: 'newest', label: 'Newest First' },
-                { value: 'priority', label: 'Priority' },
-              ]}
-            />
+
+          {/* Filters */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-3">
+              <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
+              <div className="flex-1 sm:flex-none sm:min-w-[140px]">
+                <Select
+                  value={priorityFilter}
+                  onChange={(value) => setPriorityFilter(value || 'all')}
+                  searchable={false}
+                  options={[
+                    { value: 'all', label: 'All Priorities' },
+                    { value: 'critical', label: 'Critical' },
+                    { value: 'urgent', label: 'Urgent' },
+                    { value: 'high', label: 'High' },
+                    { value: 'normal', label: 'Normal' },
+                    { value: 'low', label: 'Low' },
+                  ]}
+                />
+              </div>
+              <div className="flex-1 sm:flex-none sm:min-w-[140px]">
+                <Select
+                  value={platformFilter}
+                  onChange={(value) => setPlatformFilter(value || 'all')}
+                  searchable={false}
+                  options={[
+                    { value: 'all', label: 'All Platforms' },
+                    { value: 'instagram', label: 'Instagram' },
+                    { value: 'facebook', label: 'Facebook' },
+                    { value: 'whatsapp', label: 'WhatsApp' },
+                    { value: 'tiktok', label: 'TikTok' },
+                    { value: 'telegram', label: 'Telegram' },
+                  ]}
+                />
+              </div>
+              <div className="flex-1 sm:flex-none sm:min-w-[140px]">
+                <Select
+                  value={sortBy}
+                  onChange={(value) => setSortBy((value || 'newest') as 'newest' | 'priority')}
+                  searchable={false}
+                  options={[
+                    { value: 'newest', label: 'Newest First' },
+                    { value: 'priority', label: 'By Priority' },
+                  ]}
+                />
+              </div>
+            </div>
+            {(searchQuery || priorityFilter !== "all" || platformFilter !== "all") && (
+              <button
+                onClick={() => {
+                  setPriorityFilter("all");
+                  setPlatformFilter("all");
+                  setSearchQuery("");
+                }}
+                className="btn-ghost text-xs sm:text-sm w-full sm:w-auto"
+              >
+                Clear
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       {/* Escalations List */}
-      <div className="space-y-3">
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+      {isLoading ? (
+        <div className="space-y-4">
+          <div className="h-6 w-48 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-32 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-700" />
+            ))}
           </div>
-        ) : error ? (
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center text-sm text-rose-900">
-            Failed to load escalations: {error.message}
+        </div>
+      ) : error ? (
+        <div className="card p-12 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-error-100 dark:bg-error-900/30">
+            <AlertIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
           </div>
-        ) : filteredEscalations.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-12 text-center">
-            <AlertIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <p className="mt-3 text-sm font-semibold text-gray-900">No escalations found</p>
-            <p className="mt-1 text-xs text-gray-500">All escalations have been handled or match your filters.</p>
+          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load escalations</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{error.message}</p>
+        </div>
+      ) : filteredEscalations.length === 0 ? (
+        <div className="card p-12 text-center sm:p-16">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+            <AlertIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
           </div>
-        ) : (
-          filteredEscalations.map((escalation) => (
+          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">No escalations found</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            {searchQuery || priorityFilter !== "all" || platformFilter !== "all"
+              ? "Try adjusting your search or filters"
+              : "All escalations have been handled"}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {filteredEscalations.map((escalation) => (
             <EscalationCard key={escalation.id} escalation={escalation} />
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -244,54 +274,45 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
   return (
     <Link
       href={`/app/escalations/${escalation.id}`}
-      className="group block rounded-xl border-2 border-gray-200 bg-white p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md"
+      className="card group p-5 transition-all hover:shadow-lg sm:p-6"
     >
       <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start gap-3 sm:gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent-500 to-accent-600 text-sm font-semibold text-white shadow-md sm:h-12 sm:w-12">
               {escalation.customerName.charAt(0).toUpperCase()}
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold text-gray-900">{escalation.customerName}</h3>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 sm:text-lg">{escalation.customerName}</h3>
                 {escalation.customerUsername && (
-                  <span className="text-xs text-gray-500">@{escalation.customerUsername}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">@{escalation.customerUsername}</span>
                 )}
               </div>
-              <div className="mt-1 flex items-center gap-2">
-                <span
-                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
-                    PLATFORM_COLORS[escalation.platform.toLowerCase()] ?? "bg-gray-100 text-gray-600"
-                  }`}
-                >
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <span className={`badge ${PLATFORM_BADGES[escalation.platform.toLowerCase()] ?? "badge-gray"} text-[10px]`}>
                   {escalation.platform}
                 </span>
-                <span
-                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
-                    PRIORITY_COLORS[escalation.priority] ?? "bg-gray-100 text-gray-600"
-                  }`}
-                >
+                <span className={`badge ${PRIORITY_BADGES[escalation.priority] ?? "badge-gray"} text-[10px]`}>
                   {escalation.priority}
                 </span>
-                <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400">
+                <span className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500">
                   {escalation.intent} • {escalation.tone}
                 </span>
               </div>
+              <p className="mt-3 line-clamp-2 text-sm text-gray-700 dark:text-gray-300">{escalation.message}</p>
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                <span>AI Confidence: <span className="font-semibold">{Math.round(escalation.confidence * 100)}%</span></span>
+                <span>•</span>
+                <span>{formatTimeAgo(escalation.createdAt)}</span>
+              </div>
             </div>
           </div>
-          <p className="mt-3 line-clamp-2 text-sm text-gray-700">{escalation.message}</p>
-          <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
-            <span>AI Confidence: {Math.round(escalation.confidence * 100)}%</span>
-            <span>•</span>
-            <span>{formatTimeAgo(escalation.createdAt)}</span>
-          </div>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <ArrowRightIcon className="h-5 w-5 text-gray-400 transition group-hover:text-primary group-hover:translate-x-1" />
+        <div className="flex shrink-0 items-center">
+          <ArrowRightIcon className="h-5 w-5 text-gray-400 transition-transform group-hover:text-accent group-hover:translate-x-1 dark:text-gray-500" />
         </div>
       </div>
     </Link>
   );
 }
-
