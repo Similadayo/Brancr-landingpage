@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import { Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@/app/(tenant)/components/ui/Modal';
+import { Button } from '@/app/(tenant)/components/ui/Button';
 
 type Props = {
   open: boolean;
@@ -21,29 +23,24 @@ export default function ConfirmModal({
   onConfirm,
   onCancel,
 }: Props) {
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onCancel} />
-      <div className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        {description && <p className="mt-2 text-sm text-gray-600">{description}</p>}
-        <div className="mt-6 flex justify-end gap-3">
-          <button
-            onClick={onCancel}
-            className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            {cancelText}
-          </button>
-          <button
-            onClick={onConfirm}
-            className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-red-700"
-          >
-            {confirmText}
-          </button>
-        </div>
-      </div>
-    </div>
+    <Modal open={open} onClose={onCancel} size="sm">
+      <ModalHeader onClose={onCancel}>
+        <ModalTitle>{title}</ModalTitle>
+      </ModalHeader>
+      {description && (
+        <ModalBody>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
+        </ModalBody>
+      )}
+      <ModalFooter>
+        <Button variant="secondary" onClick={onCancel}>
+          {cancelText}
+        </Button>
+        <Button variant="danger" onClick={onConfirm}>
+          {confirmText}
+        </Button>
+      </ModalFooter>
+    </Modal>
   );
 }

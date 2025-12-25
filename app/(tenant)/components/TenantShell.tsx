@@ -323,17 +323,18 @@ export function TenantShell({ children }: { children: ReactNode }) {
         key={item.href}
         href={item.href}
         onClick={() => setIsMobileNavOpen(false)}
-          className={cn(
-            "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
-            isActive
-              ? "bg-accent/10 text-accent shadow-sm dark:bg-accent/20"
-              : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100"
-          )}
+        className={cn(
+          "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+          isActive
+            ? "bg-accent/10 text-accent border-l-4 border-accent shadow-sm dark:bg-accent/20"
+            : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 border-l-4 border-transparent"
+        )}
+        aria-current={isActive ? "page" : undefined}
       >
         <span
           className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 transition group-hover:bg-accent/10 dark:group-hover:bg-accent/20 group-hover:text-accent",
-            isActive && "bg-accent text-white group-hover:bg-accent"
+            "flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 transition-all duration-200 group-hover:bg-accent/10 dark:group-hover:bg-accent/20 group-hover:text-accent",
+            isActive && "bg-accent text-white group-hover:bg-accent shadow-sm"
           )}
           aria-hidden
         >
@@ -341,19 +342,16 @@ export function TenantShell({ children }: { children: ReactNode }) {
         </span>
         {!compact ? (
           <>
-            <span className="flex-1">{item.label}</span>
+            <span className="flex-1 font-medium">{item.label}</span>
             {item.badge && (
-              <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-white">
+              <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-white shadow-sm">
                 {typeof item.badge === "number" && item.badge > 99 ? "99+" : item.badge}
               </span>
             )}
-            <span className="text-xs text-gray-400 dark:text-gray-500 group-hover:text-accent" aria-hidden>
-              {isActive ? "•" : "→"}
-            </span>
           </>
         ) : (
           item.badge && (
-            <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[8px] font-bold text-white">
+            <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[8px] font-bold text-white shadow-sm">
               {typeof item.badge === "number" && item.badge > 9 ? "9+" : item.badge}
             </span>
           )
@@ -645,20 +643,20 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
         <div className="flex min-h-screen flex-1 flex-col">
           {/* Top Header Bar with Stats */}
-          <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+          <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-sm">
             <div className="px-4 lg:px-6">
               <div className="flex h-16 items-center justify-between">
                 <div className="flex items-center gap-4">
                   <button
                     type="button"
                     onClick={() => setIsMobileNavOpen(true)}
-                    className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 shadow-sm transition hover:border-accent hover:text-accent lg:hidden"
+                    className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 shadow-sm transition-all duration-200 hover:border-accent hover:text-accent hover:shadow-md active:scale-95 lg:hidden"
                     aria-label="Open navigation menu"
                   >
                     <MenuIcon className="w-5 h-5" />
                   </button>
                   <div>
-                    <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{currentNav?.label ?? "Overview"}</h1>
+                    <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{currentNav?.label ?? "Overview"}</h1>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">

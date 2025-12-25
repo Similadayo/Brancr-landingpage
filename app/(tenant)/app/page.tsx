@@ -217,33 +217,33 @@ export default function TenantOverviewPage() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-6">
       {/* Welcome Header */}
-      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 flex-1">
-            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl">
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
               {(() => {
                 const displayName = (tenant?.business_profile?.name?.trim() || tenant?.business_name?.trim() || tenant?.name?.trim() || "");
                 const firstWord = displayName.split(/\s+/).filter(Boolean)[0];
                 return `Welcome back${firstWord ? ", " + firstWord : ""}`;
               })()}
             </h1>
-            <p className="mt-1 text-xs text-gray-600 sm:mt-2 sm:text-sm">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               Here&apos;s a quick snapshot of your automation, conversations, and campaign health today.
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
             <Link
               href="/app/posts/new"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 sm:shadow-md"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.98]"
             >
               <PlusIcon className="w-4 h-4" />
               Create Post
             </Link>
             <Link
               href="/app/integrations"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary active:scale-95"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
             >
               <LinkIcon className="w-4 h-4" />
               View Integrations
@@ -277,70 +277,70 @@ export default function TenantOverviewPage() {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Posts */}
-        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-6">
-          <div className="absolute right-0 top-0 h-16 w-16 -translate-y-4 translate-x-4 rounded-full bg-blue-50 transition-transform group-hover:scale-150 sm:h-20 sm:w-20 sm:-translate-y-6 sm:translate-x-6" />
+        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+          <div className="absolute right-0 top-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-blue-50 transition-transform group-hover:scale-150 dark:bg-blue-900/20" />
           <div className="relative flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total Posts</p>
-              <p className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl">{stats.totalPosts}</p>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Posts</p>
+              <p className="mt-3 text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.totalPosts}</p>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 {stats.publishedPosts} published
               </p>
             </div>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 transition group-hover:bg-blue-200 sm:h-12 sm:w-12">
-              <RocketIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 transition-all duration-200 group-hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400">
+              <RocketIcon className="w-6 h-6" />
             </div>
           </div>
         </div>
 
         {/* Active Conversations */}
-        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-6">
-          <div className="absolute right-0 top-0 h-16 w-16 -translate-y-4 translate-x-4 rounded-full bg-green-50 transition-transform group-hover:scale-150 sm:h-20 sm:w-20 sm:-translate-y-6 sm:translate-x-6" />
+        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+          <div className="absolute right-0 top-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-green-50 transition-transform group-hover:scale-150 dark:bg-green-900/20" />
           <div className="relative flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Active Conversations</p>
-              <p className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl">{stats.activeConversations}</p>
-              <p className="mt-1 text-xs text-gray-500">In progress</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Active Conversations</p>
+              <p className="mt-3 text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.activeConversations}</p>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">In progress</p>
             </div>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600 transition group-hover:bg-green-200 sm:h-12 sm:w-12">
-              <UserGroupIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600 transition-all duration-200 group-hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400">
+              <UserGroupIcon className="w-6 h-6" />
             </div>
           </div>
         </div>
 
         {/* Pending Escalations */}
-        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-6">
-          <div className="absolute right-0 top-0 h-16 w-16 -translate-y-4 translate-x-4 rounded-full bg-orange-50 transition-transform group-hover:scale-150 sm:h-20 sm:w-20 sm:-translate-y-6 sm:translate-x-6" />
+        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+          <div className="absolute right-0 top-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-orange-50 transition-transform group-hover:scale-150 dark:bg-orange-900/20" />
           <div className="relative flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Pending Escalations</p>
-              <p className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl">{stats.pendingEscalations}</p>
-              <p className="mt-1 text-xs text-gray-500">Requires attention</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pending Escalations</p>
+              <p className="mt-3 text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.pendingEscalations}</p>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Requires attention</p>
             </div>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600 transition group-hover:bg-orange-200 sm:h-12 sm:w-12">
-              <AlertIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600 transition-all duration-200 group-hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-400">
+              <AlertIcon className="w-6 h-6" />
             </div>
           </div>
         </div>
 
         {/* Connected Platforms */}
-        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-primary/30 hover:shadow-md sm:p-6">
-          <div className="absolute right-0 top-0 h-16 w-16 -translate-y-4 translate-x-4 rounded-full bg-purple-50 transition-transform group-hover:scale-150 sm:h-20 sm:w-20 sm:-translate-y-6 sm:translate-x-6" />
+        <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+          <div className="absolute right-0 top-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-purple-50 transition-transform group-hover:scale-150 dark:bg-purple-900/20" />
           <div className="relative flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Connected Platforms</p>
-              <p className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl">
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Connected Platforms</p>
+              <p className="mt-3 text-3xl font-bold text-gray-900 dark:text-gray-100">
                 {stats.connectedPlatforms}
                 {stats.totalPlatforms > 0 && (
-                  <span className="ml-1 text-base font-normal text-gray-500 sm:text-lg">/{stats.totalPlatforms}</span>
+                  <span className="ml-2 text-lg font-normal text-gray-500 dark:text-gray-400">/{stats.totalPlatforms}</span>
                 )}
               </p>
-              <p className="mt-1 text-xs text-gray-500">Platforms syncing</p>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Platforms syncing</p>
             </div>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-600 transition group-hover:bg-purple-200 sm:h-12 sm:w-12">
-              <LinkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-600 transition-all duration-200 group-hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-400">
+              <LinkIcon className="w-6 h-6" />
             </div>
           </div>
         </div>
@@ -348,24 +348,24 @@ export default function TenantOverviewPage() {
 
       {/* Orders & Payments Stats */}
       {(orders.length > 0 || payments.length > 0) && (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Recent Orders */}
           {orders.length > 0 && (
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Recent Orders</h2>
-                  <p className="mt-0.5 text-xs text-gray-500">Latest orders</p>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Orders</h2>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Latest orders</p>
                 </div>
                 <Link
                   href="/app/orders"
-                  className="inline-flex items-center text-xs font-semibold text-primary hover:text-primary/80 transition"
+                  className="inline-flex items-center text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
                 >
                   View all
-                  <ArrowRightIcon className="ml-1 h-3 w-3" />
+                  <ArrowRightIcon className="ml-1 h-4 w-4" />
                 </Link>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {orders.slice(0, 3).map((order) => (
                   <OrderCard
                     key={order.id}
@@ -386,21 +386,21 @@ export default function TenantOverviewPage() {
 
           {/* Recent Payments */}
           {payments.length > 0 && (
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Recent Payments</h2>
-                  <p className="mt-0.5 text-xs text-gray-500">Latest payments</p>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Payments</h2>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Latest payments</p>
                 </div>
                 <Link
                   href="/app/payments"
-                  className="inline-flex items-center text-xs font-semibold text-primary hover:text-primary/80 transition"
+                  className="inline-flex items-center text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
                 >
                   View all
-                  <ArrowRightIcon className="ml-1 h-3 w-3" />
+                  <ArrowRightIcon className="ml-1 h-4 w-4" />
                 </Link>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {payments.slice(0, 3).map((payment) => (
                   <PaymentCard
                     key={payment.id}
@@ -426,41 +426,41 @@ export default function TenantOverviewPage() {
         {/* Left Column: Activity Feed */}
         <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           {/* Activity Feed */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0 mb-4">
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0 mb-6">
               <div className="min-w-0 flex-1">
-                <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Activity Feed</h2>
-                <p className="mt-0.5 text-xs text-gray-500">Recent posts, conversations, and updates</p>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Activity Feed</h2>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Recent posts, conversations, and updates</p>
               </div>
               <Link
                 href="/app/inbox"
-                className="inline-flex items-center text-xs font-semibold text-primary hover:text-primary/80 transition"
+                className="inline-flex items-center text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
               >
                 View all
-                <ArrowRightIcon className="ml-1 h-3 w-3" />
+                <ArrowRightIcon className="ml-1 h-4 w-4" />
               </Link>
             </div>
-            <div className="space-y-2 sm:space-y-3">
+            <div className="space-y-3">
               {activityFeed.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-6 text-center sm:p-8">
-                  <ClockIcon className="mx-auto h-6 w-6 text-gray-400 sm:h-8 sm:w-8" />
-                  <p className="mt-2 text-sm font-medium text-gray-900">No recent activity</p>
-                  <p className="mt-1 text-xs text-gray-500">Activity will appear here as you use the platform</p>
+                <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-700 dark:bg-gray-800/50">
+                  <ClockIcon className="mx-auto h-8 w-8 text-gray-400 dark:text-gray-500" />
+                  <p className="mt-3 text-base font-medium text-gray-900 dark:text-gray-100">No recent activity</p>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Activity will appear here as you use the platform</p>
                 </div>
               ) : (
                 activityFeed.map((activity) => (
                   <Link
                     key={activity.id}
                     href={activity.href}
-                    className="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 transition hover:border-primary/30 hover:bg-primary/5 active:scale-[0.98] sm:p-4"
+                    className="flex items-start gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 transition-all duration-200 hover:border-primary/30 hover:bg-primary/5 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-700/50 dark:hover:bg-gray-700"
                   >
-                    <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", activity.color)}>
+                    <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", activity.color, "dark:opacity-80")}>
                       {activity.icon}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-gray-900">{activity.title}</p>
-                      <p className="mt-0.5 text-xs text-gray-600 line-clamp-1">{activity.description}</p>
-                      <p className="mt-1 text-xs text-gray-400">{formatRelativeTime(activity.timestamp)}</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{activity.title}</p>
+                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-1">{activity.description}</p>
+                      <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-500">{formatRelativeTime(activity.timestamp)}</p>
                     </div>
                   </Link>
                 ))
@@ -469,94 +469,94 @@ export default function TenantOverviewPage() {
           </div>
 
           {/* Performance Summary */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
-            <div className="mb-4">
-              <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Performance Summary</h2>
-              <p className="mt-0.5 text-xs text-gray-500">Last 7 days overview</p>
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Performance Summary</h2>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Last 7 days overview</p>
             </div>
             {!performanceSummary || performanceSummary.total_posts === 0 ? (
-              <div className="space-y-3">
-                <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/50">
                     <div className="flex items-center gap-2">
-                      <TrendingUpIcon className="h-4 w-4 shrink-0 text-green-600 sm:h-5 sm:w-5" />
-                      <p className="text-xs font-semibold text-gray-500">Engagement Rate</p>
+                      <TrendingUpIcon className="h-5 w-5 shrink-0 text-green-600 dark:text-green-400" />
+                      <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Engagement Rate</p>
                     </div>
-                    <p className="mt-2 text-xl font-bold text-gray-900 sm:text-2xl">--</p>
-                    <p className="mt-1 text-xs text-gray-500">Coming soon</p>
+                    <p className="mt-3 text-2xl font-bold text-gray-900 dark:text-gray-100">--</p>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Coming soon</p>
                   </div>
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/50">
                     <div className="flex items-center gap-2">
-                      <FireIcon className="h-4 w-4 shrink-0 text-orange-600 sm:h-5 sm:w-5" />
-                      <p className="text-xs font-semibold text-gray-500">Top Performing Post</p>
+                      <FireIcon className="h-5 w-5 shrink-0 text-orange-600 dark:text-orange-400" />
+                      <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Top Performing Post</p>
                     </div>
-                    <p className="mt-2 text-sm font-semibold text-gray-900">--</p>
-                    <p className="mt-1 text-xs text-gray-500">Analytics coming soon</p>
+                    <p className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100">--</p>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Analytics coming soon</p>
                   </div>
                 </div>
-                <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 sm:mt-4 sm:p-4">
-                  <p className="text-xs font-semibold text-blue-900">💡 Tip</p>
-                  <p className="mt-1 text-xs text-blue-700">
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/30">
+                  <p className="text-sm font-semibold text-blue-900 dark:text-blue-300">💡 Tip</p>
+                  <p className="mt-1 text-sm text-blue-700 dark:text-blue-400">
                     Connect more platforms and publish regularly to see detailed performance metrics.
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="space-y-3">
-                <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/50">
                     <div className="flex items-center gap-2">
-                      <TrendingUpIcon className="h-4 w-4 shrink-0 text-green-600 sm:h-5 sm:w-5" />
-                      <p className="text-xs font-semibold text-gray-500">Engagement Rate</p>
+                      <TrendingUpIcon className="h-5 w-5 shrink-0 text-green-600 dark:text-green-400" />
+                      <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Engagement Rate</p>
                     </div>
-                    <p className="mt-2 text-xl font-bold text-gray-900 sm:text-2xl">
+                    <p className="mt-3 text-2xl font-bold text-gray-900 dark:text-gray-100">
                       {performanceSummary.engagement_rate !== null
                         ? `${performanceSummary.engagement_rate.toFixed(1)}%`
                         : "--"}
                     </p>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                       {performanceSummary.total_posts} posts
                     </p>
                   </div>
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/50">
                     <div className="flex items-center gap-2">
-                      <FireIcon className="h-4 w-4 shrink-0 text-orange-600 sm:h-5 sm:w-5" />
-                      <p className="text-xs font-semibold text-gray-500">Top Performing Post</p>
+                      <FireIcon className="h-5 w-5 shrink-0 text-orange-600 dark:text-orange-400" />
+                      <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Top Performing Post</p>
                     </div>
                     {performanceSummary.top_performing_post ? (
                       <>
-                        <p className="mt-2 text-sm font-semibold text-gray-900 truncate">
+                        <p className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
                           {performanceSummary.top_performing_post.name}
                         </p>
-                        <p className="mt-1 text-xs text-gray-500">
+                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                           {performanceSummary.top_performing_post.impressions.toLocaleString()} impressions • {performanceSummary.top_performing_post.engagement_rate.toFixed(1)}% engagement
                         </p>
                       </>
                     ) : (
                       <>
-                        <p className="mt-2 text-sm font-semibold text-gray-900">--</p>
-                        <p className="mt-1 text-xs text-gray-500">No data available</p>
+                        <p className="mt-3 text-base font-semibold text-gray-900 dark:text-gray-100">--</p>
+                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">No data available</p>
                       </>
                     )}
                   </div>
                 </div>
                 {performanceSummary.total_impressions > 0 && (
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="rounded-lg border border-gray-200 bg-white p-2">
-                      <p className="text-gray-500">Impressions</p>
-                      <p className="mt-1 font-semibold text-gray-900">{performanceSummary.total_impressions.toLocaleString()}</p>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-700/50">
+                      <p className="text-gray-500 dark:text-gray-400">Impressions</p>
+                      <p className="mt-2 font-semibold text-gray-900 dark:text-gray-100">{performanceSummary.total_impressions.toLocaleString()}</p>
                     </div>
-                    <div className="rounded-lg border border-gray-200 bg-white p-2">
-                      <p className="text-gray-500">Reach</p>
-                      <p className="mt-1 font-semibold text-gray-900">{performanceSummary.total_reach.toLocaleString()}</p>
+                    <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-700/50">
+                      <p className="text-gray-500 dark:text-gray-400">Reach</p>
+                      <p className="mt-2 font-semibold text-gray-900 dark:text-gray-100">{performanceSummary.total_reach.toLocaleString()}</p>
                     </div>
-                    <div className="rounded-lg border border-gray-200 bg-white p-2">
-                      <p className="text-gray-500">Likes</p>
-                      <p className="mt-1 font-semibold text-gray-900">{performanceSummary.total_likes.toLocaleString()}</p>
+                    <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-700/50">
+                      <p className="text-gray-500 dark:text-gray-400">Likes</p>
+                      <p className="mt-2 font-semibold text-gray-900 dark:text-gray-100">{performanceSummary.total_likes.toLocaleString()}</p>
                     </div>
-                    <div className="rounded-lg border border-gray-200 bg-white p-2">
-                      <p className="text-gray-500">Comments</p>
-                      <p className="mt-1 font-semibold text-gray-900">{performanceSummary.total_comments.toLocaleString()}</p>
+                    <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-700/50">
+                      <p className="text-gray-500 dark:text-gray-400">Comments</p>
+                      <p className="mt-2 font-semibold text-gray-900 dark:text-gray-100">{performanceSummary.total_comments.toLocaleString()}</p>
                     </div>
                   </div>
                 )}
@@ -568,34 +568,34 @@ export default function TenantOverviewPage() {
         {/* Right Column: Quick Actions & Upcoming */}
         <div className="space-y-4 sm:space-y-6">
           {/* Quick Actions */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
-            <h2 className="text-base font-semibold text-gray-900 mb-3 sm:mb-4 sm:text-lg">Quick Actions</h2>
-            <div className="space-y-2">
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">Quick Actions</h2>
+            <div className="space-y-3">
               {/* Industry-specific actions */}
               {tenantIndustry?.capabilities.has_products && (
                 <Link
                   href="/app/products"
-                  className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-95 sm:justify-start"
+                  className="flex w-full items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-700/50 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
                 >
-                  <PackageIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <PackageIcon className="w-5 h-5" />
                   <span>Add Product</span>
                 </Link>
               )}
               {tenantIndustry?.capabilities.has_menu && (
                 <Link
                   href="/app/menu-items"
-                  className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-95 sm:justify-start"
+                  className="flex w-full items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-700/50 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
                 >
-                  <PackageIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <PackageIcon className="w-5 h-5" />
                   <span>Add Menu Item</span>
                 </Link>
               )}
               {tenantIndustry?.capabilities.has_services && (
                 <Link
                   href="/app/services"
-                  className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-95 sm:justify-start"
+                  className="flex w-full items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-700/50 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
                 >
-                  <PackageIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <PackageIcon className="w-5 h-5" />
                   <span>Add Service</span>
                 </Link>
               )}
@@ -603,23 +603,23 @@ export default function TenantOverviewPage() {
               {/* General actions */}
               <Link
                 href="/app/posts/new"
-                className="flex w-full items-center justify-center gap-3 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 sm:justify-start sm:shadow-md"
+                className="flex w-full items-center gap-3 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md active:scale-[0.98]"
               >
-                <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                <PlusIcon className="w-5 h-5" />
                 <span>Create Post</span>
               </Link>
               <Link
                 href="/app/calendar"
-                className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-95 sm:justify-start"
+                className="flex w-full items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-700/50 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
               >
-                <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                <CalendarIcon className="w-5 h-5" />
                 <span>View Calendar</span>
               </Link>
               <Link
                 href="/app/inbox"
-                className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-95 sm:justify-start"
+                className="flex w-full items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-700/50 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
               >
-                <InboxIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                <InboxIcon className="w-5 h-5" />
                 <span>Check Inbox</span>
               </Link>
             </div>
@@ -627,31 +627,31 @@ export default function TenantOverviewPage() {
 
           {/* Recent Items - Industry Specific */}
           {(tenantIndustry?.capabilities.has_products || tenantIndustry?.capabilities.has_menu || tenantIndustry?.capabilities.has_services) && (
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Recent Items</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Items</h2>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {tenantIndustry?.capabilities.has_products && products.length > 0 && (
                   <div>
                     <Link
                       href="/app/products"
-                      className="mb-2 flex items-center justify-between text-xs font-semibold text-gray-700 hover:text-primary transition"
+                      className="mb-3 flex items-center justify-between text-sm font-semibold text-gray-700 hover:text-primary transition-colors dark:text-gray-300 dark:hover:text-primary"
                     >
                       <span>Recent Products</span>
-                      <ArrowRightIcon className="h-3 w-3" />
+                      <ArrowRightIcon className="h-4 w-4" />
                     </Link>
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       {products.slice(0, 3).map((product) => (
                         <Link
                           key={product.id}
                           href="/app/products"
-                          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2 transition hover:border-primary/50 hover:bg-primary/5"
+                          className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5 dark:border-gray-700 dark:bg-gray-700/50 dark:hover:bg-gray-700"
                         >
-                          <PackageIcon className="h-4 w-4 text-gray-400" />
+                          <PackageIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs font-medium text-gray-900 truncate">{product.name}</p>
-                            <p className="text-[10px] text-gray-500">
+                            <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-100">{product.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
                               {product.currency} {product.price.toLocaleString()}
                             </p>
                           </div>
@@ -665,22 +665,22 @@ export default function TenantOverviewPage() {
                   <div className={products.length > 0 ? "mt-4" : ""}>
                     <Link
                       href="/app/menu-items"
-                      className="mb-2 flex items-center justify-between text-xs font-semibold text-gray-700 hover:text-primary transition"
+                      className="mb-3 flex items-center justify-between text-sm font-semibold text-gray-700 hover:text-primary transition-colors dark:text-gray-300 dark:hover:text-primary"
                     >
                       <span>Recent Menu Items</span>
-                      <ArrowRightIcon className="h-3 w-3" />
+                      <ArrowRightIcon className="h-4 w-4" />
                     </Link>
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       {menuItems.slice(0, 3).map((item) => (
                         <Link
                           key={item.id}
                           href="/app/menu-items"
-                          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2 transition hover:border-primary/50 hover:bg-primary/5"
+                          className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5 dark:border-gray-700 dark:bg-gray-700/50 dark:hover:bg-gray-700"
                         >
-                          <PackageIcon className="h-4 w-4 text-gray-400" />
+                          <PackageIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs font-medium text-gray-900 truncate">{item.name}</p>
-                            <p className="text-[10px] text-gray-500">
+                            <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-100">{item.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
                               {item.currency} {item.price.toLocaleString()}
                             </p>
                           </div>
@@ -694,22 +694,22 @@ export default function TenantOverviewPage() {
                   <div className={(products.length > 0 || menuItems.length > 0) ? "mt-4" : ""}>
                     <Link
                       href="/app/services"
-                      className="mb-2 flex items-center justify-between text-xs font-semibold text-gray-700 hover:text-primary transition"
+                      className="mb-3 flex items-center justify-between text-sm font-semibold text-gray-700 hover:text-primary transition-colors dark:text-gray-300 dark:hover:text-primary"
                     >
                       <span>Recent Services</span>
-                      <ArrowRightIcon className="h-3 w-3" />
+                      <ArrowRightIcon className="h-4 w-4" />
                     </Link>
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       {services.slice(0, 3).map((service) => (
                         <Link
                           key={service.id}
                           href="/app/services"
-                          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2 transition hover:border-primary/50 hover:bg-primary/5"
+                          className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5 dark:border-gray-700 dark:bg-gray-700/50 dark:hover:bg-gray-700"
                         >
-                          <PackageIcon className="h-4 w-4 text-gray-400" />
+                          <PackageIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs font-medium text-gray-900 truncate">{service.name}</p>
-                            <p className="text-[10px] text-gray-500">
+                            <p className="text-sm font-medium text-gray-900 truncate dark:text-gray-100">{service.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
                               {service.pricing.type === 'hourly' && service.pricing.rate
                                 ? `₦${service.pricing.rate}/hr`
                                 : service.pricing.type === 'fixed'
@@ -724,10 +724,10 @@ export default function TenantOverviewPage() {
                 )}
                 
                 {(products.length === 0 && menuItems.length === 0 && services.length === 0) && (
-                  <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-4 text-center">
-                    <PackageIcon className="mx-auto h-6 w-6 text-gray-400" />
-                    <p className="mt-2 text-xs font-medium text-gray-900">No items yet</p>
-                    <p className="mt-1 text-xs text-gray-500">Add your first item to get started</p>
+                  <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-6 text-center dark:border-gray-700 dark:bg-gray-800/50">
+                    <PackageIcon className="mx-auto h-8 w-8 text-gray-400 dark:text-gray-500" />
+                    <p className="mt-3 text-base font-medium text-gray-900 dark:text-gray-100">No items yet</p>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Add your first item to get started</p>
                   </div>
                 )}
               </div>
@@ -735,40 +735,40 @@ export default function TenantOverviewPage() {
           )}
 
           {/* Upcoming Posts */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0 mb-4">
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0 mb-6">
               <div className="min-w-0 flex-1">
-                <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Upcoming Posts</h2>
-                <p className="mt-0.5 text-xs text-gray-500">Next scheduled</p>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Upcoming Posts</h2>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Next scheduled</p>
               </div>
               <Link
                 href="/app/campaigns"
-                className="inline-flex items-center text-xs font-semibold text-primary hover:text-primary/80 transition"
+                className="inline-flex items-center text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
               >
                 View all
-                <ArrowRightIcon className="ml-1 h-3 w-3" />
+                <ArrowRightIcon className="ml-1 h-4 w-4" />
               </Link>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {upcomingPosts.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-4 text-center">
-                  <ClockIcon className="mx-auto h-6 w-6 text-gray-400" />
-                  <p className="mt-2 text-xs font-medium text-gray-900">No upcoming posts</p>
-                  <p className="mt-1 text-xs text-gray-500">Schedule your first post to get started</p>
+                <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-6 text-center dark:border-gray-700 dark:bg-gray-800/50">
+                  <ClockIcon className="mx-auto h-8 w-8 text-gray-400 dark:text-gray-500" />
+                  <p className="mt-3 text-base font-medium text-gray-900 dark:text-gray-100">No upcoming posts</p>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Schedule your first post to get started</p>
                 </div>
               ) : (
                 upcomingPosts.map((post) => (
                   <Link
                     key={post.id}
                     href="/app/campaigns"
-                    className="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 transition hover:border-primary/50 hover:bg-primary/5"
+                    className="flex items-start gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5 dark:border-gray-700 dark:bg-gray-700/50 dark:hover:bg-gray-700"
                   >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-                      <ClockIcon className="w-4 h-4" />
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                      <ClockIcon className="w-5 h-5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{post.name}</p>
-                      <p className="mt-0.5 text-xs text-gray-600">
+                      <p className="text-sm font-semibold text-gray-900 truncate dark:text-gray-100">{post.name}</p>
+                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         {Array.isArray(post.platforms) && post.platforms.length > 0
                           ? post.platforms.join(", ")
                           : "No platforms"}
@@ -791,14 +791,14 @@ export default function TenantOverviewPage() {
           </div>
 
           {/* Status Card */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-600">
-                <CheckCircleIcon className="w-5 h-5" />
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+                <CheckCircleIcon className="w-6 h-6" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-gray-900 capitalize">{tenant?.status ?? "active"}</p>
-                <p className="text-xs text-gray-500">Workspace is healthy</p>
+                <p className="text-base font-semibold text-gray-900 capitalize dark:text-gray-100">{tenant?.status ?? "active"}</p>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Workspace is healthy</p>
               </div>
             </div>
           </div>

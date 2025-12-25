@@ -27,19 +27,16 @@ import {
 } from "../../components/icons";
 import ConfirmModal from '@/app/components/ConfirmModal';
 import Select from "@/app/(tenant)/components/ui/Select";
+import { StatusBadge } from "@/app/(tenant)/components/ui/Badge";
+import { Button } from "@/app/(tenant)/components/ui/Button";
+import { Card } from "@/app/(tenant)/components/ui/Card";
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 
 type Tab = "scheduled" | "published" | "drafts";
 
-const STATUS_STYLES: Record<string, string> = {
-  scheduled: "bg-blue-100 text-blue-700 border-blue-200",
-  posting: "bg-amber-100 text-amber-700 border-amber-200",
-  posted: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  failed: "bg-rose-100 text-rose-700 border-rose-200",
-  cancelled: "bg-gray-100 text-gray-600 border-gray-200",
-};
+// Status styles now handled by StatusBadge component
 
 export default function CampaignsPage() {
   const queryClient = useQueryClient();
@@ -498,13 +495,9 @@ export default function CampaignsPage() {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
                             <h3 className="text-base font-semibold text-gray-900">{post.name}</h3>
-                            <span
-                              className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                                STATUS_STYLES[post.status] ?? "bg-gray-100 text-gray-600 border-gray-200"
-                              }`}
-                            >
+                            <StatusBadge status={post.status}>
                               {post.status}
-                            </span>
+                            </StatusBadge>
                           </div>
                           <div className="mt-1 flex items-center gap-2">
                             <p className="line-clamp-2 text-sm text-gray-600 flex-1">{post.caption || "No caption"}</p>
