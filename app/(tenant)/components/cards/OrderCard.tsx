@@ -58,10 +58,12 @@ export function OrderCard({
                 Auto-created
               </Badge>
             )}
-            <StatusBadge status={status} uppercase={false} className="capitalize">
-              {getStatusIcon(status)}
-              {status}
-            </StatusBadge>
+            <span className="capitalize">
+              <StatusBadge status={status} uppercase={false}>
+                {getStatusIcon(status)}
+                {status}
+              </StatusBadge>
+            </span>
           </div>
           
           <div className="space-y-1.5">

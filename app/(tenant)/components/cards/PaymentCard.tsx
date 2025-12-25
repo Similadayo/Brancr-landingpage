@@ -46,10 +46,12 @@ export function PaymentCard({
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap mb-3">
-            <StatusBadge status={status} uppercase={false} className="capitalize">
-              {getStatusIcon(status)}
-              {status}
-            </StatusBadge>
+            <span className="capitalize">
+              <StatusBadge status={status} uppercase={false}>
+                {getStatusIcon(status)}
+                {status}
+              </StatusBadge>
+            </span>
             {payment_method && (
               <Badge variant="neutral" size="sm">
                 {payment_method.replace('_', ' ')}
