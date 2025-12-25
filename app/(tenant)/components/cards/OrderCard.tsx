@@ -58,7 +58,7 @@ export function OrderCard({
                 Auto-created
               </Badge>
             )}
-            <StatusBadge status={status}>
+            <StatusBadge status={status} uppercase={false} className="capitalize">
               {getStatusIcon(status)}
               {status}
             </StatusBadge>

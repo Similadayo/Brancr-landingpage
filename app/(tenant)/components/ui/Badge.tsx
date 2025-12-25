@@ -12,6 +12,7 @@ interface BadgeProps {
   icon?: ReactNode;
   children: ReactNode;
   className?: string;
+  uppercase?: boolean; // Allow overriding text transform
 }
 
 const variantStyles = {
@@ -23,9 +24,9 @@ const variantStyles = {
 };
 
 const sizeStyles = {
-  sm: 'px-2 py-0.5 text-[10px] uppercase tracking-wider',
-  md: 'px-2.5 py-0.5 text-xs uppercase tracking-wider',
-  lg: 'px-3 py-1 text-sm uppercase tracking-wider',
+  sm: 'px-2 py-0.5 text-[10px] tracking-wider',
+  md: 'px-2.5 py-0.5 text-xs tracking-wider',
+  lg: 'px-3 py-1 text-sm tracking-wider',
 };
 
 export function Badge({
@@ -34,6 +35,7 @@ export function Badge({
   icon,
   children,
   className,
+  uppercase = true, // Default to uppercase for consistency with most badge usage
 }: BadgeProps) {
   return (
     <span
@@ -41,6 +43,7 @@ export function Badge({
         'inline-flex items-center gap-1.5 rounded-full border font-semibold',
         variantStyles[variant],
         sizeStyles[size],
+        uppercase ? 'uppercase' : '',
         className
       )}
     >
@@ -55,10 +58,12 @@ export function StatusBadge({
   status,
   children,
   size = 'sm',
+  uppercase = true, // Default to uppercase for most status badges (campaigns, etc.)
 }: {
   status: string;
   children?: ReactNode;
   size?: 'sm' | 'md' | 'lg';
+  uppercase?: boolean; // Allow overriding for cards that use capitalize
 }) {
   const statusLower = status.toLowerCase();
   
@@ -74,7 +79,7 @@ export function StatusBadge({
   }
 
   return (
-    <Badge variant={variant} size={size}>
+    <Badge variant={variant} size={size} uppercase={uppercase}>
       {children || status}
     </Badge>
   );
