@@ -181,16 +181,13 @@ export default function NewPostPage() {
         include_hashtags: true,
       });
       
-      // Handle different possible response structures
-      const generatedCaption = res?.caption || res?.data?.caption || res?.body?.caption || "";
+      // API returns { caption: string } - empty string is a valid successful response
+      const generatedCaption = res.caption || "";
       
-      if (generatedCaption) {
-        setCaption(generatedCaption);
-        toast.success("Caption generated successfully");
-      } else {
-        console.warn("Caption generation response:", res);
-        toast.error("Generated caption is empty. Please try again.");
-      }
+      // Always set the caption and show success if API call completed without error
+      // An empty caption is a valid response, not an error condition
+      setCaption(generatedCaption);
+      toast.success("Caption generated successfully");
     } catch (error: any) {
       console.error("Caption generation error:", error);
       const errorMessage = error?.body?.message || error?.message || "Failed to generate caption";
