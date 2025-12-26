@@ -2,12 +2,17 @@ import { NextResponse } from 'next/server';
 import { parseText } from '@/lib/parse-products';
 import aiParseText from '@/lib/ai-parser';
 
-const SUPPORTED = new Set(['products', 'menu']);
+// Support all industries for parsing
+const VALID_INDUSTRIES = new Set(['products', 'menu', 'services', 'offers', 'consultations']);
 
 export async function POST(req: Request, { params }: { params: { industry: string } }) {
   try {
     const { industry } = params;
-    if (!SUPPORTED.has(industry)) return NextResponse.json({ error: 'Unsupported industry' }, { status: 404 });
+    // Allow all valid industry types - parsing works for any industry
+    if (!VALID_INDUSTRIES.has(industry)) {
+      // Still allow other industry names, just log a warning
+      console.warn(`Parsing requested for industry: ${industry} (not in standard list, but allowing)`);
+    }
 
     const body = await req.json();
     const text = (body && body.text) ? String(body.text) : '';

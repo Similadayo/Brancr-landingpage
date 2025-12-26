@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server';
 import parseJobs from '@/lib/parse-jobs';
 
-const SUPPORTED = new Set(['products', 'menu']);
+// Support all industries for job status checking
+const VALID_INDUSTRIES = new Set(['products', 'menu', 'services', 'offers', 'consultations']);
 
 export async function GET(req: Request, { params }: { params: { industry: string; id: string } }) {
   try {
     const { industry, id } = params;
-    if (!SUPPORTED.has(industry)) return NextResponse.json({ error: 'Unsupported industry' }, { status: 404 });
+    // Allow all valid industry types - job status works for any industry
+    if (!VALID_INDUSTRIES.has(industry)) {
+      // Still allow other industry names, just log a warning
+      console.warn(`Job status requested for industry: ${industry} (not in standard list, but allowing)`);
+    }
 
     const job = await parseJobs.getJob(id);
     if (!job) return NextResponse.json({ error: 'Not found' }, { status: 404 });

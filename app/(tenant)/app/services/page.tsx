@@ -133,8 +133,17 @@ export default function ServicesPage() {
             </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link
+            href="/app/services/quick-add"
+            className="inline-flex items-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:border-white/50 hover:bg-white/20"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            Quick Add / Import
+          </Link>
+          <Link
             href="/app/services/new"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
+            className="inline-flex items-center gap-2 rounded-xl bg-white/20 backdrop-blur-sm px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-white/30"
           >
             <PlusIcon className="w-4 h-4" />
             Add Service
@@ -248,13 +257,24 @@ export default function ServicesPage() {
         <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-16 text-center">
           <PackageIcon className="mx-auto h-16 w-16 text-gray-400" />
           <p className="mt-4 text-lg font-semibold text-gray-900">No services found</p>
-          <Link
-            href="/app/services/new"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
-          >
-            <PlusIcon className="w-4 h-4" />
-            Add Service
-          </Link>
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/app/services/quick-add"
+              className="inline-flex items-center gap-2 rounded-xl border-2 border-primary bg-white px-6 py-3 text-sm font-semibold text-primary shadow-sm transition hover:bg-primary/5"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              Quick Add / Import
+            </Link>
+            <Link
+              href="/app/services/new"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
+            >
+              <PlusIcon className="w-4 h-4" />
+              Add Service
+            </Link>
+          </div>
         </div>
       ) : (
         <>

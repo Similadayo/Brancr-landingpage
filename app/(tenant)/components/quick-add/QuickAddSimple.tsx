@@ -76,7 +76,13 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 									rows={10}
 									value={text}
 									onChange={(e) => setText(e.target.value)}
-									placeholder={industry === 'menu' ? 'Jollof Rice – ₦3,500\nFried Rice – ₦4,000\nGrilled Chicken – ₦6,500\nPounded Yam – ₦2,500\nEgusi Soup – ₦4,500' : 'T-shirt – 3500 NGN\nMug – 1500 NGN\nNotebook – 2500 NGN\nPen – 500 NGN'}
+									placeholder={
+										industry === 'menu' 
+											? 'Jollof Rice – ₦3,500\nFried Rice – ₦4,000\nGrilled Chicken – ₦6,500\nPounded Yam – ₦2,500\nEgusi Soup – ₦4,500'
+											: industry === 'services'
+											? 'Website Design – ₦50,000\nSocial Media Management – ₦30,000\nSEO Consultation – ₦25,000\nContent Writing – ₦15,000'
+											: 'T-shirt – 3500 NGN\nMug – 1500 NGN\nNotebook – 2500 NGN\nPen – 500 NGN'
+									}
 									className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all resize-none font-mono"
 								/>
 								<p className="mt-2 text-xs text-gray-500">

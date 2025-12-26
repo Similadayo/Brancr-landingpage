@@ -2,12 +2,17 @@ import { NextResponse } from 'next/server';
 import parseJobs from '@/lib/parse-jobs';
 import { parseText } from '@/lib/parse-products';
 
-const SUPPORTED = new Set(['products', 'menu']);
+// Support all industries for file parsing
+const VALID_INDUSTRIES = new Set(['products', 'menu', 'services', 'offers', 'consultations']);
 
 export async function POST(req: Request, { params }: { params: { industry: string } }) {
   try {
     const { industry } = params;
-    if (!SUPPORTED.has(industry)) return NextResponse.json({ error: 'Unsupported industry' }, { status: 404 });
+    // Allow all valid industry types - file parsing works for any industry
+    if (!VALID_INDUSTRIES.has(industry)) {
+      // Still allow other industry names, just log a warning
+      console.warn(`File parsing requested for industry: ${industry} (not in standard list, but allowing)`);
+    }
 
     const contentType = req.headers.get('content-type') || '';
     if (contentType.includes('multipart/form-data')) {
