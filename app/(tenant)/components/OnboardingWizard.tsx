@@ -16,36 +16,47 @@ import { SocialConnectStep } from './onboarding/SocialConnectStep';
 
 type OnboardingStep = 'industry' | 'business_profile' | 'persona' | 'business_details' | 'social_connect';
 
-const STEPS: Array<{ id: OnboardingStep; title: string; description: string; icon: string }> = [
+const STEPS: Array<{ id: OnboardingStep; title: string; description: string; icon: string; optional?: boolean; timeEstimate?: string; benefit?: string }> = [
   {
     id: 'industry',
     title: 'Industry Selection',
     description: 'Choose your business type',
     icon: '🏭',
+    timeEstimate: '1 min',
+    benefit: 'Customize your workspace',
   },
   {
     id: 'business_profile',
     title: 'Business Profile',
     description: 'Tell us about your business',
     icon: '🏢',
+    timeEstimate: '2 min',
+    benefit: 'Personalize your experience',
   },
   {
     id: 'persona',
     title: 'AI Persona',
     description: 'Customize your AI assistant',
     icon: '🤖',
+    timeEstimate: '2 min',
+    benefit: 'Set your AI tone and style',
   },
   {
     id: 'business_details',
     title: 'Business Details',
-    description: 'Add menu items, FAQs, and more (optional)',
+    description: 'Add FAQs and knowledge base (optional)',
     icon: '📋',
+    optional: true,
+    timeEstimate: '3 min',
+    benefit: 'Improve AI responses',
   },
   {
     id: 'social_connect',
     title: 'Connect Social Media',
     description: 'Link your channels to get started',
     icon: '🔗',
+    timeEstimate: '2 min',
+    benefit: 'Start managing your social media',
   },
 ];
 
@@ -125,10 +136,22 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
 
-  const handleStepComplete = async (step: OnboardingStep, data: unknown) => {
+  const handleStepComplete = async (step: OnboardingStep, data: unknown, skip = false) => {
     setIsSubmitting(true);
     try {
       let response;
+      
+      // If skipping optional step, just move forward
+      if (skip && step === 'business_details') {
+        setCompletedSteps((prev) => new Set(prev).add(step));
+        const nextStep = STEPS[currentStepIndex + 1]?.id;
+        if (nextStep) {
+          setCurrentStep(nextStep as OnboardingStep);
+        }
+        setIsSubmitting(false);
+        return;
+      }
+      
       switch (step) {
         case 'industry':
           response = await tenantApi.onboardingIndustry(data as any);
@@ -183,6 +206,18 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       toast.error(message || stepMessages[step] || ErrorMessages.onboarding.complete);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSkipStep = () => {
+    if (STEPS[currentStepIndex]?.optional) {
+      handleStepComplete(currentStep, {}, true);
+    }
+  };
+
+  const handleGoBack = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStep(STEPS[currentStepIndex - 1].id);
     }
   };
 
@@ -276,6 +311,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         return (
           <IndustryStep
             onComplete={(data) => handleStepComplete('industry', data)}
+            onBack={currentStepIndex > 0 ? handleGoBack : undefined}
             isLoading={isSubmitting}
             savedData={savedData.industry}
           />
@@ -284,6 +320,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         return (
           <BusinessProfileStep
             onComplete={handleStepComplete}
+            onBack={handleGoBack}
             isSubmitting={isSubmitting}
             initialData={savedData.business_profile}
           />
@@ -292,6 +329,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         return (
           <PersonaStep
             onComplete={handleStepComplete}
+            onBack={handleGoBack}
             isSubmitting={isSubmitting}
             initialData={savedData.persona}
           />
@@ -300,6 +338,8 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         return (
           <BusinessDetailsStep
             onComplete={handleStepComplete}
+            onSkip={handleSkipStep}
+            onBack={handleGoBack}
             isSubmitting={isSubmitting}
             initialData={savedData.business_details}
           />
@@ -308,6 +348,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         return (
           <SocialConnectStep
             onComplete={handleSocialConnectComplete}
+            onBack={handleGoBack}
             isSubmitting={isSubmitting}
             hasTelegramBot={onboardingStatus?.has_telegram_bot}
           />

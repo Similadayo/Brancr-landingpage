@@ -12,6 +12,17 @@ const LANGUAGES = [
   { value: 'pt', label: 'Portuguese' },
 ];
 
+const TONE_OPTIONS = [
+  { value: 'friendly', label: 'Friendly' },
+  { value: 'professional', label: 'Professional' },
+  { value: 'casual', label: 'Casual' },
+  { value: 'witty', label: 'Witty' },
+  { value: 'formal', label: 'Formal' },
+  { value: 'playful', label: 'Playful' },
+  { value: 'empathetic', label: 'Empathetic' },
+  { value: 'enthusiastic', label: 'Enthusiastic' },
+];
+
 type PersonaData = {
   bot_name: string;
   tone: string;
@@ -22,10 +33,12 @@ type PersonaData = {
 
 export function PersonaStep({
   onComplete,
+  onBack,
   isSubmitting,
   initialData,
 }: {
   onComplete: (step: 'persona', data: PersonaData) => void;
+  onBack?: () => void;
   isSubmitting: boolean;
   initialData?: {
     bot_name?: string;
@@ -78,8 +91,19 @@ export function PersonaStep({
           value={formData.bot_name}
           onChange={(e) => setFormData({ ...formData, bot_name: e.target.value })}
           className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
-          placeholder="Luna, Alex, or your custom name"
+          placeholder="Luna, Alex, Sam, or your custom name"
+          list="bot-name-suggestions"
         />
+        <datalist id="bot-name-suggestions">
+          <option value="Luna" />
+          <option value="Alex" />
+          <option value="Sam" />
+          <option value="Jordan" />
+          <option value="Taylor" />
+          <option value="Casey" />
+          <option value="Riley" />
+          <option value="Morgan" />
+        </datalist>
         <p className="mt-2 text-xs text-gray-500">This is how your AI assistant will introduce itself to customers</p>
       </div>
 
@@ -88,16 +112,15 @@ export function PersonaStep({
           <span className="text-primary">🎭</span>
           Tone <span className="text-red-500">*</span>
         </label>
-        <input
+        <Select
           id="tone"
-          type="text"
-          required
           value={formData.tone}
-          onChange={(e) => setFormData({ ...formData, tone: e.target.value })}
-          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
-          placeholder="friendly, professional, casual, witty"
+          onChange={(value) => setFormData({ ...formData, tone: value || '' })}
+          placeholder="Select a tone"
+          options={TONE_OPTIONS}
+          searchable
         />
-        <p className="mt-2 text-xs text-gray-500">Describe how your AI should communicate (e.g., &quot;friendly, professional&quot;)</p>
+        <p className="mt-2 text-xs text-gray-500">Choose how your AI should communicate with customers</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -159,7 +182,20 @@ export function PersonaStep({
         <p className="mt-2 text-xs text-gray-500">Customize how your AI communicates with specific guidelines</p>
       </div>
 
-      <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
+      <div className="flex items-center justify-between gap-3 pt-6 border-t border-gray-100">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+        )}
+        <div className="flex-1" />
         <button
           type="submit"
           disabled={isSubmitting || !formData.bot_name || !formData.tone || !formData.language}

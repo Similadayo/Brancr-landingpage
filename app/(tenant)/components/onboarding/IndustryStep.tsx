@@ -7,11 +7,12 @@ import { toast } from 'react-hot-toast';
 
 type IndustryStepProps = {
   onComplete: (data: { industry_id: number }) => void;
+  onBack?: () => void;
   savedData?: { industry_id?: number };
   isLoading?: boolean;
 };
 
-export function IndustryStep({ onComplete, savedData, isLoading }: IndustryStepProps) {
+export function IndustryStep({ onComplete, onBack, savedData, isLoading }: IndustryStepProps) {
   const [selectedIndustryId, setSelectedIndustryId] = useState<number | null>(savedData?.industry_id || null);
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [otherIndustryName, setOtherIndustryName] = useState("");
@@ -86,14 +87,42 @@ export function IndustryStep({ onComplete, savedData, isLoading }: IndustryStepP
         )}
       </div>
 
-      <div className="flex items-center justify-end gap-3 pt-4">
+      <div className="flex items-center justify-between gap-3 pt-4">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+        )}
+        <div className="flex-1" />
         <button
           type="button"
           onClick={handleContinue}
           disabled={(selectedIndustryId === null) || (selectedIndustryId === -1 && !otherIndustryName.trim()) || isLoading || setIndustryMutation.isPending}
-          className="rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="group relative inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/90 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
         >
-          {isLoading || setIndustryMutation.isPending ? 'Saving...' : 'Continue'}
+          {isLoading || setIndustryMutation.isPending ? (
+            <>
+              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Saving...
+            </>
+          ) : (
+            <>
+              Continue
+              <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </>
+          )}
         </button>
       </div>
     </div>

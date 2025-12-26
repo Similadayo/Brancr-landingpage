@@ -16,6 +16,29 @@ const INDUSTRIES = [
   'other',
 ];
 
+const COMMON_LOCATIONS = [
+  { value: 'Lagos, Nigeria', label: 'Lagos, Nigeria' },
+  { value: 'Abuja, Nigeria', label: 'Abuja, Nigeria' },
+  { value: 'Port Harcourt, Nigeria', label: 'Port Harcourt, Nigeria' },
+  { value: 'Ibadan, Nigeria', label: 'Ibadan, Nigeria' },
+  { value: 'Kano, Nigeria', label: 'Kano, Nigeria' },
+  { value: 'Accra, Ghana', label: 'Accra, Ghana' },
+  { value: 'Nairobi, Kenya', label: 'Nairobi, Kenya' },
+  { value: 'Cairo, Egypt', label: 'Cairo, Egypt' },
+  { value: 'Johannesburg, South Africa', label: 'Johannesburg, South Africa' },
+  { value: 'Cape Town, South Africa', label: 'Cape Town, South Africa' },
+  { value: 'Dar es Salaam, Tanzania', label: 'Dar es Salaam, Tanzania' },
+  { value: 'Kampala, Uganda', label: 'Kampala, Uganda' },
+  { value: 'Addis Ababa, Ethiopia', label: 'Addis Ababa, Ethiopia' },
+  { value: 'Casablanca, Morocco', label: 'Casablanca, Morocco' },
+  { value: 'Tunis, Tunisia', label: 'Tunis, Tunisia' },
+  { value: 'Dakar, Senegal', label: 'Dakar, Senegal' },
+  { value: 'Abidjan, Côte d\'Ivoire', label: 'Abidjan, Côte d\'Ivoire' },
+  { value: 'Luanda, Angola', label: 'Luanda, Angola' },
+  { value: 'Kinshasa, DRC', label: 'Kinshasa, DRC' },
+  { value: 'Other', label: 'Other (specify below)' },
+];
+
 type BusinessProfileData = {
   name: string;
   industry: string;
@@ -27,10 +50,12 @@ type BusinessProfileData = {
 
 export function BusinessProfileStep({
   onComplete,
+  onBack,
   isSubmitting,
   initialData,
 }: {
   onComplete: (step: 'business_profile', data: BusinessProfileData) => void;
+  onBack?: () => void;
   isSubmitting: boolean;
   initialData?: {
     name?: string;
@@ -49,6 +74,7 @@ export function BusinessProfileStep({
     website: initialData?.website || '',
     operating_hours: initialData?.operating_hours || '',
   });
+  const [customLocation, setCustomLocation] = useState('');
 
   // Update form data when initialData changes
   useEffect(() => {
@@ -66,10 +92,12 @@ export function BusinessProfileStep({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.industry || !formData.description || !formData.location) {
+    // Use customLocation if "Other" was selected, otherwise use formData.location
+    const finalLocation = formData.location === 'Other' && customLocation ? customLocation : formData.location;
+    if (!formData.name || !formData.industry || !formData.description || !finalLocation) {
       return;
     }
-    onComplete('business_profile', formData);
+    onComplete('business_profile', { ...formData, location: finalLocation });
   };
 
   return (
@@ -131,15 +159,38 @@ export function BusinessProfileStep({
             <span className="text-primary">📍</span>
             Location <span className="text-red-500">*</span>
           </label>
-          <input
+          <Select
             id="location"
-            type="text"
-            required
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-            className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
-            placeholder="City, Country"
+            value={formData.location && COMMON_LOCATIONS.some(loc => loc.value === formData.location) ? formData.location : (formData.location ? 'Other' : '')}
+            onChange={(value) => {
+              if (value === 'Other') {
+                setFormData({ ...formData, location: 'Other' });
+                setCustomLocation('');
+              } else if (value) {
+                setFormData({ ...formData, location: value });
+                setCustomLocation('');
+              } else {
+                setFormData({ ...formData, location: '' });
+                setCustomLocation('');
+              }
+            }}
+            placeholder="Select your location"
+            options={COMMON_LOCATIONS}
+            searchable
           />
+          {formData.location === 'Other' && (
+            <input
+              type="text"
+              value={customLocation}
+              onChange={(e) => {
+                setCustomLocation(e.target.value);
+                setFormData({ ...formData, location: e.target.value || 'Other' });
+              }}
+              className="mt-2 w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
+              placeholder="Enter your location (City, Country)"
+              autoFocus
+            />
+          )}
         </div>
 
         <div>
@@ -174,7 +225,20 @@ export function BusinessProfileStep({
         <p className="mt-2 text-xs text-gray-500">Let customers know when you&apos;re available</p>
       </div>
 
-      <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
+      <div className="flex items-center justify-between gap-3 pt-6 border-t border-gray-100">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+        )}
+        <div className="flex-1" />
         <button
           type="submit"
           disabled={isSubmitting || !formData.name || !formData.industry || !formData.description || !formData.location}
