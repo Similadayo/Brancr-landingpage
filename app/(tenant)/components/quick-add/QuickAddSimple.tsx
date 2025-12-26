@@ -9,7 +9,6 @@ const INDUSTRIES = [
 	{ value: 'products', label: 'Products' },
 	{ value: 'menu', label: 'Menu' },
 	{ value: 'services', label: 'Services' },
-	{ value: 'offers', label: 'Offers' },
 ];
 
 export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: string } = {}) {

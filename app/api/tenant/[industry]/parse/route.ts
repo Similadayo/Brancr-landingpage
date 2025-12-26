@@ -3,7 +3,7 @@ import { parseText } from '@/lib/parse-products';
 import aiParseText from '@/lib/ai-parser';
 
 // Support all industries for parsing
-const VALID_INDUSTRIES = new Set(['products', 'menu', 'services', 'offers', 'consultations']);
+const VALID_INDUSTRIES = new Set(['products', 'menu', 'services']);
 
 export async function POST(req: Request, { params }: { params: { industry: string } }) {
   try {

@@ -215,14 +215,9 @@ export function TenantShell({ children }: { children: ReactNode }) {
     if (tenantIndustry?.capabilities.has_menu) {
       items.push({ label: "Menu", href: "/app/menu-items", icon: <PackageIcon className="w-5 h-5" /> });
     }
-    // Show both Services and Consultations when industry supports services
+    // Show Services when industry supports services
     if (tenantIndustry?.capabilities.has_services) {
       items.push({ label: "Services", href: "/app/services", icon: <PackageIcon className="w-5 h-5" /> });
-      items.push({ label: "Consultations", href: "/app/consultations", icon: <PackageIcon className="w-5 h-5" /> });
-    }
-    // Offers (promotions) are useful for product-enabled industries
-    if (tenantIndustry?.capabilities.has_products) {
-      items.push({ label: "Offers", href: "/app/offers", icon: <PackageIcon className="w-5 h-5" /> });
     }
     return items;
   }, [tenantIndustry]);

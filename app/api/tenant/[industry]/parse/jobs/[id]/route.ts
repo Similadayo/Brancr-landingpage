@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import parseJobs from '@/lib/parse-jobs';
 
 // Support all industries for job status checking
-const VALID_INDUSTRIES = new Set(['products', 'menu', 'services', 'offers', 'consultations']);
+const VALID_INDUSTRIES = new Set(['products', 'menu', 'services']);
 
 export async function GET(req: Request, { params }: { params: { industry: string; id: string } }) {
   try {

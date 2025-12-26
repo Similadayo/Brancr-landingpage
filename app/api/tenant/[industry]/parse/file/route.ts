@@ -3,7 +3,7 @@ import parseJobs from '@/lib/parse-jobs';
 import { parseText } from '@/lib/parse-products';
 
 // Support all industries for file parsing
-const VALID_INDUSTRIES = new Set(['products', 'menu', 'services', 'offers', 'consultations']);
+const VALID_INDUSTRIES = new Set(['products', 'menu', 'services']);
 
 export async function POST(req: Request, { params }: { params: { industry: string } }) {
   try {
