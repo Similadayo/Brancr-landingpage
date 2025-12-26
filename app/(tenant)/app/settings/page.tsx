@@ -273,8 +273,12 @@ export default function SettingsPage() {
                 onSelect={(industryId) => {
                   // Industry updated - invalidate all related queries to refresh UI
                   void queryClient.invalidateQueries({ queryKey: ["tenant-industry"] });
+                  // Invalidate industry-related data to show existing items for the new industry
+                  void queryClient.invalidateQueries({ queryKey: ["services"] });
+                  void queryClient.invalidateQueries({ queryKey: ["menu-items"] });
+                  void queryClient.invalidateQueries({ queryKey: ["products"] });
                   // Navigation will automatically update based on new capabilities
-                  toast.success("Industry updated successfully. Navigation will refresh automatically.");
+                  toast.success("Industry updated successfully. Your existing items for this industry will now be displayed.");
                 }}
               />
             </div>

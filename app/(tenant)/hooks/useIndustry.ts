@@ -76,6 +76,10 @@ export function useSetTenantIndustry() {
       toast.success(`Industry updated to ${data.industry.name}`);
       // Invalidate industry query to refresh capabilities
       void queryClient.invalidateQueries({ queryKey: ["tenant-industry"] });
+      // Invalidate all industry-related data queries to show existing items for the new industry
+      void queryClient.invalidateQueries({ queryKey: ["services"] });
+      void queryClient.invalidateQueries({ queryKey: ["menu-items"] });
+      void queryClient.invalidateQueries({ queryKey: ["products"] });
       // Navigation will automatically update based on new capabilities
     },
     onError: (error) => {
