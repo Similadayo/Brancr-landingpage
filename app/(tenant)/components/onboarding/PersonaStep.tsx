@@ -55,6 +55,7 @@ export function PersonaStep({
     humor: initialData?.humor ?? false,
     style_notes: initialData?.style_notes || '',
   });
+  const [errors, setErrors] = useState<Partial<Record<keyof PersonaData, string>>>({});
 
   // Update form data when initialData changes
   useEffect(() => {
@@ -69,9 +70,30 @@ export function PersonaStep({
     }
   }, [initialData]);
 
+  const validateForm = (): boolean => {
+    const newErrors: Partial<Record<keyof PersonaData, string>> = {};
+    
+    if (!formData.bot_name?.trim()) {
+      newErrors.bot_name = 'Bot name is required';
+    } else if (formData.bot_name.trim().length < 2) {
+      newErrors.bot_name = 'Bot name must be at least 2 characters';
+    }
+    
+    if (!formData.tone) {
+      newErrors.tone = 'Please select a tone';
+    }
+    
+    if (!formData.language) {
+      newErrors.language = 'Please select a language';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!formData.bot_name || !formData.tone || !formData.language) {
+    if (!validateForm()) {
       return;
     }
     onComplete('persona', formData);
@@ -89,8 +111,15 @@ export function PersonaStep({
           type="text"
           required
           value={formData.bot_name}
-          onChange={(e) => setFormData({ ...formData, bot_name: e.target.value })}
-          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
+          onChange={(e) => {
+            setFormData({ ...formData, bot_name: e.target.value });
+            if (errors.bot_name) setErrors({ ...errors, bot_name: undefined });
+          }}
+          className={`w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 ${
+            errors.bot_name
+              ? 'border-red-300 focus:border-red-500 focus:ring-red/20'
+              : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300'
+          }`}
           placeholder="Luna, Alex, Sam, or your custom name"
           list="bot-name-suggestions"
         />
@@ -104,7 +133,16 @@ export function PersonaStep({
           <option value="Riley" />
           <option value="Morgan" />
         </datalist>
-        <p className="mt-2 text-xs text-gray-500">This is how your AI assistant will introduce itself to customers</p>
+        {errors.bot_name ? (
+          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {errors.bot_name}
+          </p>
+        ) : (
+          <p className="mt-2 text-xs text-gray-500">This is how your AI assistant will introduce itself to customers</p>
+        )}
       </div>
 
       <div>
@@ -115,12 +153,24 @@ export function PersonaStep({
         <Select
           id="tone"
           value={formData.tone}
-          onChange={(value) => setFormData({ ...formData, tone: value || '' })}
+          onChange={(value) => {
+            setFormData({ ...formData, tone: value || '' });
+            if (errors.tone) setErrors({ ...errors, tone: undefined });
+          }}
           placeholder="Select a tone"
           options={TONE_OPTIONS}
           searchable
         />
-        <p className="mt-2 text-xs text-gray-500">Choose how your AI should communicate with customers</p>
+        {errors.tone ? (
+          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {errors.tone}
+          </p>
+        ) : (
+          <p className="mt-2 text-xs text-gray-500">Choose how your AI should communicate with customers</p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

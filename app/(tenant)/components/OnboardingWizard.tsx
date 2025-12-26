@@ -175,10 +175,15 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
 
       setCompletedSteps((prev) => new Set(prev).add(step));
       
-      // Show success message from API
-      if ((response as any)?.message) {
-        toast.success((response as any).message);
-      }
+      // Show success message with benefit information
+      const currentStepData = STEPS.find((s) => s.id === step);
+      const benefitMessage = currentStepData?.benefit 
+        ? `${currentStepData.benefit}! ${(response as any)?.message || 'Step completed successfully.'}`
+        : (response as any)?.message || 'Step completed successfully.';
+      toast.success(benefitMessage, {
+        duration: 4000,
+        icon: '✅',
+      });
       
       // Invalidate queries to refresh onboarding status
       void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
@@ -437,6 +442,20 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
                 >
                   {STEPS[currentStepIndex]?.description}
                 </motion.p>
+                {STEPS[currentStepIndex]?.benefit && (
+                  <motion.div
+                    key={`${currentStep}-benefit`}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.2 }}
+                    className="mt-2 flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-1.5 w-fit"
+                  >
+                    <svg className="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-xs font-semibold text-primary">{STEPS[currentStepIndex]?.benefit}</span>
+                  </motion.div>
+                )}
               </div>
             </div>
             

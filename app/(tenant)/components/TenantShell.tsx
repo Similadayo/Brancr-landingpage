@@ -319,37 +319,37 @@ export function TenantShell({ children }: { children: ReactNode }) {
         href={item.href}
         onClick={() => setIsMobileNavOpen(false)}
         className={cn(
-          "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-          isActive
-            ? "bg-accent/10 text-accent border-l-4 border-accent shadow-sm dark:bg-accent/20"
-            : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-gray-100 border-l-4 border-transparent"
+          "group relative flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium transition-all duration-200",
+          !compact && "hover:bg-gray-50 dark:hover:bg-gray-700/30",
+          compact && "justify-center"
         )}
         aria-current={isActive ? "page" : undefined}
       >
         <span
           className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700 transition-all duration-200 group-hover:bg-accent/10 dark:group-hover:bg-accent/20 group-hover:text-accent",
-            isActive && "bg-gradient-to-br from-accent-500 to-accent-600 text-white group-hover:from-accent-600 group-hover:to-accent-700 shadow-md"
+            "relative flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-200",
+            isActive
+              ? "bg-primary text-white shadow-sm"
+              : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-600"
           )}
           aria-hidden
         >
           {item.icon}
-        </span>
-        {!compact ? (
-          <>
-            <span className="flex-1 font-medium">{item.label}</span>
-            {item.badge && (
-              <span className="badge badge-primary text-[10px]">
-                {typeof item.badge === "number" && item.badge > 99 ? "99+" : item.badge}
-              </span>
-            )}
-          </>
-        ) : (
-          item.badge && (
-            <span className="absolute right-1 top-1 badge badge-primary text-[8px] h-4 w-4 p-0 flex items-center justify-center">
-              {typeof item.badge === "number" && item.badge > 9 ? "9+" : item.badge}
+          {item.badge && (
+            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white shadow-sm">
+              {typeof item.badge === "number" && item.badge > 99 ? "99+" : item.badge}
             </span>
-          )
+          )}
+        </span>
+        {!compact && (
+          <>
+            <span className={cn(
+              "flex-1 font-medium",
+              isActive ? "text-gray-900 dark:text-gray-100" : "text-gray-600 dark:text-gray-400"
+            )}>
+              {item.label}
+            </span>
+          </>
         )}
       </Link>
     );
@@ -357,7 +357,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
   function renderNavItems(compact: boolean) {
     return (
-      <nav className="mt-4 space-y-1">
+      <nav className="mt-8 space-y-2">
         {/* Core Navigation */}
         {CORE_NAV_ITEMS.map((item) => {
           const isActive = item.href === "/app"
@@ -381,13 +381,15 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
         {/* Settings Section (Collapsible) */}
         {!compact && (
-            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={() => setIsSettingsExpanded(!isSettingsExpanded)}
-              className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
+              className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition"
             >
-              <span className="flex items-center gap-2">
-                <SettingsIcon className="w-5 h-5" />
+              <span className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                  <SettingsIcon className="w-5 h-5" />
+                </span>
                 <span>Settings</span>
               </span>
               <span className="text-xs text-gray-400 dark:text-gray-500" aria-hidden>
@@ -399,7 +401,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
               </span>
             </button>
             {isSettingsExpanded && (
-              <div className="mt-2 space-y-1 pl-4">
+              <div className="mt-2 space-y-2">
                 {settingsNavItems.map((item) => {
                   const isSettingsRoot = item.href === "/app/settings";
                   const isActive = isSettingsRoot
@@ -414,7 +416,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
         {/* Settings Section (Compact/Collapsed) */}
         {compact && (
-            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
             {settingsNavItems.map((item) => {
               const isSettingsRoot = item.href === "/app/settings";
               const isActive = isSettingsRoot
@@ -447,10 +449,9 @@ export function TenantShell({ children }: { children: ReactNode }) {
           isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex items-center justify-between">
-          <Link href="/app" className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-gray-100">
-            <Image src="/logo-dark.svg" alt="Brancr" width={36} height={36} />
-            Brancr
+        <div className="flex items-center justify-center">
+          <Link href="/app" className="flex items-center justify-center">
+            <span className="text-xl font-bold text-primary">Brancr.</span>
           </Link>
           <button
             type="button"
@@ -461,54 +462,9 @@ export function TenantShell({ children }: { children: ReactNode }) {
             <XIcon className="w-5 h-5" />
           </button>
         </div>
-        <div className="mt-10 flex h-[calc(100vh-8rem)] flex-col space-y-6 overflow-y-auto pr-1">
+        <div className="mt-8 flex h-[calc(100vh-8rem)] flex-col overflow-y-auto pr-1">
           <div className="shrink-0">
-            <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Navigate</p>
             {renderNavItems(false)}
-          </div>
-          <div className="card p-4 sm:p-5 bg-gradient-to-br from-accent/5 via-white to-accent/5 dark:from-accent/10 dark:via-gray-800 dark:to-accent/10 border-accent/20">
-            <p className="text-xs uppercase tracking-wider text-accent dark:text-accent-400 font-semibold">Plan</p>
-            <p className="mt-2 text-base font-bold text-gray-900 dark:text-gray-100 capitalize">{tenant.plan ?? "trial"}</p>
-            <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-              Track usage, upgrade your plan, and manage billing from settings.
-            </p>
-            <Link
-              href="/app/settings/billing"
-              className="btn-secondary mt-4 text-xs w-full justify-center"
-            >
-              Manage plan <ExternalLinkIcon className="w-3 h-3" aria-hidden />
-            </Link>
-          </div>
-          <div className="card p-4 sm:p-5">
-            <p className="text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500 font-semibold">Account</p>
-            <div className="mt-3 flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 px-4 py-3">
-              {(() => {
-                const { displayName, initials } = getTenantDisplayInfo(tenant);
-                return (
-                  <>
-                    {(tenant?.business_profile?.logo_url || tenant?.logo_url) ? (
-                      <Image src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
-                    ) : (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
-                        {initials}
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{displayName}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{tenant?.email}</p>
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
-            <button
-              type="button"
-              onClick={handleSignOut}
-              disabled={isSigningOut}
-              className="btn-secondary mt-4 w-full"
-            >
-              {isSigningOut ? "Signing out…" : "Sign out"}
-            </button>
           </div>
         </div>
       </aside>
@@ -517,14 +473,17 @@ export function TenantShell({ children }: { children: ReactNode }) {
         {/* Desktop sidebar */}
         <aside
           className={cn(
-          "sticky top-0 hidden h-screen shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-6 transition-all duration-300 lg:flex lg:flex-col",
+          "sticky top-0 hidden h-screen shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-6 transition-all duration-300 lg:flex lg:flex-col",
           sidebarWidthClass
           )}
         >
-          <div className={cn("flex items-center gap-3", isSidebarCollapsed && "justify-center")}>
-            <Link href="/app" className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-gray-100">
-              <Image src="/logo-dark.svg" alt="Brancr" width={36} height={36} />
-              {!isSidebarCollapsed ? <span>Brancr</span> : null}
+          <div className={cn("flex items-center justify-center", isSidebarCollapsed && "justify-center")}>
+            <Link href="/app" className="flex items-center justify-center">
+              {!isSidebarCollapsed ? (
+                <span className="text-xl font-bold text-primary">Brancr.</span>
+              ) : (
+                <Image src="/logo-dark.svg" alt="Brancr" width={32} height={32} />
+              )}
             </Link>
           </div>
           <div
@@ -534,113 +493,29 @@ export function TenantShell({ children }: { children: ReactNode }) {
             )}
           >
             <div className="shrink-0">
-              {!isSidebarCollapsed ? (
-                <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Navigate</p>
-              ) : null}
               {renderNavItems(isSidebarCollapsed)}
             </div>
-            <div
-              className={cn(
-                "card p-4 bg-gradient-to-br from-accent/5 via-white to-accent/5 dark:from-accent/10 dark:via-gray-800 dark:to-accent/10 border-accent/20 transition",
-                isSidebarCollapsed && "px-3 text-center"
-              )}
-            >
-              <p className="text-xs uppercase tracking-wider text-accent dark:text-accent-400 font-semibold">Plan</p>
-              {!isSidebarCollapsed ? (
-                <>
-                  <p className="mt-2 text-base font-bold text-gray-900 dark:text-gray-100 capitalize">{tenant.plan ?? "trial"}</p>
-                  <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-                    Track usage, upgrade your plan, and manage billing from settings.
-                  </p>
-                  <Link
-                    href="/app/settings/billing"
-                    className="btn-secondary mt-4 text-xs w-full justify-center"
-                  >
-                    Manage plan <ExternalLinkIcon className="w-3 h-3" aria-hidden />
-                  </Link>
-                </>
-              ) : (
-                <span className="mt-3 block text-xs font-bold capitalize text-gray-900 dark:text-gray-100">
-                  {tenant.plan ?? "trial"}
-                </span>
-              )}
-            </div>
-            <div
-              className={cn(
-                "card p-4",
-                isSidebarCollapsed && "px-2 text-center"
-              )}
-            >
-              {!isSidebarCollapsed ? (
-                <>
-                  <p className="text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500 font-semibold">Account</p>
-                  <div className="mt-3 flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 px-4 py-3">
-                    {(() => {
-                      const { displayName, initials } = getTenantDisplayInfo(tenant);
-                      return (
-                        <>
-                          {(tenant?.business_profile?.logo_url || tenant?.logo_url) ? (
-                            <Image src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
-                          ) : (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
-                              {initials}
-                            </div>
-                          )}
-                          <div>
-                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{displayName}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{tenant?.email}</p>
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
-                </>
-              ) : (
-                <div className="flex flex-col items-center gap-3">
-                  {(() => {
-                    const { displayName, initials } = getTenantDisplayInfo(tenant);
-                    return (
-                      <>
-                        {(tenant?.business_profile?.logo_url || tenant?.logo_url) ? (
-                          <Image src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
-                        ) : (
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
-                            {initials}
-                          </div>
-                        )}
-                        <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">{displayName}</span>
-                      </>
-                    );
-                  })()}
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={handleSignOut}
-                disabled={isSigningOut}
-                className="btn-secondary mt-4 w-full"
-              >
-                {isSigningOut ? "Signing out…" : "Sign out"}
-              </button>
-            </div>
           </div>
-          <button
-            type="button"
-            onClick={() => setIsSidebarCollapsed((prev) => !prev)}
-            className="btn-ghost mt-auto w-full justify-center"
-            aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            <ChevronLeftIcon
-              className={cn("w-5 h-5 transition-transform", isSidebarCollapsed && "rotate-180")}
-            />
-          </button>
+          <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              type="button"
+              onClick={() => setIsSidebarCollapsed((prev) => !prev)}
+              className="flex w-full items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              <ChevronLeftIcon
+                className={cn("w-5 h-5 transition-transform", isSidebarCollapsed && "rotate-180")}
+              />
+            </button>
+          </div>
         </aside>
 
         <div className="flex min-h-screen flex-1 flex-col">
           {/* Top Header Bar with Stats */}
-          <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-sm">
+          <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <div className="px-4 lg:px-6">
               <div className="flex h-16 items-center justify-between gap-4">
+                {/* Left: Page Title */}
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                   <button
                     type="button"
@@ -654,37 +529,38 @@ export function TenantShell({ children }: { children: ReactNode }) {
                     <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100 sm:text-xl truncate">{currentNav?.label ?? "Overview"}</h1>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-                  {/* Global Stats */}
-                  <div className="hidden items-center gap-4 lg:flex">
-                    <div className="text-right">
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Connected</p>
-                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                        {stats.connectedChannels}/{stats.totalChannels || 4}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Posts</p>
-                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{stats.scheduledPosts}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Conversations</p>
-                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{stats.conversations}</p>
-                    </div>
+
+                {/* Center: Stats */}
+                <div className="hidden items-center gap-6 lg:flex flex-1 justify-center">
+                  <div className="text-center">
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Connected</p>
+                    <p className="text-base font-bold text-gray-900 dark:text-gray-100 mt-0.5">
+                      {stats.connectedChannels}/{stats.totalChannels || 4}
+                    </p>
                   </div>
+                  <div className="text-center">
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Posts</p>
+                    <p className="text-base font-bold text-gray-900 dark:text-gray-100 mt-0.5">{stats.scheduledPosts}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Conversations</p>
+                    <p className="text-base font-bold text-gray-900 dark:text-gray-100 mt-0.5">{stats.conversations}</p>
+                  </div>
+                </div>
+
+                {/* Right: Controls */}
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                   {/* AI Mode Toggle */}
-                  <div className="hidden items-center gap-3 sm:flex">
-                    <div className="flex items-center gap-3">
-                      <AIToggle
-                        value={displayAIMode}
-                        onChange={(next) => {
-                          setDisplayAIMode(next);
-                          updateAIModeMutation.mutate(next);
-                        }}
-                        disabled={updateAIModeMutation.isPending || isLoadingAIMode}
-                        showLabel={true}
-                      />
-                    </div>
+                  <div className="hidden items-center sm:flex">
+                    <AIToggle
+                      value={displayAIMode}
+                      onChange={(next) => {
+                        setDisplayAIMode(next);
+                        updateAIModeMutation.mutate(next);
+                      }}
+                      disabled={updateAIModeMutation.isPending || isLoadingAIMode}
+                      showLabel={true}
+                    />
                   </div>
                   <ThemeToggle />
                   <NotificationsBell />
@@ -693,31 +569,30 @@ export function TenantShell({ children }: { children: ReactNode }) {
                     <button
                       type="button"
                       onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-                      className="btn-secondary flex items-center gap-2"
+                      className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
                     >
                       {(() => {
                         const { displayName, initials } = getTenantDisplayInfo(tenant);
-                        const nameParts = displayName.split(/\s+/).filter(Boolean);
                         return (
                           <>
                             {(tenant?.business_profile?.logo_url || tenant?.logo_url) ? (
                               <Image src={tenant?.business_profile?.logo_url || tenant?.logo_url!} alt={displayName} width={32} height={32} className="h-8 w-8 rounded-full object-cover" />
                             ) : (
-                              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20 text-sm font-semibold text-accent">
+                              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-sm font-semibold text-primary">
                                 {initials}
                               </span>
                             )}
                             <span className="hidden text-left leading-tight lg:block">
-                              <span className="block text-xs text-gray-500 dark:text-gray-400">{displayName}</span>
-                              <span className="text-xs capitalize text-gray-600 dark:text-gray-300">{tenant?.plan ?? "trial"}</span>
+                              <span className="block text-xs font-medium text-gray-900 dark:text-gray-100">{displayName}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">{tenant?.plan ?? "trial"}</span>
                             </span>
+                            <ChevronDownIcon
+                              className={cn("w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform", isProfileMenuOpen && "rotate-180")}
+                              aria-hidden
+                            />
                           </>
                         );
                       })()}
-                      <ChevronDownIcon
-                        className={cn("w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform", isProfileMenuOpen && "rotate-180")}
-                        aria-hidden
-                      />
                     </button>
                     {isProfileMenuOpen ? (
                       <div className="absolute right-0 z-30 mt-2 w-48 card p-2 shadow-xl">

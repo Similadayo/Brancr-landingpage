@@ -75,6 +75,7 @@ export function BusinessProfileStep({
     operating_hours: initialData?.operating_hours || '',
   });
   const [customLocation, setCustomLocation] = useState('');
+  const [errors, setErrors] = useState<Partial<Record<keyof BusinessProfileData, string>>>({});
 
   // Update form data when initialData changes
   useEffect(() => {
@@ -90,13 +91,47 @@ export function BusinessProfileStep({
     }
   }, [initialData]);
 
+  const validateForm = (): boolean => {
+    const newErrors: Partial<Record<keyof BusinessProfileData, string>> = {};
+    const finalLocation = formData.location === 'Other' && customLocation ? customLocation : formData.location;
+    
+    if (!formData.name?.trim()) {
+      newErrors.name = 'Business name is required';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Business name must be at least 2 characters';
+    }
+    
+    if (!formData.industry) {
+      newErrors.industry = 'Please select an industry';
+    }
+    
+    if (!formData.description?.trim()) {
+      newErrors.description = 'Description is required';
+    } else if (formData.description.trim().length < 10) {
+      newErrors.description = 'Description must be at least 10 characters';
+    }
+    
+    if (!finalLocation?.trim()) {
+      newErrors.location = 'Location is required';
+    } else if (formData.location === 'Other' && !customLocation?.trim()) {
+      newErrors.location = 'Please specify your location';
+    }
+    
+    if (formData.website && !/^https?:\/\/.+\..+/.test(formData.website)) {
+      newErrors.website = 'Please enter a valid website URL (e.g., https://example.com)';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // Use customLocation if "Other" was selected, otherwise use formData.location
-    const finalLocation = formData.location === 'Other' && customLocation ? customLocation : formData.location;
-    if (!formData.name || !formData.industry || !formData.description || !finalLocation) {
+    if (!validateForm()) {
       return;
     }
+    // Use customLocation if "Other" was selected, otherwise use formData.location
+    const finalLocation = formData.location === 'Other' && customLocation ? customLocation : formData.location;
     onComplete('business_profile', { ...formData, location: finalLocation });
   };
 
@@ -112,10 +147,25 @@ export function BusinessProfileStep({
           type="text"
           required
           value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
+          onChange={(e) => {
+            setFormData({ ...formData, name: e.target.value });
+            if (errors.name) setErrors({ ...errors, name: undefined });
+          }}
+          className={`w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 ${
+            errors.name
+              ? 'border-red-300 focus:border-red-500 focus:ring-red/20'
+              : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300'
+          }`}
           placeholder="Enter your business name"
         />
+        {errors.name && (
+          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {errors.name}
+          </p>
+        )}
       </div>
 
       <div>
@@ -126,7 +176,10 @@ export function BusinessProfileStep({
         <Select
           id="industry"
           value={formData.industry}
-          onChange={(value) => setFormData({ ...formData, industry: value })}
+          onChange={(value) => {
+            setFormData({ ...formData, industry: value });
+            if (errors.industry) setErrors({ ...errors, industry: undefined });
+          }}
           placeholder="Select an industry"
           options={INDUSTRIES.map((industry) => ({
             value: industry,
@@ -134,6 +187,14 @@ export function BusinessProfileStep({
           }))}
           searchable
         />
+        {errors.industry && (
+          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {errors.industry}
+          </p>
+        )}
       </div>
 
       <div>
@@ -146,11 +207,27 @@ export function BusinessProfileStep({
           required
           rows={4}
           value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300 resize-none"
+          onChange={(e) => {
+            setFormData({ ...formData, description: e.target.value });
+            if (errors.description) setErrors({ ...errors, description: undefined });
+          }}
+          className={`w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 resize-none ${
+            errors.description
+              ? 'border-red-300 focus:border-red-500 focus:ring-red/20'
+              : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300'
+          }`}
           placeholder="Tell us about your business, what you do, and what makes you unique..."
         />
-        <p className="mt-2 text-xs text-gray-500">Help us understand your business better</p>
+        {errors.description ? (
+          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {errors.description}
+          </p>
+        ) : (
+          <p className="mt-2 text-xs text-gray-500">Help us understand your business better</p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -179,17 +256,40 @@ export function BusinessProfileStep({
             searchable
           />
           {formData.location === 'Other' && (
-            <input
-              type="text"
-              value={customLocation}
-              onChange={(e) => {
-                setCustomLocation(e.target.value);
-                setFormData({ ...formData, location: e.target.value || 'Other' });
-              }}
-              className="mt-2 w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
-              placeholder="Enter your location (City, Country)"
-              autoFocus
-            />
+            <>
+              <input
+                type="text"
+                value={customLocation}
+                onChange={(e) => {
+                  setCustomLocation(e.target.value);
+                  setFormData({ ...formData, location: e.target.value || 'Other' });
+                  if (errors.location) setErrors({ ...errors, location: undefined });
+                }}
+                className={`mt-2 w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 ${
+                  errors.location
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red/20'
+                    : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300'
+                }`}
+                placeholder="Enter your location (City, Country)"
+                autoFocus
+              />
+              {errors.location && (
+                <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {errors.location}
+                </p>
+              )}
+            </>
+          )}
+          {errors.location && formData.location !== 'Other' && (
+            <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {errors.location}
+            </p>
           )}
         </div>
 
@@ -202,10 +302,25 @@ export function BusinessProfileStep({
             id="website"
             type="url"
             value={formData.website}
-            onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-            className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
+            onChange={(e) => {
+              setFormData({ ...formData, website: e.target.value });
+              if (errors.website) setErrors({ ...errors, website: undefined });
+            }}
+            className={`w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 ${
+              errors.website
+                ? 'border-red-300 focus:border-red-500 focus:ring-red/20'
+                : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300'
+            }`}
             placeholder="https://example.com"
           />
+          {errors.website && (
+            <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {errors.website}
+            </p>
+          )}
         </div>
       </div>
 
