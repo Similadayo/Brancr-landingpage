@@ -134,28 +134,28 @@ export default function EscalationsPage() {
           <div className="stat-card group">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-info-400/20 to-info-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Total</p>
               <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">{stats.total}</p>
             </div>
           </div>
           <div className="stat-card group">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-warning-400/20 to-warning-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Pending</p>
-              <p className="mt-2 text-2xl font-bold text-warning-600 dark:text-warning-400 sm:text-3xl">{stats.pending}</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Pending</p>
+              <p className="mt-2 text-2xl font-bold text-warning-600 dark:text-warning-300 sm:text-3xl">{stats.pending}</p>
             </div>
           </div>
           <div className="stat-card group">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-success-400/20 to-success-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Resolved</p>
-              <p className="mt-2 text-2xl font-bold text-success-600 dark:text-success-400 sm:text-3xl">{stats.resolved}</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Resolved</p>
+              <p className="mt-2 text-2xl font-bold text-success-600 dark:text-success-300 sm:text-3xl">{stats.resolved}</p>
             </div>
           </div>
           <div className="stat-card group col-span-2 lg:col-span-1">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-accent-400/20 to-accent-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Avg Response</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Avg Response</p>
               <p className="mt-2 text-lg font-bold text-gray-900 dark:text-gray-100 sm:text-xl lg:text-2xl">{stats.avgResponseTime}</p>
             </div>
           </div>

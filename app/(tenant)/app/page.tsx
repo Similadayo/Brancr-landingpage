@@ -299,9 +299,9 @@ export default function TenantOverviewPage() {
           <div className="relative z-10">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Posts</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">Total Posts</p>
                 <p className="mt-3 text-5xl font-extrabold text-gray-900 dark:text-gray-100">{stats.totalPosts}</p>
-                <p className="mt-2.5 flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="mt-2.5 flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300">
                   <CheckCircleIcon className="h-4 w-4 text-success-500" />
                   {stats.publishedPosts} published
                 </p>
@@ -322,9 +322,9 @@ export default function TenantOverviewPage() {
           <div className="relative z-10">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Conversations</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">Conversations</p>
                 <p className="mt-3 text-5xl font-extrabold text-gray-900 dark:text-gray-100">{stats.activeConversations}</p>
-                <p className="mt-2.5 flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="mt-2.5 flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300">
                   {stats.unreadMessages > 0 ? (
                     <>
                       <span className="flex h-2 w-2 rounded-full bg-warning-500 animate-pulse" />
@@ -354,9 +354,9 @@ export default function TenantOverviewPage() {
           <div className="relative z-10">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Escalations</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">Escalations</p>
                 <p className="mt-3 text-5xl font-extrabold text-gray-900 dark:text-gray-100">{stats.pendingEscalations}</p>
-                <p className="mt-2.5 flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="mt-2.5 flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300">
                   {stats.pendingEscalations > 0 ? (
                     <>
                       <AlertIcon className="h-4 w-4 text-warning-500" />
@@ -386,14 +386,14 @@ export default function TenantOverviewPage() {
           <div className="relative z-10">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Platforms</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">Platforms</p>
                 <p className="mt-3 text-5xl font-extrabold text-gray-900 dark:text-gray-100">
                   {stats.connectedPlatforms}
                   {stats.totalPlatforms > 0 && (
-                    <span className="ml-2 text-3xl font-semibold text-gray-500 dark:text-gray-400">/{stats.totalPlatforms}</span>
+                    <span className="ml-2 text-3xl font-semibold text-gray-500 dark:text-gray-300">/{stats.totalPlatforms}</span>
                   )}
                 </p>
-                <p className="mt-2.5 flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-400">
+                <p className="mt-2.5 flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300">
                   <LinkIcon className="h-4 w-4 text-accent-500" />
                   Connected & syncing
                 </p>
@@ -415,7 +415,7 @@ export default function TenantOverviewPage() {
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Recent Activity</h2>
-                <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-400">Latest posts, conversations, and updates</p>
+                <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-300">Latest posts, conversations, and updates</p>
               </div>
               <Link
                 href="/app/inbox"
@@ -429,10 +429,10 @@ export default function TenantOverviewPage() {
               {activityFeed.length === 0 ? (
                 <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-white p-12 text-center dark:border-gray-600 dark:from-gray-800/50 dark:to-gray-800">
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                    <ClockIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                    <ClockIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
                   </div>
                   <p className="mt-4 text-lg font-bold text-gray-900 dark:text-gray-100">No recent activity</p>
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Activity will appear here as you use the platform</p>
+                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-300">Activity will appear here as you use the platform</p>
                 </div>
               ) : (
                 activityFeed.map((activity) => (
@@ -446,8 +446,8 @@ export default function TenantOverviewPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{activity.title}</p>
-                      <p className="mt-1 text-sm font-medium text-gray-600 dark:text-gray-400 line-clamp-1">{activity.description}</p>
-                      <p className="mt-1.5 text-xs font-medium text-gray-500 dark:text-gray-500">{formatRelativeTime(activity.timestamp)}</p>
+                      <p className="mt-1 text-sm font-medium text-gray-600 dark:text-gray-300 line-clamp-1">{activity.description}</p>
+                      <p className="mt-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">{formatRelativeTime(activity.timestamp)}</p>
                     </div>
                     <ArrowRightIcon className="h-5 w-5 shrink-0 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100" />
                   </Link>
@@ -460,7 +460,7 @@ export default function TenantOverviewPage() {
           <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-700 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Performance Overview</h2>
-              <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-400">Last 7 days insights</p>
+              <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-300">Last 7 days insights</p>
             </div>
             {!performanceSummary || performanceSummary.total_posts === 0 ? (
               <div className="space-y-4">
@@ -471,7 +471,7 @@ export default function TenantOverviewPage() {
                         <TrendingUpIcon className="h-7 w-7" />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">Engagement Rate</p>
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-300">Engagement Rate</p>
                         <p className="mt-1 text-4xl font-extrabold text-gray-900 dark:text-gray-100">--</p>
                       </div>
                     </div>
@@ -482,7 +482,7 @@ export default function TenantOverviewPage() {
                         <FireIcon className="h-7 w-7" />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">Top Post</p>
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-300">Top Post</p>
                         <p className="mt-1 text-xl font-extrabold text-gray-900 dark:text-gray-100">--</p>
                       </div>
                     </div>
@@ -509,13 +509,13 @@ export default function TenantOverviewPage() {
                         <TrendingUpIcon className="h-7 w-7" />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">Engagement Rate</p>
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-300">Engagement Rate</p>
                         <p className="mt-1 text-4xl font-extrabold text-gray-900 dark:text-gray-100">
                           {performanceSummary.engagement_rate !== null
                             ? `${performanceSummary.engagement_rate.toFixed(1)}%`
                             : "--"}
                         </p>
-                        <p className="mt-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                        <p className="mt-1.5 text-xs font-semibold text-gray-500 dark:text-gray-300">
                           {performanceSummary.total_posts} posts
                         </p>
                       </div>
@@ -527,13 +527,13 @@ export default function TenantOverviewPage() {
                         <FireIcon className="h-7 w-7" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">Top Performing</p>
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-300">Top Performing</p>
                         {performanceSummary.top_performing_post ? (
                           <>
                             <p className="mt-1 text-xl font-extrabold text-gray-900 truncate dark:text-gray-100">
                               {performanceSummary.top_performing_post.name}
                             </p>
-                            <p className="mt-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                            <p className="mt-1.5 text-xs font-semibold text-gray-500 dark:text-gray-300">
                               {performanceSummary.top_performing_post.engagement_rate.toFixed(1)}% engagement
                             </p>
                           </>
@@ -553,7 +553,7 @@ export default function TenantOverviewPage() {
                       { label: "Comments", value: performanceSummary.total_comments, color: "from-warning-50 to-white" },
                     ].map((metric) => (
                       <div key={metric.label} className="rounded-xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-4 shadow-sm dark:border-gray-700 dark:from-gray-800 dark:to-gray-800/50">
-                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400">{metric.label}</p>
+                        <p className="text-xs font-bold text-gray-500 dark:text-gray-300">{metric.label}</p>
                         <p className="mt-2 text-2xl font-extrabold text-gray-900 dark:text-gray-100">{metric.value.toLocaleString()}</p>
                       </div>
                     ))}
@@ -571,7 +571,7 @@ export default function TenantOverviewPage() {
                   <div className="mb-6 flex items-center justify-between">
                     <div>
                       <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Recent Orders</h2>
-                      <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-400">Latest transactions</p>
+                      <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-300">Latest transactions</p>
                     </div>
                     <Link
                       href="/app/orders"
@@ -605,7 +605,7 @@ export default function TenantOverviewPage() {
                   <div className="mb-6 flex items-center justify-between">
                     <div>
                       <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Recent Payments</h2>
-                      <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-400">Latest payments</p>
+                      <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-300">Latest payments</p>
                     </div>
                     <Link
                       href="/app/payments"
@@ -687,7 +687,7 @@ export default function TenantOverviewPage() {
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Upcoming</h2>
-                <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-400">Next scheduled posts</p>
+                <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-300">Next scheduled posts</p>
               </div>
               <Link
                 href="/app/campaigns"
@@ -701,10 +701,10 @@ export default function TenantOverviewPage() {
               {upcomingPosts.length === 0 ? (
                 <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-white p-8 text-center dark:border-gray-600 dark:from-gray-800/50 dark:to-gray-800">
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                    <ClockIcon className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+                    <ClockIcon className="h-6 w-6 text-gray-400 dark:text-gray-400" />
                   </div>
                   <p className="mt-4 text-base font-bold text-gray-900 dark:text-gray-100">No upcoming posts</p>
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Schedule your first post</p>
+                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-300">Schedule your first post</p>
                 </div>
               ) : (
                 upcomingPosts.map((post) => (
@@ -718,13 +718,13 @@ export default function TenantOverviewPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-bold text-gray-900 truncate dark:text-gray-100">{post.name}</p>
-                      <p className="mt-1 text-xs font-medium text-gray-600 dark:text-gray-400">
+                      <p className="mt-1 text-xs font-medium text-gray-600 dark:text-gray-300">
                         {Array.isArray(post.platforms) && post.platforms.length > 0
                           ? post.platforms.join(", ")
                           : "No platforms"}
                       </p>
                       {post.scheduled_at && (
-                        <p className="mt-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                        <p className="mt-1.5 text-xs font-semibold text-gray-500 dark:text-gray-300">
                           {new Date(post.scheduled_at).toLocaleString([], {
                             month: "short",
                             day: "numeric",

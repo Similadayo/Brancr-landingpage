@@ -535,17 +535,17 @@ export function TenantShell({ children }: { children: ReactNode }) {
                   {/* Stats */}
                   <div className="hidden items-center gap-6 lg:flex">
                     <div className="text-right">
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Connected</p>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-300">Connected</p>
                       <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
                         {stats.connectedChannels}/{stats.totalChannels || 4}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Posts</p>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-300">Posts</p>
                       <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{stats.scheduledPosts}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Conversations</p>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-300">Conversations</p>
                       <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{stats.conversations}</p>
                     </div>
                   </div>
