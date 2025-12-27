@@ -530,26 +530,26 @@ export function TenantShell({ children }: { children: ReactNode }) {
                   </div>
                 </div>
 
-                {/* Center: Stats */}
-                <div className="hidden items-center gap-6 lg:flex flex-1 justify-center">
-                  <div className="text-center">
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Connected</p>
-                    <p className="text-base font-bold text-gray-900 dark:text-gray-100 mt-0.5">
-                      {stats.connectedChannels}/{stats.totalChannels || 4}
-                    </p>
+                {/* Right: Stats and Controls */}
+                <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+                  {/* Stats */}
+                  <div className="hidden items-center gap-6 lg:flex">
+                    <div className="text-right">
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Connected</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                        {stats.connectedChannels}/{stats.totalChannels || 4}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Posts</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{stats.scheduledPosts}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Conversations</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{stats.conversations}</p>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Posts</p>
-                    <p className="text-base font-bold text-gray-900 dark:text-gray-100 mt-0.5">{stats.scheduledPosts}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Conversations</p>
-                    <p className="text-base font-bold text-gray-900 dark:text-gray-100 mt-0.5">{stats.conversations}</p>
-                  </div>
-                </div>
-
-                {/* Right: Controls */}
-                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                  
                   {/* AI Mode Toggle */}
                   <div className="hidden items-center sm:flex">
                     <AIToggle
