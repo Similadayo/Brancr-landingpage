@@ -30,7 +30,7 @@ export default function ConfirmModal({
       </ModalHeader>
       {description && (
         <ModalBody>
-          <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300">{description}</p>
         </ModalBody>
       )}
       <ModalFooter>

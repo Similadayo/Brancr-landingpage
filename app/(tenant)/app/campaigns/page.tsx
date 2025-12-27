@@ -355,7 +355,7 @@ export default function CampaignsPage() {
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "scheduled"
                 ? "bg-accent text-white shadow-md"
-                : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+                : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
             }`}
           >
             <ClockIcon className="w-4 h-4" />
@@ -371,7 +371,7 @@ export default function CampaignsPage() {
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "published"
                 ? "bg-accent text-white shadow-md"
-                : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+                : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
             }`}
           >
             <CheckCircleIcon className="w-4 h-4" />
@@ -387,7 +387,7 @@ export default function CampaignsPage() {
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "drafts"
                 ? "bg-accent text-white shadow-md"
-                : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+                : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
             }`}
           >
             <DocumentTextIcon className="w-4 h-4" />
@@ -406,7 +406,7 @@ export default function CampaignsPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {/* Search */}
           <div className="relative flex-1 sm:max-w-md lg:max-w-lg">
-            <MagnifyingGlassIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+            <MagnifyingGlassIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-400" aria-hidden="true" />
             <input
               type="search"
               value={searchQuery}
@@ -419,7 +419,7 @@ export default function CampaignsPage() {
           {/* Filters */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="flex items-center gap-3">
-              <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
+              <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-400" />
               {activeTab === "scheduled" && (
                 <div className="flex-1 sm:flex-none sm:min-w-[160px]">
                   <Select
@@ -495,17 +495,17 @@ export default function CampaignsPage() {
           <div className="card p-12 text-center sm:p-16">
             {activeTab === "scheduled" && (
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                <ClockIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                <ClockIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
               </div>
             )}
             {activeTab === "published" && (
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                <CheckCircleIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                <CheckCircleIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
               </div>
             )}
             {String(activeTab) === "drafts" && (
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                <DocumentTextIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                <DocumentTextIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
               </div>
             )}
             <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -513,7 +513,7 @@ export default function CampaignsPage() {
               {activeTab === "published" && "No published posts"}
               {String(activeTab) === "drafts" && "No drafts"}
             </p>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
               {activeTab === "scheduled" && "Create your first scheduled post to get started"}
               {activeTab === "published" && "Published posts will appear here"}
               {String(activeTab) === "drafts" && "Draft posts will appear here"}
@@ -538,7 +538,7 @@ export default function CampaignsPage() {
                   <div className="flex items-start gap-4">
                     {/* Media Preview Placeholder */}
                     <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 dark:border-gray-600 dark:from-gray-700 dark:to-gray-800">
-                      <ImageIcon className="h-7 w-7 text-gray-400 dark:text-gray-500" />
+                      <ImageIcon className="h-7 w-7 text-gray-400 dark:text-gray-400" />
                     </div>
 
                     {/* Post Details */}

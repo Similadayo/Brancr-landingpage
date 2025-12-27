@@ -180,7 +180,7 @@ export default function EscalationsPage() {
           {/* Filters */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="flex items-center gap-3">
-              <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
+              <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-400" />
               <div className="flex-1 sm:flex-none sm:min-w-[140px]">
                 <Select
                   value={priorityFilter}
@@ -255,15 +255,15 @@ export default function EscalationsPage() {
             <AlertIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
           </div>
           <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load escalations</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{error.message}</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{error.message}</p>
         </div>
       ) : filteredEscalations.length === 0 ? (
         <div className="card p-12 text-center sm:p-16">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-            <AlertIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+            <AlertIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
           </div>
           <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">No escalations found</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             {searchQuery || priorityFilter !== "all" || platformFilter !== "all"
               ? "Try adjusting your search or filters"
               : "All escalations have been handled"}
@@ -296,7 +296,7 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 sm:text-lg">{escalation.customerName}</h3>
                 {escalation.customerUsername && (
-                  <span className="text-xs text-gray-500 dark:text-gray-400">@{escalation.customerUsername}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-300">@{escalation.customerUsername}</span>
                 )}
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -306,12 +306,12 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
                 <span className={`badge ${PRIORITY_BADGES[escalation.priority] ?? "badge-gray"} text-[10px]`}>
                   {escalation.priority}
                 </span>
-                <span className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                <span className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-400">
                   {escalation.intent} • {escalation.tone}
                 </span>
               </div>
               <p className="mt-3 line-clamp-2 text-sm text-gray-700 dark:text-gray-300">{escalation.message}</p>
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-300">
                 <span>AI Confidence: <span className="font-semibold">{Math.round(escalation.confidence * 100)}%</span></span>
                 <span>•</span>
                 <span>{formatTimeAgo(escalation.createdAt)}</span>
@@ -320,7 +320,7 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
           </div>
         </div>
         <div className="flex shrink-0 items-center">
-          <ArrowRightIcon className="h-5 w-5 text-gray-400 transition-transform group-hover:text-accent group-hover:translate-x-1 dark:text-gray-500" />
+          <ArrowRightIcon className="h-5 w-5 text-gray-400 transition-transform group-hover:text-accent group-hover:translate-x-1 dark:text-gray-400" />
         </div>
       </div>
     </Link>

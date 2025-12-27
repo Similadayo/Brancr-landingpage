@@ -28,7 +28,7 @@ export function ErrorState({
         {icon || <AlertIcon className="h-8 w-8 text-error-600 dark:text-error-400" />}
       </div>
       <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
-      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{message}</p>
+      <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{message}</p>
       {action && (
         <div className="mt-6">
           <button onClick={action.onClick} className="btn-primary">

@@ -207,28 +207,28 @@ export default function OrdersPage() {
           <div className="stat-card group">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-info-400/20 to-info-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total Orders</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Total Orders</p>
               <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">{stats.total_orders}</p>
             </div>
           </div>
           <div className="stat-card group">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-warning-400/20 to-warning-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Pending</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Pending</p>
               <p className="mt-2 text-2xl font-bold text-warning-600 dark:text-warning-400 sm:text-3xl">{stats.pending_orders}</p>
             </div>
           </div>
           <div className="stat-card group">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-success-400/20 to-success-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Completed</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Completed</p>
               <p className="mt-2 text-2xl font-bold text-success-600 dark:text-success-400 sm:text-3xl">{stats.completed_orders}</p>
             </div>
           </div>
           <div className="stat-card group col-span-2 lg:col-span-1">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-accent-400/20 to-accent-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total Revenue</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Total Revenue</p>
               <p className="mt-2 text-xl font-bold text-gray-900 dark:text-gray-100 sm:text-2xl lg:text-3xl">
                 {stats.currency} {(stats.total_revenue ?? 0).toLocaleString()}
               </p>
@@ -255,7 +255,7 @@ export default function OrdersPage() {
           {/* Filters */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="flex items-center gap-3">
-              <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
+              <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-400" />
               <div className="flex-1 sm:flex-none sm:min-w-[180px]">
                 <Select
                   value={activeFilter}
@@ -311,15 +311,15 @@ export default function OrdersPage() {
             <XIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
           </div>
           <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load orders</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Please try refreshing the page</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">Please try refreshing the page</p>
         </div>
       ) : filteredOrders.length === 0 ? (
         <div className="card p-12 text-center sm:p-16">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-            <PackageIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+            <PackageIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
           </div>
           <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">No orders found</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             {query || statusFilter || platformFilter
               ? "Try adjusting your search or filters"
               : "Orders will appear here when customers commit to purchase"}
@@ -337,7 +337,7 @@ export default function OrdersPage() {
           </div>
 
           {/* Desktop Table Header */}
-          <div className="hidden grid-cols-12 gap-3 border-b border-gray-200 bg-gray-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-400 md:grid lg:px-6">
+          <div className="hidden grid-cols-12 gap-3 border-b border-gray-200 bg-gray-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-300 md:grid lg:px-6">
             <div className="col-span-3">Order</div>
             <div className="col-span-3">Customer</div>
             <div className="col-span-3">Payment Reference</div>
@@ -367,10 +367,10 @@ export default function OrdersPage() {
                       <span className="badge badge-gray text-[10px] capitalize">{order.platform}</span>
                     </div>
                     <div className="space-y-1.5">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
                         Customer: <span className="font-medium text-gray-900 dark:text-gray-100">{order.customer_name}</span>
                       </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
                         Items: <span className="font-medium text-gray-900 dark:text-gray-100">{itemCount}</span>
                       </p>
                       <div onClick={(e) => e.preventDefault()}>
@@ -381,7 +381,7 @@ export default function OrdersPage() {
                       <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
                         {order.currency} {(order.total_amount ?? 0).toLocaleString()}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-300">
                         {new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                       </p>
                     </div>
@@ -395,7 +395,7 @@ export default function OrdersPage() {
                         {autoCreated && <span className="badge badge-info text-[10px]">Auto</span>}
                         {isNew && <span className="badge badge-success text-[10px]">New</span>}
                       </div>
-                      <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                      <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-300">
                         {new Date(order.created_at).toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
@@ -406,7 +406,7 @@ export default function OrdersPage() {
 
                     <div className="col-span-3 min-w-0">
                       <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{order.customer_name}</p>
-                      <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400 capitalize">
+                      <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-300 capitalize">
                         {order.platform} • {itemCount} item(s)
                       </p>
                     </div>

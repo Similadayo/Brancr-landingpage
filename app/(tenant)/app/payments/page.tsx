@@ -176,21 +176,21 @@ export default function PaymentsPage() {
 				<div className="stat-card group">
 					<div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-info-400/20 to-info-500/20 blur-2xl transition-transform group-hover:scale-150" />
 					<div className="relative">
-						<p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total Payments</p>
+						<p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Total Payments</p>
 						<p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">{stats.total}</p>
 					</div>
 				</div>
 				<div className="stat-card group">
 					<div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-warning-400/20 to-warning-500/20 blur-2xl transition-transform group-hover:scale-150" />
 					<div className="relative">
-						<p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Pending Verification</p>
+						<p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Pending Verification</p>
 						<p className="mt-2 text-2xl font-bold text-warning-600 dark:text-warning-400 sm:text-3xl">{stats.pendingVerification}</p>
 					</div>
 				</div>
 				<div className="stat-card group">
 					<div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-success-400/20 to-success-500/20 blur-2xl transition-transform group-hover:scale-150" />
 					<div className="relative">
-						<p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Verified</p>
+						<p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Verified</p>
 						<p className="mt-2 text-2xl font-bold text-success-600 dark:text-success-400 sm:text-3xl">{stats.verified}</p>
 					</div>
 				</div>
@@ -201,7 +201,7 @@ export default function PaymentsPage() {
 				<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 					{/* Search */}
 					<div className="relative flex-1 sm:max-w-md lg:max-w-lg">
-						<MagnifyingGlassIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+						<MagnifyingGlassIcon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-400" aria-hidden="true" />
 						<input
 							type="search"
 							value={query}
@@ -214,7 +214,7 @@ export default function PaymentsPage() {
 					{/* Unified Filter */}
 					<div className="flex flex-col gap-3 sm:flex-row sm:items-center">
 						<div className="flex items-center gap-3">
-							<FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
+							<FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-400" />
 							<div className="flex-1 sm:flex-none sm:min-w-[200px]">
 								<Select
 									value={activeFilter}
@@ -256,15 +256,15 @@ export default function PaymentsPage() {
 						<XIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
 					</div>
 					<p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load payments</p>
-					<p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Please try refreshing the page</p>
+					<p className="mt-2 text-sm text-gray-600 dark:text-gray-300">Please try refreshing the page</p>
 				</div>
 			) : filteredPayments.length === 0 ? (
 				<div className="card p-12 text-center sm:p-16">
 					<div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-						<CreditCardIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+						<CreditCardIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
 					</div>
 					<p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">No payments found</p>
-					<p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+					<p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
 						{query || statusFilter || verificationFilter
 							? "Try adjusting your search or filters"
 							: "Payments will appear here when customers make payments"}
@@ -282,7 +282,7 @@ export default function PaymentsPage() {
 					</div>
 
 					{/* Desktop Table Header */}
-					<div className="hidden grid-cols-12 gap-4 border-b border-gray-200 bg-gray-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-400 md:grid lg:px-6">
+					<div className="hidden grid-cols-12 gap-4 border-b border-gray-200 bg-gray-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-300 md:grid lg:px-6">
 						<div className="col-span-3">Order</div>
 						<div className="col-span-3">Customer</div>
 						<div className="col-span-3">Payment Reference</div>
@@ -306,14 +306,14 @@ export default function PaymentsPage() {
 											</span>
 										</div>
 										<div className="space-y-1.5">
-											<p className="text-sm text-gray-600 dark:text-gray-400">
+											<p className="text-sm text-gray-600 dark:text-gray-300">
 												Customer: <span className="font-medium text-gray-900 dark:text-gray-100">{payment.customer_name}</span>
 											</p>
-											<p className="text-sm text-gray-600 dark:text-gray-400">
+											<p className="text-sm text-gray-600 dark:text-gray-300">
 												Ref: <span className="font-mono font-medium text-gray-900 dark:text-gray-100">{payment.payment_reference}</span>
 											</p>
 											{payment.verified_at && (
-												<p className="text-xs text-gray-500 dark:text-gray-400">
+												<p className="text-xs text-gray-500 dark:text-gray-300">
 													Verified: {new Date(payment.verified_at).toLocaleString()}
 												</p>
 											)}
@@ -364,7 +364,7 @@ export default function PaymentsPage() {
 												<p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">{payment.order_number}</p>
 												<span className={`badge ${getStatusBadge(payment.status)}`}>{payment.status}</span>
 											</div>
-											<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+											<p className="mt-1 text-xs text-gray-500 dark:text-gray-300">
 												{new Date(payment.created_at).toLocaleDateString("en-US", {
 													month: "short",
 													day: "numeric",
@@ -376,10 +376,10 @@ export default function PaymentsPage() {
 										<div className="col-span-3 min-w-0">
 											<p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{payment.customer_name}</p>
 											{payment.customer_phone && (
-												<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{payment.customer_phone}</p>
+												<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-300">{payment.customer_phone}</p>
 											)}
 											{payment.verified_at && (
-												<p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500">
+												<p className="mt-0.5 text-xs text-gray-400 dark:text-gray-400">
 													Verified: {new Date(payment.verified_at).toLocaleString()}
 												</p>
 											)}
@@ -390,7 +390,7 @@ export default function PaymentsPage() {
 												{payment.payment_reference}
 											</p>
 											{payment.transaction_id && (
-												<p className="mt-0.5 truncate font-mono text-xs text-gray-500 dark:text-gray-400">
+												<p className="mt-0.5 truncate font-mono text-xs text-gray-500 dark:text-gray-300">
 													Txn: {payment.transaction_id}
 												</p>
 											)}
@@ -429,7 +429,7 @@ export default function PaymentsPage() {
 														</button>
 													</>
 												) : (
-													<span className="text-xs font-medium text-gray-400 dark:text-gray-500">—</span>
+													<span className="text-xs font-medium text-gray-400 dark:text-gray-400">—</span>
 												)}
 
 												{showReceiptActions && (
@@ -484,11 +484,11 @@ export default function PaymentsPage() {
 						</div>
 						<div className="space-y-5">
 							<div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
-								<p className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Payment Reference</p>
+								<p className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Payment Reference</p>
 								<p className="mt-1.5 font-mono text-base font-semibold text-gray-900 dark:text-gray-100">
 									{selectedPayment.payment_reference}
 								</p>
-								<p className="mt-4 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Amount</p>
+								<p className="mt-4 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Amount</p>
 								<p className="mt-1.5 text-2xl font-bold text-gray-900 dark:text-gray-100">
 									{selectedPayment.currency} {selectedPayment.amount.toLocaleString()}
 								</p>

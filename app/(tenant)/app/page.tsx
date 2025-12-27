@@ -429,7 +429,7 @@ export default function TenantOverviewPage() {
               {activityFeed.length === 0 ? (
                 <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-white p-12 text-center dark:border-gray-600 dark:from-gray-800/50 dark:to-gray-800">
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                    <ClockIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
+                    <ClockIcon className="h-8 w-8 text-gray-400 dark:text-gray-300" />
                   </div>
                   <p className="mt-4 text-lg font-bold text-gray-900 dark:text-gray-100">No recent activity</p>
                   <p className="mt-2 text-sm text-gray-500 dark:text-gray-300">Activity will appear here as you use the platform</p>
@@ -447,7 +447,7 @@ export default function TenantOverviewPage() {
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{activity.title}</p>
                       <p className="mt-1 text-sm font-medium text-gray-600 dark:text-gray-300 line-clamp-1">{activity.description}</p>
-                      <p className="mt-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">{formatRelativeTime(activity.timestamp)}</p>
+                      <p className="mt-1.5 text-xs font-medium text-gray-500 dark:text-gray-300">{formatRelativeTime(activity.timestamp)}</p>
                     </div>
                     <ArrowRightIcon className="h-5 w-5 shrink-0 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100" />
                   </Link>
@@ -701,7 +701,7 @@ export default function TenantOverviewPage() {
               {upcomingPosts.length === 0 ? (
                 <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-white p-8 text-center dark:border-gray-600 dark:from-gray-800/50 dark:to-gray-800">
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                    <ClockIcon className="h-6 w-6 text-gray-400 dark:text-gray-400" />
+                    <ClockIcon className="h-6 w-6 text-gray-400 dark:text-gray-300" />
                   </div>
                   <p className="mt-4 text-base font-bold text-gray-900 dark:text-gray-100">No upcoming posts</p>
                   <p className="mt-2 text-sm text-gray-500 dark:text-gray-300">Schedule your first post</p>

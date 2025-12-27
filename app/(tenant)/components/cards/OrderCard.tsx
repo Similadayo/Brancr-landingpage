@@ -68,16 +68,16 @@ export function OrderCard({
           
           <div className="space-y-1.5">
             {payment_reference && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 Ref: <span className="font-mono font-medium">{payment_reference}</span>
               </p>
             )}
             {items_count !== undefined && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 Items: <span className="font-medium">{items_count} item(s)</span>
               </p>
             )}
-            <p className="text-sm text-gray-500 dark:text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {new Date(created_at).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',

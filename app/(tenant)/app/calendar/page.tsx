@@ -202,7 +202,7 @@ export default function CalendarPage() {
           <div className="grid grid-cols-7 gap-px border-b border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-800">
             {/* Day Headers */}
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-              <div key={d} className="bg-gray-50 p-2 text-center text-xs font-semibold text-gray-600 dark:bg-gray-800/50 dark:text-gray-400 sm:p-3">
+              <div key={d} className="bg-gray-50 p-2 text-center text-xs font-semibold text-gray-600 dark:bg-gray-800/50 dark:text-gray-300 sm:p-3">
                 <span className="hidden sm:inline">{d}</span>
                 <span className="sm:hidden">{d.slice(0, 1)}</span>
               </div>

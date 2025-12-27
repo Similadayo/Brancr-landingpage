@@ -80,7 +80,7 @@ interface CardContentProps {
 
 export function CardContent({ children, className }: CardContentProps) {
   return (
-    <div className={cn('text-sm text-gray-600 dark:text-gray-400', className)}>
+    <div className={cn('text-sm text-gray-600 dark:text-gray-300', className)}>
       {children}
     </div>
   );

@@ -150,7 +150,7 @@ export function CommandPalette() {
         <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-2xl">
           {/* Search Input */}
           <div className="flex items-center gap-3 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+            <MagnifyingGlassIcon className="h-5 w-5 text-gray-500 dark:text-gray-300" />
             <input
               type="text"
               value={query}
@@ -201,7 +201,7 @@ export function CommandPalette() {
                                 : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                             }`}
                           >
-                            <div className={`${isSelected ? "text-accent dark:text-accent-400" : "text-gray-400 dark:text-gray-500"}`}>
+                            <div className={`${isSelected ? "text-accent dark:text-accent-400" : "text-gray-400 dark:text-gray-400"}`}>
                               {command.icon}
                             </div>
                             <div className="flex-1">
@@ -222,7 +222,7 @@ export function CommandPalette() {
 
           {/* Footer */}
           <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-2">
-            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-300">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
                   <kbd className="rounded bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 font-mono">↑↓</kbd>

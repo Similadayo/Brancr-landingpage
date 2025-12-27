@@ -293,7 +293,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
       <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-bg dark:bg-gray-900 px-4">
         <div className="max-w-md rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 text-center shadow-xl">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">We couldn&apos;t load your workspace</h1>
-          <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">{error}</p>
+          <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">{error}</p>
           <button
             onClick={refresh}
             className="mt-6 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow hover:bg-accent/90"
@@ -330,7 +330,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
             "relative flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-200",
             isActive
               ? "bg-primary text-white shadow-sm"
-              : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-600"
+              : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-gray-600"
           )}
           aria-hidden
         >
@@ -345,7 +345,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <>
             <span className={cn(
               "flex-1 font-medium",
-              isActive ? "text-gray-900 dark:text-gray-100" : "text-gray-600 dark:text-gray-400"
+              isActive ? "text-gray-900 dark:text-gray-100" : "text-gray-600 dark:text-gray-300"
             )}>
               {item.label}
             </span>
@@ -387,12 +387,12 @@ export function TenantShell({ children }: { children: ReactNode }) {
               className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition"
             >
               <span className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                   <SettingsIcon className="w-5 h-5" />
                 </span>
                 <span>Settings</span>
               </span>
-              <span className="text-xs text-gray-400 dark:text-gray-500" aria-hidden>
+              <span className="text-xs text-gray-400 dark:text-gray-400" aria-hidden>
                 {isSettingsExpanded ? (
                   <ChevronDownIcon className="w-4 h-4" />
                 ) : (
@@ -456,7 +456,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => setIsMobileNavOpen(false)}
-            className="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="rounded-lg p-2 text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
             aria-label="Close navigation"
           >
             <XIcon className="w-5 h-5" />
@@ -500,7 +500,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={() => setIsSidebarCollapsed((prev) => !prev)}
-              className="flex w-full items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className="flex w-full items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               <ChevronLeftIcon
@@ -584,10 +584,10 @@ export function TenantShell({ children }: { children: ReactNode }) {
                             )}
                             <span className="hidden text-left leading-tight lg:block">
                               <span className="block text-xs font-medium text-gray-900 dark:text-gray-100">{displayName}</span>
-                              <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">{tenant?.plan ?? "trial"}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-300 capitalize">{tenant?.plan ?? "trial"}</span>
                             </span>
                             <ChevronDownIcon
-                              className={cn("w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform", isProfileMenuOpen && "rotate-180")}
+                              className={cn("w-4 h-4 text-gray-400 dark:text-gray-400 transition-transform", isProfileMenuOpen && "rotate-180")}
                               aria-hidden
                             />
                           </>

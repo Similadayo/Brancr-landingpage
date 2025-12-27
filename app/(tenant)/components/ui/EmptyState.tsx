@@ -28,7 +28,7 @@ export function EmptyState({
       className
     )}>
       {icon && (
-        <div className="mb-4 text-gray-400 dark:text-gray-500">
+        <div className="mb-4 text-gray-400 dark:text-gray-400">
           {icon}
         </div>
       )}
@@ -36,7 +36,7 @@ export function EmptyState({
         {title}
       </h3>
       {description && (
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 max-w-md">
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 max-w-md">
           {description}
         </p>
       )}

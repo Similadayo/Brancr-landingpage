@@ -296,7 +296,7 @@ export default function IntegrationsPage() {
           </div>
           <div className="min-w-0 flex-1">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Social & Messaging Connections</h1>
-            <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
+            <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-300 sm:text-sm">
               Link Meta, TikTok, and Telegram accounts to automate content, messaging, and analytics in Brancr.
             </p>
           </div>
@@ -346,7 +346,7 @@ export default function IntegrationsPage() {
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Connect {selectedPlatformData.name}</h2>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Follow these steps to connect your account</p>
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">Follow these steps to connect your account</p>
               </div>
               <button
                 type="button"
@@ -398,7 +398,7 @@ export default function IntegrationsPage() {
                             <span className="text-sm font-semibold">{index + 1}</span>
                           )}
                         </div>
-                        <p className={`mt-2 text-xs font-medium ${isActive ? 'text-accent-600 dark:text-accent-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                        <p className={`mt-2 text-xs font-medium ${isActive ? 'text-accent-600 dark:text-accent-400' : 'text-gray-500 dark:text-gray-300'}`}>
                           {step.label}
                         </p>
                       </div>
@@ -417,7 +417,7 @@ export default function IntegrationsPage() {
                 <div className="space-y-6">
                   <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-800/50">
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Requirements</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                       {PLATFORM_REQUIREMENTS[selectedPlatform]}
                     </p>
                     {GUIDE_LINKS[selectedPlatform] && (
@@ -491,7 +491,7 @@ export default function IntegrationsPage() {
             <XIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
           </div>
           <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load integrations</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{error.message}</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{error.message}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -527,28 +527,28 @@ export default function IntegrationsPage() {
 
                 {/* Platform Details */}
                 {platform === "facebook" && connected && integration?.page_name ? (
-                  <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">{integration.page_name}</p>
+                  <p className="mb-3 text-xs text-gray-500 dark:text-gray-300">{integration.page_name}</p>
                 ) : platform === "instagram" && connected ? (
                   <div className="mb-3 space-y-1">
                     {integration?.instagram_handle ? (
-                      <p className="text-xs text-gray-500 dark:text-gray-400">@{integration.instagram_handle}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-300">@{integration.instagram_handle}</p>
                     ) : integration?.username ? (
-                      <p className="text-xs text-gray-500 dark:text-gray-400">@{integration.username}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-300">@{integration.username}</p>
                     ) : null}
                   </div>
                 ) : connected && integration?.username && !isWhatsApp ? (
-                  <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">@{integration.username}</p>
+                  <p className="mb-3 text-xs text-gray-500 dark:text-gray-300">@{integration.username}</p>
                 ) : null}
 
                 {/* Status Description */}
                 {!isWhatsApp && (
-                  <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">{status.description}</p>
+                  <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">{status.description}</p>
                 )}
 
                 {/* Webhook Status */}
                 {connected && integration && "webhook_status" in integration && (
                   <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Webhook</p>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-300">Webhook</p>
                     <div className="flex items-center gap-2">
                       <span className={`h-2 w-2 rounded-full ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "bg-success-500" : "bg-warning-500"}`} aria-hidden />
                       <p className={`text-sm font-semibold ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "text-success-700 dark:text-success-400" : "text-warning-700 dark:text-warning-400"}`}>
@@ -656,7 +656,7 @@ export default function IntegrationsPage() {
 
                 {/* Helper text */}
                 {!isWhatsApp && (
-                  <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">{status.helper}</p>
+                  <p className="mt-3 text-xs text-gray-500 dark:text-gray-300">{status.helper}</p>
                 )}
               </div>
             );
@@ -668,10 +668,10 @@ export default function IntegrationsPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
         <div className="card p-5 sm:p-6">
           <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg">Provider-Owned WhatsApp</h3>
-          <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
             Brancr manages your WhatsApp Business Account. Select a number from our pool or add your own number for verification.
           </p>
-          <div className="mt-4 space-y-3 text-sm text-gray-600 dark:text-gray-400">
+          <div className="mt-4 space-y-3 text-sm text-gray-600 dark:text-gray-300">
             <div className="flex items-start gap-3">
               <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-success-500" aria-hidden />
               <span>Brancr handles WhatsApp Business Account setup and billing</span>
@@ -688,14 +688,14 @@ export default function IntegrationsPage() {
         </div>
         <div className="card p-5 sm:p-6">
           <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg">Connection History</h3>
-          <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
             Brancr logs key integration events to help you audit onboarding.
           </p>
           <div className="mt-4 space-y-3">
             {connectionHistory.slice(0, 2).map((entry) => (
               <div key={entry.id} className="rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
                 <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{entry.action}</p>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{entry.at}</p>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-300">{entry.at}</p>
               </div>
             ))}
             <Link

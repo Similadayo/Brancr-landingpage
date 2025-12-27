@@ -25,7 +25,7 @@ export function LoadingState({
     <div className={`flex flex-col items-center justify-center gap-4 ${className}`}>
       <div className={`${sizeClasses[size]} animate-spin rounded-full border-accent/20 border-t-accent`} />
       {message && (
-        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{message}</p>
+        <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{message}</p>
       )}
     </div>
   );

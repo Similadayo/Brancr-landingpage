@@ -375,7 +375,7 @@ export default function InboxPage() {
                     className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                       isActive
                         ? "bg-accent text-white shadow-sm"
-                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                     }`}
                     onClick={() => setActiveStatusFilter(tab)}
                   >
@@ -394,7 +394,7 @@ export default function InboxPage() {
                   className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                     activePlatformFilter === "All"
                       ? "bg-accent/10 dark:bg-accent/20 text-accent dark:text-accent-400 border border-accent/20 dark:border-accent/30"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
                   }`}
                   onClick={() => setActivePlatformFilter("All")}
                 >
@@ -422,7 +422,7 @@ export default function InboxPage() {
                       className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                         isActive
                           ? "bg-accent/10 dark:bg-accent/20 text-accent dark:text-accent-400 border border-accent/20 dark:border-accent/30"
-                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
+                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
                       }`}
                       onClick={() => setActivePlatformFilter(platform)}
                     >
@@ -479,13 +479,13 @@ export default function InboxPage() {
               </div>
             ) : sortedConversations.length === 0 ? (
               <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-6 md:p-8 text-center m-3">
-                <InboxIcon className="mx-auto h-10 w-10 md:h-12 md:w-12 text-gray-400 dark:text-gray-500" />
+                <InboxIcon className="mx-auto h-10 w-10 md:h-12 md:w-12 text-gray-400 dark:text-gray-400" />
                 <p className="mt-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                   {searchQuery || activeStatusFilter !== "All"
                     ? "No conversations found"
                     : "No conversations yet"}
                 </p>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-300">
                   {searchQuery || activeStatusFilter !== "All"
                     ? "Try adjusting your filters"
                     : "Conversations will appear here when customers reach out"}
@@ -534,7 +534,7 @@ export default function InboxPage() {
                           )}
                           {/* Platform icon badge */}
                           <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white dark:bg-gray-800 border-2 border-white dark:border-gray-800">
-                            <PlatformIcon className="h-3 w-3 text-gray-600 dark:text-gray-400" />
+                            <PlatformIcon className="h-3 w-3 text-gray-600 dark:text-gray-300" />
                           </div>
                         </div>
                         {/* Content */}
@@ -547,7 +547,7 @@ export default function InboxPage() {
                                   {conversation.unread_count > 9 ? "9+" : conversation.unread_count}
                                 </span>
                               )}
-                              <span className="text-xs text-gray-500 dark:text-gray-400">{formatTime(conversation.last_message_at)}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-300">{formatTime(conversation.last_message_at)}</span>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
@@ -560,7 +560,7 @@ export default function InboxPage() {
                                 {conversation.last_message_media.type === 'sticker' && '😊 Sticker'}
                               </span>
                             )}
-                            <p className="line-clamp-1 text-sm text-gray-600 dark:text-gray-400">{conversation.last_message || "No messages"}</p>
+                            <p className="line-clamp-1 text-sm text-gray-600 dark:text-gray-300">{conversation.last_message || "No messages"}</p>
                           </div>
                         </div>
                       </div>
@@ -585,7 +585,7 @@ export default function InboxPage() {
                   {mobileView === "chat" && (
                     <button
                       onClick={() => setMobileView("list")}
-                      className="flex-shrink-0 rounded-lg p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors md:hidden"
+                      className="flex-shrink-0 rounded-lg p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors md:hidden"
                       aria-label="Back to conversations"
                     >
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -717,7 +717,7 @@ export default function InboxPage() {
                           
                           {/* Timestamp */}
                           <div className={`mt-2 text-xs ${
-                            isOutgoing ? "text-white/70" : "text-gray-500 dark:text-gray-400"
+                            isOutgoing ? "text-white/70" : "text-gray-500 dark:text-gray-300"
                           }`}>
                             {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
                           </div>
@@ -727,7 +727,7 @@ export default function InboxPage() {
                   })}
                   {messages.length === 0 && (
                     <div className="flex items-center justify-center py-12">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">No messages yet</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-300">No messages yet</p>
                     </div>
                   )}
                   <div ref={messagesEndRef} />
@@ -829,7 +829,7 @@ export default function InboxPage() {
                         <button
                           type="button"
                           onClick={() => handleRemoveAttachment(index)}
-                          className="rounded-full p-1 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
+                          className="rounded-full p-1 text-gray-500 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                           aria-label={`Remove ${file.name}`}
                         >
                           ✕
@@ -841,8 +841,8 @@ export default function InboxPage() {
               </div>
             </>
           ) : (
-            <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center text-gray-500 dark:text-gray-400 px-4">
-              <InboxIcon className="h-12 w-12 text-gray-400 dark:text-gray-500" />
+            <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center text-gray-500 dark:text-gray-300 px-4">
+              <InboxIcon className="h-12 w-12 text-gray-400 dark:text-gray-400" />
               <p className="text-sm">Select a conversation to view messages</p>
             </div>
           )}
@@ -903,13 +903,13 @@ export default function InboxPage() {
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{activeConversation.customer_name}</p>
                               {activeConversation.customer_phone ? (
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                <p className="text-xs text-gray-500 dark:text-gray-300">
                                   {activeConversation.customer_country_code 
                                     ? `+${activeConversation.customer_country_code} ${activeConversation.customer_dial_code || activeConversation.customer_phone}`
                                     : activeConversation.customer_phone}
                                 </p>
                               ) : (
-                                <p className="text-xs text-gray-400 dark:text-gray-500 italic">No phone number</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-400 italic">No phone number</p>
                               )}
                             </div>
                           </div>
@@ -925,17 +925,17 @@ export default function InboxPage() {
 
                         {/* AI Mode (tenant-wide only) */}
                         <div className="mb-6">
-                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">AI Mode</h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Tenant-wide setting: <span className="font-semibold">{tenantAIMode === 'ai' ? 'AI' : 'Human'}</span></p>
+                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-3">AI Mode</h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-300">Tenant-wide setting: <span className="font-semibold">{tenantAIMode === 'ai' ? 'AI' : 'Human'}</span></p>
                         </div>
 
                         {/* Contact Information */}
                         <div className="mb-6">
-                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Contact Information</h4>
+                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-3">Contact Information</h4>
                           <div className="space-y-2 text-xs">
                             {activeConversation.customer_phone && (
                               <div className="flex justify-between">
-                                <span className="text-gray-500 dark:text-gray-400">Phone:</span>
+                                <span className="text-gray-500 dark:text-gray-300">Phone:</span>
                                 <span className="text-gray-900 dark:text-gray-100 font-medium">
                                   {activeConversation.customer_country_code 
                                     ? `+${activeConversation.customer_country_code} ${activeConversation.customer_dial_code || activeConversation.customer_phone}`
@@ -945,19 +945,19 @@ export default function InboxPage() {
                             )}
                             {activeConversation.customer_country_code && (
                               <div className="flex justify-between">
-                                <span className="text-gray-500 dark:text-gray-400">Country Code:</span>
+                                <span className="text-gray-500 dark:text-gray-300">Country Code:</span>
                                 <span className="text-gray-900 dark:text-gray-100 font-medium">+{activeConversation.customer_country_code}</span>
                               </div>
                             )}
                             {activeConversation.customer_dial_code && (
                               <div className="flex justify-between">
-                                <span className="text-gray-500 dark:text-gray-400">Dial Code:</span>
+                                <span className="text-gray-500 dark:text-gray-300">Dial Code:</span>
                                 <span className="text-gray-900 dark:text-gray-100 font-medium">{activeConversation.customer_dial_code}</span>
                               </div>
                             )}
                           </div>
                           <div className="flex justify-between mt-3">
-                            <span className="text-gray-500 dark:text-gray-400">Start chat:</span>
+                            <span className="text-gray-500 dark:text-gray-300">Start chat:</span>
                             <span className="text-gray-900 dark:text-gray-100 font-medium">
                               {new Date(activeConversation.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
                             </span>
@@ -973,7 +973,7 @@ export default function InboxPage() {
             </>
           ) : (
             <div className="flex flex-1 items-center justify-center">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Select a conversation</p>
+              <p className="text-sm text-gray-500 dark:text-gray-300">Select a conversation</p>
             </div>
           )}
         </aside>

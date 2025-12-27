@@ -61,18 +61,18 @@ export function PaymentCard({
 
           <div className="space-y-1.5">
             {payment_reference && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 Ref: <span className="font-mono font-medium">{payment_reference}</span>
               </p>
             )}
             
             {order_number && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 Order: <span className="font-medium">{order_number}</span>
               </p>
             )}
 
-            <p className="text-sm text-gray-500 dark:text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {new Date(created_at).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',

@@ -60,7 +60,7 @@ export default function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-sm text-gray-500 dark:text-gray-400"
+            className="text-sm text-gray-500 dark:text-gray-300"
           >
             <p>
               No credit card required • Works with Facebook, Instagram, TikTok,
@@ -98,7 +98,7 @@ export default function Hero() {
                     </div>
                   </div>
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                <div className="text-xs text-gray-500 dark:text-gray-300 text-center">
                   AI-powered chat interface
                 </div>
               </div>
@@ -107,14 +107,14 @@ export default function Hero() {
               <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-xl">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Conversions</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-300">Conversions</span>
                     <span className="text-lg font-bold text-accent">+47%</span>
                   </div>
                   <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div className="h-full bg-gradient-to-r from-accent to-accent-light w-3/4"></div>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">Response Time</span>
+                    <span className="text-gray-600 dark:text-gray-300">Response Time</span>
                     <span className="font-semibold text-gray-900 dark:text-gray-100">
                       &lt; 2 seconds
                     </span>

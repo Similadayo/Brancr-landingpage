@@ -36,7 +36,7 @@ export function ValidationFeedback({
 
   if (help) {
     return (
-      <p className={`text-xs text-gray-500 dark:text-gray-400 ${className}`}>
+      <p className={`text-xs text-gray-500 dark:text-gray-300 ${className}`}>
         {help}
       </p>
     );
