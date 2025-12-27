@@ -98,7 +98,7 @@ export default function EscalationsPage() {
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Modern Hero Section */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-warning via-warning/95 to-warning/90 p-6 shadow-xl dark:border-gray-700 dark:from-warning dark:via-warning/90 dark:to-warning/80 sm:p-8 md:p-10">
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-warning-600 via-warning-600/95 to-warning-700/90 p-6 shadow-xl dark:border-gray-700 dark:from-warning-600 dark:via-warning-600/90 dark:to-warning-700/80 sm:p-8 md:p-10">
         <div className="absolute inset-0 opacity-10 dark:opacity-20">
           <div className="absolute inset-0 dark:hidden" style={{
             backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
@@ -112,17 +112,17 @@ export default function EscalationsPage() {
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <AlertIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
+              <AlertIcon className="h-6 w-6 text-white sm:h-7 sm:w-7" />
               <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Escalations</h1>
             </div>
             {pendingCount > 0 && (
-              <div className="inline-flex items-center gap-2 rounded-xl border-2 border-white/30 bg-white/20 backdrop-blur-sm px-4 py-2.5">
+              <div className="inline-flex items-center gap-2 rounded-xl border-2 border-white/40 bg-white/25 backdrop-blur-sm px-4 py-2.5">
                 <div className="h-2.5 w-2.5 rounded-full bg-white animate-pulse" />
                 <span className="text-sm font-bold text-white">{pendingCount} Pending</span>
               </div>
             )}
           </div>
-          <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+          <p className="text-sm text-white sm:text-base md:text-lg max-w-2xl">
             Review and respond to customer escalations that require your attention
           </p>
         </div>
