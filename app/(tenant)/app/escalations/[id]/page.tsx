@@ -231,7 +231,7 @@ export default function EscalationDetailPage() {
               <button
                 onClick={() => void handleApprove()}
                 disabled={approveMutation.isPending}
-                className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
               >
                 {approveMutation.isPending ? "Sending..." : "Approve & Send"}
               </button>

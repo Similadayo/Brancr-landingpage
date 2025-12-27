@@ -95,7 +95,7 @@ export default function WaitlistPage() {
                 <p className="text-gray-600 mb-6">{message}</p>
                 <Link
                   href="/"
-                  className="inline-block bg-accent text-white px-6 py-3 rounded-lg font-semibold hover:bg-accent/90 transition-colors"
+                  className="inline-block bg-accent text-white px-6 py-3 rounded-lg font-semibold hover:bg-accent/90 transition-colors dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
                 >
                   Back to Home
                 </Link>
@@ -157,7 +157,7 @@ export default function WaitlistPage() {
                 <button
                   type="submit"
                   disabled={status === "loading"}
-                  className="w-full bg-accent text-white px-6 py-3 rounded-lg font-semibold hover:bg-accent/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  className="w-full bg-accent text-white px-6 py-3 rounded-lg font-semibold hover:bg-accent/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
                 >
                   {status === "loading" ? "Submitting..." : "Join Waitlist"}
                 </button>

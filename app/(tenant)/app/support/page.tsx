@@ -43,7 +43,7 @@ export default function SupportPage() {
           </p>
           <a
             href="mailto:contact@brancr.com?subject=Support Request"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary/90"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
           >
             Send Email
             <span aria-hidden>→</span>

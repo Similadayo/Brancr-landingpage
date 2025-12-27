@@ -106,7 +106,7 @@ export default function PersonaSettingsPage() {
                           return next;
                         });
                       }}
-                      className={`rounded-full px-3 py-1 text-sm font-medium transition ${active ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                      className={`rounded-full px-3 py-1 text-sm font-medium transition ${active ? 'bg-primary text-white dark:bg-white dark:text-gray-900' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'}`}
                     >
                       {opt}
                     </button>
@@ -151,7 +151,7 @@ export default function PersonaSettingsPage() {
             <button
               onClick={() => updateMutation.mutate()}
               disabled={updateMutation.isPending || selectedTones.length < 2}
-              className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow transition hover:bg-primary/90 disabled:opacity-50"
+              className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow transition hover:bg-primary/90 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
             >
               {updateMutation.isPending ? "Saving..." : (selectedTones.length < 2 ? 'Select at least 2 tones' : 'Save changes')}
             </button>

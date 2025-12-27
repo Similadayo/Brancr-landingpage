@@ -82,7 +82,7 @@ export default function TemplatesPage() {
           <p className="mt-2 text-xs text-gray-600">Create your first template to get started.</p>
           <Link
             href="/app/templates/new"
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary/90"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
           >
             Create Template
           </Link>

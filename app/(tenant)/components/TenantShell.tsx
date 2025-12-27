@@ -296,7 +296,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">{error}</p>
           <button
             onClick={refresh}
-            className="mt-6 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow hover:bg-accent/90"
+            className="mt-6 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow hover:bg-accent/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
           >
             Try again
           </button>
@@ -451,7 +451,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
       >
         <div className="flex items-center justify-center">
           <Link href="/app" className="flex items-center justify-center">
-            <span className="text-xl font-bold text-primary">Brancr.</span>
+            <span className="text-xl font-bold text-primary dark:text-white">Brancr.</span>
           </Link>
           <button
             type="button"
@@ -480,9 +480,9 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <div className={cn("flex items-center justify-center", isSidebarCollapsed && "justify-center")}>
             <Link href="/app" className="flex items-center justify-center">
               {!isSidebarCollapsed ? (
-                <span className="text-xl font-bold text-primary">Brancr.</span>
+                <span className="text-xl font-bold text-primary dark:text-white">Brancr.</span>
               ) : (
-                <Image src="/logo-dark.svg" alt="Brancr" width={32} height={32} />
+                <Image src="/logo-dark.svg" alt="Brancr" width={32} height={32} className="dark:brightness-0 dark:invert" />
               )}
             </Link>
           </div>

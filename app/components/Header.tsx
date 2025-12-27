@@ -21,7 +21,7 @@ export default function Header() {
               alt="Brancr"
               width={120}
               height={40}
-              className="h-8 w-auto"
+              className="h-8 w-auto dark:brightness-0 dark:invert"
               priority
             />
           </Link>
@@ -51,7 +51,7 @@ export default function Header() {
             <ThemeToggle />
             <Link
               href="/waitlist"
-              className="bg-primary text-white px-6 py-2.5 rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors shadow-sm"
+              className="bg-primary text-white px-6 py-2.5 rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors shadow-sm dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
             >
               Join Waitlist
             </Link>

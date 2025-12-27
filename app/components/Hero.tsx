@@ -44,7 +44,7 @@ export default function Hero() {
           >
             <Link
               href="/waitlist"
-              className="bg-accent text-white px-8 py-4 rounded-lg font-semibold text-base hover:bg-accent/90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full sm:w-auto"
+              className="bg-accent text-white px-8 py-4 rounded-lg font-semibold text-base hover:bg-accent/90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full sm:w-auto dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
             >
               Join Waitlist
             </Link>

@@ -28,8 +28,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         <div className="flex min-h-screen flex-1 flex-col">
           <header className="flex items-center justify-between px-6 py-6 sm:px-10">
-            <Link href="/" className="flex items-center gap-3 text-lg font-semibold text-gray-900">
-              <Image src="/logo-dark.svg" alt="Brancr" width={36} height={36} />
+            <Link href="/" className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-white">
+              <Image src="/logo-dark.svg" alt="Brancr" width={36} height={36} className="dark:brightness-0 dark:invert" />
               Brancr
             </Link>
             <nav className="flex items-center gap-4 text-sm text-gray-600">
