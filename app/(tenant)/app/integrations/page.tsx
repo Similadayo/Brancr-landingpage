@@ -91,6 +91,20 @@ export default function IntegrationsPage() {
   const [connectionStep, setConnectionStep] = useState<ConnectionStep>('select');
   const [showStepper, setShowStepper] = useState(false);
 
+  // Get WhatsApp connection status for phone number
+  const { data: whatsappStatus } = useQuery({
+    queryKey: ["whatsapp-connection-status"],
+    queryFn: async () => {
+      try {
+        return await tenantApi.whatsappConnectionStatus();
+      } catch (error) {
+        return { connected: false };
+      }
+    },
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+
   const whatsappRefreshMutation = useMutation({
     mutationFn: () => tenantApi.whatsappRefreshStatus(),
     onSuccess: (data) => {
@@ -503,14 +517,16 @@ export default function IntegrationsPage() {
                     )}
                   </div>
                   <span className={`badge ${status.badge} shrink-0 text-[10px]`}>
-                    {isWhatsApp && !connected ? "No Number Assigned" : status.label}
+                    {isWhatsApp && connected && (integration?.external_id || whatsappStatus?.phone_number)
+                      ? (integration?.external_id || whatsappStatus?.phone_number || "Connected")
+                      : isWhatsApp && !connected 
+                      ? "No Number Assigned" 
+                      : status.label}
                   </span>
                 </div>
 
                 {/* Platform Details */}
-                {isWhatsApp && connected && integration?.external_id ? (
-                  <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">Number: {integration.external_id}</p>
-                ) : platform === "facebook" && connected && integration?.page_name ? (
+                {platform === "facebook" && connected && integration?.page_name ? (
                   <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">{integration.page_name}</p>
                 ) : platform === "instagram" && connected ? (
                   <div className="mb-3 space-y-1">

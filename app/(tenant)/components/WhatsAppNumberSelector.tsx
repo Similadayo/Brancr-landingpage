@@ -462,14 +462,14 @@ export function WhatsAppNumberSelector() {
   }
 
   return (
-    <div className="whatsapp-connect-container max-w-2xl mx-auto space-y-4">
+    <div className="whatsapp-connect-container space-y-3">
       {error && (
-        <div className="error-banner rounded-xl border border-rose-200 bg-rose-50 p-4">
+        <div className="error-banner rounded-xl border border-rose-200 bg-rose-50 p-3 dark:border-rose-800 dark:bg-rose-900/20">
           <div className="flex items-start justify-between">
-            <p className="text-sm text-rose-900">{error}</p>
+            <p className="text-xs text-rose-900 dark:text-rose-100">{error}</p>
             <button 
               onClick={() => setError(null)}
-              className="ml-4 text-rose-700 hover:text-rose-900"
+              className="ml-4 text-rose-700 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100"
             >
               ✕
             </button>
@@ -478,18 +478,18 @@ export function WhatsAppNumberSelector() {
       )}
 
       {loading && (
-        <div className="loading-state rounded-xl border border-amber-200 bg-amber-50 p-6 text-center">
-          <div className="spinner mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-amber-200 border-t-amber-600"></div>
-          <p className="text-sm font-semibold text-amber-900">
+        <div className="loading-state rounded-xl border border-amber-200 bg-amber-50 p-4 text-center dark:border-amber-800 dark:bg-amber-900/20">
+          <div className="spinner mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-amber-200 border-t-amber-600 dark:border-amber-800 dark:border-t-amber-400"></div>
+          <p className="text-xs font-semibold text-amber-900 dark:text-amber-100">
             {loadingMessage || 'Waiting for WhatsApp onboarding to complete...'}
           </p>
-          <p className="mt-2 text-xs text-amber-700">
+          <p className="mt-1.5 text-xs text-amber-700 dark:text-amber-300">
             Complete the steps in the popup window. This may take a few minutes.
           </p>
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
+          <div className="mt-3 flex flex-wrap justify-center gap-2">
             <button 
               onClick={stopPolling} 
-              className="btn-secondary rounded-lg border border-amber-300 bg-white px-4 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
+              className="btn-secondary rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100 dark:border-amber-700 dark:bg-gray-800 dark:text-amber-300 dark:hover:bg-amber-900/30"
             >
               Cancel
             </button>
@@ -502,7 +502,7 @@ export function WhatsAppNumberSelector() {
                   await refreshConnectionStatus();
                 }
               }}
-              className="btn-primary rounded-lg border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"
+              className="btn-primary rounded-lg border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/20 dark:border-primary/50 dark:bg-primary/20 dark:text-primary dark:hover:bg-primary/30"
             >
               Check Status Now
             </button>
@@ -511,64 +511,30 @@ export function WhatsAppNumberSelector() {
       )}
 
       {connected && (
-        <div className="success-state rounded-xl border border-emerald-200 bg-emerald-50 p-6">
-          <div className="text-center">
-            <div className="success-icon text-3xl mb-2">✅</div>
-            <h3 className="text-sm font-semibold text-emerald-900">WhatsApp Connected!</h3>
-            {phoneNumber && (
-              <p className="mt-2 text-sm font-semibold text-emerald-900">
-                Phone Number: <strong>{formatPhoneNumber(phoneNumber)}</strong>
+        <div className="success-state rounded-xl border border-success-200 bg-success-50 p-4 dark:border-success-800 dark:bg-success-900/20">
+          <div className="flex items-start gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-success-500 text-white">
+              <span className="text-sm">✅</span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-semibold text-success-900 dark:text-success-100">WhatsApp Connected!</h3>
+              <p className="mt-1 text-xs text-success-700 dark:text-success-300">
+                Your WhatsApp Business Account is ready to receive messages.
               </p>
-            )}
-            <p className="mt-2 text-xs text-emerald-700">
-              Your WhatsApp Business Account is ready to receive messages.
-            </p>
-          </div>
-          
-          {/* Provider-specific information */}
-          {connectionStatus?.provider === 'gupshup_partner' && (
-            <div className="mt-4 p-3 bg-emerald-100 border border-emerald-200 rounded-lg">
-              <p className="text-xs font-semibold text-emerald-800">
-                ✅ Connected
-              </p>
-              {connectionStatus.app_id && (
-                <p className="mt-1 text-xs text-emerald-700">
+              
+              {/* Provider-specific information */}
+              {connectionStatus?.provider === 'gupshup_partner' && connectionStatus.app_id && (
+                <p className="mt-2 text-xs text-success-600 dark:text-success-400">
                   App ID: {connectionStatus.app_id}
                 </p>
               )}
-            </div>
-          )}
-          
-          {connectionStatus?.provider === 'meta_embedded' && (
-            <div className="mt-4 p-3 bg-emerald-100 border border-emerald-200 rounded-lg">
-              <p className="text-xs font-semibold text-emerald-800">
-                ✅ Connected via Meta Embedded Signup
-              </p>
-              {connectionStatus.external_id && (
-                <p className="mt-1 text-xs text-emerald-700">
+              
+              {connectionStatus?.provider === 'meta_embedded' && connectionStatus.external_id && (
+                <p className="mt-2 text-xs text-success-600 dark:text-success-400">
                   External ID: {connectionStatus.external_id}
                 </p>
               )}
             </div>
-          )}
-          
-          {connectionStatus?.provider === 'respondio' && (
-            <div className="mt-4 p-3 bg-emerald-100 border border-emerald-200 rounded-lg">
-              <p className="text-xs font-semibold text-emerald-800">
-                ✅ Connected via Respond.io
-              </p>
-            </div>
-          )}
-          
-
-          
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <button
-              onClick={handleDisconnect}
-              className="rounded-lg border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-50"
-            >
-              Disconnect
-            </button>
           </div>
         </div>
       )}
@@ -576,9 +542,9 @@ export function WhatsAppNumberSelector() {
 
 
       {!loading && !connected && (
-        <div className="connect-prompt rounded-xl border border-gray-200 bg-gray-50 p-6">
-          <h2 className="text-sm font-semibold text-gray-900 mb-2">Connect WhatsApp</h2>
-          <p className="text-xs text-gray-600 mb-4">
+        <div className="connect-prompt rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Connect WhatsApp</h2>
+          <p className="text-xs text-gray-600 dark:text-gray-300 mb-4">
             Connect your WhatsApp Business Account. Each tenant gets their own WhatsApp number.
           </p>
           
@@ -587,7 +553,7 @@ export function WhatsAppNumberSelector() {
               <button 
                 type="submit"
                 disabled={loading}
-                className="btn-primary flex-1 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
+                className="btn-primary flex-1 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50 dark:border-primary/50 dark:bg-primary/20 dark:text-primary dark:hover:bg-primary/30"
               >
                 Connect to WhatsApp
               </button>
@@ -595,14 +561,6 @@ export function WhatsAppNumberSelector() {
           </form>
         </div>
       )}
-
-      {/* Billing info */}
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-        <p className="text-xs font-semibold text-emerald-900">💳 Billing: Handled by Brancr</p>
-        <p className="mt-1 text-xs text-emerald-700">
-          WhatsApp usage charges appear on your Brancr invoice.
-        </p>
-      </div>
     </div>
   );
 }
