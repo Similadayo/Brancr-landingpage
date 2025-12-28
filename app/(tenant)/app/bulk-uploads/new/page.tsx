@@ -581,7 +581,7 @@ export default function NewBulkUploadPage() {
                     type="button"
                     onClick={handleGenerateCaptions}
                     disabled={isGeneratingCaptions}
-                    className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50"
+                    className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
                   >
                     {isGeneratingCaptions ? "Generating..." : "Generate Captions"}
                   </button>
@@ -775,7 +775,7 @@ export default function NewBulkUploadPage() {
             type="button"
             onClick={handleNext}
             disabled={!canNext}
-            className="min-h-[44px] flex-1 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+            className="min-h-[44px] flex-1 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
           >
             Next →
           </button>
@@ -795,7 +795,7 @@ export default function NewBulkUploadPage() {
             type="button"
             onClick={handleCreateBulkUpload}
             disabled={!canNext || isSubmitting}
-            className="min-h-[44px] flex-1 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+            className="min-h-[44px] flex-1 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
           >
             {isSubmitting ? "Creating..." : "Create Bulk Upload"}
         </button>

@@ -290,7 +290,7 @@ export default function CampaignsPage() {
                 <div className="mt-1 text-xs text-gray-600 line-clamp-2">{d.content?.caption ? d.content.caption.split('\n')[0].slice(0,200) : '(no caption)'}</div>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => void handleRestore(d.id, d)} className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90">Restore</button>
+                <button onClick={() => void handleRestore(d.id, d)} className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100">Restore</button>
                 <button onClick={() => void handleDelete(d.id, d)} disabled={deletingId === d.id} className="rounded-md border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50">{deletingId===d.id ? 'Deleting…' : 'Delete'}</button>
               </div>
             </li>
@@ -354,7 +354,7 @@ export default function CampaignsPage() {
             onClick={() => setActiveTab("scheduled")}
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "scheduled"
-                ? "bg-accent text-white shadow-md"
+                ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-900"
                 : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
             }`}
           >
@@ -370,7 +370,7 @@ export default function CampaignsPage() {
             onClick={() => setActiveTab("published")}
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "published"
-                ? "bg-accent text-white shadow-md"
+                ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-900"
                 : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
             }`}
           >
@@ -386,7 +386,7 @@ export default function CampaignsPage() {
             onClick={() => setActiveTab("drafts")}
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "drafts"
-                ? "bg-accent text-white shadow-md"
+                ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-900"
                 : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
             }`}
           >

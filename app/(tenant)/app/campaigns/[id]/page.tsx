@@ -79,7 +79,7 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
           </p>
           <Link
             href="/app/campaigns"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
           >
             <ChevronLeftIcon className="h-4 w-4" />
             Back to Campaigns

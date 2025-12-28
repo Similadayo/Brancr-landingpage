@@ -189,7 +189,7 @@ export default function MediaLibraryPage() {
             <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setIsUploadOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
           >
             <PlusIcon className="w-4 h-4" />
             Upload Media
@@ -372,7 +372,7 @@ export default function MediaLibraryPage() {
           <p className="mt-2 text-sm text-gray-600">Upload your first image or video to get started.</p>
           <button
             onClick={() => setIsUploadOpen(true)}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
           >
             <PlusIcon className="w-4 h-4" />
             Upload Media
@@ -660,7 +660,7 @@ export default function MediaLibraryPage() {
                 />
                 <label
                   htmlFor="file-upload"
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
                 >
                   <PlusIcon className="h-4 w-4" />
                   Select Files

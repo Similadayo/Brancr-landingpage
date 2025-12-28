@@ -205,7 +205,7 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={updateProfileMutation.isPending}
-                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
                   >
                     {updateProfileMutation.isPending ? (
                       <>
@@ -330,7 +330,7 @@ export default function SettingsPage() {
             </div>
 
             <div className="flex justify-end">
-              <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90">
+              <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100">
                 <CheckCircleIcon className="h-4 w-4" />
                 Save Preferences
               </button>

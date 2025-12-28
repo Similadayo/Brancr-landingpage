@@ -189,7 +189,7 @@ export default function MenuItemsPage() {
           )}
           <Link
             href="/app/menu-items/quick-add"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
           >
             <PlusIcon className="w-4 h-4" />
             Quick Add / Import
@@ -326,7 +326,7 @@ export default function MenuItemsPage() {
           <p className="mt-4 text-lg font-semibold text-gray-900">No menu items found</p>
           <Link
             href="/app/menu-items/new"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
           >
             <PlusIcon className="w-4 h-4" />
             Add Menu Item

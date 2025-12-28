@@ -449,7 +449,7 @@ export default function NewPostPage() {
                     </div>
                   ), { duration: 8000 });
                 }}
-                className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90"
+                className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
               >
                 Restore
               </button>
@@ -592,7 +592,7 @@ export default function NewPostPage() {
                   setRemoteDraftAvailable(null);
                   toast.success('Remote draft restored');
                 }}
-                className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-primary/90"
+                className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
               >
                 Restore remote
               </button>
@@ -741,7 +741,7 @@ export default function NewPostPage() {
             type="button"
             onClick={handleNext}
             disabled={!canNext}
-            className="min-h-[44px] flex-1 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 focus:outline-none focus:ring-4 focus:ring-primary/20"
+            className="min-h-[44px] flex-1 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 focus:outline-none focus:ring-4 focus:ring-primary/20 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
             aria-label="Go to next step"
           >
             Next →

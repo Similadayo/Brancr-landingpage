@@ -374,7 +374,7 @@ export default function InboxPage() {
                     key={tab}
                     className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                       isActive
-                        ? "bg-accent text-white shadow-sm"
+                        ? "bg-accent text-white shadow-sm dark:bg-white dark:text-gray-900"
                         : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                     }`}
                     onClick={() => setActiveStatusFilter(tab)}
@@ -685,7 +685,7 @@ export default function InboxPage() {
                           className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-sm ${
                             isIncoming
                               ? "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
-                              : "bg-accent text-white"
+                              : "bg-accent text-white dark:bg-white dark:text-gray-900"
                           }`}
                           role="article"
                           aria-label={`${isIncoming ? 'Incoming' : 'Outgoing'} message`}

@@ -386,7 +386,7 @@ export default function IntegrationsPage() {
                             isCompleted
                               ? 'border-success-500 bg-success-500 text-white'
                               : isActive
-                              ? 'border-accent-500 bg-accent-500 text-white'
+                              ? 'border-accent-500 bg-accent-500 text-white dark:bg-white dark:text-gray-900 dark:border-white'
                               : isAccessible
                               ? 'border-gray-300 bg-white text-gray-400 dark:border-gray-600 dark:bg-gray-800'
                               : 'border-gray-200 bg-gray-50 text-gray-300 dark:border-gray-700 dark:bg-gray-800/50'

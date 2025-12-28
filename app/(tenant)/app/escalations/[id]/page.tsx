@@ -238,7 +238,7 @@ export default function EscalationDetailPage() {
               <button
                 onClick={() => void handleSendCustom()}
                 disabled={sendReplyMutation.isPending || !replyText.trim()}
-                className="rounded-xl border border-primary bg-white px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-xl border border-primary bg-white px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white dark:bg-transparent dark:text-white dark:hover:bg-white/10"
               >
                 {sendReplyMutation.isPending ? "Sending..." : isEditing ? "Send Edited Reply" : "Send Custom Reply"}
               </button>

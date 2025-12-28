@@ -340,7 +340,7 @@ export default function CalendarPage() {
                   <p className="mt-1 text-xs text-gray-500">Schedule a post for this day</p>
                   <Link
                     href="/app/posts/new"
-                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
                   >
                     <PlusIcon className="w-4 h-4" />
                     Create Post
@@ -413,7 +413,7 @@ export default function CalendarPage() {
               </button>
               <Link
                 href="/app/posts/new"
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
               >
                 <PlusIcon className="w-4 h-4" />
                 Schedule Post
