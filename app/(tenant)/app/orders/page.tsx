@@ -14,12 +14,15 @@ import {
   ClockIcon,
 } from "../../components/icons";
 import Select from "../../components/ui/Select";
+import { Pagination } from "../../components/ui/Pagination";
 import { toast } from "react-hot-toast";
 
 export default function OrdersPage() {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [platformFilter, setPlatformFilter] = useState<string | undefined>(undefined);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
   const queryClient = useQueryClient();
   const lastOrderIdRef = useRef<number | null>(null);
   const [newOrderIds, setNewOrderIds] = useState<Set<number>>(new Set());
@@ -113,6 +116,18 @@ export default function OrdersPage() {
         order.payment_reference.toLowerCase().includes(lowerQuery)
     );
   }, [orders, query]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const paginatedOrders = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredOrders.slice(start, start + itemsPerPage);
+  }, [filteredOrders, currentPage, itemsPerPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query, statusFilter, platformFilter]);
 
   const getStatusBadge = (status: Order["status"]) => {
     switch (status) {
@@ -346,7 +361,7 @@ export default function OrdersPage() {
           </div>
 
           <div className="divide-y divide-gray-100 dark:divide-gray-700">
-            {filteredOrders.map((order) => {
+            {paginatedOrders.map((order) => {
               const isNew = isNewOrder(order);
               const autoCreated = isAutoCreated(order);
               const itemCount = order.items?.length ?? 0;

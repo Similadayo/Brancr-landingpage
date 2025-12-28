@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { useEscalations, useEscalationStats, type Escalation } from "@/app/(tenant)/hooks/useEscalations";
 import {
@@ -13,6 +13,7 @@ import {
   ArrowRightIcon,
 } from "../../components/icons";
 import Select from "@/app/(tenant)/components/ui/Select";
+import { Pagination } from "@/app/(tenant)/components/ui/Pagination";
 
 const PRIORITY_BADGES: Record<string, string> = {
   low: "badge-gray",
@@ -51,6 +52,8 @@ export default function EscalationsPage() {
   const [platformFilter, setPlatformFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"newest" | "priority">("newest");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const apiParams = useMemo(() => {
     const params: { priority?: "low" | "normal" | "high" | "urgent" | "critical"; limit?: number } = { limit: 50 };
@@ -94,6 +97,18 @@ export default function EscalationsPage() {
     }
     return filtered;
   }, [escalations, platformFilter, sortBy, searchQuery]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredEscalations.length / itemsPerPage);
+  const paginatedEscalations = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredEscalations.slice(start, start + itemsPerPage);
+  }, [filteredEscalations, currentPage, itemsPerPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [priorityFilter, platformFilter, sortBy, searchQuery]);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -270,57 +285,116 @@ export default function EscalationsPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {filteredEscalations.map((escalation) => (
-            <EscalationCard key={escalation.id} escalation={escalation} />
-          ))}
-        </div>
+        <>
+          <div className="space-y-3">
+            {paginatedEscalations.map((escalation) => (
+              <EscalationCard key={escalation.id} escalation={escalation} />
+            ))}
+          </div>
+          
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                itemsPerPage={itemsPerPage}
+                totalItems={filteredEscalations.length}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 }
 
 function EscalationCard({ escalation }: { escalation: Escalation }) {
+  const priorityColors: Record<string, string> = {
+    critical: 'border-l-4 border-red-500 bg-red-50/50 dark:bg-red-900/10',
+    urgent: 'border-l-4 border-orange-500 bg-orange-50/50 dark:bg-orange-900/10',
+    high: 'border-l-4 border-yellow-500 bg-yellow-50/50 dark:bg-yellow-900/10',
+    normal: 'border-l-4 border-blue-500 bg-blue-50/50 dark:bg-blue-900/10',
+    low: 'border-l-4 border-gray-300 bg-gray-50/50 dark:bg-gray-800/50',
+  };
+
+  const confidenceColor = escalation.confidence >= 0.9 
+    ? 'text-green-600 dark:text-green-400' 
+    : escalation.confidence >= 0.7 
+    ? 'text-yellow-600 dark:text-yellow-400' 
+    : 'text-orange-600 dark:text-orange-400';
+
   return (
     <Link
       href={`/app/escalations/${escalation.id}`}
-      className="card group p-5 transition-all hover:shadow-lg sm:p-6"
+      className={`card group relative overflow-hidden p-5 transition-all hover:shadow-lg sm:p-6 ${priorityColors[escalation.priority] ?? priorityColors.normal}`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-start gap-3 sm:gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent-500 to-accent-600 text-sm font-semibold text-white shadow-md sm:h-12 sm:w-12">
+            {/* Avatar */}
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent-500 to-accent-600 text-sm font-semibold text-white shadow-md ring-2 ring-white dark:ring-gray-800">
               {escalation.customerName.charAt(0).toUpperCase()}
             </div>
+            
+            {/* Content */}
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 sm:text-lg">{escalation.customerName}</h3>
-                {escalation.customerUsername && (
-                  <span className="text-xs text-gray-500 dark:text-gray-300">@{escalation.customerUsername}</span>
-                )}
+              {/* Header: Customer name and priority */}
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 sm:text-lg">
+                      {escalation.customerName}
+                    </h3>
+                    {escalation.customerUsername && (
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        @{escalation.customerUsername}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <span className={`badge ${PRIORITY_BADGES[escalation.priority] ?? "badge-gray"} text-xs font-semibold shrink-0`}>
+                  {escalation.priority.toUpperCase()}
+                </span>
               </div>
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <span className={`badge ${PLATFORM_BADGES[escalation.platform.toLowerCase()] ?? "badge-gray"} text-[10px]`}>
+
+              {/* Platform and metadata */}
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span className={`badge ${PLATFORM_BADGES[escalation.platform.toLowerCase()] ?? "badge-gray"} text-xs`}>
                   {escalation.platform}
                 </span>
-                <span className={`badge ${PRIORITY_BADGES[escalation.priority] ?? "badge-gray"} text-[10px]`}>
-                  {escalation.priority}
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {formatTimeAgo(escalation.createdAt)}
                 </span>
-                <span className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-400">
-                  {escalation.intent} • {escalation.tone}
+                <span className={`text-xs font-semibold ${confidenceColor}`}>
+                  {Math.round(escalation.confidence * 100)}% confidence
                 </span>
               </div>
-              <p className="mt-3 line-clamp-2 text-sm text-gray-700 dark:text-gray-300">{escalation.message}</p>
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-300">
-                <span>AI Confidence: <span className="font-semibold">{Math.round(escalation.confidence * 100)}%</span></span>
-                <span>•</span>
-                <span>{formatTimeAgo(escalation.createdAt)}</span>
+
+              {/* Message preview */}
+              <div className="mb-3">
+                <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2 leading-relaxed">
+                  {escalation.message}
+                </p>
+              </div>
+
+              {/* Intent and tone tags */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 px-2 py-1 text-[10px] font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                  <span className="font-semibold">Intent:</span> {escalation.intent}
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 px-2 py-1 text-[10px] font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                  <span className="font-semibold">Tone:</span> {escalation.tone}
+                </span>
               </div>
             </div>
           </div>
         </div>
-        <div className="flex shrink-0 items-center">
-          <ArrowRightIcon className="h-5 w-5 text-gray-400 transition-transform group-hover:text-accent group-hover:translate-x-1 dark:text-gray-400" />
+        
+        {/* Arrow indicator */}
+        <div className="flex shrink-0 items-center pt-1">
+          <ArrowRightIcon className="h-5 w-5 text-gray-400 transition-transform group-hover:text-primary group-hover:translate-x-1 dark:text-gray-400" />
         </div>
       </div>
     </Link>

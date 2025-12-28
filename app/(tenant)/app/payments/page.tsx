@@ -1,15 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { usePayments, useVerifyPayment, useDisputePayment, type Payment } from "../../hooks/usePayments";
 import { MagnifyingGlassIcon, FunnelIcon, CreditCardIcon, XIcon, CheckCircleIcon, AlertIcon } from "../../components/icons";
 import { ReceiptSection } from "../../components/ReceiptSection";
 import Select from "../../components/ui/Select";
+import { Pagination } from "../../components/ui/Pagination";
 
 export default function PaymentsPage() {
 	const [query, setQuery] = useState("");
 	const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
 	const [verificationFilter, setVerificationFilter] = useState<string | undefined>(undefined);
+	const [currentPage, setCurrentPage] = useState(1);
+	const itemsPerPage = 20;
 	const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
 	const [showVerifyModal, setShowVerifyModal] = useState(false);
 	const [showDisputeModal, setShowDisputeModal] = useState(false);
@@ -39,6 +42,18 @@ export default function PaymentsPage() {
 				payment.customer_name.toLowerCase().includes(lowerQuery)
 		);
 	}, [payments, query]);
+
+	// Pagination
+	const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
+	const paginatedPayments = useMemo(() => {
+		const start = (currentPage - 1) * itemsPerPage;
+		return filteredPayments.slice(start, start + itemsPerPage);
+	}, [filteredPayments, currentPage, itemsPerPage]);
+
+	// Reset to page 1 when filters change
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [query, statusFilter, verificationFilter]);
 
 	const getStatusBadge = (status: Payment["status"]) => {
 		switch (status) {
@@ -291,7 +306,7 @@ export default function PaymentsPage() {
 					</div>
 
 					<div className="divide-y divide-gray-100 dark:divide-gray-700">
-						{filteredPayments.map((payment) => {
+						{paginatedPayments.map((payment) => {
 							const canAct = payment.verification_status === "pending";
 							const showReceiptActions = Boolean(payment.receipt_url) || !["pending", "disputed", "failed"].includes(payment.status);
 							return (
@@ -449,6 +464,19 @@ export default function PaymentsPage() {
 							);
 						})}
 					</div>
+					
+					{/* Pagination */}
+					{totalPages > 1 && (
+						<div className="mt-6">
+							<Pagination
+								currentPage={currentPage}
+								totalPages={totalPages}
+								onPageChange={setCurrentPage}
+								itemsPerPage={itemsPerPage}
+								totalItems={filteredPayments.length}
+							/>
+						</div>
+					)}
 				</div>
 			)}
 
