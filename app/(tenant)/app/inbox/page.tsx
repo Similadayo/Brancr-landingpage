@@ -357,15 +357,15 @@ export default function InboxPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-120px)] -mx-4 -mt-2 -mb-8 overflow-hidden bg-white dark:bg-gray-900 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] md:-mx-6">
+    <div className="h-[calc(100vh-120px)] -mx-4 -mt-2 -mb-8 overflow-hidden bg-white dark:bg-gray-700 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] md:-mx-6">
       {/* Main Content - Three Panel Layout */}
       <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
         {/* Left Panel - Conversation List */}
-        <section className={`flex flex-col h-full border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-transform duration-300 overflow-hidden ${
+        <section className={`flex flex-col h-full border-r border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 transition-transform duration-300 overflow-hidden ${
           mobileView === "chat" ? "hidden md:flex" : "flex"
         }`}>
           {/* Status Tabs */}
-          <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 md:px-4 md:py-2.5">
+          <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 md:px-4 md:py-2.5">
             <div className="flex gap-1 flex-wrap">
               {STATUS_FILTERS.map((tab) => {
                 const isActive = activeStatusFilter === tab || (tab === "All" && activeStatusFilter === "All");
@@ -374,7 +374,7 @@ export default function InboxPage() {
                     key={tab}
                     className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                       isActive
-                        ? "bg-accent text-white shadow-sm dark:bg-white dark:text-gray-900"
+                        ? "bg-accent text-white shadow-sm dark:bg-white dark:text-gray-100"
                         : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                     }`}
                     onClick={() => setActiveStatusFilter(tab)}
@@ -388,13 +388,13 @@ export default function InboxPage() {
 
           {/* Platform Filters */}
           {availablePlatforms.length > 0 && (
-            <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 md:px-4 md:py-2.5">
+            <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 md:px-4 md:py-2.5">
               <div className="flex gap-1.5 flex-wrap">
                 <button
                   className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                     activePlatformFilter === "All"
                       ? "bg-accent/10 dark:bg-accent/20 text-accent dark:text-accent-400 border border-accent/20 dark:border-accent/30"
-                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
                   }`}
                   onClick={() => setActivePlatformFilter("All")}
                 >
@@ -422,7 +422,7 @@ export default function InboxPage() {
                       className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                         isActive
                           ? "bg-accent/10 dark:bg-accent/20 text-accent dark:text-accent-400 border border-accent/20 dark:border-accent/30"
-                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
+                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
                       }`}
                       onClick={() => setActivePlatformFilter(platform)}
                     >
@@ -436,7 +436,7 @@ export default function InboxPage() {
           )}
           
           {/* Search */}
-          <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 md:px-4 md:py-2.5">
+          <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 md:px-4 md:py-2.5">
             <div className="relative">
               <MagnifyingGlassIcon
                 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
@@ -478,7 +478,7 @@ export default function InboxPage() {
                 </button>
               </div>
             ) : sortedConversations.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-6 md:p-8 text-center m-3">
+              <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 p-6 md:p-8 text-center m-3">
                 <InboxIcon className="mx-auto h-10 w-10 md:h-12 md:w-12 text-gray-400 dark:text-gray-400" />
                 <p className="mt-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                   {searchQuery || activeStatusFilter !== "All"
@@ -533,7 +533,7 @@ export default function InboxPage() {
                             </div>
                           )}
                           {/* Platform icon badge */}
-                          <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white dark:bg-gray-800 border-2 border-white dark:border-gray-800">
+                          <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white dark:bg-gray-700 border-2 border-white dark:border-gray-600">
                             <PlatformIcon className="h-3 w-3 text-gray-600 dark:text-gray-300" />
                           </div>
                         </div>
@@ -573,13 +573,13 @@ export default function InboxPage() {
         </section>
 
         {/* Center Panel - Chat Conversation */}
-        <section className={`flex h-full flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-transform duration-300 overflow-hidden ${
+        <section className={`flex h-full flex-col bg-white dark:bg-gray-700 border-r border-gray-200 dark:border-gray-600 transition-transform duration-300 overflow-hidden ${
           mobileView === "list" ? "hidden md:flex" : "flex"
         }`}>
           {activeConversation ? (
             <>
               {/* Chat Header - Fixed */}
-              <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 z-10">
+              <header className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3 z-10">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {/* Back button - Mobile only */}
                   {mobileView === "chat" && (
@@ -684,8 +684,8 @@ export default function InboxPage() {
                         <div
                           className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-sm ${
                             isIncoming
-                              ? "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
-                              : "bg-accent text-white dark:bg-white dark:text-gray-900"
+                              ? "bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600"
+                              : "bg-accent text-white dark:bg-white dark:text-gray-100"
                           }`}
                           role="article"
                           aria-label={`${isIncoming ? 'Incoming' : 'Outgoing'} message`}
@@ -735,7 +735,7 @@ export default function InboxPage() {
               </div>
 
               {/* Message Input - Fixed */}
-              <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 z-10">
+              <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3 z-10">
                 <div className="flex items-end gap-2">
                   <div className="relative">
                     <button 
@@ -849,7 +849,7 @@ export default function InboxPage() {
         </section>
 
         {/* Right Panel - Analytics or Chat Details */}
-        <aside className={`hidden md:flex flex-col h-full border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-transform duration-300 overflow-hidden ${
+        <aside className={`hidden md:flex flex-col h-full border-l border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 transition-transform duration-300 overflow-hidden ${
           mobileView === "list" ? "hidden" : ""
         }`}>
           {activeConversation ? (
@@ -863,7 +863,7 @@ export default function InboxPage() {
                   return (
                     <>
                       {/* Header - Fixed */}
-                      <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3">
+                      <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3">
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Platform Analytics</h3>
                       </div>
                       {/* Analytics Content - Scrollable */}
@@ -878,7 +878,7 @@ export default function InboxPage() {
                   return (
                     <>
                       {/* Header - Fixed */}
-                      <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3">
+                      <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3">
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Chat Details</h3>
                       </div>
                       {/* Content - Scrollable */}
@@ -917,7 +917,7 @@ export default function InboxPage() {
                             <button className="btn-primary text-xs flex-1">
                               Call
                             </button>
-                            <button className="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                            <button className="flex-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
                               Chat
                             </button>
                           </div>

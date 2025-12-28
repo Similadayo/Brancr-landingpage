@@ -235,7 +235,7 @@ export default function NewTemplatePage() {
                       <div className="flex flex-col items-center gap-2">
                         <div
                           className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                            isSelected ? "bg-primary text-white dark:bg-white dark:text-gray-900" : "bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500"
+                            isSelected ? "bg-primary text-white dark:bg-white dark:text-gray-100" : "bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500"
                           }`}
                         >
                           {isSelected ? (
@@ -264,7 +264,7 @@ export default function NewTemplatePage() {
           <button
             type="submit"
             disabled={createMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
           >
             {createMutation.isPending ? (
               <>

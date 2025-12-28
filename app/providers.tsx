@@ -44,7 +44,7 @@ export function Providers({ children }: ProvidersProps) {
         <Toaster
           position="top-right"
           toastOptions={{
-            className: "rounded-xl border border-gray-200 bg-white text-gray-900 shadow-lg shadow-primary/10 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100",
+            className: "rounded-xl border border-gray-200 bg-white text-gray-900 shadow-lg shadow-primary/10 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100",
           }}
         />
       </QueryClientProvider>

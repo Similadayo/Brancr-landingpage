@@ -22,7 +22,7 @@ export default function CTA() {
           </p>
           <Link
             href="/waitlist"
-            className="inline-block bg-accent text-white px-10 py-4 rounded-lg font-semibold text-lg hover:bg-accent/90 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 mb-4 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+            className="inline-block bg-accent text-white px-10 py-4 rounded-lg font-semibold text-lg hover:bg-accent/90 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 mb-4 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
           >
             Join the Waitlist Now
           </Link>

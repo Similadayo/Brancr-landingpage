@@ -243,7 +243,7 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-full z-[100] mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl ring-1 ring-black/5 min-w-[200px] max-w-[400px] dark:border-gray-600 dark:bg-gray-800">
+        <div className="absolute left-0 right-0 top-full z-[100] mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl ring-1 ring-black/5 min-w-[200px] max-w-[400px] dark:border-gray-600 dark:bg-gray-700">
           {searchable && (
             <div className="border-b border-gray-100 p-2">
               <input

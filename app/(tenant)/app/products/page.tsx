@@ -133,7 +133,7 @@ export default function ProductsPage() {
         />
       )}
       {/* Modern Hero Section */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-700 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-600 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
         <div className="absolute inset-0 opacity-10 dark:opacity-20">
           <div className="absolute inset-0 dark:hidden" style={{
             backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
@@ -177,7 +177,7 @@ export default function ProductsPage() {
           )}
           <Link
             href="/app/products/quick-add"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm sm:shadow-md dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm sm:shadow-md dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
           >
             <PlusIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Quick Add / Import
@@ -301,7 +301,7 @@ export default function ProductsPage() {
           <p className="mt-2 text-xs text-gray-600 sm:text-sm">Add your first product to get started.</p>
           <Link
             href="/app/products/quick-add"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 sm:mt-6 sm:px-6 sm:py-3 sm:text-sm sm:shadow-md dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 active:scale-95 sm:mt-6 sm:px-6 sm:py-3 sm:text-sm sm:shadow-md dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
           >
             <PlusIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Quick Add / Import products

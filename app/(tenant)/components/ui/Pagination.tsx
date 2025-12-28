@@ -77,7 +77,7 @@ export function Pagination({
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-primary"
+          className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-primary"
           aria-label="Previous page"
         >
           <ChevronLeftIcon className="h-4 w-4" />
@@ -107,8 +107,8 @@ export function Pagination({
                 className={cn(
                   'min-w-[36px] rounded-lg px-3 py-2 text-sm font-medium transition',
                   isActive
-                    ? 'bg-primary text-white shadow-sm dark:bg-white dark:text-gray-900'
-                    : 'border border-gray-200 bg-white text-gray-700 hover:border-primary hover:text-primary dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-primary'
+                    ? 'bg-primary text-white shadow-sm dark:bg-white dark:text-gray-100'
+                    : 'border border-gray-200 bg-white text-gray-700 hover:border-primary hover:text-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-primary'
                 )}
                 aria-label={`Go to page ${pageNum}`}
                 aria-current={isActive ? 'page' : undefined}
@@ -122,7 +122,7 @@ export function Pagination({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-primary"
+          className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-primary"
           aria-label="Next page"
         >
           <span className="hidden sm:inline">Next</span>

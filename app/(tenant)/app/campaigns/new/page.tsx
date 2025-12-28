@@ -79,7 +79,7 @@ export default function NewCampaignPage() {
             <button
               type="button"
               disabled
-              className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white opacity-50 cursor-not-allowed dark:bg-white dark:text-gray-900"
+              className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white opacity-50 cursor-not-allowed dark:bg-white dark:text-gray-100"
             >
               Create Campaign
             </button>

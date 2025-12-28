@@ -145,15 +145,15 @@ body {
 
 /* Basic dark theme refinements */
 html.dark body {
-  background-color: #111827;
+  background-color: #1F2937;
   color: #F9FAFB;
 }
-html.dark .bg-white { background-color: #1F2937 !important; }
-html.dark .bg-white\/70 { background-color: rgba(31,41,55,0.7) !important; }
-html.dark .bg-white\/80 { background-color: rgba(31,41,55,0.8) !important; }
-html.dark .bg-gray-50 { background-color: #1F2937 !important; }
-html.dark .bg-gray-100 { background-color: #374151 !important; }
-html.dark .bg-neutral-bg { background-color: #111827 !important; }
+html.dark .bg-white { background-color: #374151 !important; }
+html.dark .bg-white\/70 { background-color: rgba(55,65,81,0.7) !important; }
+html.dark .bg-white\/80 { background-color: rgba(55,65,81,0.8) !important; }
+html.dark .bg-gray-50 { background-color: #374151 !important; }
+html.dark .bg-gray-100 { background-color: #4B5563 !important; }
+html.dark .bg-neutral-bg { background-color: #1F2937 !important; }
 
 @layer utilities {
   .text-balance {
@@ -171,7 +171,7 @@ html.dark .bg-neutral-bg { background-color: #111827 !important; }
   /* Modern Card Styles */
   .card {
     @apply rounded-2xl border border-gray-200 bg-white shadow-soft transition-all duration-200;
-    @apply dark:border-gray-700 dark:bg-gray-800;
+    @apply dark:border-gray-600 dark:bg-gray-700;
   }
   
   .card-hover {
@@ -189,7 +189,7 @@ html.dark .bg-neutral-bg { background-color: #111827 !important; }
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-all duration-200;
     @apply hover:border-accent hover:text-accent hover:shadow-md active:scale-[0.98];
-    @apply dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-accent;
+    @apply dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:border-accent;
     @apply disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100;
   }
 
@@ -215,7 +215,7 @@ html.dark .bg-neutral-bg { background-color: #111827 !important; }
   .stat-card {
     @apply relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-soft transition-all duration-300;
     @apply hover:border-accent/30 hover:shadow-medium;
-    @apply dark:border-gray-700 dark:bg-gray-800;
+    @apply dark:border-gray-600 dark:bg-gray-700;
   }
 
   /* Badge Styles */
@@ -264,7 +264,7 @@ html.dark .bg-neutral-bg { background-color: #111827 !important; }
 
   .modal-content {
     @apply w-full max-w-md rounded-2xl border border-gray-200 bg-white p-4 shadow-large;
-    @apply dark:border-gray-700 dark:bg-gray-800;
+    @apply dark:border-gray-600 dark:bg-gray-700;
     @apply sm:p-6;
     @apply max-h-[calc(100vh-2rem)] overflow-y-auto;
   }
@@ -277,7 +277,7 @@ html.dark .bg-neutral-bg { background-color: #111827 !important; }
   .search-input {
     @apply w-full h-11 rounded-xl border border-gray-200 bg-white pl-11 pr-4 text-sm text-gray-900 placeholder:text-gray-500 transition-all duration-200;
     @apply hover:border-gray-300 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20;
-    @apply dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-400;
+    @apply dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400;
     @apply sm:h-11;
   }
 

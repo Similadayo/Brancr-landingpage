@@ -69,7 +69,7 @@ export function ErrorState({
         <div className="mt-6">
           <button 
             onClick={retryAction.onClick} 
-            className="btn-primary dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+            className="btn-primary dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
           >
             {retryAction.label}
           </button>

@@ -281,7 +281,7 @@ export default function NotificationSettingsPage() {
         <button
           onClick={handleSave}
           disabled={updateMutation.isPending || comingSoon}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
         >
           {updateMutation.isPending ? 'Saving...' : 'Save Settings'}
         </button>

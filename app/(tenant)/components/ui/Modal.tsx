@@ -68,7 +68,7 @@ export function Modal({
       {/* Modal */}
       <div
         className={cn(
-          'relative z-50 w-full rounded-2xl bg-white shadow-2xl dark:bg-gray-800',
+          'relative z-50 w-full rounded-2xl bg-white shadow-2xl dark:bg-gray-700',
           sizeClasses[size],
           'max-h-[90vh] overflow-hidden',
           className
@@ -95,7 +95,7 @@ interface ModalHeaderProps {
 
 export function ModalHeader({ children, onClose, className }: ModalHeaderProps) {
   return (
-    <div className={cn('flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700', className)}>
+    <div className={cn('flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-600', className)}>
       <div className="flex-1">{children}</div>
       {onClose && (
         <button
@@ -145,7 +145,7 @@ interface ModalFooterProps {
 
 export function ModalFooter({ children, className }: ModalFooterProps) {
   return (
-    <div className={cn('flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700', className)}>
+    <div className={cn('flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-600', className)}>
       {children}
     </div>
   );

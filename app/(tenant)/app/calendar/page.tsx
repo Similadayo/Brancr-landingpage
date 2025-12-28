@@ -117,7 +117,7 @@ export default function CalendarPage() {
   return (
     <div className="space-y-6">
       {/* Modern Hero Section */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-accent via-accent/95 to-accent/90 p-6 shadow-xl dark:border-gray-700 dark:from-accent dark:via-accent/90 dark:to-accent/80 sm:p-8 md:p-10">
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-accent via-accent/95 to-accent/90 p-6 shadow-xl dark:border-gray-600 dark:from-accent dark:via-accent/90 dark:to-accent/80 sm:p-8 md:p-10">
         <div className="absolute inset-0 opacity-10 dark:opacity-20">
           <div className="absolute inset-0 dark:hidden" style={{
             backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
@@ -199,16 +199,16 @@ export default function CalendarPage() {
       {/* Calendar Grid */}
       {viewMode === "month" && (
         <section className="card overflow-hidden p-0">
-          <div className="grid grid-cols-7 gap-px border-b border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-800">
+          <div className="grid grid-cols-7 gap-px border-b border-gray-200 bg-gray-100 dark:border-gray-600 dark:bg-gray-700">
             {/* Day Headers */}
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-              <div key={d} className="bg-gray-50 p-2 text-center text-xs font-semibold text-gray-600 dark:bg-gray-800/50 dark:text-gray-300 sm:p-3">
+              <div key={d} className="bg-gray-50 p-2 text-center text-xs font-semibold text-gray-600 dark:bg-gray-700/50 dark:text-gray-300 sm:p-3">
                 <span className="hidden sm:inline">{d}</span>
                 <span className="sm:hidden">{d.slice(0, 1)}</span>
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-7 gap-px bg-gray-100 dark:bg-gray-800">
+          <div className="grid grid-cols-7 gap-px bg-gray-100 dark:bg-gray-700">
             {/* Calendar Cells */}
             {monthCells.map((d, idx) => {
               const key = d.toISOString().slice(0, 10);
@@ -224,12 +224,12 @@ export default function CalendarPage() {
                       setSelectedDate(d);
                     }
                   }}
-                  className={`min-h-[80px] cursor-pointer bg-white p-2 transition-colors dark:bg-gray-900 sm:min-h-[120px] ${
+                  className={`min-h-[80px] cursor-pointer bg-white p-2 transition-colors dark:bg-gray-700 sm:min-h-[120px] ${
                     isCurrentMonth
                       ? isTodayDate
                         ? "bg-accent/5 ring-2 ring-accent"
                         : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                      : "bg-gray-50/50 opacity-50 dark:bg-gray-800/30"
+                      : "bg-gray-50/50 opacity-50 dark:bg-gray-700/30"
                   }`}
                 >
                 <div className="flex items-center justify-between mb-2">
@@ -259,7 +259,7 @@ export default function CalendarPage() {
                           e.dataTransfer.setData("text/scheduled-time", it.time || "09:00:00");
                         }}
                         onDragOver={(e) => e.preventDefault()}
-                        className="group truncate rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 transition hover:border-accent hover:bg-accent/5 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                        className="group truncate rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 transition hover:border-accent hover:bg-accent/5 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
                         title={draggable ? "Drag to reschedule" : it.name}
                       >
                         <div className="flex items-center gap-1">
@@ -340,7 +340,7 @@ export default function CalendarPage() {
                   <p className="mt-1 text-xs text-gray-500">Schedule a post for this day</p>
                   <Link
                     href="/app/posts/new"
-                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
                   >
                     <PlusIcon className="w-4 h-4" />
                     Create Post
@@ -413,7 +413,7 @@ export default function CalendarPage() {
               </button>
               <Link
                 href="/app/posts/new"
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
               >
                 <PlusIcon className="w-4 h-4" />
                 Schedule Post

@@ -25,7 +25,7 @@ export default function PrelaunchPage() {
           </Link>
           <Link
             href="/waitlist"
-            className="rounded-full bg-primary px-4 py-2 font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+            className="rounded-full bg-primary px-4 py-2 font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
           >
             Request access
           </Link>
@@ -44,7 +44,7 @@ export default function PrelaunchPage() {
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <Link
             href="/home"
-            className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+            className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
           >
             Explore the product preview
           </Link>

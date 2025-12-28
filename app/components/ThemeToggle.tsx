@@ -45,7 +45,7 @@ function StandaloneThemeToggle() {
 
   if (!mounted) {
     return (
-      <div className="flex items-center justify-center rounded-lg border border-gray-200 bg-white p-2 text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 w-[36px] h-[36px]">
+      <div className="flex items-center justify-center rounded-lg border border-gray-200 bg-white p-2 text-gray-700 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 w-[36px] h-[36px]">
         <div className="h-5 w-5" />
       </div>
     );
@@ -59,7 +59,7 @@ function ThemeToggleButton({ theme, toggleTheme }: { theme: 'light' | 'dark'; to
     <button
       type="button"
       onClick={toggleTheme}
-      className="flex items-center justify-center rounded-lg border border-gray-200 bg-white p-2 text-gray-700 shadow-sm transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+      className="flex items-center justify-center rounded-lg border border-gray-200 bg-white p-2 text-gray-700 shadow-sm transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >
       {theme === 'light' ? (

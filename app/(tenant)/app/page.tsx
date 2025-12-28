@@ -214,7 +214,7 @@ export default function TenantOverviewPage() {
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Hero Section - Welcome & Quick Actions */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-700 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-600 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10 dark:opacity-20">
           <div className="absolute inset-0 dark:hidden" style={{
@@ -293,7 +293,7 @@ export default function TenantOverviewPage() {
         {/* Total Posts */}
         <Link
           href="/app/campaigns"
-          className="group relative overflow-hidden rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-6 shadow-md transition-all duration-300 hover:border-info-400 hover:shadow-xl hover:-translate-y-1 dark:border-gray-700 dark:from-gray-800 dark:to-gray-800/50"
+          className="group relative overflow-hidden rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-6 shadow-md transition-all duration-300 hover:border-info-400 hover:shadow-xl hover:-translate-y-1 dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50"
         >
           <div className="absolute right-0 top-0 h-40 w-40 -translate-y-12 translate-x-12 rounded-full bg-gradient-to-br from-info-400/30 to-info-500/30 blur-3xl transition-transform group-hover:scale-150 group-hover:opacity-60" />
           <div className="relative z-10">
@@ -316,7 +316,7 @@ export default function TenantOverviewPage() {
         {/* Active Conversations */}
         <Link
           href="/app/inbox"
-          className="group relative overflow-hidden rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-6 shadow-md transition-all duration-300 hover:border-success-400 hover:shadow-xl hover:-translate-y-1 dark:border-gray-700 dark:from-gray-800 dark:to-gray-800/50"
+          className="group relative overflow-hidden rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-6 shadow-md transition-all duration-300 hover:border-success-400 hover:shadow-xl hover:-translate-y-1 dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50"
         >
           <div className="absolute right-0 top-0 h-40 w-40 -translate-y-12 translate-x-12 rounded-full bg-gradient-to-br from-success-400/30 to-success-500/30 blur-3xl transition-transform group-hover:scale-150 group-hover:opacity-60" />
           <div className="relative z-10">
@@ -348,7 +348,7 @@ export default function TenantOverviewPage() {
         {/* Pending Escalations */}
         <Link
           href="/app/escalations"
-          className="group relative overflow-hidden rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-6 shadow-md transition-all duration-300 hover:border-warning-400 hover:shadow-xl hover:-translate-y-1 dark:border-gray-700 dark:from-gray-800 dark:to-gray-800/50"
+          className="group relative overflow-hidden rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-6 shadow-md transition-all duration-300 hover:border-warning-400 hover:shadow-xl hover:-translate-y-1 dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50"
         >
           <div className="absolute right-0 top-0 h-40 w-40 -translate-y-12 translate-x-12 rounded-full bg-gradient-to-br from-warning-400/30 to-warning-500/30 blur-3xl transition-transform group-hover:scale-150 group-hover:opacity-60" />
           <div className="relative z-10">
@@ -380,7 +380,7 @@ export default function TenantOverviewPage() {
         {/* Connected Platforms */}
         <Link
           href="/app/integrations"
-          className="group relative overflow-hidden rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-6 shadow-md transition-all duration-300 hover:border-accent-400 hover:shadow-xl hover:-translate-y-1 dark:border-gray-700 dark:from-gray-800 dark:to-gray-800/50"
+          className="group relative overflow-hidden rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-6 shadow-md transition-all duration-300 hover:border-accent-400 hover:shadow-xl hover:-translate-y-1 dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50"
         >
           <div className="absolute right-0 top-0 h-40 w-40 -translate-y-12 translate-x-12 rounded-full bg-gradient-to-br from-accent-400/30 to-accent-500/30 blur-3xl transition-transform group-hover:scale-150 group-hover:opacity-60" />
           <div className="relative z-10">
@@ -411,7 +411,7 @@ export default function TenantOverviewPage() {
         {/* Left Column - Activity & Performance (8 cols on large) */}
         <div className="lg:col-span-8 space-y-4 sm:space-y-6">
           {/* Activity Feed - Enhanced Modern Card */}
-          <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-700 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
+          <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Recent Activity</h2>
@@ -419,7 +419,7 @@ export default function TenantOverviewPage() {
               </div>
               <Link
                 href="/app/inbox"
-                className="hidden items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-accent hover:text-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-accent sm:inline-flex"
+                className="hidden items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-accent hover:text-white dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-accent sm:inline-flex"
               >
                 View all
                 <ArrowRightIcon className="h-4 w-4" />
@@ -439,7 +439,7 @@ export default function TenantOverviewPage() {
                   <Link
                     key={activity.id}
                     href={activity.href}
-                    className="group flex items-start gap-4 rounded-xl border-2 border-gray-200 bg-white p-4 transition-all duration-200 hover:border-accent/50 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:shadow-lg active:scale-[0.98] dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-800"
+                    className="group flex items-start gap-4 rounded-xl border-2 border-gray-200 bg-white p-4 transition-all duration-200 hover:border-accent/50 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:shadow-lg active:scale-[0.98] dark:border-gray-600 dark:bg-gray-700/50 dark:hover:bg-gray-800"
                   >
                     <div className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform group-hover:scale-110", activity.color)}>
                       {activity.icon}
@@ -457,7 +457,7 @@ export default function TenantOverviewPage() {
           </div>
 
           {/* Performance Summary - Enhanced */}
-          <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-700 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
+          <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Performance Overview</h2>
               <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-300">Last 7 days insights</p>
@@ -465,7 +465,7 @@ export default function TenantOverviewPage() {
             {!performanceSummary || performanceSummary.total_posts === 0 ? (
               <div className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-xl border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm dark:border-gray-700 dark:from-gray-800/50 dark:to-gray-800">
+                  <div className="rounded-xl border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm dark:border-gray-600 dark:from-gray-800/50 dark:to-gray-800">
                     <div className="flex items-center gap-3">
                       <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-success-100 to-success-200 text-success-600 shadow-md dark:from-success-900/30 dark:to-success-900/50 dark:text-success-400">
                         <TrendingUpIcon className="h-7 w-7" />
@@ -476,7 +476,7 @@ export default function TenantOverviewPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="rounded-xl border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm dark:border-gray-700 dark:from-gray-800/50 dark:to-gray-800">
+                  <div className="rounded-xl border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm dark:border-gray-600 dark:from-gray-800/50 dark:to-gray-800">
                     <div className="flex items-center gap-3">
                       <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-warning-100 to-warning-200 text-warning-600 shadow-md dark:from-warning-900/30 dark:to-warning-900/50 dark:text-warning-400">
                         <FireIcon className="h-7 w-7" />
@@ -552,7 +552,7 @@ export default function TenantOverviewPage() {
                       { label: "Likes", value: performanceSummary.total_likes, color: "from-success-50 to-white" },
                       { label: "Comments", value: performanceSummary.total_comments, color: "from-warning-50 to-white" },
                     ].map((metric) => (
-                      <div key={metric.label} className="rounded-xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-4 shadow-sm dark:border-gray-700 dark:from-gray-800 dark:to-gray-800/50">
+                      <div key={metric.label} className="rounded-xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-4 shadow-sm dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50">
                         <p className="text-xs font-bold text-gray-500 dark:text-gray-300">{metric.label}</p>
                         <p className="mt-2 text-2xl font-extrabold text-gray-900 dark:text-gray-100">{metric.value.toLocaleString()}</p>
                       </div>
@@ -567,7 +567,7 @@ export default function TenantOverviewPage() {
           {(orders.length > 0 || payments.length > 0) && (
             <div className="grid gap-4 sm:grid-cols-2">
               {orders.length > 0 && (
-                <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-700 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
+                <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
                   <div className="mb-6 flex items-center justify-between">
                     <div>
                       <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Recent Orders</h2>
@@ -575,7 +575,7 @@ export default function TenantOverviewPage() {
                     </div>
                     <Link
                       href="/app/orders"
-                      className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-accent hover:text-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-accent"
+                      className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-accent hover:text-white dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-accent"
                     >
                       View all
                       <ArrowRightIcon className="h-4 w-4" />
@@ -601,7 +601,7 @@ export default function TenantOverviewPage() {
               )}
 
               {payments.length > 0 && (
-                <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-700 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
+                <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
                   <div className="mb-6 flex items-center justify-between">
                     <div>
                       <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Recent Payments</h2>
@@ -609,7 +609,7 @@ export default function TenantOverviewPage() {
                     </div>
                     <Link
                       href="/app/payments"
-                      className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-accent hover:text-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-accent"
+                      className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-accent hover:text-white dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-accent"
                     >
                       View all
                       <ArrowRightIcon className="h-4 w-4" />
@@ -640,7 +640,7 @@ export default function TenantOverviewPage() {
         {/* Right Column - Quick Actions & Upcoming (4 cols on large) */}
         <div className="lg:col-span-4 space-y-4 sm:space-y-6">
           {/* Quick Actions - Enhanced */}
-          <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-700 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
+          <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
             <h2 className="mb-6 text-xl font-bold text-gray-900 dark:text-gray-100">Quick Actions</h2>
             <div className="space-y-3">
               <Link
@@ -653,14 +653,14 @@ export default function TenantOverviewPage() {
               </Link>
               <Link
                 href="/app/calendar"
-                className="flex w-full items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:text-accent active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                className="flex w-full items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:text-accent active:scale-95 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 <CalendarIcon className="w-5 h-5" />
                 <span>View Calendar</span>
               </Link>
               <Link
                 href="/app/inbox"
-                className="flex w-full items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:text-accent active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                className="flex w-full items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:text-accent active:scale-95 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 <InboxIcon className="w-5 h-5" />
                 <span>Check Inbox</span>
@@ -673,7 +673,7 @@ export default function TenantOverviewPage() {
               {tenantIndustry?.capabilities.has_products && (
                 <Link
                   href="/app/products"
-                  className="flex w-full items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:text-accent active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                  className="flex w-full items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:text-accent active:scale-95 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                   <PackageIcon className="w-5 h-5" />
                   <span>Add Product</span>
@@ -683,7 +683,7 @@ export default function TenantOverviewPage() {
           </div>
 
           {/* Upcoming Posts */}
-          <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-700 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
+          <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Upcoming</h2>
@@ -691,7 +691,7 @@ export default function TenantOverviewPage() {
               </div>
               <Link
                 href="/app/campaigns"
-                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-accent hover:text-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-accent"
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-accent hover:text-white dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-accent"
               >
                 View all
                 <ArrowRightIcon className="h-4 w-4" />
@@ -711,7 +711,7 @@ export default function TenantOverviewPage() {
                   <Link
                     key={post.id}
                     href="/app/campaigns"
-                    className="group flex items-start gap-4 rounded-xl border-2 border-gray-200 bg-white p-4 transition-all duration-200 hover:border-accent/50 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:shadow-md active:scale-[0.98] dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-800"
+                    className="group flex items-start gap-4 rounded-xl border-2 border-gray-200 bg-white p-4 transition-all duration-200 hover:border-accent/50 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:shadow-md active:scale-[0.98] dark:border-gray-600 dark:bg-gray-700/50 dark:hover:bg-gray-800"
                   >
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-info-100 to-info-200 text-info-600 shadow-sm dark:from-info-900/30 dark:to-info-900/50 dark:text-info-400">
                       <ClockIcon className="w-6 h-6" />

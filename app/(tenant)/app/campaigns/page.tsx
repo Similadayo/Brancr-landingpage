@@ -290,7 +290,7 @@ export default function CampaignsPage() {
                 <div className="mt-1 text-xs text-gray-600 line-clamp-2">{d.content?.caption ? d.content.caption.split('\n')[0].slice(0,200) : '(no caption)'}</div>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => void handleRestore(d.id, d)} className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100">Restore</button>
+                <button onClick={() => void handleRestore(d.id, d)} className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100">Restore</button>
                 <button onClick={() => void handleDelete(d.id, d)} disabled={deletingId === d.id} className="rounded-md border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50">{deletingId===d.id ? 'Deleting…' : 'Delete'}</button>
               </div>
             </li>
@@ -314,7 +314,7 @@ export default function CampaignsPage() {
       )}
       
       {/* Modern Hero Section */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-accent via-accent/95 to-accent/90 p-6 shadow-xl dark:border-gray-700 dark:from-accent dark:via-accent/90 dark:to-accent/80 sm:p-8 md:p-10">
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-accent via-accent/95 to-accent/90 p-6 shadow-xl dark:border-gray-600 dark:from-accent dark:via-accent/90 dark:to-accent/80 sm:p-8 md:p-10">
         <div className="absolute inset-0 opacity-10 dark:opacity-20">
           <div className="absolute inset-0 dark:hidden" style={{
             backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
@@ -348,13 +348,13 @@ export default function CampaignsPage() {
       </div>
 
       {/* Modern Tabs */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-2 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="rounded-2xl border border-gray-200 bg-white p-2 shadow-sm dark:border-gray-600 dark:bg-gray-700">
         <div className="flex items-center gap-2 overflow-x-auto">
           <button
             onClick={() => setActiveTab("scheduled")}
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "scheduled"
-                ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-900"
+                ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-100"
                 : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
             }`}
           >
@@ -370,7 +370,7 @@ export default function CampaignsPage() {
             onClick={() => setActiveTab("published")}
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "published"
-                ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-900"
+                ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-100"
                 : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
             }`}
           >
@@ -386,7 +386,7 @@ export default function CampaignsPage() {
             onClick={() => setActiveTab("drafts")}
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "drafts"
-                ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-900"
+                ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-100"
                 : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
             }`}
           >
@@ -402,7 +402,7 @@ export default function CampaignsPage() {
       </div>
 
       {/* Modern Search and Filter Section */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6">
+      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-600 dark:bg-gray-700 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {/* Search */}
           <div className="relative flex-1 sm:max-w-md lg:max-w-lg">
@@ -534,7 +534,7 @@ export default function CampaignsPage() {
               const isPublishing = publishingPostId === post.id;
 
               return (
-                <div key={post.id} className="rounded-xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-accent/50 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 sm:p-6">
+                <div key={post.id} className="rounded-xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:border-accent/50 hover:shadow-md dark:border-gray-600 dark:bg-gray-700 sm:p-6">
                   <div className="flex items-start gap-4">
                     {/* Media Preview Placeholder */}
                     <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 dark:border-gray-600 dark:from-gray-700 dark:to-gray-800">

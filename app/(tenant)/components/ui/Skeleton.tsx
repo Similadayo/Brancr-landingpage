@@ -41,7 +41,7 @@ export function SkeletonText({ lines = 3, className }: { lines?: number; classNa
 
 export function SkeletonCard({ className }: { className?: string }) {
   return (
-    <div className={cn('rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800', className)}>
+    <div className={cn('rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-600 dark:bg-gray-700', className)}>
       <Skeleton variant="text" className="h-5 w-1/3 mb-4" />
       <SkeletonText lines={3} />
     </div>

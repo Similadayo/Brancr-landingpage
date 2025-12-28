@@ -489,7 +489,7 @@ export function WhatsAppNumberSelector() {
           <div className="mt-3 flex flex-wrap justify-center gap-2">
             <button 
               onClick={stopPolling} 
-              className="btn-secondary rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100 dark:border-amber-700 dark:bg-gray-800 dark:text-amber-300 dark:hover:bg-amber-900/30"
+              className="btn-secondary rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100 dark:border-amber-700 dark:bg-gray-700 dark:text-amber-300 dark:hover:bg-amber-900/30"
             >
               Cancel
             </button>
@@ -542,7 +542,7 @@ export function WhatsAppNumberSelector() {
 
 
       {!loading && !connected && (
-        <div className="connect-prompt rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
+        <div className="connect-prompt rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-700/50">
           <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Connect WhatsApp</h2>
           <p className="text-xs text-gray-600 dark:text-gray-300 mb-4">
             Connect your WhatsApp Business Account. Each tenant gets their own WhatsApp number.

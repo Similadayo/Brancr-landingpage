@@ -164,7 +164,7 @@ export default function MediaLibraryPage() {
   return (
     <div className="space-y-6">
       {/* Modern Hero Section */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-700 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-600 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
         <div className="absolute inset-0 opacity-10 dark:opacity-20">
           <div className="absolute inset-0 dark:hidden" style={{
             backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
@@ -189,7 +189,7 @@ export default function MediaLibraryPage() {
             <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setIsUploadOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
           >
             <PlusIcon className="w-4 h-4" />
             Upload Media
@@ -372,7 +372,7 @@ export default function MediaLibraryPage() {
           <p className="mt-2 text-sm text-gray-600">Upload your first image or video to get started.</p>
           <button
             onClick={() => setIsUploadOpen(true)}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
           >
             <PlusIcon className="w-4 h-4" />
             Upload Media
@@ -660,7 +660,7 @@ export default function MediaLibraryPage() {
                 />
                 <label
                   htmlFor="file-upload"
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
                 >
                   <PlusIcon className="h-4 w-4" />
                   Select Files

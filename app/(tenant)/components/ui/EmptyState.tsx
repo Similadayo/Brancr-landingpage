@@ -24,7 +24,7 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div className={cn(
-      'flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-700 dark:bg-gray-800/50',
+      'flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-600 dark:bg-gray-700/50',
       className
     )}>
       {icon && (

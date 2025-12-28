@@ -282,7 +282,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-bg dark:bg-gray-900">
+      <div className="flex min-h-screen items-center justify-center bg-neutral-bg dark:bg-gray-700">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-accent/20 border-t-accent" />
       </div>
     );
@@ -290,13 +290,13 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-bg dark:bg-gray-900 px-4">
-        <div className="max-w-md rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 text-center shadow-xl">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-bg dark:bg-gray-700 px-4">
+        <div className="max-w-md rounded-2xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 p-8 text-center shadow-xl">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">We couldn&apos;t load your workspace</h1>
           <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">{error}</p>
           <button
             onClick={refresh}
-            className="mt-6 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow hover:bg-accent/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+            className="mt-6 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow hover:bg-accent/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
           >
             Try again
           </button>
@@ -381,7 +381,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
         {/* Settings Section (Collapsible) */}
         {!compact && (
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
             <button
               onClick={() => setIsSettingsExpanded(!isSettingsExpanded)}
               className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition"
@@ -416,7 +416,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
         {/* Settings Section (Compact/Collapsed) */}
         {compact && (
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
             {settingsNavItems.map((item) => {
               const isSettingsRoot = item.href === "/app/settings";
               const isActive = isSettingsRoot
@@ -445,7 +445,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
       ) : null}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 px-6 py-6 shadow-2xl transition-transform lg:hidden",
+          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-700 px-6 py-6 shadow-2xl transition-transform lg:hidden",
           isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -473,7 +473,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
         {/* Desktop sidebar */}
         <aside
           className={cn(
-          "sticky top-0 hidden h-screen shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-6 transition-all duration-300 lg:flex lg:flex-col",
+          "sticky top-0 hidden h-screen shrink-0 border-r border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-6 transition-all duration-300 lg:flex lg:flex-col",
           sidebarWidthClass
           )}
         >
@@ -496,7 +496,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
               {renderNavItems(isSidebarCollapsed)}
             </div>
           </div>
-          <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-600">
             <button
               type="button"
               onClick={() => setIsSidebarCollapsed((prev) => !prev)}
@@ -512,7 +512,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
         <div className="flex min-h-screen flex-1 flex-col">
           {/* Top Header Bar with Stats */}
-          <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
             <div className="px-4 lg:px-6">
               <div className="flex h-16 items-center justify-between gap-4">
                 {/* Left: Page Title */}
@@ -569,7 +569,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                     <button
                       type="button"
                       onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-                      className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+                      className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-700 transition-colors"
                     >
                       {(() => {
                         const { displayName, initials } = getTenantDisplayInfo(tenant);

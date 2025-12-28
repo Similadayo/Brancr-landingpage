@@ -386,10 +386,10 @@ export default function IntegrationsPage() {
                             isCompleted
                               ? 'border-success-500 bg-success-500 text-white'
                               : isActive
-                              ? 'border-accent-500 bg-accent-500 text-white dark:bg-white dark:text-gray-900 dark:border-white'
+                              ? 'border-accent-500 bg-accent-500 text-white dark:bg-white dark:text-gray-100 dark:border-white'
                               : isAccessible
-                              ? 'border-gray-300 bg-white text-gray-400 dark:border-gray-600 dark:bg-gray-800'
-                              : 'border-gray-200 bg-gray-50 text-gray-300 dark:border-gray-700 dark:bg-gray-800/50'
+                              ? 'border-gray-300 bg-white text-gray-400 dark:border-gray-600 dark:bg-gray-700'
+                              : 'border-gray-200 bg-gray-50 text-gray-300 dark:border-gray-600 dark:bg-gray-700/50'
                           }`}
                         >
                           {isCompleted ? (
@@ -415,7 +415,7 @@ export default function IntegrationsPage() {
             <div className="min-h-[300px]">
               {connectionStep === 'requirements' && (
                 <div className="space-y-6">
-                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-800/50">
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-600 dark:bg-gray-700/50">
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Requirements</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                       {PLATFORM_REQUIREMENTS[selectedPlatform]}
@@ -547,7 +547,7 @@ export default function IntegrationsPage() {
 
                 {/* Webhook Status */}
                 {connected && integration && "webhook_status" in integration && (
-                  <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
+                  <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700/50">
                     <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-300">Webhook</p>
                     <div className="flex items-center gap-2">
                       <span className={`h-2 w-2 rounded-full ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "bg-success-500" : "bg-warning-500"}`} aria-hidden />
@@ -693,14 +693,14 @@ export default function IntegrationsPage() {
           </p>
           <div className="mt-4 space-y-3">
             {connectionHistory.slice(0, 2).map((entry) => (
-              <div key={entry.id} className="rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
+              <div key={entry.id} className="rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700/50">
                 <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{entry.action}</p>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-300">{entry.at}</p>
               </div>
             ))}
             <Link
               href="/app/integrations/history"
-              className="block rounded-xl border border-dashed border-gray-200 bg-gray-50 p-3 text-center text-xs text-gray-500 transition hover:border-accent hover:text-accent dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-accent"
+              className="block rounded-xl border border-dashed border-gray-200 bg-gray-50 p-3 text-center text-xs text-gray-500 transition hover:border-accent hover:text-accent dark:border-gray-600 dark:bg-gray-700/50 dark:hover:border-accent"
             >
               View full history →
             </Link>

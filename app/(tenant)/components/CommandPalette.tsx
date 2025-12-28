@@ -147,9 +147,9 @@ export function CommandPalette() {
       
       {/* Command Palette */}
       <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh] px-4">
-        <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-2xl">
+        <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-700 shadow-2xl">
           {/* Search Input */}
-          <div className="flex items-center gap-3 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+          <div className="flex items-center gap-3 border-b border-gray-200 dark:border-gray-600 px-4 py-3">
             <MagnifyingGlassIcon className="h-5 w-5 text-gray-500 dark:text-gray-300" />
             <input
               type="text"
@@ -221,7 +221,7 @@ export function CommandPalette() {
           </div>
 
           {/* Footer */}
-          <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-2">
+          <div className="border-t border-gray-200 dark:border-gray-600 px-4 py-2">
             <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-300">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">

@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 
 export default function ProductHome() {
   return (
-    <main className="min-h-screen bg-neutral-bg dark:bg-gray-900">
+    <main className="min-h-screen bg-neutral-bg dark:bg-gray-700">
       <Header />
       <Hero />
       <Features />

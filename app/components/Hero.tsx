@@ -44,13 +44,13 @@ export default function Hero() {
           >
             <Link
               href="/waitlist"
-              className="bg-accent text-white px-8 py-4 rounded-lg font-semibold text-base hover:bg-accent/90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full sm:w-auto dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+              className="bg-accent text-white px-8 py-4 rounded-lg font-semibold text-base hover:bg-accent/90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full sm:w-auto dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
             >
               Join Waitlist
             </Link>
             <Link
               href="#features"
-              className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-lg font-semibold text-base border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-all w-full sm:w-auto"
+              className="bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-lg font-semibold text-base border-2 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-600 transition-all w-full sm:w-auto"
             >
               Learn More
             </Link>
@@ -79,12 +79,12 @@ export default function Hero() {
           <div className="bg-gradient-to-br from-accent/10 to-accent-light/10 dark:from-accent/5 dark:to-accent-light/5 rounded-2xl p-8 border border-accent/20 dark:border-accent/10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Phone Mockup */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-xl">
+              <div className="bg-white dark:bg-gray-700 rounded-xl p-6 shadow-xl">
                 <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 mb-4">
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent-light"></div>
-                      <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
+                      <div className="flex-1 bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm">
                         <p className="text-sm text-gray-700 dark:text-gray-300">
                           &quot;Do you have this in stock?&quot;
                         </p>
@@ -104,7 +104,7 @@ export default function Hero() {
               </div>
 
               {/* Analytics Card */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-xl">
+              <div className="bg-white dark:bg-gray-700 rounded-xl p-6 shadow-xl">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600 dark:text-gray-300">Conversions</span>

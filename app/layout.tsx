@@ -116,7 +116,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased bg-white dark:bg-gray-900">
+      <body className="antialiased bg-white dark:bg-gray-700">
         <ErrorBoundary>
           <Providers>
             <GoogleAnalytics />

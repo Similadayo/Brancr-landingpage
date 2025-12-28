@@ -19,7 +19,7 @@ export function Card({
   href,
   onClick,
 }: CardProps) {
-  const baseStyles = 'rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all dark:border-gray-700 dark:bg-gray-800';
+  const baseStyles = 'rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all dark:border-gray-600 dark:bg-gray-700';
   const hoverStyles = hoverable || href ? 'hover:border-primary/50 hover:shadow-md cursor-pointer active:scale-[0.98]' : '';
   
   const content = (

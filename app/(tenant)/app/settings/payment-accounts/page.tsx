@@ -71,7 +71,7 @@ export default function PaymentAccountsPage() {
             setEditingAccount(null);
             setIsCreateModalOpen(true);
           }}
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
         >
           <PlusIcon className="w-4 h-4" />
           Add Payment Account
@@ -99,7 +99,7 @@ export default function PaymentAccountsPage() {
           <p className="mt-2 text-sm text-gray-600">Add your first payment account to receive payments from orders.</p>
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
           >
             <PlusIcon className="w-4 h-4" />
             Add Payment Account
@@ -438,7 +438,7 @@ function PaymentAccountFormModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
             >
               {isSubmitting ? "Saving..." : account ? "Update" : "Create"}
             </button>
