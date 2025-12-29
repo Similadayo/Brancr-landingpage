@@ -444,7 +444,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
     <div
       data-tenant-shell
       data-tenant-page={isInboxPage ? "inbox" : "default"}
-      className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900"
+      className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 overflow-x-hidden max-w-full w-full"
     >
       {/* Mobile overlay */}
       {isMobileNavOpen ? (
@@ -472,7 +472,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
             <XIcon className="w-5 h-5" />
           </button>
         </div>
-        <div className="mt-8 flex h-[calc(100vh-8rem)] flex-col overflow-y-auto pr-1">
+        <div className="mt-8 flex h-[calc(100vh-8rem)] flex-col overflow-y-auto pr-1 scrollbar-thin">
           <div className="shrink-0">
             {renderNavItems(false)}
           </div>
@@ -492,7 +492,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex min-h-screen w-full px-3 lg:px-8">
+      <div className="flex min-h-screen w-full max-w-full overflow-x-hidden px-3 lg:px-8">
         {/* Desktop sidebar */}
         <aside
           className={cn(
@@ -511,7 +511,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
           </div>
           <div
             className={cn(
-              "mt-10 flex h-[calc(100vh-11rem)] flex-col space-y-6 overflow-y-auto pr-1",
+              "mt-10 flex h-[calc(100vh-11rem)] flex-col space-y-6 overflow-y-auto pr-1 scrollbar-thin",
               isSidebarCollapsed && "items-center"
             )}
           >
@@ -560,10 +560,10 @@ export function TenantShell({ children }: { children: ReactNode }) {
           </div>
         </aside>
 
-        <div className="flex min-h-screen flex-1 flex-col">
+        <div className="flex min-h-screen flex-1 flex-col min-w-0 max-w-full overflow-x-hidden">
           {/* Top Header Bar with Stats */}
-          <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
-            <div className="px-4 lg:px-6">
+          <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 w-full max-w-full">
+            <div className="px-4 lg:px-6 max-w-full overflow-x-hidden">
               <div className="flex h-16 items-center justify-between gap-4">
                 {/* Left: Page Title */}
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0">
@@ -677,7 +677,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
               </div>
             </div>
           </header>
-          <main className="flex-1 px-4 pb-8 pt-6 lg:px-6">{children}</main>
+          <main className="flex-1 px-4 pb-8 pt-6 lg:px-6 min-w-0 max-w-full overflow-x-hidden">{children}</main>
         </div>
       </div>
       <CommandPalette />

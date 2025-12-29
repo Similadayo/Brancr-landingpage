@@ -106,6 +106,20 @@ export default function IntegrationsPage() {
     refetchOnWindowFocus: false,
   });
 
+  // Get current WhatsApp number
+  const { data: whatsappCurrent } = useQuery({
+    queryKey: ["whatsapp-current"],
+    queryFn: async () => {
+      try {
+        return await tenantApi.whatsappCurrent();
+      } catch (error) {
+        return { assigned: false };
+      }
+    },
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+
   const whatsappRefreshMutation = useMutation({
     mutationFn: () => tenantApi.whatsappRefreshStatus(),
     onSuccess: (data) => {
@@ -518,8 +532,8 @@ export default function IntegrationsPage() {
                     )}
                   </div>
                   <span className={`badge ${status.badge} shrink-0 text-[10px]`}>
-                    {isWhatsApp && connected && (integration?.external_id || whatsappStatus?.phone_number)
-                      ? (integration?.external_id || whatsappStatus?.phone_number || "Connected")
+                    {isWhatsApp && connected 
+                      ? (whatsappCurrent?.phone_number || whatsappStatus?.phone_number || integration?.external_id || "Connected")
                       : isWhatsApp && !connected 
                       ? "No Number Assigned" 
                       : status.label}
