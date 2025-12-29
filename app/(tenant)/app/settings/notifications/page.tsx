@@ -96,15 +96,15 @@ export default function NotificationSettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <SettingsIcon className="w-6 h-6" />
+    <div className="space-y-4 sm:space-y-6">
+      <header className="flex flex-col gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary sm:h-10 sm:w-10">
+            <SettingsIcon className="w-4 h-4 sm:w-5 sm:h-6" />
           </div>
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Notification Settings</h1>
-            <p className="mt-1 text-sm text-gray-600">Configure email and webhook notifications</p>
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl md:text-3xl lg:text-4xl">Notification Settings</h1>
+            <p className="mt-1 text-xs text-gray-600 sm:text-sm">Configure email and webhook notifications</p>
           </div>
         </div>
       </header>

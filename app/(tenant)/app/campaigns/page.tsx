@@ -326,21 +326,21 @@ export default function CampaignsPage() {
           }} />
         </div>
         <div className="relative z-10">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <RocketIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
-                <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Posts & Campaigns</h1>
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <RocketIcon className="h-5 w-5 text-white/90 sm:h-6 sm:w-6 md:h-7 md:w-7" />
+                <h1 className="text-xl font-bold text-white sm:text-2xl md:text-3xl lg:text-4xl">Posts & Campaigns</h1>
               </div>
-              <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+              <p className="text-xs text-white/90 sm:text-sm md:text-base lg:text-lg max-w-2xl">
                 Manage scheduled posts, published content, and drafts all in one place
               </p>
             </div>
             <Link 
               href="/app/posts/new" 
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-accent shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 sm:px-6 sm:py-3.5"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-semibold text-accent shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 sm:px-5 sm:py-3 sm:text-sm md:px-6 md:py-3.5"
             >
-              <PlusIcon className="w-5 h-5" />
+              <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>Create Post</span>
             </Link>
           </div>

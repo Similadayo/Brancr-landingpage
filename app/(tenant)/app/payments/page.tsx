@@ -176,18 +176,18 @@ export default function PaymentsPage() {
 					}} />
 				</div>
 				<div className="relative z-10">
-					<div className="flex items-center gap-3 mb-3">
-						<CreditCardIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
-						<h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Payments</h1>
+					<div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+						<CreditCardIcon className="h-5 w-5 text-white/90 sm:h-6 sm:w-6 md:h-7 md:w-7" />
+						<h1 className="text-xl font-bold text-white sm:text-2xl md:text-3xl lg:text-4xl">Payments</h1>
 					</div>
-					<p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+					<p className="text-xs text-white/90 sm:text-sm md:text-base lg:text-lg max-w-2xl">
 						Verify and manage customer payments with ease
 					</p>
 				</div>
 			</div>
 
 			{/* Stats Cards */}
-			<div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-3">
+			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
 				<div className="stat-card group">
 					<div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-info-400/20 to-info-500/20 blur-2xl transition-transform group-hover:scale-150" />
 					<div className="relative">

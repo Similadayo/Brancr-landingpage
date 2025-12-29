@@ -125,15 +125,15 @@ export default function EscalationsPage() {
           }} />
         </div>
         <div className="relative z-10">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:mb-3">
             <div className="flex items-center gap-3">
               <AlertIcon className="h-6 w-6 text-white sm:h-7 sm:w-7" />
               <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Escalations</h1>
             </div>
             {pendingCount > 0 && (
-              <div className="inline-flex items-center gap-2 rounded-xl border-2 border-white/40 bg-white/25 backdrop-blur-sm px-4 py-2.5">
+              <div className="inline-flex items-center gap-2 rounded-xl border-2 border-white/40 bg-white/25 backdrop-blur-sm px-3 py-2 sm:px-4 sm:py-2.5">
                 <div className="h-2.5 w-2.5 rounded-full bg-white animate-pulse" />
-                <span className="text-sm font-bold text-white">{pendingCount} Pending</span>
+                <span className="text-xs font-bold text-white sm:text-sm">{pendingCount} Pending</span>
               </div>
             )}
           </div>

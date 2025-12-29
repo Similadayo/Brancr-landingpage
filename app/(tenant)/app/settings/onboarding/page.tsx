@@ -49,12 +49,12 @@ export default function OnboardingSummaryPage() {
   return (
     <div className="space-y-4 sm:space-y-6">
       <header className="flex flex-col gap-3 sm:gap-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <DocumentTextIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary sm:h-10 sm:w-10">
+            <DocumentTextIcon className="w-4 h-4 sm:w-5 sm:h-6" />
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl lg:text-4xl">Onboarding Summary</h1>
+            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl md:text-3xl lg:text-4xl">Onboarding Summary</h1>
             <p className="mt-1 text-xs text-gray-600 sm:text-sm">
               Review what you set up during onboarding. You can edit each section below.
             </p>
