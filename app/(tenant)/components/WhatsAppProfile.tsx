@@ -5,6 +5,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tenantApi } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import { WhatsAppProfilePicture } from './WhatsAppProfilePicture';
+import Select, { SelectOption } from './ui/Select';
+import { Button } from './ui/Button';
+import Select, { SelectOption } from './ui/Select';
+import { Button } from './ui/Button';
 
 type Vertical = 
   | "OTHER" | "AUTO" | "BEAUTY" | "APPAREL" | "EDU" | "ENTERTAIN" 
@@ -40,6 +44,26 @@ const VERTICALS: Vertical[] = [
   "EVENT_PLAN", "FINANCE", "GROCERY", "GOVT", "HOTEL",
   "HEALTH", "NONPROFIT", "PROF_SERVICES", "RETAIL",
   "TRAVEL", "RESTAURANT"
+];
+
+const VERTICAL_OPTIONS: SelectOption<Vertical>[] = [
+  { value: "OTHER", label: "Other" },
+  { value: "AUTO", label: "Automotive" },
+  { value: "BEAUTY", label: "Beauty" },
+  { value: "APPAREL", label: "Apparel" },
+  { value: "EDU", label: "Education" },
+  { value: "ENTERTAIN", label: "Entertainment" },
+  { value: "EVENT_PLAN", label: "Event Planning" },
+  { value: "FINANCE", label: "Finance" },
+  { value: "GROCERY", label: "Grocery" },
+  { value: "GOVT", label: "Government" },
+  { value: "HOTEL", label: "Hotel" },
+  { value: "HEALTH", label: "Health" },
+  { value: "NONPROFIT", label: "Nonprofit" },
+  { value: "PROF_SERVICES", label: "Professional Services" },
+  { value: "RETAIL", label: "Retail" },
+  { value: "TRAVEL", label: "Travel" },
+  { value: "RESTAURANT", label: "Restaurant" },
 ];
 
 // Helper function to parse address into components
@@ -231,151 +255,159 @@ export function WhatsAppProfile() {
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Address Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Address Line 1
+                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="address-line-1">
+                  Street Address
                 </label>
                 <input
+                  id="address-line-1"
                   type="text"
                   value={formData.add_line1 || ''}
                   onChange={(e) => setFormData({ ...formData, add_line1: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="123 Main Street"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Address Line 2
+                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="address-line-2">
+                  Apartment, Suite, or Unit (Optional)
                 </label>
                 <input
+                  id="address-line-2"
                   type="text"
                   value={formData.add_line2 || ''}
                   onChange={(e) => setFormData({ ...formData, add_line2: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="Suite 100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="city">
                   City
                 </label>
                 <input
+                  id="city"
                   type="text"
                   value={formData.city || ''}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="New York"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  State
+                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="state">
+                  State or Province
                 </label>
                 <input
+                  id="state"
                   type="text"
                   value={formData.state || ''}
                   onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="NY"
+                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="New York"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Pin Code
+                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="postal-code">
+                  Postal Code or ZIP Code
                 </label>
                 <input
+                  id="postal-code"
                   type="text"
                   value={formData.pin_code || ''}
                   onChange={(e) => setFormData({ ...formData, pin_code: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="10001"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="country">
                   Country
                 </label>
                 <input
+                  id="country"
                   type="text"
                   value={formData.country || ''}
                   onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="USA"
+                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="United States"
                 />
               </div>
             </div>
 
             {/* Business Details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Vertical
+                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="business-vertical">
+                  Business Category
                 </label>
-                <select
+                <Select
+                  id="business-vertical"
                   value={formData.vertical || ''}
-                  onChange={(e) => setFormData({ ...formData, vertical: e.target.value as Vertical })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <option value="">Select vertical...</option>
-                  {VERTICALS.map(v => (
-                    <option key={v} value={v}>{v}</option>
-                  ))}
-                </select>
+                  onChange={(value) => setFormData({ ...formData, vertical: value as Vertical })}
+                  options={VERTICAL_OPTIONS}
+                  placeholder="Select business category..."
+                  searchable
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
+                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="business-email">
+                  Business Email Address
                 </label>
                 <input
+                  id="business-email"
                   type="email"
                   value={formData.profile_email || ''}
                   onChange={(e) => setFormData({ ...formData, profile_email: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="contact@business.com"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Website 1
+                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="primary-website">
+                  Primary Website
                 </label>
                 <input
+                  id="primary-website"
                   type="url"
                   value={formData.website1 || ''}
                   onChange={(e) => setFormData({ ...formData, website1: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="https://example.com"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Website 2
+                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="secondary-website">
+                  Secondary Website (Optional)
                 </label>
                 <input
+                  id="secondary-website"
                   type="url"
                   value={formData.website2 || ''}
                   onChange={(e) => setFormData({ ...formData, website2: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder="https://example2.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
+              <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="business-description">
+                Business Description
               </label>
               <textarea
+                id="business-description"
                 value={formData.desc || ''}
                 onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Business description"
+                rows={5}
+                className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder="Tell us about your business..."
               />
             </div>
 
@@ -385,13 +417,15 @@ export function WhatsAppProfile() {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={updating}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {updating ? 'Updating...' : 'Update Profile'}
-            </button>
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                disabled={updating}
+                className="btn-primary"
+              >
+                {updating ? 'Updating...' : 'Update Profile Details'}
+              </Button>
+            </div>
           </form>
         )}
       </div>
@@ -402,15 +436,19 @@ export function WhatsAppProfile() {
         
         <div className="space-y-4">
           <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="about-text">
+              About Text
+            </label>
             <textarea
+              id="about-text"
               value={about}
               onChange={(e) => setAbout(e.target.value)}
               maxLength={512}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               placeholder="Brief business description (max 512 characters)"
             />
-            <div className="mt-1 flex justify-between items-center">
+            <div className="mt-2 flex justify-between items-center">
               <p className="text-xs text-gray-500">
                 {about.length}/512 characters
               </p>
@@ -420,13 +458,15 @@ export function WhatsAppProfile() {
             </div>
           </div>
 
-          <button
-            onClick={handleUpdateAbout}
-            disabled={updating || about.length === 0 || about.length > 512}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {updating ? 'Updating...' : 'Update About'}
-          </button>
+          <div className="flex justify-end">
+            <Button
+              onClick={handleUpdateAbout}
+              disabled={updating || about.length === 0 || about.length > 512}
+              className="btn-primary"
+            >
+              {updating ? 'Updating...' : 'Update About Text'}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
