@@ -173,7 +173,7 @@ export function CommandPalette() {
           </div>
 
           {/* Results */}
-          <div className="max-h-[60vh] overflow-y-auto p-2">
+          <div className="max-h-[60vh] overflow-y-auto p-2 scrollbar-thin">
             {filteredCommands.length === 0 ? (
               <div className="py-12 text-center">
                 <p className="text-sm text-gray-500">No commands found</p>

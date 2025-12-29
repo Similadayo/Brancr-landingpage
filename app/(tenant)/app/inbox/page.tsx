@@ -457,7 +457,7 @@ export default function InboxPage() {
           </div>
           
           {/* Conversation List */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto scrollbar-thin">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent/20 border-t-accent" />
@@ -661,7 +661,7 @@ export default function InboxPage() {
               </header>
 
               {/* Messages - Scrollable */}
-              <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0">
+              <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0 scrollbar-thin">
                 {/* Date separator */}
                 {messages.length > 0 && (
                   <div className="px-4 py-2 text-center">
@@ -867,7 +867,7 @@ export default function InboxPage() {
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Platform Analytics</h3>
                       </div>
                       {/* Analytics Content - Scrollable */}
-                      <div className="flex-1 overflow-y-auto min-h-0">
+                      <div className="flex-1 overflow-y-auto min-h-0 scrollbar-thin">
                         <PlatformAnalytics platform={platform} />
                       </div>
                     </>
@@ -882,7 +882,7 @@ export default function InboxPage() {
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Chat Details</h3>
                       </div>
                       {/* Content - Scrollable */}
-                      <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
+                      <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0 scrollbar-thin">
                         {/* Contact Profile */}
                         <div className="mb-6">
                           <div className="flex items-center gap-3 mb-4">

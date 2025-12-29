@@ -526,7 +526,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         </div>
 
         {/* Content with smooth transitions */}
-        <div className="overflow-y-auto max-h-[calc(92vh-180px)] bg-gradient-to-b from-white to-gray-50/50">
+        <div className="overflow-y-auto max-h-[calc(92vh-180px)] bg-gradient-to-b from-white to-gray-50/50 scrollbar-thin">
           <div className="px-8 py-8">
             <AnimatePresence mode="wait">
               <motion.div

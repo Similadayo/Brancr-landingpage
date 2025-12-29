@@ -492,11 +492,11 @@ export function TenantShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex min-h-screen w-full max-w-full overflow-x-hidden px-3 lg:px-8">
+      <div className="flex min-h-screen w-full max-w-full overflow-x-hidden px-3 lg:px-0">
         {/* Desktop sidebar */}
         <aside
           className={cn(
-          "sticky top-0 hidden h-screen shrink-0 border-r border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-6 transition-all duration-300 lg:flex lg:flex-col",
+          "fixed top-0 left-0 hidden h-screen shrink-0 border-r border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-6 transition-all duration-300 lg:flex lg:flex-col z-30",
           sidebarWidthClass
           )}
         >
@@ -560,7 +560,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
           </div>
         </aside>
 
-        <div className="flex min-h-screen flex-1 flex-col min-w-0 max-w-full overflow-x-hidden">
+        <div className={cn("flex min-h-screen flex-1 flex-col min-w-0 max-w-full overflow-x-hidden transition-all duration-300", isSidebarCollapsed ? "lg:ml-[92px]" : "lg:ml-[276px]")}>
           {/* Top Header Bar with Stats */}
           <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 w-full max-w-full">
             <div className="px-4 lg:px-6 max-w-full overflow-x-hidden">

@@ -132,7 +132,7 @@ interface ModalBodyProps {
 
 export function ModalBody({ children, className }: ModalBodyProps) {
   return (
-    <div className={cn('overflow-y-auto px-6 py-4', className)}>
+    <div className={cn('overflow-y-auto px-6 py-4 scrollbar-thin', className)}>
       {children}
     </div>
   );

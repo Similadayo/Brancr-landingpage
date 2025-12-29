@@ -261,7 +261,7 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
             ref={listRef}
             tabIndex={-1}
             onKeyDown={onListKeyDown}
-            className="max-h-60 overflow-auto p-1.5 focus:outline-none"
+            className="max-h-60 overflow-auto p-1.5 focus:outline-none scrollbar-thin"
           >
             {filteredOptions.length === 0 ? (
               <div className="px-3 py-2.5 text-sm text-gray-500">No results</div>

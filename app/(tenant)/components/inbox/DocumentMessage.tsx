@@ -51,7 +51,7 @@ export function DocumentMessage({ media }: DocumentMessageProps) {
       {media.document_text && (
         <details className="text-xs">
           <summary className="cursor-pointer text-gray-500 hover:text-gray-700">View Full Text</summary>
-          <pre className="mt-2 p-2 bg-gray-50 rounded-lg max-h-48 overflow-y-auto whitespace-pre-wrap text-gray-700">
+          <pre className="mt-2 p-2 bg-gray-50 rounded-lg max-h-48 overflow-y-auto whitespace-pre-wrap text-gray-700 scrollbar-thin">
             {media.document_text}
           </pre>
         </details>
