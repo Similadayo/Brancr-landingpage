@@ -476,6 +476,19 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <div className="shrink-0">
             {renderNavItems(false)}
           </div>
+          {/* AI Mode Toggle - Mobile Sidebar */}
+          <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-600">
+            <p className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400 px-2">AI Mode</p>
+            <AIToggle
+              value={displayAIMode}
+              onChange={(next) => {
+                setDisplayAIMode(next);
+                updateAIModeMutation.mutate(next);
+              }}
+              disabled={updateAIModeMutation.isPending || isLoadingAIMode}
+              showLabel={true}
+            />
+          </div>
         </div>
       </aside>
 
@@ -506,7 +519,34 @@ export function TenantShell({ children }: { children: ReactNode }) {
               {renderNavItems(isSidebarCollapsed)}
             </div>
           </div>
-          <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-600">
+          <div className="mt-auto space-y-3 pt-4 border-t border-gray-200 dark:border-gray-600">
+            {/* AI Mode Toggle - Mobile/Desktop Sidebar */}
+            <div className={cn("flex items-center justify-center", isSidebarCollapsed && "justify-center")}>
+              {!isSidebarCollapsed ? (
+                <div className="w-full">
+                  <p className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400 px-2">AI Mode</p>
+                  <AIToggle
+                    value={displayAIMode}
+                    onChange={(next) => {
+                      setDisplayAIMode(next);
+                      updateAIModeMutation.mutate(next);
+                    }}
+                    disabled={updateAIModeMutation.isPending || isLoadingAIMode}
+                    showLabel={true}
+                  />
+                </div>
+              ) : (
+                <AIToggle
+                  value={displayAIMode}
+                  onChange={(next) => {
+                    setDisplayAIMode(next);
+                    updateAIModeMutation.mutate(next);
+                  }}
+                  disabled={updateAIModeMutation.isPending || isLoadingAIMode}
+                  showLabel={false}
+                />
+              )}
+            </div>
             <button
               type="button"
               onClick={() => setIsSidebarCollapsed((prev) => !prev)}
@@ -560,8 +600,8 @@ export function TenantShell({ children }: { children: ReactNode }) {
                     </div>
                   </div>
                   
-                  {/* AI Mode Toggle */}
-                  <div className="flex items-center">
+                  {/* AI Mode Toggle - Hidden on mobile */}
+                  <div className="hidden lg:flex items-center">
                     <AIToggle
                       value={displayAIMode}
                       onChange={(next) => {
