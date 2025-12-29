@@ -582,7 +582,15 @@ export default function IntegrationsPage() {
 
                 {/* WhatsApp Profile Settings - Always show for WhatsApp */}
                 {isWhatsApp && (
-                  <div className="mb-4">
+                  <div className="mb-4 mt-6 border-t-2 border-gray-300 dark:border-gray-500 pt-6">
+                    <div className="mb-4">
+                      <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                        WhatsApp Profile Settings
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Manage your WhatsApp Business profile picture, business details, and about text.
+                      </p>
+                    </div>
                     <WhatsAppProfile />
                   </div>
                 )}

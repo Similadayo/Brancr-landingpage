@@ -207,23 +207,18 @@ export function WhatsAppProfile() {
   const loading = isLoadingProfile || isLoadingAbout;
   const updating = updateProfileMutation.isPending || updateAboutMutation.isPending;
 
-  // Show error if no WhatsApp app found
-  if ((profileError && (profileError as any)?.status === 404) || 
-      (aboutError && (aboutError as any)?.status === 404)) {
-    return (
-      <div className="space-y-6">
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">WhatsApp Profile</h3>
-          <p className="text-sm text-gray-600">
-            No WhatsApp app found for this tenant. Please connect WhatsApp first.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
+      {/* Show error message if no WhatsApp app found, but still show the form */}
+      {((profileError && (profileError as any)?.status === 404) || 
+        (aboutError && (aboutError as any)?.status === 404)) && (
+        <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
+          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+            <strong>Note:</strong> WhatsApp profile features require a connected WhatsApp Business account. Some features may not be available until the account is fully set up.
+          </p>
+        </div>
+      )}
+
       {/* Profile Picture Section */}
       <WhatsAppProfilePicture />
 
