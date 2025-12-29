@@ -1073,6 +1073,61 @@ export const tenantApi = {
       })(),
     }),
 
+  // WhatsApp profile endpoints
+  whatsappProfile: () =>
+    get<{
+      success: true;
+      profile: {
+        address: string;
+        profileEmail: string;
+        desc: string;
+        vertical: string;
+        website1: string;
+        website2: string;
+      };
+      message: string;
+    }>("/api/tenant/whatsapp/profile"),
+
+  updateWhatsAppProfile: (updates: {
+    add_line1?: string;
+    add_line2?: string;
+    city?: string;
+    state?: string;
+    pin_code?: string;
+    country?: string;
+    vertical?: "OTHER" | "AUTO" | "BEAUTY" | "APPAREL" | "EDU" | "ENTERTAIN" | "EVENT_PLAN" | "FINANCE" | "GROCERY" | "GOVT" | "HOTEL" | "HEALTH" | "NONPROFIT" | "PROF_SERVICES" | "RETAIL" | "TRAVEL" | "RESTAURANT";
+    website1?: string;
+    website2?: string;
+    desc?: string;
+    profile_email?: string;
+  }) =>
+    put<typeof updates, {
+      success: true;
+      profile: {
+        address: string;
+        profileEmail: string;
+        desc: string;
+        vertical: string;
+        website1: string;
+        website2: string;
+      };
+      message: string;
+    }>("/api/tenant/whatsapp/profile", updates),
+
+  whatsappProfileAbout: () =>
+    get<{
+      success: true;
+      about: string;
+      message: string;
+    }>("/api/tenant/whatsapp/profile/about"),
+
+  updateWhatsAppProfileAbout: (about: string) =>
+    put<{ about: string }, {
+      success: true;
+      about: string;
+      message: string;
+    }>("/api/tenant/whatsapp/profile/about", { about }),
+
   // Onboarding endpoints
   onboardingStatus: () =>
     get<{

@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useIntegrations, useVerifyIntegration, useDisconnectIntegration } from "@/app/(tenant)/hooks/useIntegrations";
 import { WhatsAppNumberSelector } from "@/app/(tenant)/components/WhatsAppNumberSelector";
+import { WhatsAppProfile } from "@/app/(tenant)/components/WhatsAppProfile";
 import { authApi, tenantApi } from '@/lib/api';
 import ConfirmModal from '@/app/components/ConfirmModal';
 import { LinkIcon, CheckCircleIcon, XIcon, ChevronRightIcon, AlertIcon } from "../../components/icons";
@@ -562,6 +563,13 @@ export default function IntegrationsPage() {
                 {isWhatsApp && (
                   <div className="mb-4">
                     <WhatsAppNumberSelector />
+                  </div>
+                )}
+
+                {/* WhatsApp Profile Settings */}
+                {isWhatsApp && connected && (
+                  <div className="mb-4">
+                    <WhatsAppProfile />
                   </div>
                 )}
 
