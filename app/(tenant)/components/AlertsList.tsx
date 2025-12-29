@@ -209,6 +209,12 @@ function AlertCard({
                 <span className="text-xs text-gray-500 dark:text-gray-400">
                   {formatTimeAgo(alert.created_at)}
                 </span>
+                {(alert.sent_email || alert.sent_telegram) && (
+                  <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+                    {alert.sent_email && <span>✓ Email</span>}
+                    {alert.sent_telegram && <span>✓ Telegram</span>}
+                  </div>
+                )}
                 {alert.action_url && alert.action_label && (
                   <Link
                     href={alert.action_url}

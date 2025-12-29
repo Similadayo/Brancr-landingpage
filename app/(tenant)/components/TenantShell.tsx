@@ -50,7 +50,6 @@ type NavItem = {
 const getCoreNavItems = (badges?: { inbox?: number; escalations?: number; alerts?: number }): NavItem[] => [
   { label: "Overview", href: "/app", icon: <HomeIcon className="w-5 h-5" /> },
   { label: "Inbox", href: "/app/inbox", icon: <InboxIcon className="w-5 h-5" />, badge: badges?.inbox },
-  { label: "Alerts", href: "/app/alerts", icon: <BellIcon className="w-5 h-5" />, badge: badges?.alerts },
   { label: "Escalations", href: "/app/escalations", icon: <AlertIcon className="w-5 h-5" />, badge: badges?.escalations },
   { label: "Campaigns", href: "/app/campaigns", icon: <RocketIcon className="w-5 h-5" /> },
   { label: "Payments", href: "/app/payments", icon: <CreditCardIcon className="w-5 h-5" /> },
@@ -562,7 +561,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                   </div>
                   
                   {/* AI Mode Toggle */}
-                  <div className="hidden items-center sm:flex">
+                  <div className="flex items-center">
                     <AIToggle
                       value={displayAIMode}
                       onChange={(next) => {

@@ -2222,21 +2222,13 @@ export const tenantApi = {
 
   // Tenant Alerts
   getAlerts: (params?: {
-    status?: "unread" | "read" | "all";
-    type?: string;
-    severity?: string;
+    unread?: boolean;
     limit?: number;
     offset?: number;
   }) => {
     const queryParams = new URLSearchParams();
-    if (params?.status && params.status !== "all") {
-      queryParams.append("status", params.status);
-    }
-    if (params?.type) {
-      queryParams.append("type", params.type);
-    }
-    if (params?.severity) {
-      queryParams.append("severity", params.severity);
+    if (params?.unread) {
+      queryParams.append("unread", "true");
     }
     if (params?.limit) {
       queryParams.append("limit", params.limit.toString());
@@ -2246,22 +2238,25 @@ export const tenantApi = {
     }
     const query = queryParams.toString();
 
-    return get<{
-      alerts: Array<{
-        id: number;
-        type: string;
-        severity: string;
-        title: string;
-        message: string;
-        action_url?: string;
-        action_label?: string;
-        read_at?: string | null;
-        created_at: string;
-        in_app_created_at?: string;
-      }>;
-      unread_count?: number;
-      total?: number;
-    }>(`/api/tenant/alerts${query ? `?${query}` : ""}`);
+    return get<Array<{
+      id: number;
+      tenant_id: number;
+      type: string;
+      severity: string;
+      title: string;
+      message: string;
+      action_url?: string;
+      action_label?: string;
+      sent_email: boolean;
+      sent_telegram: boolean;
+      sent_in_app: boolean;
+      email_sent_at?: string;
+      telegram_sent_at?: string;
+      in_app_created_at?: string;
+      created_at: string;
+      read_at?: string | null;
+      metadata?: string;
+    }>>(`/api/tenant/alerts${query ? `?${query}` : ""}`);
   },
 
   getAlertCounts: () =>

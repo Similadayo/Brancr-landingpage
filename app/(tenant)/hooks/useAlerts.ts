@@ -7,15 +7,22 @@ import { toast } from "react-hot-toast";
 
 export type Alert = {
   id: number;
+  tenant_id: number;
   type: string;
   severity: string;
   title: string;
   message: string;
   action_url?: string;
   action_label?: string;
-  read_at?: string | null;
-  created_at: string;
+  sent_email: boolean;
+  sent_telegram: boolean;
+  sent_in_app: boolean;
+  email_sent_at?: string;
+  telegram_sent_at?: string;
   in_app_created_at?: string;
+  created_at: string;
+  read_at?: string | null;
+  metadata?: string;
 };
 
 export type AlertStatusFilter = "unread" | "read" | "all";
@@ -41,25 +48,32 @@ export function useAlerts(params?: {
     queryKey,
     queryFn: async () => {
       try {
-        const response = await tenantApi.getAlerts({
-          status: params?.status,
-          type: params?.type === "all" ? undefined : params?.type,
-          severity: params?.severity === "all" ? undefined : params?.severity,
+        // API returns array directly, not wrapped in object
+        const alertsArray = await tenantApi.getAlerts({
+          unread: params?.status === "unread",
           limit: params?.limit,
           offset: params?.offset,
         });
-        const alerts = Array.isArray(response?.alerts) ? response.alerts : [];
-        const unread_count =
-          typeof response?.unread_count === "number"
-            ? response.unread_count
-            : alerts.filter((alert) => !alert.read_at).length;
+        
+        const alerts = Array.isArray(alertsArray) ? alertsArray : [];
+        
+        // Filter by type and severity on client side if needed
+        let filteredAlerts = alerts;
+        if (params?.type && params.type !== "all") {
+          filteredAlerts = filteredAlerts.filter((a) => a.type === params.type);
+        }
+        if (params?.severity && params.severity !== "all") {
+          filteredAlerts = filteredAlerts.filter((a) => a.severity === params.severity);
+        }
+        
+        const unread_count = filteredAlerts.filter((alert) => !alert.read_at).length;
 
         return {
-          alerts: alerts.sort((a, b) =>
+          alerts: filteredAlerts.sort((a, b) =>
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
           ),
           unread_count,
-          total: response?.total ?? alerts.length,
+          total: filteredAlerts.length,
         };
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
