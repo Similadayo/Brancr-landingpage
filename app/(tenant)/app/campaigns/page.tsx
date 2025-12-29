@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { useScheduledPosts, useCancelScheduledPost, useUpdateScheduledPost, useCampaignStats } from "@/app/(tenant)/hooks/useScheduledPosts";
@@ -32,7 +32,6 @@ import { Button } from "@/app/(tenant)/components/ui/Button";
 import { Card } from "@/app/(tenant)/components/ui/Card";
 import { Pagination } from "@/app/(tenant)/components/ui/Pagination";
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 
 
 type Tab = "scheduled" | "published" | "drafts";
@@ -40,7 +39,7 @@ type Tab = "scheduled" | "published" | "drafts";
 // Status styles now handled by StatusBadge component
 
 // DraftsList component - moved outside to avoid parsing issues
-const DraftsList = ({ router }: { router: { push: (path: string) => void } }) => {
+function DraftsList({ router }: { router: { push: (path: string) => void } }) {
   const [drafts, setDrafts] = useState<any[]>([]);
   const [loadingDrafts, setLoadingDrafts] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -160,7 +159,7 @@ const DraftsList = ({ router }: { router: { push: (path: string) => void } }) =>
       </ul>
     </div>
   );
-};
+}
 
 export default function CampaignsPage() {
   const queryClient = useQueryClient();
@@ -696,20 +695,20 @@ export default function CampaignsPage() {
                 </div>
               );
             })}
+            
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-6">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  itemsPerPage={itemsPerPage}
+                  totalItems={currentPosts.length}
+                />
+              </div>
+            )}
           </div>
-          
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="mt-6">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-                itemsPerPage={itemsPerPage}
-                totalItems={currentPosts.length}
-              />
-            </div>
-          )}
         )}
       </div>
 
