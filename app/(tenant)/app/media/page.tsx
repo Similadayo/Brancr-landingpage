@@ -19,6 +19,7 @@ import {
   ArrowUpTrayIcon,
 } from "../../components/icons";
 import Select from "@/app/(tenant)/components/ui/Select";
+import { Pagination } from "@/app/(tenant)/components/ui/Pagination";
 import ConfirmModal from '@/app/components/ConfirmModal';
 
 type ViewMode = "grid" | "list";
@@ -32,6 +33,8 @@ export default function MediaLibraryPage() {
   const [previewMedia, setPreviewMedia] = useState<{ id: string; url: string; type?: string } | null>(null);
   const [isBulkActionOpen, setIsBulkActionOpen] = useState(false);
   const [showDeleteMediaId, setShowDeleteMediaId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: assets = [], isLoading, error } = useMedia({ 
@@ -49,6 +52,18 @@ export default function MediaLibraryPage() {
       thumbnail_url: asset.thumbnail_url || asset.urls?.[0] || "",
     }));
   }, [assets]);
+
+  // Pagination
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginatedMedia = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filtered.slice(start, start + itemsPerPage);
+  }, [filtered, currentPage, itemsPerPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query, type]);
 
   const toggleMedia = (mediaId: string | number) => {
     const idStr = String(mediaId);
@@ -379,8 +394,9 @@ export default function MediaLibraryPage() {
           </button>
         </div>
       ) : viewMode === "grid" ? (
+        <>
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {filtered.map((asset, index) => {
+          {paginatedMedia.map((asset, index) => {
             const isSelected = selectedMediaIds.includes(String(asset.id));
             const selectionIndex = isSelected ? selectedMediaIds.indexOf(String(asset.id)) + 1 : null;
             return (
@@ -495,9 +511,24 @@ export default function MediaLibraryPage() {
             );
           })}
         </div>
+        
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-6">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              itemsPerPage={itemsPerPage}
+              totalItems={filtered.length}
+            />
+          </div>
+        )}
+        </>
       ) : (
+        <>
         <div className="space-y-2">
-          {filtered.map((asset) => {
+          {paginatedMedia.map((asset) => {
             const isSelected = selectedMediaIds.includes(String(asset.id));
             return (
               <div
@@ -590,6 +621,20 @@ export default function MediaLibraryPage() {
             );
           })}
         </div>
+        
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-6">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              itemsPerPage={itemsPerPage}
+              totalItems={filtered.length}
+            />
+          </div>
+        )}
+        </>
       )}
 
       {/* Preview Modal */}

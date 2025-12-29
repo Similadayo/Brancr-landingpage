@@ -444,6 +444,19 @@ export default function OrdersPage() {
               );
             })}
           </div>
+          
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                itemsPerPage={itemsPerPage}
+                totalItems={filteredOrders.length}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

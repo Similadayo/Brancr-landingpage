@@ -580,8 +580,8 @@ export default function IntegrationsPage() {
                   </div>
                 )}
 
-                {/* WhatsApp Profile Settings */}
-                {isWhatsApp && connected && (
+                {/* WhatsApp Profile Settings - Always show for WhatsApp */}
+                {isWhatsApp && (
                   <div className="mb-4">
                     <WhatsAppProfile />
                   </div>

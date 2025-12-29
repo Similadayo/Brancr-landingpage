@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useTemplates, useDeleteTemplate } from "@/app/(tenant)/hooks/useTemplates";
+import { Pagination } from "@/app/(tenant)/components/ui/Pagination";
 import ConfirmModal from '@/app/components/ConfirmModal';
 
 export default function TemplatesPage() {
@@ -10,9 +11,18 @@ export default function TemplatesPage() {
   const templates = Array.isArray(templatesData) ? templatesData : [];
   const deleteMutation = useDeleteTemplate();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
 
   const [showDeleteTemplateId, setShowDeleteTemplateId] = useState<string | null>(null);
   const [showDeleteTemplateName, setShowDeleteTemplateName] = useState<string | null>(null);
+
+  // Pagination
+  const totalPages = Math.ceil(templates.length / itemsPerPage);
+  const paginatedTemplates = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return templates.slice(start, start + itemsPerPage);
+  }, [templates, currentPage, itemsPerPage]);
 
   const handleDelete = async (templateId: string) => {
     setDeletingId(templateId);
@@ -88,8 +98,9 @@ export default function TemplatesPage() {
           </Link>
         </div>
       ) : (
+        <>
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {templates.map((template) => (
+          {paginatedTemplates.map((template) => (
             <div
               key={template.id}
               className="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-sm transition hover:shadow-md"
@@ -160,6 +171,20 @@ export default function TemplatesPage() {
             </div>
           ))}
         </div>
+        
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-6">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              itemsPerPage={itemsPerPage}
+              totalItems={templates.length}
+            />
+          </div>
+        )}
+        </>
       )}
     </div>
   );

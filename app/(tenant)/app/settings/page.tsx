@@ -23,12 +23,14 @@ import {
   SparklesIcon,
   ChartBarIcon,
   BuildingOfficeIcon,
+  WhatsAppIcon,
 } from "../../components/icons";
 import PersonaSummary from './persona/PersonaSummary';
 import { IndustrySelector } from "../../components/IndustrySelector";
 import { useTenantIndustry } from "../../hooks/useIndustry";
+import { WhatsAppProfile } from "../../components/WhatsAppProfile";
 
-type TabKey = "profile" | "industry" | "notifications" | "team" | "billing";
+type TabKey = "profile" | "industry" | "notifications" | "team" | "billing" | "whatsapp";
 
 const TABS: Array<{ key: TabKey; label: string; icon: React.ReactNode }> = [
   { key: "profile", label: "Business Profile", icon: <UserIcon className="w-4 h-4" /> },
@@ -36,6 +38,7 @@ const TABS: Array<{ key: TabKey; label: string; icon: React.ReactNode }> = [
   { key: "notifications", label: "Notifications", icon: <BellIcon className="w-4 h-4" /> },
   { key: "team", label: "Team", icon: <UsersIcon className="w-4 h-4" /> },
   { key: "billing", label: "Billing & Plan", icon: <CreditCardIcon className="w-4 h-4" /> },
+  { key: "whatsapp", label: "WhatsApp Profile", icon: <WhatsAppIcon className="w-4 h-4" /> },
 ];
 
 export default function SettingsPage() {
@@ -496,6 +499,18 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
+          </div>
+        );
+      case "whatsapp":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">WhatsApp Business Profile</h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Manage your WhatsApp Business profile settings, including profile picture, business details, and about text.
+              </p>
+            </div>
+            <WhatsAppProfile />
           </div>
         );
       default:

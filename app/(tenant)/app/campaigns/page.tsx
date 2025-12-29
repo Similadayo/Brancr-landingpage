@@ -30,6 +30,7 @@ import Select from "@/app/(tenant)/components/ui/Select";
 import { StatusBadge } from "@/app/(tenant)/components/ui/Badge";
 import { Button } from "@/app/(tenant)/components/ui/Button";
 import { Card } from "@/app/(tenant)/components/ui/Card";
+import { Pagination } from "@/app/(tenant)/components/ui/Pagination";
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -44,6 +45,8 @@ export default function CampaignsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [platformFilter, setPlatformFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
   const { data: campaignStats } = useCampaignStats();
   const { data: templatesData } = useTemplates();
   
@@ -139,6 +142,18 @@ export default function CampaignsPage() {
       return new Date(aTime).getTime() - new Date(bTime).getTime();
     });
   }, [scheduledPosts, activeTab, statusFilter, platformFilter, searchQuery]);
+
+  // Pagination
+  const totalPages = Math.ceil(currentPosts.length / itemsPerPage);
+  const paginatedPosts = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return currentPosts.slice(start, start + itemsPerPage);
+  }, [currentPosts, currentPage, itemsPerPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, statusFilter, platformFilter, searchQuery]);
 
   void scheduledPostsData;
 
@@ -527,7 +542,7 @@ export default function CampaignsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {currentPosts.map((post) => {
+            {paginatedPosts.map((post) => {
               const canCancel = post.status === "scheduled" || post.status === "posting";
               const canPublish = post.status === "scheduled";
               const isCancelling = cancellingPostId === post.id;
@@ -681,6 +696,19 @@ export default function CampaignsPage() {
               );
             })}
           </div>
+          
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                itemsPerPage={itemsPerPage}
+                totalItems={currentPosts.length}
+              />
+            </div>
+          )}
         )}
       </div>
 
