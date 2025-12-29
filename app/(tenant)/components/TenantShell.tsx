@@ -520,8 +520,8 @@ export function TenantShell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <div className="mt-auto space-y-3 pt-4 border-t border-gray-200 dark:border-gray-600">
-            {/* AI Mode Toggle - Mobile/Desktop Sidebar */}
-            <div className={cn("flex items-center justify-center", isSidebarCollapsed && "justify-center")}>
+            {/* AI Mode Toggle - Mobile/Desktop Sidebar - Hidden on larger screens */}
+            <div className={cn("flex items-center justify-center lg:hidden", isSidebarCollapsed && "justify-center")}>
               {!isSidebarCollapsed ? (
                 <div className="w-full">
                   <p className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400 px-2">AI Mode</p>

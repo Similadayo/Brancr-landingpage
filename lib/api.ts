@@ -1052,6 +1052,27 @@ export const tenantApi = {
       updated: boolean; // Indicates if status was updated
     }>("/api/tenant/whatsapp/refresh-status"),
 
+  // WhatsApp profile picture endpoints
+  whatsappProfilePicture: () =>
+    get<{
+      success: true;
+      photo_url: string;
+      message: string;
+    }>("/api/tenant/whatsapp/profile/picture"),
+
+  updateWhatsAppProfilePicture: (file: File) =>
+    apiFetch<{
+      success: true;
+      message: string;
+    }>(`/api/tenant/whatsapp/profile/picture`, {
+      method: "PUT",
+      body: (() => {
+        const formData = new FormData();
+        formData.append('image', file);
+        return formData;
+      })(),
+    }),
+
   // Onboarding endpoints
   onboardingStatus: () =>
     get<{
