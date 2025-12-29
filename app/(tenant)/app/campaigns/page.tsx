@@ -193,7 +193,7 @@ export default function CampaignsPage() {
 
   const router = useRouter();
 
-  function DraftsList() {
+  const DraftsList = () => {
     const [drafts, setDrafts] = useState<any[]>([]);
     const [loadingDrafts, setLoadingDrafts] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
