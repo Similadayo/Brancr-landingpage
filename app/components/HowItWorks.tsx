@@ -72,7 +72,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white via-accent/5 to-white">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white via-accent/5 to-white dark:from-gray-900 dark:via-accent/10 dark:to-gray-900">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -81,7 +81,7 @@ export default function HowItWorks() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             How It Works
           </h2>
         </motion.div>
@@ -96,35 +96,35 @@ export default function HowItWorks() {
               transition={{ duration: 0.5, delay: index * 0.15 }}
               className="relative"
             >
-              <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
-                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-accent to-accent-light rounded-full flex items-center justify-center text-white text-2xl font-bold">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700">
+                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-accent to-accent-light dark:from-white dark:to-gray-200 rounded-full flex items-center justify-center text-white dark:text-gray-900 text-2xl font-bold">
                   {step.number}
                 </div>
-                <div className="w-12 h-12 mx-auto mb-4 text-accent text-center">
+                <div className="w-12 h-12 mx-auto mb-4 text-accent dark:text-accent-400 text-center">
                   {step.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
                   {step.title}
                 </h3>
                 <div className="space-y-3">
                   <div>
-                    <p className="text-sm font-medium text-gray-700 mb-1">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       What You Do:
                     </p>
-                    <p className="text-gray-600 text-sm">{step.whatYouDo}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">{step.whatYouDo}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-accent mb-1">
+                    <p className="text-sm font-medium text-accent dark:text-accent-400 mb-1">
                       What You Get:
                     </p>
-                    <p className="text-gray-700 text-sm font-medium">
+                    <p className="text-gray-700 dark:text-gray-200 text-sm font-medium">
                       {step.whatYouGet}
                     </p>
                   </div>
                 </div>
               </div>
               {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-gradient-to-r from-accent to-accent-light transform -translate-y-1/2"></div>
+                <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-gradient-to-r from-accent to-accent-light dark:from-white dark:to-gray-300 transform -translate-y-1/2"></div>
               )}
             </motion.div>
           ))}

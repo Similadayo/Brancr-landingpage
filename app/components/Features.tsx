@@ -75,7 +75,7 @@ export default function Features() {
   return (
     <section
       id="features"
-      className="py-20 px-4 sm:px-6 lg:px-8 bg-white"
+      className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-900"
     >
       <div className="max-w-7xl mx-auto">
         <motion.div
@@ -85,10 +85,10 @@ export default function Features() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             All the Tools you need to help
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Everything you need to manage your social media, engage customers, and grow your business—all in one place.
           </p>
         </motion.div>
@@ -102,36 +102,36 @@ export default function Features() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               whileHover={{ y: -5 }}
-              className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300"
+              className="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300"
             >
-              <div className="w-14 h-14 bg-gradient-to-br from-accent/10 to-accent-light/10 rounded-lg flex items-center justify-center text-accent mb-6">
+              <div className="w-14 h-14 bg-gradient-to-br from-accent/10 to-accent-light/10 dark:from-accent/20 dark:to-accent-light/20 rounded-lg flex items-center justify-center text-accent dark:text-accent-400 mb-6">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
                 {feature.title}
               </h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Problem:
                   </p>
-                  <p className="text-gray-600 text-sm leading-relaxed">
+                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
                     {feature.problem}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Solution:
                   </p>
-                  <p className="text-gray-600 text-sm leading-relaxed">
+                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
                     {feature.solution}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-accent mb-1">
+                  <p className="text-sm font-medium text-accent dark:text-accent-400 mb-1">
                     Result:
                   </p>
-                  <p className="text-gray-700 text-sm font-medium leading-relaxed">
+                  <p className="text-gray-700 dark:text-gray-200 text-sm font-medium leading-relaxed">
                     {feature.result}
                   </p>
                 </div>

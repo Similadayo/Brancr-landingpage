@@ -79,36 +79,36 @@ export default function Hero() {
           <div className="bg-gradient-to-br from-accent/10 to-accent-light/10 dark:from-accent/5 dark:to-accent-light/5 rounded-2xl p-8 border border-accent/20 dark:border-accent/10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Phone Mockup */}
-              <div className="bg-white dark:bg-gray-700 rounded-xl p-6 shadow-xl">
-                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 mb-4">
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
+                <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-4 mb-4 border border-gray-200 dark:border-gray-600">
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent-light"></div>
-                      <div className="flex-1 bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm">
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                      <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm border border-gray-200 dark:border-gray-600">
+                        <p className="text-sm text-gray-700 dark:text-gray-200">
                           &quot;Do you have this in stock?&quot;
                         </p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3 justify-end">
-                      <div className="flex-1 bg-accent text-white rounded-lg p-3 text-sm">
+                      <div className="flex-1 bg-accent text-white rounded-lg p-3 text-sm dark:bg-white dark:text-gray-900">
                         Yes! We have it available. Would you like to place an
                         order?
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-300 text-center">
+                <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
                   AI-powered chat interface
                 </div>
               </div>
 
               {/* Analytics Card */}
-              <div className="bg-white dark:bg-gray-700 rounded-xl p-6 shadow-xl">
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-200 dark:border-gray-700">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600 dark:text-gray-300">Conversions</span>
-                    <span className="text-lg font-bold text-accent">+47%</span>
+                    <span className="text-lg font-bold text-accent dark:text-white">+47%</span>
                   </div>
                   <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div className="h-full bg-gradient-to-r from-accent to-accent-light w-3/4"></div>

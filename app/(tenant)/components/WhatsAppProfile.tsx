@@ -245,19 +245,19 @@ export function WhatsAppProfile() {
       <WhatsAppProfilePicture />
 
       {/* Profile Details Form */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Business Profile</h3>
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-600 dark:bg-gray-700">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Business Profile</h3>
         
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin dark:border-white" />
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Address Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="address-line-1">
+                <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" htmlFor="address-line-1">
                   Street Address
                 </label>
                 <input
@@ -265,12 +265,12 @@ export function WhatsAppProfile() {
                   type="text"
                   value={formData.add_line1 || ''}
                   onChange={(e) => setFormData({ ...formData, add_line1: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
                   placeholder="123 Main Street"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="address-line-2">
+                <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" htmlFor="address-line-2">
                   Apartment, Suite, or Unit (Optional)
                 </label>
                 <input
@@ -278,12 +278,12 @@ export function WhatsAppProfile() {
                   type="text"
                   value={formData.add_line2 || ''}
                   onChange={(e) => setFormData({ ...formData, add_line2: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
                   placeholder="Suite 100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="city">
+                <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" htmlFor="city">
                   City
                 </label>
                 <input
@@ -291,12 +291,12 @@ export function WhatsAppProfile() {
                   type="text"
                   value={formData.city || ''}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
                   placeholder="New York"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="state">
+                <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" htmlFor="state">
                   State or Province
                 </label>
                 <input
@@ -304,12 +304,12 @@ export function WhatsAppProfile() {
                   type="text"
                   value={formData.state || ''}
                   onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
                   placeholder="New York"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="postal-code">
+                <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" htmlFor="postal-code">
                   Postal Code or ZIP Code
                 </label>
                 <input
@@ -317,12 +317,12 @@ export function WhatsAppProfile() {
                   type="text"
                   value={formData.pin_code || ''}
                   onChange={(e) => setFormData({ ...formData, pin_code: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
                   placeholder="10001"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="country">
+                <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" htmlFor="country">
                   Country
                 </label>
                 <input
@@ -330,7 +330,7 @@ export function WhatsAppProfile() {
                   type="text"
                   value={formData.country || ''}
                   onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
                   placeholder="United States"
                 />
               </div>
@@ -339,7 +339,7 @@ export function WhatsAppProfile() {
             {/* Business Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="business-vertical">
+                <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" htmlFor="business-vertical">
                   Business Category
                 </label>
                 <Select
@@ -352,7 +352,7 @@ export function WhatsAppProfile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="business-email">
+                <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" htmlFor="business-email">
                   Business Email Address
                 </label>
                 <input
@@ -360,7 +360,7 @@ export function WhatsAppProfile() {
                   type="email"
                   value={formData.profile_email || ''}
                   onChange={(e) => setFormData({ ...formData, profile_email: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
                   placeholder="contact@business.com"
                 />
               </div>
@@ -368,7 +368,7 @@ export function WhatsAppProfile() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="primary-website">
+                <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" htmlFor="primary-website">
                   Primary Website
                 </label>
                 <input
@@ -376,12 +376,12 @@ export function WhatsAppProfile() {
                   type="url"
                   value={formData.website1 || ''}
                   onChange={(e) => setFormData({ ...formData, website1: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
                   placeholder="https://example.com"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="secondary-website">
+                <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" htmlFor="secondary-website">
                   Secondary Website (Optional)
                 </label>
                 <input
@@ -389,14 +389,14 @@ export function WhatsAppProfile() {
                   type="url"
                   value={formData.website2 || ''}
                   onChange={(e) => setFormData({ ...formData, website2: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
                   placeholder="https://example2.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="business-description">
+              <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" htmlFor="business-description">
                 Business Description
               </label>
               <textarea
@@ -404,14 +404,14 @@ export function WhatsAppProfile() {
                 value={formData.desc || ''}
                 onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
                 rows={5}
-                className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
                 placeholder="Tell us about your business..."
               />
             </div>
 
             {error && (
-              <div className="rounded-lg bg-red-50 border border-red-200 p-3">
-                <p className="text-sm text-red-800">{error}</p>
+              <div className="rounded-lg bg-red-50 border border-red-200 p-3 dark:bg-red-900/20 dark:border-red-800">
+                <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
               </div>
             )}
 
@@ -429,12 +429,12 @@ export function WhatsAppProfile() {
       </div>
 
       {/* Profile About Section */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">About Text</h3>
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-600 dark:bg-gray-700">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">About Text</h3>
         
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="about-text">
+            <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" htmlFor="about-text">
               About Text
             </label>
             <textarea
@@ -443,15 +443,15 @@ export function WhatsAppProfile() {
               onChange={(e) => setAbout(e.target.value)}
               maxLength={512}
               rows={4}
-              className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
               placeholder="Brief business description (max 512 characters)"
             />
             <div className="mt-2 flex justify-between items-center">
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 {about.length}/512 characters
               </p>
               {about.length > 512 && (
-                <p className="text-xs text-red-600">Exceeds maximum length</p>
+                <p className="text-xs text-red-600 dark:text-red-400">Exceeds maximum length</p>
               )}
             </div>
           </div>
