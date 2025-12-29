@@ -7,8 +7,6 @@ import { toast } from 'react-hot-toast';
 import { WhatsAppProfilePicture } from './WhatsAppProfilePicture';
 import Select, { SelectOption } from './ui/Select';
 import { Button } from './ui/Button';
-import Select, { SelectOption } from './ui/Select';
-import { Button } from './ui/Button';
 
 type Vertical = 
   | "OTHER" | "AUTO" | "BEAUTY" | "APPAREL" | "EDU" | "ENTERTAIN" 
