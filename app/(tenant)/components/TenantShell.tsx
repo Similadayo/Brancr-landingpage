@@ -47,9 +47,10 @@ type NavItem = {
 };
 
 // Core navigation items (always visible) - will be populated with dynamic badges
-const getCoreNavItems = (badges?: { inbox?: number; escalations?: number }): NavItem[] => [
+const getCoreNavItems = (badges?: { inbox?: number; escalations?: number; alerts?: number }): NavItem[] => [
   { label: "Overview", href: "/app", icon: <HomeIcon className="w-5 h-5" /> },
   { label: "Inbox", href: "/app/inbox", icon: <InboxIcon className="w-5 h-5" />, badge: badges?.inbox },
+  { label: "Alerts", href: "/app/alerts", icon: <BellIcon className="w-5 h-5" />, badge: badges?.alerts },
   { label: "Escalations", href: "/app/escalations", icon: <AlertIcon className="w-5 h-5" />, badge: badges?.escalations },
   { label: "Campaigns", href: "/app/campaigns", icon: <RocketIcon className="w-5 h-5" /> },
   { label: "Payments", href: "/app/payments", icon: <CreditCardIcon className="w-5 h-5" /> },
@@ -156,17 +157,27 @@ export function TenantShell({ children }: { children: ReactNode }) {
     enabled: !!tenant,
   });
 
+  // Fetch alerts count for badge
+  const { data: alertCounts } = useQuery({
+    queryKey: ["alert-counts"],
+    queryFn: () => tenantApi.getAlertCounts(),
+    enabled: !!tenant,
+    refetchInterval: 30_000,
+  });
+
   const navBadges = useMemo(() => {
     const conversations = Array.isArray(conversationsData?.conversations)
       ? conversationsData?.conversations
       : [];
     const unreadConversations = conversations.filter((c: any) => (c.unread_count ?? 0) > 0).length;
     const pendingEscalations = escalationsData?.escalations?.filter((e: any) => e.status === "pending").length || 0;
+    const unreadAlerts = alertCounts?.unread ?? 0;
     return {
       inbox: unreadConversations > 0 ? unreadConversations : undefined,
       escalations: pendingEscalations > 0 ? pendingEscalations : undefined,
+      alerts: unreadAlerts > 0 ? unreadAlerts : undefined,
     };
-  }, [conversationsData, escalationsData]);
+  }, [conversationsData, escalationsData, alertCounts]);
 
   // AI mode query and header toggle mutation
   const { data: aiModeData, isLoading: isLoadingAIMode } = useQuery({

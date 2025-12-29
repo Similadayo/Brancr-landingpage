@@ -2,9 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import { BellIcon } from "./icons";
+import { useAlertCounts } from "../hooks/useAlerts";
+import { useNotificationCounts } from "../hooks/useNotifications";
 
 export function NotificationsBell() {
   const router = useRouter();
+  const { data: alertCounts } = useAlertCounts();
+  const { data: notificationCounts } = useNotificationCounts();
+  
+  const unreadAlerts = alertCounts?.unread ?? 0;
+  const unreadNotifications = notificationCounts?.unread ?? 0;
+  const totalUnread = unreadAlerts + unreadNotifications;
 
   return (
     <button
@@ -14,6 +22,11 @@ export function NotificationsBell() {
       aria-label="Notifications"
     >
       <BellIcon className="h-5 w-5" />
+      {totalUnread > 0 && (
+        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white shadow-sm dark:bg-white dark:text-gray-900">
+          {totalUnread > 99 ? '99+' : totalUnread}
+        </span>
+      )}
     </button>
   );
 }
