@@ -1128,6 +1128,29 @@ export const tenantApi = {
       message: string;
     }>("/api/tenant/whatsapp/profile/about", { about }),
 
+  // WhatsApp profile sync endpoints
+  previewWhatsAppProfileSync: () =>
+    get<{
+      success: boolean;
+      preview: {
+        fields: Array<{
+          name: string;
+          brancr_value: string;
+          whatsapp_value?: string;
+          will_change: boolean;
+        }>;
+        summary: string;
+      };
+      message: string;
+    }>("/api/tenant/whatsapp/profile/sync/preview"),
+
+  syncBrancrToWhatsApp: () =>
+    post<never, {
+      success: boolean;
+      profile: any;
+      message: string;
+    }>("/api/tenant/whatsapp/profile/sync"),
+
   // Onboarding endpoints
   onboardingStatus: () =>
     get<{

@@ -7,6 +7,8 @@ import { toast } from 'react-hot-toast';
 import { WhatsAppProfilePicture } from './WhatsAppProfilePicture';
 import Select, { SelectOption } from './ui/Select';
 import { Button } from './ui/Button';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
+import { Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from './ui/Modal';
 
 type Vertical = 
   | "OTHER" | "AUTO" | "BEAUTY" | "APPAREL" | "EDU" | "ENTERTAIN" 
@@ -229,6 +231,55 @@ export function WhatsAppProfile() {
   const loading = isLoadingProfile || isLoadingAbout;
   const updating = updateProfileMutation.isPending || updateAboutMutation.isPending;
 
+  // Sync preview state
+  const [showPreview, setShowPreview] = useState(false);
+
+  // Preview query
+  const { data: previewData, isLoading: previewLoading, refetch: refetchPreview } = useQuery({
+    queryKey: ['whatsapp-sync-preview'],
+    queryFn: async () => {
+      try {
+        return await tenantApi.previewWhatsAppProfileSync();
+      } catch (err: any) {
+        if (err?.status === 404) {
+          return null;
+        }
+        throw err;
+      }
+    },
+    enabled: showPreview, // Only fetch when modal is open
+    retry: false,
+  });
+
+  // Sync mutation
+  const syncMutation = useMutation({
+    mutationFn: () => tenantApi.syncBrancrToWhatsApp(),
+    onSuccess: (data) => {
+      setShowPreview(false);
+      void queryClient.invalidateQueries({ queryKey: ['whatsapp-sync-preview'] });
+      void queryClient.invalidateQueries({ queryKey: ['whatsapp-profile'] });
+      void queryClient.invalidateQueries({ queryKey: ['whatsapp-profile-about'] });
+      toast.success(data.message || 'Profile synced successfully to WhatsApp!');
+    },
+    onError: (err: any) => {
+      if (err?.status === 404) {
+        if (err?.body?.error === 'no_whatsapp_app') {
+          toast.error('WhatsApp not connected. Please connect WhatsApp first.');
+        } else if (err?.body?.error === 'no_business_profile') {
+          toast.error('Business profile not found. Please complete onboarding first.');
+        } else {
+          toast.error('WhatsApp not connected. Please connect WhatsApp first.');
+        }
+      } else {
+        const errorMessage = err?.message || err?.body?.message || 'Failed to sync profile';
+        toast.error(`Sync failed: ${errorMessage}`);
+      }
+    },
+  });
+
+  const fieldsToChange = previewData?.preview?.fields.filter(f => f.will_change) || [];
+  const hasChanges = fieldsToChange.length > 0;
+
   return (
     <div className="space-y-6">
       {/* Show error message if no WhatsApp app found, but still show the form */}
@@ -243,6 +294,30 @@ export function WhatsAppProfile() {
 
       {/* Profile Picture Section */}
       <WhatsAppProfilePicture />
+
+      {/* Sync Business Profile Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Sync Business Profile</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Use your onboarding details to populate your WhatsApp profile automatically.
+          </p>
+          <Button
+            onClick={() => setShowPreview(true)}
+            variant="secondary"
+            className="w-full"
+            leftIcon={
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            }
+          >
+            Preview & Sync to WhatsApp
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Profile Details Form */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-600 dark:bg-gray-700">
@@ -467,6 +542,126 @@ export function WhatsAppProfile() {
           </div>
         </div>
       </div>
+
+      {/* Preview Sync Modal */}
+      <Modal open={showPreview} onClose={() => setShowPreview(false)} size="lg">
+        <ModalHeader onClose={() => setShowPreview(false)}>
+          <ModalTitle>Preview Profile Sync</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+          {previewLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin dark:border-white" />
+              <span className="ml-3 text-sm text-gray-600 dark:text-gray-400">Loading preview...</span>
+            </div>
+          ) : previewData?.preview ? (
+            <div className="space-y-4">
+              {/* Summary Alert */}
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+                <div className="flex items-start gap-3">
+                  <svg className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                    {previewData.preview.summary}
+                  </p>
+                </div>
+              </div>
+
+              {/* Fields Table */}
+              <div className="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 dark:bg-gray-800">
+                      <tr>
+                        <th className="text-left p-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Field</th>
+                        <th className="text-left p-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Brancr Value</th>
+                        <th className="text-left p-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Current WhatsApp</th>
+                        <th className="text-center p-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {previewData.preview.fields.map((field, idx) => (
+                        <tr key={idx} className="border-t border-gray-200 dark:border-gray-600">
+                          <td className="p-3 text-sm font-medium text-gray-900 dark:text-gray-100">{field.name}</td>
+                          <td className="p-3 text-sm text-gray-700 dark:text-gray-300">
+                            {field.brancr_value || (
+                              <span className="text-gray-400 dark:text-gray-500 italic">Not set</span>
+                            )}
+                          </td>
+                          <td className="p-3 text-sm text-gray-700 dark:text-gray-300">
+                            {field.whatsapp_value ? (
+                              <span className="text-gray-600 dark:text-gray-400">{field.whatsapp_value}</span>
+                            ) : (
+                              <span className="text-gray-400 dark:text-gray-500 italic">Not set</span>
+                            )}
+                          </td>
+                          <td className="p-3 text-center">
+                            {field.will_change ? (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                Will update
+                              </span>
+                            ) : (
+                              <svg className="h-5 w-5 text-green-600 dark:text-green-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {!hasChanges && (
+                <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
+                  <div className="flex items-start gap-3">
+                    <svg className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <p className="text-sm text-green-800 dark:text-green-200">
+                      Your WhatsApp profile already matches your business profile. No changes needed.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+              <div className="flex items-start gap-3">
+                <svg className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-sm text-red-800 dark:text-red-200">
+                  Failed to load preview. Please try again.
+                </p>
+              </div>
+            </div>
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            variant="secondary"
+            onClick={() => setShowPreview(false)}
+            disabled={syncMutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => syncMutation.mutate()}
+            disabled={syncMutation.isPending || !hasChanges}
+            isLoading={syncMutation.isPending}
+            leftIcon={
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            }
+          >
+            {syncMutation.isPending ? 'Syncing...' : 'Sync to WhatsApp'}
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 }
