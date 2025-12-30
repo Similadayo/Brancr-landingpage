@@ -381,7 +381,7 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Intent:</span>
-              <span className="inline-flex items-center rounded-lg bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:text-blue-300">
+              <span className="inline-flex items-center rounded-lg bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:text-white">
                 {escalation.intent}
                 </span>
               </div>
@@ -389,9 +389,9 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
               <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Tone:</span>
               <span className={`inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold ${
                 escalation.tone.toLowerCase() === 'negative' 
-                  ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                  ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-white'
                   : escalation.tone.toLowerCase() === 'positive'
-                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-white'
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
               }`}>
                 {escalation.tone}

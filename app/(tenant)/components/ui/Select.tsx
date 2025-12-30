@@ -176,7 +176,7 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
         disabled={props.disabled}
         onClick={() => !props.disabled && setOpen((v) => !v)}
         onKeyDown={onButtonKeyDown}
-        className={`group relative flex w-full items-center justify-between gap-2 rounded-2xl border-2 border-gray-200 bg-white px-4 py-3 text-left text-sm text-gray-700 shadow-sm transition focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-border dark:bg-dark-surface dark:text-dark-text-primary ${
+        className={`group relative flex w-full items-center justify-between gap-2 rounded-2xl border-2 border-gray-200 bg-white px-4 py-3 text-left text-sm text-gray-700 shadow-sm transition focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-border dark:bg-dark-surface dark:text-white dark:hover:bg-dark-elevated ${
           props.buttonClassName ?? ''
         }`}
         style={props.buttonClassName?.includes('bg-transparent') ? { backgroundColor: 'transparent', border: 'none' } : undefined}
@@ -211,12 +211,12 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
                   ))}
               </div>
             ) : (
-              <span className="text-gray-400">{props.placeholder ?? 'Select...'}</span>
+              <span className="text-gray-400 dark:text-gray-400">{props.placeholder ?? 'Select...'}</span>
             )
           ) : selectedLabels.length > 0 ? (
             <span className="block truncate">{selectedLabels[0]}</span>
           ) : (
-            <span className="text-gray-400">{props.placeholder ?? 'Select...'}</span>
+            <span className="text-gray-400 dark:text-gray-400">{props.placeholder ?? 'Select...'}</span>
           )}
         </div>
 
@@ -229,7 +229,7 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
                 e.stopPropagation();
                 clearMulti();
               }}
-              className="rounded-full p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+              className="rounded-full p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-dark-elevated dark:hover:text-white"
               aria-label="Clear selection"
               title="Clear"
             >
@@ -252,7 +252,7 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search..."
                 aria-label="Search options"
-                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 transition focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 transition focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 dark:border-dark-border dark:bg-dark-surface dark:text-white dark:placeholder:text-gray-400"
               />
             </div>
           )}
@@ -264,7 +264,7 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
             className="max-h-60 overflow-auto p-1.5 focus:outline-none scrollbar-thin"
           >
             {filteredOptions.length === 0 ? (
-              <div className="px-3 py-2.5 text-sm text-gray-500">No results</div>
+              <div className="px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400">No results</div>
             ) : (
               filteredOptions.map((opt, idx) => {
                 const selected = isSelected(opt.value);
@@ -286,16 +286,16 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
                     }}
                     className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
                       selected
-                        ? 'bg-primary/10 text-primary font-semibold'
+                        ? 'bg-primary/10 text-primary font-semibold dark:bg-dark-accent-primary/20 dark:text-dark-accent-primary'
                         : active
-                        ? 'bg-gray-100 text-gray-900'
-                        : 'bg-transparent text-gray-700'
-                    } ${!selected && !active ? 'hover:bg-gray-50' : ''}`}
+                        ? 'bg-gray-100 text-gray-900 dark:bg-dark-elevated dark:text-white'
+                        : 'bg-transparent text-gray-700 dark:text-gray-300'
+                    } ${!selected && !active ? 'hover:bg-gray-50 dark:hover:bg-dark-elevated dark:hover:text-white' : ''}`}
                   >
                     <div className="min-w-0 flex-1">
                       <div className="truncate">{opt.label}</div>
                       {opt.description ? (
-                        <div className="mt-0.5 line-clamp-2 text-xs text-gray-500">
+                        <div className="mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">
                           {opt.description}
                         </div>
                       ) : null}

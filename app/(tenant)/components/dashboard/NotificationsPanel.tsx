@@ -50,34 +50,34 @@ export function NotificationsPanel({
 
   if (!hasNotifications && recentConversations.length === 0 && recentEscalations.length === 0) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-600 dark:bg-gray-700">
         <div className="flex items-center gap-3 mb-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-600">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-600 dark:bg-gray-600 dark:text-gray-300">
             <InboxIcon className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Notifications</h2>
-            <p className="text-xs text-gray-500">Stay updated on important activities</p>
+            <h2 className="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">Notifications</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Stay updated on important activities</p>
           </div>
         </div>
         <div className="text-center py-8">
-          <p className="text-sm text-gray-500">No new notifications</p>
-          <p className="text-xs text-gray-400 mt-1">You&apos;re all caught up!</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">No new notifications</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">You&apos;re all caught up!</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-600 dark:bg-gray-700">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary dark:bg-dark-accent-primary/20 dark:text-dark-accent-primary">
             <InboxIcon className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Notifications</h2>
-            <p className="text-xs text-gray-500">Recent activity requiring attention</p>
+            <h2 className="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">Notifications</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Recent activity requiring attention</p>
           </div>
         </div>
         {hasNotifications && (
@@ -92,28 +92,28 @@ export function NotificationsPanel({
         {unreadMessages > 0 && (
           <Link
             href="/app/inbox"
-            className="block rounded-lg border border-blue-200 bg-blue-50 p-3 hover:bg-blue-100 transition-colors"
+            className="block rounded-lg border border-blue-200 bg-blue-50 p-3 hover:bg-blue-100 transition-colors dark:border-blue-800 dark:bg-blue-900/30 dark:hover:bg-blue-900/40"
           >
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 mt-0.5">
-                <InboxIcon className="w-5 h-5 text-blue-600" />
+                <InboxIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="text-sm font-semibold text-gray-900">New Messages</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white">New Messages</h3>
                   <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-xs font-semibold text-white">
                     {unreadMessages}
                   </span>
                 </div>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   You have {unreadMessages} unread message{unreadMessages !== 1 ? 's' : ''} waiting for your response
                 </p>
                 {recentConversations.length > 0 && (
                   <div className="mt-2 space-y-1">
                     {recentConversations.slice(0, 2).map((conv) => (
                       <div key={conv.id} className="flex items-center justify-between text-xs">
-                        <span className="text-gray-700 truncate">{conv.customer_name}</span>
-                        <span className="text-gray-500 flex-shrink-0 ml-2">
+                        <span className="text-gray-700 dark:text-white truncate">{conv.customer_name}</span>
+                        <span className="text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2">
                           {formatTime(conv.last_message_at)}
                         </span>
                       </div>
@@ -129,28 +129,28 @@ export function NotificationsPanel({
         {pendingEscalations > 0 && (
           <Link
             href="/app/escalations"
-            className="block rounded-lg border border-orange-200 bg-orange-50 p-3 hover:bg-orange-100 transition-colors"
+            className="block rounded-lg border border-orange-200 bg-orange-50 p-3 hover:bg-orange-100 transition-colors dark:border-orange-800 dark:bg-orange-900/30 dark:hover:bg-orange-900/40"
           >
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 mt-0.5">
-                <AlertIcon className="w-5 h-5 text-orange-600" />
+                <AlertIcon className="w-5 h-5 text-orange-600 dark:text-orange-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="text-sm font-semibold text-gray-900">Pending Escalations</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Pending Escalations</h3>
                   <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-xs font-semibold text-white">
                     {pendingEscalations}
                   </span>
                 </div>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   {pendingEscalations} escalation{pendingEscalations !== 1 ? 's' : ''} require{pendingEscalations === 1 ? 's' : ''} your attention
                 </p>
                 {recentEscalations.length > 0 && (
                   <div className="mt-2 space-y-1">
                     {recentEscalations.slice(0, 2).map((esc) => (
                       <div key={esc.id} className="flex items-center justify-between text-xs">
-                        <span className="text-gray-700 truncate">{esc.customerName}</span>
-                        <span className="text-gray-500 flex-shrink-0 ml-2">
+                        <span className="text-gray-700 dark:text-white truncate">{esc.customerName}</span>
+                        <span className="text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2">
                           {formatTime(esc.createdAt)}
                         </span>
                       </div>
@@ -165,19 +165,19 @@ export function NotificationsPanel({
         {/* No notifications message */}
         {!hasNotifications && (
           <div className="text-center py-4">
-            <p className="text-sm text-gray-500">No new notifications</p>
-            <p className="text-xs text-gray-400 mt-1">You&apos;re all caught up!</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">No new notifications</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">You&apos;re all caught up!</p>
           </div>
         )}
       </div>
 
       {/* Quick Actions */}
       {(unreadMessages > 0 || pendingEscalations > 0) && (
-        <div className="mt-4 pt-4 border-t border-gray-200 flex gap-2">
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 flex gap-2">
           {unreadMessages > 0 && (
             <Link
               href="/app/inbox"
-              className="flex-1 text-center rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white hover:bg-primary/90 transition-colors"
+              className="flex-1 text-center rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white hover:bg-primary/90 transition-colors dark:bg-dark-accent-primary dark:hover:bg-[#6BB8FF]"
             >
               View Messages
             </Link>
@@ -185,7 +185,7 @@ export function NotificationsPanel({
           {pendingEscalations > 0 && (
             <Link
               href="/app/escalations"
-              className="flex-1 text-center rounded-lg border border-orange-300 bg-orange-50 px-3 py-2 text-xs font-semibold text-orange-700 hover:bg-orange-100 transition-colors"
+              className="flex-1 text-center rounded-lg border border-orange-300 bg-orange-50 px-3 py-2 text-xs font-semibold text-orange-700 hover:bg-orange-100 transition-colors dark:border-orange-700 dark:bg-orange-900/30 dark:text-white dark:hover:bg-orange-900/40"
             >
               View Escalations
             </Link>

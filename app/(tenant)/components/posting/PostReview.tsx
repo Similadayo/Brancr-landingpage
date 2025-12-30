@@ -234,12 +234,12 @@ export default function PostReview({
 
       {/* Publishing Status */}
       {publishingStatus.status === "publishing" && (
-        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6">
+        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-900/30">
           <div className="flex items-center gap-3">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600/20 border-t-blue-600" />
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600/20 border-t-blue-600 dark:border-blue-400/20 dark:border-t-blue-400" />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-blue-900">Publishing...</p>
-              <p className="mt-1 text-xs text-blue-700">
+              <p className="text-sm font-semibold text-blue-900 dark:text-white">Publishing...</p>
+              <p className="mt-1 text-xs text-blue-700 dark:text-gray-300">
                 Publishing to {selectedPlatforms.map((p) => PLATFORM_NAMES[p] || p).join(", ")}...
               </p>
             </div>
@@ -248,13 +248,13 @@ export default function PostReview({
       )}
 
       {publishingStatus.status === "success" && (
-        <div className="rounded-2xl border border-green-200 bg-green-50 p-6">
+        <div className="rounded-2xl border border-green-200 bg-green-50 p-6 dark:border-green-800 dark:bg-green-900/30">
           <div className="flex items-start gap-3">
             <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-600 text-white">
               ✓
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-green-900">✅ Post published successfully!</p>
+              <p className="text-sm font-semibold text-green-900 dark:text-white">✅ Post published successfully!</p>
               {publishingStatus.platformResults && (
                 <div className="mt-2 flex flex-wrap gap-2">
                   {Object.entries(publishingStatus.platformResults).map(([platform, result]) => (
@@ -262,8 +262,8 @@ export default function PostReview({
                       key={platform}
                       className={`rounded-full px-2 py-1 text-xs font-semibold ${
                         result === "success"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-white"
+                          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-white"
                       }`}
                     >
                       {PLATFORM_NAMES[platform] || platform} {result === "success" ? "✓" : "✗"}
@@ -277,14 +277,14 @@ export default function PostReview({
       )}
 
       {publishingStatus.status === "error" && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-6">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-900/30">
           <div className="flex items-start gap-3">
             <div className="flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white">
               ✗
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-red-900">Failed to publish</p>
-              <p className="mt-1 text-xs text-red-700">{publishingStatus.error}</p>
+              <p className="text-sm font-semibold text-red-900 dark:text-white">Failed to publish</p>
+              <p className="mt-1 text-xs text-red-700 dark:text-gray-300">{publishingStatus.error}</p>
               {publishingStatus.platformResults && (
                 <div className="mt-2 flex flex-wrap gap-2">
                   {Object.entries(publishingStatus.platformResults).map(([platform, result]) => (
@@ -292,8 +292,8 @@ export default function PostReview({
                       key={platform}
                       className={`rounded-full px-2 py-1 text-xs font-semibold ${
                         result === "success"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-white"
+                          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-white"
                       }`}
                     >
                       {PLATFORM_NAMES[platform] || platform} {result === "success" ? "✓" : "✗"}

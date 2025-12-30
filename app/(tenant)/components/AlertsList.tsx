@@ -31,9 +31,9 @@ const STATUS_OPTIONS = [
 ];
 
 const SEVERITY_COLORS: Record<string, string> = {
-  info: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  warning: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-  critical: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+  info: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-white',
+  warning: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-white',
+  critical: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-white',
 };
 
 const TYPE_ICONS: Record<string, string> = {

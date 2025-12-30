@@ -459,8 +459,8 @@ export function TenantShell({ children }: { children: ReactNode }) {
           isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex items-center justify-center">
-          <Link href="/app" className="flex items-center justify-center">
+        <div className="flex items-center justify-between">
+          <Link href="/app" className="flex items-center justify-start">
             <span className="text-xl font-bold text-primary dark:text-white">Brancr.</span>
           </Link>
           <button
@@ -500,8 +500,8 @@ export function TenantShell({ children }: { children: ReactNode }) {
           sidebarWidthClass
           )}
         >
-          <div className={cn("flex items-center justify-center", isSidebarCollapsed && "justify-center")}>
-            <Link href="/app" className="flex items-center justify-center">
+          <div className={cn("flex items-center", isSidebarCollapsed ? "justify-center" : "justify-start")}>
+            <Link href="/app" className="flex items-center justify-start">
               {!isSidebarCollapsed ? (
                 <span className="text-xl font-bold text-primary dark:text-white">Brancr.</span>
               ) : (
