@@ -374,8 +374,8 @@ export default function InboxPage() {
                     key={tab}
                     className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                       isActive
-                        ? "bg-accent text-white shadow-sm dark:bg-white dark:text-gray-100"
-                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600"
+                        ? "bg-accent text-white shadow-sm dark:bg-white dark:text-gray-900"
+                        : "text-gray-600 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
                     }`}
                     onClick={() => setActiveStatusFilter(tab)}
                   >
@@ -394,7 +394,7 @@ export default function InboxPage() {
                   className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                     activePlatformFilter === "All"
                       ? "bg-accent/10 dark:bg-accent/20 text-accent dark:text-accent-400 border border-accent/20 dark:border-accent/30"
-                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
+                      : "text-gray-600 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
                   }`}
                   onClick={() => setActivePlatformFilter("All")}
                 >
@@ -422,7 +422,7 @@ export default function InboxPage() {
                       className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                         isActive
                           ? "bg-accent/10 dark:bg-accent/20 text-accent dark:text-accent-400 border border-accent/20 dark:border-accent/30"
-                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
+                          : "text-gray-600 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
                       }`}
                       onClick={() => setActivePlatformFilter(platform)}
                     >
@@ -439,7 +439,7 @@ export default function InboxPage() {
           <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 md:px-4 md:py-2.5">
             <div className="relative">
               <MagnifyingGlassIcon
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-gray-400"
                 aria-hidden="true"
               />
               <input
@@ -619,8 +619,8 @@ export default function InboxPage() {
                                            AllMessagesIcon;
                         return (
                           <>
-                            <PlatformIcon className="h-4 w-4 text-gray-600" />
-                            <span className="text-xs text-gray-500 capitalize">{activeConversation.platform}</span>
+                            <PlatformIcon className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                            <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">{activeConversation.platform}</span>
                           </>
                         );
                       })()}
@@ -629,7 +629,7 @@ export default function InboxPage() {
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button 
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
                     aria-label="Favorite conversation"
                   >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -637,7 +637,7 @@ export default function InboxPage() {
                     </svg>
                   </button>
                   <button 
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
                     aria-label="More options"
                   >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -651,7 +651,7 @@ export default function InboxPage() {
                       setMobileView('list');
                     }}
                     disabled={updateStatusMutation.isPending || !selectedConversationId}
-                    className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-lg p-2 text-gray-600 dark:text-gray-300 transition-colors hover:bg-gray-100 dark:hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-60"
                     aria-label="Close case"
                     title="Close case"
                   >
@@ -665,7 +665,7 @@ export default function InboxPage() {
                 {/* Date separator */}
                 {messages.length > 0 && (
                   <div className="px-4 py-2 text-center">
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(messages[0].created_at).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })}
                     </span>
                   </div>
@@ -741,7 +741,7 @@ export default function InboxPage() {
                     <button 
                       type="button"
                       onClick={handleAttachmentClick}
-                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
                       aria-label="Attach file"
                     >
                       <PaperClipIcon className="h-5 w-5" />
@@ -779,7 +779,7 @@ export default function InboxPage() {
                     <button 
                       type="button"
                       onClick={handleToggleEmojiPicker}
-                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
                       aria-label="Add emoji"
                     >
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -787,13 +787,13 @@ export default function InboxPage() {
                       </svg>
                     </button>
                     {showEmojiPicker && (
-                      <div className="absolute bottom-12 right-0 z-20 w-48 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
+                      <div className="absolute bottom-12 right-0 z-20 w-48 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 p-2 shadow-lg">
                         <div className="grid grid-cols-6 gap-1 text-lg">
                           {["😀","😁","😂","😊","😍","🤔","🙌","🔥","👍","🎉","🙏","😅","😎","🤩","🥳","🤝","💡","📌"].map((emoji) => (
                             <button
                               key={emoji}
                               type="button"
-                              className="h-8 w-8 rounded hover:bg-gray-100"
+                              className="h-8 w-8 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
                               onClick={() => handleEmojiSelect(emoji)}
                               aria-label={`Insert ${emoji}`}
                             >
@@ -917,7 +917,7 @@ export default function InboxPage() {
                             <button className="btn-primary text-xs flex-1">
                               Call
                             </button>
-                            <button className="flex-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                            <button className="flex-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
                               Chat
                             </button>
                           </div>

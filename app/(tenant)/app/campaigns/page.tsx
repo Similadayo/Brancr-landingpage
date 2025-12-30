@@ -376,7 +376,7 @@ export default function CampaignsPage() {
             <ClockIcon className="w-4 h-4" />
             Scheduled
             <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-              activeTab === "scheduled" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-400"
+              activeTab === "scheduled" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-white"
             }`}>
               {campaignStats?.scheduled ?? 0}
             </span>
@@ -392,7 +392,7 @@ export default function CampaignsPage() {
             <CheckCircleIcon className="w-4 h-4" />
             Published
             <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-              activeTab === "published" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-400"
+              activeTab === "published" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-white"
             }`}>
               {campaignStats?.published ?? 0}
             </span>
@@ -408,7 +408,7 @@ export default function CampaignsPage() {
             <DocumentTextIcon className="w-4 h-4" />
             Drafts
             <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-              activeTab === "drafts" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-400"
+              activeTab === "drafts" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-white"
             }`}>
               {campaignStats?.draft ?? 0}
             </span>
@@ -473,7 +473,7 @@ export default function CampaignsPage() {
                   setStatusFilter("All");
                   setPlatformFilter("All");
                 }}
-                className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 sm:text-sm"
+                className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 sm:text-sm"
               >
                 Clear
               </button>
@@ -561,20 +561,20 @@ export default function CampaignsPage() {
                       <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <h3 className="text-base font-semibold text-gray-900">{post.name}</h3>
+                            <h3 className="text-base font-semibold text-gray-900 dark:text-white">{post.name}</h3>
                             <StatusBadge status={post.status}>
                               {post.status}
                             </StatusBadge>
                           </div>
                           <div className="mt-1 flex items-center gap-2">
-                            <p className="line-clamp-2 text-sm text-gray-600 flex-1">{post.caption || "No caption"}</p>
+                            <p className="line-clamp-2 text-sm text-gray-600 dark:text-gray-300 flex-1">{post.caption || "No caption"}</p>
                             {post.enhance_caption && (
-                              <span className="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                              <span className="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-white">
                                 ✨ AI Enhanced
                               </span>
                             )}
                             {!post.caption && (
-                              <span className="shrink-0 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700">
+                              <span className="shrink-0 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700 dark:bg-purple-900/30 dark:text-white">
                                 🤖 AI Generated
                               </span>
                             )}
@@ -589,7 +589,7 @@ export default function CampaignsPage() {
                                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${
                                       isTikTok
                                         ? 'bg-black text-white'
-                                        : 'bg-gray-100 text-gray-700'
+                                        : 'bg-gray-100 text-gray-700 dark:bg-gray-600 dark:text-white'
                                     }`}
                                   >
                                     {isTikTok ? '🎵' : ''} {platform}
@@ -597,7 +597,7 @@ export default function CampaignsPage() {
                                 );
                               })}
                             </div>
-                            <span className="flex items-center gap-1 text-xs text-gray-500">
+                            <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                               <ClockIcon className="h-3.5 w-3.5" />
                               {activeTab === "published" && post.posted_at
                                 ? new Date(post.posted_at || post.scheduled_at || post.created_at).toLocaleString([], {
@@ -628,7 +628,7 @@ export default function CampaignsPage() {
                         <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
                           <Link
                             href={`/app/campaigns/${post.id}`}
-                            className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                            className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:border-primary dark:hover:text-primary"
                           >
                             <EyeIcon className="h-3.5 w-3.5" />
                             View
@@ -664,7 +664,7 @@ export default function CampaignsPage() {
                                   setEditScheduledAt(localISO);
                                   setIsEditOpen(true);
                                 }}
-                                className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                                className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:border-primary dark:hover:text-primary"
                               >
                                 <PencilIcon className="h-3.5 w-3.5" />
                                 Edit

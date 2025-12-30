@@ -31,11 +31,11 @@ export function CopyToClipboard({ text, label, className = '', showLabel = true 
       {showLabel && label && (
         <span className="text-sm font-semibold text-gray-700">{label}</span>
       )}
-      <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5">
-        <code className="text-sm font-mono text-gray-900">{text}</code>
+      <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 dark:border-gray-600 dark:bg-gray-700">
+        <code className="text-sm font-mono text-gray-900 dark:text-white">{text}</code>
         <button
           onClick={handleCopy}
-          className="rounded p-1 text-gray-600 transition hover:bg-gray-200 hover:text-primary"
+          className="rounded p-1 text-gray-600 dark:text-gray-300 transition hover:bg-gray-200 dark:hover:bg-gray-600 hover:text-primary dark:hover:text-white"
           title="Copy to clipboard"
         >
           {copied ? (

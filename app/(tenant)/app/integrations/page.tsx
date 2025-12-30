@@ -7,7 +7,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useIntegrations, useVerifyIntegration, useDisconnectIntegration } from "@/app/(tenant)/hooks/useIntegrations";
 import { WhatsAppNumberSelector } from "@/app/(tenant)/components/WhatsAppNumberSelector";
-import { WhatsAppProfile } from "@/app/(tenant)/components/WhatsAppProfile";
 import { authApi, tenantApi } from '@/lib/api';
 import ConfirmModal from '@/app/components/ConfirmModal';
 import { LinkIcon, CheckCircleIcon, XIcon, ChevronRightIcon, AlertIcon } from "../../components/icons";
@@ -580,20 +579,6 @@ export default function IntegrationsPage() {
                   </div>
                 )}
 
-                {/* WhatsApp Profile Settings - Always show for WhatsApp */}
-                {isWhatsApp && (
-                  <div className="mb-4 mt-6 border-t-2 border-gray-300 dark:border-gray-500 pt-6">
-                    <div className="mb-4">
-                      <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
-                        WhatsApp Profile Settings
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Manage your WhatsApp Business profile picture, business details, and about text.
-                      </p>
-                    </div>
-                    <WhatsAppProfile />
-                  </div>
-                )}
 
                 {/* Actions */}
                 <div className="flex flex-wrap gap-2">
