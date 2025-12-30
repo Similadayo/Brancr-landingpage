@@ -156,7 +156,7 @@ export function CommandPalette() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search commands, pages, or actions..."
-              className="flex-1 bg-transparent text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none"
+              className="flex-1 bg-transparent text-sm text-gray-900 dark:text-dark-text-primary placeholder:text-gray-500 dark:placeholder:text-dark-text-secondary focus:outline-none"
               autoFocus
             />
             <button
@@ -197,18 +197,18 @@ export function CommandPalette() {
                             onClick={() => handleSelect(command)}
                             className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition ${
                               isSelected
-                                ? "bg-accent/10 text-accent dark:bg-accent/20 dark:text-accent-400"
-                                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                ? "bg-accent/10 text-accent dark:bg-dark-accent-primary/20 dark:text-dark-accent-primary"
+                                : "text-gray-700 dark:text-dark-text-secondary hover:bg-gray-100 dark:hover:bg-dark-elevated"
                             }`}
                           >
-                            <div className={`${isSelected ? "text-accent dark:text-accent-400" : "text-gray-400 dark:text-gray-400"}`}>
+                            <div className={`${isSelected ? "text-accent dark:text-dark-accent-primary" : "text-gray-400 dark:text-dark-text-secondary"}`}>
                               {command.icon}
                             </div>
                             <div className="flex-1">
                               <div className="font-medium">{command.label}</div>
                             </div>
                             {isSelected && (
-                              <ArrowRightIcon className="h-4 w-4 text-accent dark:text-accent-400" />
+                              <ArrowRightIcon className="h-4 w-4 text-accent dark:text-dark-accent-primary" />
                             )}
                           </button>
                         );
@@ -221,11 +221,11 @@ export function CommandPalette() {
           </div>
 
           {/* Footer */}
-          <div className="border-t border-gray-200 dark:border-gray-600 px-4 py-2">
-            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-300">
+          <div className="border-t border-gray-200 dark:border-dark-border px-4 py-2">
+            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-dark-text-secondary">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
-                  <kbd className="rounded bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 font-mono">↑↓</kbd>
+                  <kbd className="rounded bg-gray-100 dark:bg-dark-elevated px-1.5 py-0.5 font-mono">↑↓</kbd>
                   <span>Navigate</span>
                 </div>
                 <div className="flex items-center gap-1">

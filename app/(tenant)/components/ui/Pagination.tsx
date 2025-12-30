@@ -65,7 +65,7 @@ export function Pagination({
     <div className={cn('flex flex-col items-center gap-4 sm:flex-row sm:justify-between', className)}>
       {/* Items info */}
       {totalItems && itemsPerPage && (
-        <div className="text-sm text-gray-600 dark:text-gray-300">
+        <div className="text-sm text-gray-600 dark:text-gray-400">
           Showing <span className="font-semibold">{startItem}</span> to{' '}
           <span className="font-semibold">{endItem}</span> of{' '}
           <span className="font-semibold">{totalItems}</span> results
@@ -90,7 +90,7 @@ export function Pagination({
               return (
                 <span
                   key={`ellipsis-${index}`}
-                  className="px-2 py-2 text-sm text-gray-400 dark:text-gray-500"
+                  className="px-2 py-2 text-sm text-gray-400 dark:text-gray-400"
                 >
                   ...
                 </span>
@@ -107,7 +107,7 @@ export function Pagination({
                 className={cn(
                   'min-w-[36px] rounded-lg px-3 py-2 text-sm font-medium transition',
                   isActive
-                    ? 'bg-primary text-white shadow-sm dark:bg-white dark:text-gray-100'
+                    ? 'bg-primary text-white shadow-sm dark:bg-primary dark:text-white'
                     : 'border border-gray-200 bg-white text-gray-700 hover:border-primary hover:text-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-primary'
                 )}
                 aria-label={`Go to page ${pageNum}`}

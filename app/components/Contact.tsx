@@ -6,7 +6,7 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-800"
+      className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-dark-bg"
     >
       <div className="max-w-4xl mx-auto">
         <motion.div
@@ -16,10 +16,10 @@ export default function Contact() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-dark-text-primary mb-4">
             Contact Us
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-dark-text-secondary max-w-2xl mx-auto">
             Have questions or want to learn more? We&apos;d love to hear from you.
           </p>
         </motion.div>
@@ -29,7 +29,7 @@ export default function Contact() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-white dark:bg-gray-700 p-8 md:p-12 rounded-2xl border border-gray-100 dark:border-gray-600 shadow-lg"
+          className="bg-white dark:bg-dark-surface p-8 md:p-12 rounded-2xl border border-gray-100 dark:border-dark-border shadow-lg"
         >
           <div className="space-y-8">
             <div className="flex items-start space-x-4">
@@ -49,12 +49,12 @@ export default function Contact() {
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-text-primary mb-2">
                   Email
                 </h3>
                 <a
                   href="mailto:contact@brancr.com"
-                  className="text-accent dark:text-accent-400 hover:text-accent/80 dark:hover:text-accent-300 transition-colors text-lg"
+                  className="text-accent dark:text-dark-accent-primary hover:text-accent/80 dark:hover:text-[#6BB8FF] transition-colors text-lg"
                 >
                   contact@brancr.com
                 </a>
@@ -62,7 +62,7 @@ export default function Contact() {
             </div>
 
             <div className="flex items-start space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent/10 to-accent-light/10 dark:from-accent/20 dark:to-accent-light/20 rounded-lg flex items-center justify-center text-accent dark:text-accent-400 flex-shrink-0">
+              <div className="w-12 h-12 bg-gradient-to-br from-accent/10 to-accent-light/10 dark:from-accent/20 dark:to-accent-light/20 rounded-lg flex items-center justify-center text-accent dark:text-dark-accent-primary flex-shrink-0">
                 <svg
                   className="w-6 h-6"
                   fill="none"
@@ -84,10 +84,10 @@ export default function Contact() {
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-text-primary mb-2">
                   Address
                 </h3>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                <p className="text-gray-700 dark:text-dark-text-secondary leading-relaxed">
                   Brancr AI Technologies<br />
                   6 Casco Street, Agboju Amuwo<br />
                   Lagos, Nigeria

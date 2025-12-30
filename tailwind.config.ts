@@ -89,6 +89,24 @@ const config: Config = {
           800: "#1E40AF",
           900: "#1E3A8A",
         },
+        // Dark Mode Color System
+        dark: {
+          bg: "#121212",           // Dark Background (Primary)
+          surface: "#1E1E1E",      // Surface / Card
+          elevated: "#242526",     // Elevated Surface
+          text: {
+            primary: "#E0E0E0",    // Text Primary
+            secondary: "#B0B0B0",  // Text Secondary
+          },
+          border: "#333333",       // Border / Divider
+          accent: {
+            primary: "#4BA3FF",    // Primary Accent
+            success: "#43B047",    // Success
+            warning: "#E9A600",    // Warning
+            error: "#E04848",      // Error
+            highlight: "#9D79F0",  // Highlight / Emphasis
+          },
+        },
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],

@@ -75,7 +75,7 @@ export function AlertsList({ limit, showFilters = true, showMarkAllRead = true }
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-24 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-700" />
+          <div key={i} className="h-24 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-600" />
         ))}
       </div>
     );
@@ -86,7 +86,7 @@ export function AlertsList({ limit, showFilters = true, showMarkAllRead = true }
       <div className="card p-8 text-center">
         <AlertIcon className="mx-auto h-8 w-8 text-error-600 dark:text-error-400" />
         <p className="mt-4 text-sm font-semibold text-gray-900 dark:text-gray-100">Failed to load alerts</p>
-        <p className="mt-2 text-xs text-gray-600 dark:text-gray-300">Please try refreshing the page</p>
+        <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">Please try refreshing the page</p>
       </div>
     );
   }
@@ -94,11 +94,11 @@ export function AlertsList({ limit, showFilters = true, showMarkAllRead = true }
   if (filteredAlerts.length === 0) {
     return (
       <div className="card p-12 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-600">
           <AlertIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
         </div>
         <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">No alerts</p>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
           {statusFilter === 'unread' ? 'All alerts have been read' : 'You don\'t have any alerts yet'}
         </p>
       </div>
@@ -183,7 +183,7 @@ function AlertCard({
     >
       <div className="flex items-start gap-4">
         {/* Icon */}
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xl dark:bg-gray-700">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xl dark:bg-gray-600">
           {typeIcon}
         </div>
 

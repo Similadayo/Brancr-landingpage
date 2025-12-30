@@ -40,126 +40,126 @@ type Tab = "scheduled" | "published" | "drafts";
 
 // DraftsList component - moved outside to avoid parsing issues
 function DraftsList({ router }: { router: { push: (path: string) => void } }) {
-  const [drafts, setDrafts] = useState<any[]>([]);
-  const [loadingDrafts, setLoadingDrafts] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [drafts, setDrafts] = useState<any[]>([]);
+    const [loadingDrafts, setLoadingDrafts] = useState(false);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      setLoadingDrafts(true);
-      try {
-        const res: any = await tenantApi.getDrafts('compose.post');
-        const serverList = (res?.drafts || []).slice();
-
-        // Try to include a local snapshot (compose.post) as a local-only draft when present
+    useEffect(() => {
+      let mounted = true;
+      (async () => {
+        setLoadingDrafts(true);
         try {
-          const raw = localStorage.getItem('drafts-local-compose.post');
-          if (raw) {
-            const snap = JSON.parse(raw);
-            if (snap && snap.content) {
-              // Build a synthetic draft object for display. If there is a matching server draft id, skip adding.
-              const localId = snap.draftId || `local-${snap.updatedAt || Date.now()}`;
-              const already = serverList.find((d: any) => d.id === localId);
-              if (!already) {
-                serverList.push({
-                  id: localId,
-                  key: 'compose.post',
-                  content: snap.content,
-                  metadata: snap.metadata,
-                  owner_id: undefined,
-                  created_at: snap.updatedAt ? new Date(snap.updatedAt).toISOString() : new Date().toISOString(),
-                  updated_at: snap.updatedAt ? new Date(snap.updatedAt).toISOString() : new Date().toISOString(),
-                  _local_only: true,
-                  _local_snapshot: snap,
-                });
+          const res: any = await tenantApi.getDrafts('compose.post');
+          const serverList = (res?.drafts || []).slice();
+
+          // Try to include a local snapshot (compose.post) as a local-only draft when present
+          try {
+            const raw = localStorage.getItem('drafts-local-compose.post');
+            if (raw) {
+              const snap = JSON.parse(raw);
+              if (snap && snap.content) {
+                // Build a synthetic draft object for display. If there is a matching server draft id, skip adding.
+                const localId = snap.draftId || `local-${snap.updatedAt || Date.now()}`;
+                const already = serverList.find((d: any) => d.id === localId);
+                if (!already) {
+                  serverList.push({
+                    id: localId,
+                    key: 'compose.post',
+                    content: snap.content,
+                    metadata: snap.metadata,
+                    owner_id: undefined,
+                    created_at: snap.updatedAt ? new Date(snap.updatedAt).toISOString() : new Date().toISOString(),
+                    updated_at: snap.updatedAt ? new Date(snap.updatedAt).toISOString() : new Date().toISOString(),
+                    _local_only: true,
+                    _local_snapshot: snap,
+                  });
+                }
               }
             }
+          } catch (e) {
+            // ignore local snapshot parsing errors
           }
+
+          const list = serverList.slice().sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+          if (mounted) setDrafts(list);
         } catch (e) {
-          // ignore local snapshot parsing errors
+          console.error('Failed to load drafts:', e);
+        } finally {
+          if (mounted) setLoadingDrafts(false);
         }
+      })();
+      return () => { mounted = false; };
+    }, []);
 
-        const list = serverList.slice().sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
-        if (mounted) setDrafts(list);
-      } catch (e) {
-        console.error('Failed to load drafts:', e);
-      } finally {
-        if (mounted) setLoadingDrafts(false);
-      }
-    })();
-    return () => { mounted = false; };
-  }, []);
-
-  const handleRestore = async (id: string, draft: any) => {
-    try {
-      if (draft && draft._local_only) {
-        // Local-only snapshot: restore from snapshot content
-        const content = draft.content || draft._local_snapshot?.content;
+    const handleRestore = async (id: string, draft: any) => {
+      try {
+        if (draft && draft._local_only) {
+          // Local-only snapshot: restore from snapshot content
+          const content = draft.content || draft._local_snapshot?.content;
+          localStorage.setItem('post-draft', JSON.stringify(content));
+          toast.success('Draft restored — opening composer');
+          router.push('/app/posts/new');
+          return;
+        }
+        const res: any = await tenantApi.getDraft(id);
+        const content = res.content;
+        // Save to local snapshot for compose page to pick up
         localStorage.setItem('post-draft', JSON.stringify(content));
         toast.success('Draft restored — opening composer');
         router.push('/app/posts/new');
-        return;
+      } catch (e) {
+        toast.error('Failed to restore draft');
       }
-      const res: any = await tenantApi.getDraft(id);
-      const content = res.content;
-      // Save to local snapshot for compose page to pick up
-      localStorage.setItem('post-draft', JSON.stringify(content));
-      toast.success('Draft restored — opening composer');
-      router.push('/app/posts/new');
-    } catch (e) {
-      toast.error('Failed to restore draft');
-    }
-  };
+    };
 
-  const handleDelete = async (id: string, draft: any) => {
-    setDeletingId(id);
-    try {
-      if (draft && draft._local_only) {
-        // Clear local snapshot
-        try {
-          localStorage.removeItem('drafts-local-compose.post');
-        } catch (e) {
-          // ignore
+    const handleDelete = async (id: string, draft: any) => {
+      setDeletingId(id);
+      try {
+        if (draft && draft._local_only) {
+          // Clear local snapshot
+          try {
+            localStorage.removeItem('drafts-local-compose.post');
+          } catch (e) {
+            // ignore
+          }
+          setDrafts((prev) => prev.filter((d) => d.id !== id));
+          toast.success('Draft removed');
+          setDeletingId(null);
+          return;
         }
+
+        await tenantApi.deleteDraft(id);
         setDrafts((prev) => prev.filter((d) => d.id !== id));
-        toast.success('Draft removed');
+        toast.success('Draft deleted');
+      } catch (e) {
+        toast.error('Failed to delete draft');
+      } finally {
         setDeletingId(null);
-        return;
       }
+    };
 
-      await tenantApi.deleteDraft(id);
-      setDrafts((prev) => prev.filter((d) => d.id !== id));
-      toast.success('Draft deleted');
-    } catch (e) {
-      toast.error('Failed to delete draft');
-    } finally {
-      setDeletingId(null);
-    }
-  };
+    if (loadingDrafts) return <div className="p-4 text-sm text-gray-500">Loading drafts…</div>;
+    if (drafts.length === 0) return <div className="p-4 text-sm text-gray-500">No drafts found.</div>;
 
-  if (loadingDrafts) return <div className="p-4 text-sm text-gray-500">Loading drafts…</div>;
-  if (drafts.length === 0) return <div className="p-4 text-sm text-gray-500">No drafts found.</div>;
-
-  return (
-    <div className="p-4">
-      <ul className="space-y-3">
-        {drafts.map((d) => (
-          <li key={d.id} className="flex items-start justify-between gap-4 rounded-lg border border-gray-100 p-3">
-            <div className="min-w-0">
-              <div className="text-sm font-medium text-gray-900">Saved {new Date(d.updated_at).toLocaleString()} {d._local_only ? <span className="ml-2 text-xs font-medium text-amber-600">(Saved locally)</span> : null}</div>
-              <div className="mt-1 text-xs text-gray-600 line-clamp-2">{d.content?.caption ? d.content.caption.split('\n')[0].slice(0,200) : '(no caption)'}</div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => void handleRestore(d.id, d)} className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100">Restore</button>
-              <button onClick={() => void handleDelete(d.id, d)} disabled={deletingId === d.id} className="rounded-md border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50">{deletingId===d.id ? 'Deleting…' : 'Delete'}</button>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+    return (
+      <div className="p-4">
+        <ul className="space-y-3">
+          {drafts.map((d) => (
+            <li key={d.id} className="flex items-start justify-between gap-4 rounded-lg border border-gray-100 p-3">
+              <div className="min-w-0">
+                <div className="text-sm font-medium text-gray-900">Saved {new Date(d.updated_at).toLocaleString()} {d._local_only ? <span className="ml-2 text-xs font-medium text-amber-600">(Saved locally)</span> : null}</div>
+                <div className="mt-1 text-xs text-gray-600 line-clamp-2">{d.content?.caption ? d.content.caption.split('\n')[0].slice(0,200) : '(no caption)'}</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => void handleRestore(d.id, d)} className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100">Restore</button>
+                <button onClick={() => void handleDelete(d.id, d)} disabled={deletingId === d.id} className="rounded-md border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50">{deletingId===d.id ? 'Deleting…' : 'Delete'}</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
 
 export default function CampaignsPage() {
   const queryClient = useQueryClient();
@@ -370,13 +370,13 @@ export default function CampaignsPage() {
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "scheduled"
                 ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-100"
-                : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600"
             }`}
           >
             <ClockIcon className="w-4 h-4" />
             Scheduled
             <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-              activeTab === "scheduled" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300"
+              activeTab === "scheduled" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-400"
             }`}>
               {campaignStats?.scheduled ?? 0}
             </span>
@@ -386,13 +386,13 @@ export default function CampaignsPage() {
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "published"
                 ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-100"
-                : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600"
             }`}
           >
             <CheckCircleIcon className="w-4 h-4" />
             Published
             <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-              activeTab === "published" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300"
+              activeTab === "published" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-400"
             }`}>
               {campaignStats?.published ?? 0}
             </span>
@@ -402,13 +402,13 @@ export default function CampaignsPage() {
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "drafts"
                 ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-100"
-                : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600"
             }`}
           >
             <DocumentTextIcon className="w-4 h-4" />
             Drafts
             <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-              activeTab === "drafts" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300"
+              activeTab === "drafts" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-400"
             }`}>
               {campaignStats?.draft ?? 0}
             </span>
@@ -528,7 +528,7 @@ export default function CampaignsPage() {
               {activeTab === "published" && "No published posts"}
               {String(activeTab) === "drafts" && "No drafts"}
             </p>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               {activeTab === "scheduled" && "Create your first scheduled post to get started"}
               {activeTab === "published" && "Published posts will appear here"}
               {String(activeTab) === "drafts" && "Draft posts will appear here"}

@@ -292,7 +292,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-bg dark:bg-gray-700">
+      <div className="flex min-h-screen items-center justify-center bg-neutral-bg dark:bg-dark-bg">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-accent/20 border-t-accent" />
       </div>
     );
@@ -300,13 +300,13 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-bg dark:bg-gray-700 px-4">
-        <div className="max-w-md rounded-2xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 p-8 text-center shadow-xl">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">We couldn&apos;t load your workspace</h1>
-          <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">{error}</p>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-bg dark:bg-dark-bg px-4">
+        <div className="max-w-md rounded-2xl border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface p-8 text-center shadow-xl">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-dark-text-primary">We couldn&apos;t load your workspace</h1>
+          <p className="mt-3 text-sm text-gray-600 dark:text-dark-text-secondary">{error}</p>
           <button
             onClick={refresh}
-            className="mt-6 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow hover:bg-accent/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
+            className="mt-6 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow hover:bg-accent/90 dark:bg-dark-accent-primary dark:text-white dark:hover:bg-[#6BB8FF]"
           >
             Try again
           </button>
@@ -340,7 +340,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
             "relative flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-200",
             isActive
               ? "bg-primary text-white shadow-sm"
-              : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-gray-600"
+              : "bg-gray-100 dark:bg-dark-surface text-gray-600 dark:text-dark-text-secondary group-hover:bg-gray-200 dark:group-hover:bg-dark-elevated"
           )}
           aria-hidden
         >
@@ -355,7 +355,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <>
             <span className={cn(
               "flex-1 font-medium",
-              isActive ? "text-gray-900 dark:text-gray-100" : "text-gray-600 dark:text-gray-300"
+              isActive ? "text-gray-900 dark:text-dark-text-primary" : "text-gray-600 dark:text-dark-text-secondary"
             )}>
               {item.label}
             </span>
@@ -391,18 +391,18 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
         {/* Settings Section (Collapsible) */}
         {!compact && (
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-dark-border">
             <button
               onClick={() => setIsSettingsExpanded(!isSettingsExpanded)}
-              className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition"
+              className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-semibold text-gray-700 dark:text-dark-text-primary hover:bg-gray-50 dark:hover:bg-dark-elevated transition"
             >
               <span className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-dark-surface text-gray-600 dark:text-dark-text-secondary">
                   <SettingsIcon className="w-5 h-5" />
                 </span>
                 <span>Settings</span>
               </span>
-              <span className="text-xs text-gray-400 dark:text-gray-400" aria-hidden>
+              <span className="text-xs text-gray-400 dark:text-dark-text-secondary" aria-hidden>
                 {isSettingsExpanded ? (
                   <ChevronDownIcon className="w-4 h-4" />
                 ) : (
@@ -426,7 +426,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
         {/* Settings Section (Compact/Collapsed) */}
         {compact && (
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-dark-border">
             {settingsNavItems.map((item) => {
               const isSettingsRoot = item.href === "/app/settings";
               const isActive = isSettingsRoot
@@ -441,11 +441,11 @@ export function TenantShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div
-      data-tenant-shell
-      data-tenant-page={isInboxPage ? "inbox" : "default"}
-      className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 overflow-x-hidden max-w-full w-full"
-    >
+            <div
+              data-tenant-shell
+              data-tenant-page={isInboxPage ? "inbox" : "default"}
+              className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-dark-bg dark:via-dark-bg dark:to-dark-bg overflow-x-hidden max-w-full w-full"
+            >
       {/* Mobile overlay */}
       {isMobileNavOpen ? (
         <div
@@ -455,7 +455,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
       ) : null}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-700 px-6 py-6 shadow-2xl transition-transform lg:hidden",
+          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-gray-200 bg-white dark:border-dark-border dark:bg-dark-surface px-6 py-6 shadow-2xl transition-transform lg:hidden",
           isMobileNavOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -466,7 +466,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => setIsMobileNavOpen(false)}
-            className="rounded-lg p-2 text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="rounded-lg p-2 text-gray-500 dark:text-dark-text-secondary hover:bg-gray-100 dark:hover:bg-dark-elevated"
             aria-label="Close navigation"
           >
             <XIcon className="w-5 h-5" />
@@ -477,8 +477,8 @@ export function TenantShell({ children }: { children: ReactNode }) {
             {renderNavItems(false)}
           </div>
           {/* AI Mode Toggle - Mobile Sidebar */}
-          <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-600">
-            <p className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400 px-2">AI Mode</p>
+          <div className="mt-auto pt-4 border-t border-gray-200 dark:border-dark-border">
+            <p className="mb-2 text-xs font-medium text-gray-500 dark:text-dark-text-secondary px-2">AI Mode</p>
             <AIToggle
               value={displayAIMode}
               onChange={(next) => {
@@ -496,7 +496,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
         {/* Desktop sidebar */}
         <aside
           className={cn(
-          "fixed top-0 left-0 hidden h-screen shrink-0 border-r border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-6 transition-all duration-300 lg:flex lg:flex-col z-30",
+          "fixed top-0 left-0 hidden h-screen shrink-0 border-r border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface px-3 py-6 transition-all duration-300 lg:flex lg:flex-col z-30",
           sidebarWidthClass
           )}
         >
@@ -550,7 +550,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={() => setIsSidebarCollapsed((prev) => !prev)}
-              className="flex w-full items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className="flex w-full items-center justify-center rounded-lg bg-gray-100 dark:bg-dark-surface p-2 text-gray-600 dark:text-dark-text-secondary hover:bg-gray-200 dark:hover:bg-dark-elevated transition-colors"
               aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               <ChevronLeftIcon
@@ -562,7 +562,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
         <div className={cn("flex min-h-screen flex-1 flex-col min-w-0 max-w-full overflow-x-hidden transition-all duration-300", isSidebarCollapsed ? "lg:ml-[92px]" : "lg:ml-[276px]")}>
           {/* Top Header Bar with Stats */}
-          <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 w-full max-w-full">
+          <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface w-full max-w-full">
             <div className="px-4 lg:px-6 max-w-full overflow-x-hidden">
               <div className="flex h-16 items-center justify-between gap-4">
                 {/* Left: Page Title */}
@@ -576,7 +576,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                     <MenuIcon className="w-5 h-5" />
                   </button>
                   <div className="min-w-0">
-                    <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100 sm:text-xl truncate">{currentNav?.label ?? "Overview"}</h1>
+                    <h1 className="text-lg font-bold text-gray-900 dark:text-dark-text-primary sm:text-xl truncate">{currentNav?.label ?? "Overview"}</h1>
                   </div>
                 </div>
 
@@ -585,18 +585,18 @@ export function TenantShell({ children }: { children: ReactNode }) {
                   {/* Stats */}
                   <div className="hidden items-center gap-6 lg:flex">
                     <div className="text-right">
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-300">Connected</p>
-                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                      <p className="text-xs font-medium text-gray-500 dark:text-dark-text-secondary">Connected</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-dark-text-primary">
                         {stats.connectedChannels}/{stats.totalChannels || 4}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs font-medium text-gray-500 dark:text-gray-300">Posts</p>
-                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{stats.scheduledPosts}</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-dark-text-primary">{stats.scheduledPosts}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-300">Conversations</p>
-                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{stats.conversations}</p>
+                      <p className="text-xs font-medium text-gray-500 dark:text-dark-text-secondary">Conversations</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-dark-text-primary">{stats.conversations}</p>
                     </div>
                   </div>
                   

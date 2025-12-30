@@ -16,9 +16,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles = {
-  primary: 'bg-primary text-white shadow-sm hover:bg-primary/90 focus-visible:ring-primary/50 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100',
-  secondary: 'border border-gray-200 bg-white text-gray-700 hover:border-primary hover:text-primary focus-visible:ring-primary/50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary',
-  ghost: 'text-gray-700 hover:bg-gray-100 focus-visible:ring-primary/50 dark:text-gray-300 dark:hover:bg-gray-700',
+  primary: 'bg-primary text-white shadow-sm hover:bg-primary/90 focus-visible:ring-primary/50 dark:bg-dark-accent-primary dark:text-white dark:hover:bg-[#6BB8FF]',
+  secondary: 'border border-gray-200 bg-white text-gray-700 hover:border-primary hover:text-primary focus-visible:ring-primary/50 dark:border-dark-border dark:bg-dark-surface dark:text-dark-text-primary dark:hover:border-dark-accent-primary dark:hover:text-dark-accent-primary',
+  ghost: 'text-gray-700 hover:bg-gray-100 focus-visible:ring-primary/50 dark:text-dark-text-secondary dark:hover:bg-dark-elevated',
   danger: 'bg-red-600 text-white shadow-sm hover:bg-red-700 focus-visible:ring-red-500/50 dark:bg-red-600 dark:hover:bg-red-700',
   outline: 'border-2 border-primary text-primary hover:bg-primary/10 focus-visible:ring-primary/50 dark:border-white dark:text-white dark:hover:bg-white/10',
 };

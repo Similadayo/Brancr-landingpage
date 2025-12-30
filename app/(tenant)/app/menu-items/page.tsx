@@ -423,7 +423,7 @@ export default function MenuItemsPage() {
                 itemsPerPage={itemsPerPage}
                 totalItems={items.length}
               />
-            </div>
+          </div>
           )}
         </>
       )}

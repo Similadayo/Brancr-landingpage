@@ -176,7 +176,7 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
         disabled={props.disabled}
         onClick={() => !props.disabled && setOpen((v) => !v)}
         onKeyDown={onButtonKeyDown}
-        className={`group relative flex w-full items-center justify-between gap-2 rounded-2xl border-2 border-gray-200 bg-white px-4 py-3 text-left text-sm text-gray-700 shadow-sm transition focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 ${
+        className={`group relative flex w-full items-center justify-between gap-2 rounded-2xl border-2 border-gray-200 bg-white px-4 py-3 text-left text-sm text-gray-700 shadow-sm transition focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-border dark:bg-dark-surface dark:text-dark-text-primary ${
           props.buttonClassName ?? ''
         }`}
         style={props.buttonClassName?.includes('bg-transparent') ? { backgroundColor: 'transparent', border: 'none' } : undefined}
@@ -243,7 +243,7 @@ export default function Select<T extends string = string>(props: SelectProps<T>)
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-full z-[100] mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl ring-1 ring-black/5 min-w-[200px] max-w-[400px] dark:border-gray-600 dark:bg-gray-700">
+        <div className="absolute left-0 right-0 top-full z-[100] mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl ring-1 ring-black/5 min-w-[200px] max-w-[400px] dark:border-dark-border dark:bg-dark-surface">
           {searchable && (
             <div className="border-b border-gray-100 p-2">
               <input

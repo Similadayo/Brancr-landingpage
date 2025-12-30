@@ -86,7 +86,7 @@ export default function FAQ() {
   return (
     <section
       id="faq"
-      className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-900"
+      className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-dark-bg"
     >
       <div className="max-w-4xl mx-auto">
         <motion.div
@@ -96,10 +96,10 @@ export default function FAQ() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-dark-text-primary mb-4">
             Frequently Asked Questions
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-dark-text-secondary max-w-2xl mx-auto">
             Everything you need to know about Brancr
           </p>
         </motion.div>
@@ -112,15 +112,15 @@ export default function FAQ() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.05 }}
-              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+              className="bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               <button
                 onClick={() => toggleFAQ(index)}
-                className="w-full px-6 py-5 text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-accent focus:ring-inset dark:hover:bg-gray-700/50 transition-colors"
+                className="w-full px-6 py-5 text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-accent focus:ring-inset dark:hover:bg-dark-elevated transition-colors"
                 aria-expanded={openIndex === index}
                 aria-controls={`faq-answer-${index}`}
               >
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 pr-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-text-primary pr-4">
                   {faq.question}
                 </h3>
                 <motion.div
@@ -154,7 +154,7 @@ export default function FAQ() {
                     className="overflow-hidden"
                   >
                     <div className="px-6 pb-5 pt-0">
-                      <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                      <p className="text-gray-600 dark:text-dark-text-secondary leading-relaxed">
                         {faq.answer}
                       </p>
                     </div>

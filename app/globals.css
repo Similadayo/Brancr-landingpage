@@ -32,19 +32,19 @@ body {
 @layer base {
   /* Typography System */
   h1 {
-    @apply text-3xl font-semibold text-gray-900 leading-tight dark:text-gray-100;
+    @apply text-3xl font-semibold text-gray-900 leading-tight dark:text-dark-text-primary;
   }
   h2 {
-    @apply text-2xl font-semibold text-gray-900 leading-tight dark:text-gray-100;
+    @apply text-2xl font-semibold text-gray-900 leading-tight dark:text-dark-text-primary;
   }
   h3 {
-    @apply text-xl font-semibold text-gray-900 leading-tight dark:text-gray-100;
+    @apply text-xl font-semibold text-gray-900 leading-tight dark:text-dark-text-primary;
   }
   h4 {
-    @apply text-lg font-semibold text-gray-900 leading-snug dark:text-gray-100;
+    @apply text-lg font-semibold text-gray-900 leading-snug dark:text-dark-text-primary;
   }
   p {
-    @apply text-sm text-gray-600 leading-relaxed dark:text-gray-400;
+    @apply text-sm text-gray-600 leading-relaxed dark:text-dark-text-secondary;
   }
 
   /* Form Inputs - Standardized */
@@ -65,12 +65,12 @@ body {
     select
   ) {
     @apply min-h-10 w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition-all duration-200;
-    @apply placeholder:text-gray-400 dark:placeholder:text-gray-500;
-    @apply hover:border-primary/30 dark:hover:border-primary/50;
+    @apply placeholder:text-gray-400 dark:placeholder:text-dark-text-secondary;
+    @apply hover:border-primary/30 dark:hover:border-dark-accent-primary/50;
     @apply focus:outline-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20;
     @apply focus-visible:outline-none focus-visible:bg-white focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20;
     @apply disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500 disabled:opacity-50;
-    @apply dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary;
+    @apply dark:bg-dark-surface dark:border-dark-border dark:text-dark-text-primary dark:focus:bg-dark-elevated dark:focus:border-dark-accent-primary;
   }
 
   input[type='search'] {
@@ -96,7 +96,7 @@ body {
   }
   
   label {
-    @apply block text-sm font-medium text-gray-700 mb-1.5 dark:text-gray-300;
+    @apply block text-sm font-medium text-gray-700 mb-1.5 dark:text-dark-text-primary;
   }
   
   .form-error {
@@ -148,17 +148,26 @@ body {
   }
 }
 
-/* Basic dark theme refinements */
+/* Basic dark theme refinements - New Dark Mode Color System */
 html.dark body {
-  background-color: #1F2937;
-  color: #F9FAFB;
+  background-color: #121212;
+  color: #E0E0E0;
 }
-html.dark .bg-white { background-color: #374151 !important; }
-html.dark .bg-white\/70 { background-color: rgba(55,65,81,0.7) !important; }
-html.dark .bg-white\/80 { background-color: rgba(55,65,81,0.8) !important; }
-html.dark .bg-gray-50 { background-color: #374151 !important; }
-html.dark .bg-gray-100 { background-color: #4B5563 !important; }
-html.dark .bg-neutral-bg { background-color: #1F2937 !important; }
+html.dark .bg-white { background-color: #1E1E1E !important; }
+html.dark .bg-white\/70 { background-color: rgba(30, 30, 30, 0.7) !important; }
+html.dark .bg-white\/80 { background-color: rgba(30, 30, 30, 0.8) !important; }
+html.dark .bg-gray-50 { background-color: #1E1E1E !important; }
+html.dark .bg-gray-100 { background-color: #242526 !important; }
+html.dark .bg-gray-700 { background-color: #1E1E1E !important; }
+html.dark .bg-gray-800 { background-color: #242526 !important; }
+html.dark .bg-gray-900 { background-color: #121212 !important; }
+html.dark .bg-neutral-bg { background-color: #121212 !important; }
+html.dark .border-gray-600 { border-color: #333333 !important; }
+html.dark .border-gray-700 { border-color: #333333 !important; }
+html.dark .text-gray-100 { color: #E0E0E0 !important; }
+html.dark .text-gray-200 { color: #E0E0E0 !important; }
+html.dark .text-gray-300 { color: #B0B0B0 !important; }
+html.dark .text-gray-400 { color: #B0B0B0 !important; }
 
 @layer utilities {
   .text-balance {
@@ -204,7 +213,7 @@ html.dark .bg-neutral-bg { background-color: #1F2937 !important; }
   /* Modern Card Styles */
   .card {
     @apply rounded-2xl border border-gray-200 bg-white shadow-soft transition-all duration-200;
-    @apply dark:border-gray-600 dark:bg-gray-700;
+    @apply dark:border-dark-border dark:bg-dark-surface;
   }
   
   .card-hover {
@@ -216,20 +225,20 @@ html.dark .bg-neutral-bg { background-color: #1F2937 !important; }
     @apply inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200;
     @apply hover:bg-accent/90 hover:shadow-md active:scale-[0.98];
     @apply disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100;
-    @apply dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100;
+    @apply dark:bg-dark-accent-primary dark:text-white dark:hover:bg-[#6BB8FF];
   }
 
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-all duration-200;
     @apply hover:border-accent hover:text-accent hover:shadow-md active:scale-[0.98];
-    @apply dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:border-accent;
+    @apply dark:border-dark-border dark:bg-dark-surface dark:text-dark-text-primary dark:hover:border-dark-accent-primary;
     @apply disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100;
   }
 
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200;
     @apply hover:bg-gray-100 hover:text-gray-900 active:scale-[0.98];
-    @apply dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100;
+    @apply dark:text-dark-text-secondary dark:hover:bg-dark-elevated dark:hover:text-dark-text-primary;
   }
 
   .btn-success {
@@ -261,23 +270,23 @@ html.dark .bg-neutral-bg { background-color: #1F2937 !important; }
   }
 
   .badge-success {
-    @apply bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400;
+    @apply bg-success-100 text-success-700 dark:bg-dark-accent-success/20 dark:text-dark-accent-success;
   }
 
   .badge-warning {
-    @apply bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-400;
+    @apply bg-warning-100 text-warning-700 dark:bg-dark-accent-warning/20 dark:text-dark-accent-warning;
   }
 
   .badge-error {
-    @apply bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-400;
+    @apply bg-error-100 text-error-700 dark:bg-dark-accent-error/20 dark:text-dark-accent-error;
   }
 
   .badge-info {
-    @apply bg-info-100 text-info-700 dark:bg-info-900/30 dark:text-info-400;
+    @apply bg-info-100 text-info-700 dark:bg-dark-accent-primary/20 dark:text-dark-accent-primary;
   }
 
   .badge-gray {
-    @apply bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300;
+    @apply bg-gray-100 text-gray-700 dark:bg-dark-elevated dark:text-dark-text-secondary;
   }
 
   /* Input Group */
@@ -297,7 +306,7 @@ html.dark .bg-neutral-bg { background-color: #1F2937 !important; }
 
   .modal-content {
     @apply w-full max-w-md rounded-2xl border border-gray-200 bg-white p-4 shadow-large;
-    @apply dark:border-gray-600 dark:bg-gray-700;
+    @apply dark:border-dark-border dark:bg-dark-surface;
     @apply sm:p-6;
     @apply max-h-[calc(100vh-2rem)] overflow-y-auto;
   }

@@ -149,28 +149,28 @@ export default function EscalationsPage() {
           <div className="stat-card group">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-info-400/20 to-info-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Total</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total</p>
               <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">{stats.total}</p>
             </div>
           </div>
           <div className="stat-card group">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-warning-400/20 to-warning-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Pending</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Pending</p>
               <p className="mt-2 text-2xl font-bold text-warning-600 dark:text-warning-300 sm:text-3xl">{stats.pending}</p>
             </div>
           </div>
           <div className="stat-card group">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-success-400/20 to-success-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Resolved</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Resolved</p>
               <p className="mt-2 text-2xl font-bold text-success-600 dark:text-success-300 sm:text-3xl">{stats.resolved}</p>
             </div>
           </div>
           <div className="stat-card group col-span-2 lg:col-span-1">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-accent-400/20 to-accent-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Avg Response</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Avg Response</p>
               <p className="mt-2 text-lg font-bold text-gray-900 dark:text-gray-100 sm:text-xl lg:text-2xl">{stats.avgResponseTime}</p>
             </div>
           </div>
@@ -331,25 +331,25 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
       className={`card group relative overflow-hidden p-5 transition-all hover:shadow-lg hover:border-primary/20 sm:p-6 ${priorityColors[escalation.priority] ?? priorityColors.normal}`}
     >
       <div className="flex items-start gap-4">
-        {/* Avatar */}
+            {/* Avatar */}
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent-500 to-accent-600 text-base font-bold text-white shadow-md ring-2 ring-white dark:ring-gray-800">
-          {escalation.customerName.charAt(0).toUpperCase()}
-        </div>
-        
+              {escalation.customerName.charAt(0).toUpperCase()}
+            </div>
+            
         {/* Main Content */}
         <div className="flex-1 min-w-0 space-y-3">
           {/* Header Row: Name, Priority, Time */}
           <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
-                  {escalation.customerName}
-                </h3>
-                {escalation.customerUsername && (
+                      {escalation.customerName}
+                    </h3>
+                    {escalation.customerUsername && (
                   <span className="text-sm text-gray-500 dark:text-gray-400 shrink-0">
-                    @{escalation.customerUsername}
-                  </span>
-                )}
+                        @{escalation.customerUsername}
+                      </span>
+                    )}
               </div>
               <div className="flex items-center gap-3 flex-wrap">
                 <span className={`badge ${PLATFORM_BADGES[escalation.platform.toLowerCase()] ?? "badge-gray"} text-xs font-medium`}>
@@ -366,16 +366,16 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
               </span>
               <span className={`text-xs font-semibold ${confidenceColor} whitespace-nowrap`}>
                 {Math.round(escalation.confidence * 100)}%
-              </span>
+                </span>
             </div>
-          </div>
+              </div>
 
           {/* Message Preview */}
           <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed line-clamp-3">
-              {escalation.message}
-            </p>
-          </div>
+                  {escalation.message}
+                </p>
+              </div>
 
           {/* Intent and Tone - Better Styled */}
           <div className="flex items-center gap-3 flex-wrap">
@@ -383,8 +383,8 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
               <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Intent:</span>
               <span className="inline-flex items-center rounded-lg bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:text-blue-300">
                 {escalation.intent}
-              </span>
-            </div>
+                </span>
+              </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Tone:</span>
               <span className={`inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold ${

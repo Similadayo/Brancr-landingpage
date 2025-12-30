@@ -16,11 +16,11 @@ interface BadgeProps {
 }
 
 const variantStyles = {
-  success: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
-  warning: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
-  error: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
-  info: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800',
-  neutral: 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600',
+  success: 'bg-green-100 text-green-700 border-green-200 dark:bg-dark-accent-success/20 dark:text-dark-accent-success dark:border-dark-accent-success/50',
+  warning: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-dark-accent-warning/20 dark:text-dark-accent-warning dark:border-dark-accent-warning/50',
+  error: 'bg-red-100 text-red-700 border-red-200 dark:bg-dark-accent-error/20 dark:text-dark-accent-error dark:border-dark-accent-error/50',
+  info: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-dark-accent-primary/20 dark:text-dark-accent-primary dark:border-dark-accent-primary/50',
+  neutral: 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-dark-elevated dark:text-dark-text-secondary dark:border-dark-border',
 };
 
 const sizeStyles = {

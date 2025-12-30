@@ -285,8 +285,8 @@ export function WhatsAppProfile() {
       {/* Show error message if no WhatsApp app found, but still show the form */}
       {((profileError && (profileError as any)?.status === 404) || 
         (aboutError && (aboutError as any)?.status === 404)) && (
-        <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
-          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+        <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 dark:border-dark-accent-warning/50 dark:bg-dark-accent-warning/10">
+          <p className="text-sm text-yellow-800 dark:text-dark-accent-warning">
             <strong>Note:</strong> WhatsApp profile features require a connected WhatsApp Business account. Some features may not be available until the account is fully set up.
           </p>
         </div>
@@ -301,7 +301,7 @@ export function WhatsAppProfile() {
           <CardTitle>Sync Business Profile</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-sm text-gray-600 dark:text-dark-text-secondary mb-4">
             Use your onboarding details to populate your WhatsApp profile automatically.
           </p>
           <Button
@@ -320,8 +320,8 @@ export function WhatsAppProfile() {
       </Card>
 
       {/* Profile Details Form */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-600 dark:bg-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Business Profile</h3>
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-dark-border dark:bg-dark-surface">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-text-primary mb-4">Business Profile</h3>
         
         {loading ? (
           <div className="flex items-center justify-center py-12">
@@ -332,7 +332,7 @@ export function WhatsAppProfile() {
             {/* Address Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" htmlFor="address-line-1">
+                <label className="block text-sm font-semibold text-gray-900 dark:text-dark-text-primary mb-2" htmlFor="address-line-1">
                   Street Address
                 </label>
                 <input
@@ -340,7 +340,7 @@ export function WhatsAppProfile() {
                   type="text"
                   value={formData.add_line1 || ''}
                   onChange={(e) => setFormData({ ...formData, add_line1: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-dark-surface dark:border-dark-border dark:text-dark-text-primary dark:focus:bg-dark-elevated dark:focus:border-dark-accent-primary dark:placeholder:text-dark-text-secondary"
                   placeholder="123 Main Street"
                 />
               </div>
@@ -353,7 +353,7 @@ export function WhatsAppProfile() {
                   type="text"
                   value={formData.add_line2 || ''}
                   onChange={(e) => setFormData({ ...formData, add_line2: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-dark-surface dark:border-dark-border dark:text-dark-text-primary dark:focus:bg-dark-elevated dark:focus:border-dark-accent-primary dark:placeholder:text-dark-text-secondary"
                   placeholder="Suite 100"
                 />
               </div>
@@ -366,7 +366,7 @@ export function WhatsAppProfile() {
                   type="text"
                   value={formData.city || ''}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-dark-surface dark:border-dark-border dark:text-dark-text-primary dark:focus:bg-dark-elevated dark:focus:border-dark-accent-primary dark:placeholder:text-dark-text-secondary"
                   placeholder="New York"
                 />
               </div>
@@ -379,7 +379,7 @@ export function WhatsAppProfile() {
                   type="text"
                   value={formData.state || ''}
                   onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-dark-surface dark:border-dark-border dark:text-dark-text-primary dark:focus:bg-dark-elevated dark:focus:border-dark-accent-primary dark:placeholder:text-dark-text-secondary"
                   placeholder="New York"
                 />
               </div>
@@ -392,7 +392,7 @@ export function WhatsAppProfile() {
                   type="text"
                   value={formData.pin_code || ''}
                   onChange={(e) => setFormData({ ...formData, pin_code: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-dark-surface dark:border-dark-border dark:text-dark-text-primary dark:focus:bg-dark-elevated dark:focus:border-dark-accent-primary dark:placeholder:text-dark-text-secondary"
                   placeholder="10001"
                 />
               </div>
@@ -405,7 +405,7 @@ export function WhatsAppProfile() {
                   type="text"
                   value={formData.country || ''}
                   onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-dark-surface dark:border-dark-border dark:text-dark-text-primary dark:focus:bg-dark-elevated dark:focus:border-dark-accent-primary dark:placeholder:text-dark-text-secondary"
                   placeholder="United States"
                 />
               </div>
@@ -435,7 +435,7 @@ export function WhatsAppProfile() {
                   type="email"
                   value={formData.profile_email || ''}
                   onChange={(e) => setFormData({ ...formData, profile_email: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-dark-surface dark:border-dark-border dark:text-dark-text-primary dark:focus:bg-dark-elevated dark:focus:border-dark-accent-primary dark:placeholder:text-dark-text-secondary"
                   placeholder="contact@business.com"
                 />
               </div>
@@ -451,7 +451,7 @@ export function WhatsAppProfile() {
                   type="url"
                   value={formData.website1 || ''}
                   onChange={(e) => setFormData({ ...formData, website1: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-dark-surface dark:border-dark-border dark:text-dark-text-primary dark:focus:bg-dark-elevated dark:focus:border-dark-accent-primary dark:placeholder:text-dark-text-secondary"
                   placeholder="https://example.com"
                 />
               </div>
@@ -464,7 +464,7 @@ export function WhatsAppProfile() {
                   type="url"
                   value={formData.website2 || ''}
                   onChange={(e) => setFormData({ ...formData, website2: e.target.value })}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:bg-gray-600 dark:focus:border-primary dark:placeholder:text-gray-400"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:bg-dark-surface dark:border-dark-border dark:text-dark-text-primary dark:focus:bg-dark-elevated dark:focus:border-dark-accent-primary dark:placeholder:text-dark-text-secondary"
                   placeholder="https://example2.com"
                 />
               </div>
@@ -485,8 +485,8 @@ export function WhatsAppProfile() {
             </div>
 
             {error && (
-              <div className="rounded-lg bg-red-50 border border-red-200 p-3 dark:bg-red-900/20 dark:border-red-800">
-                <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+              <div className="rounded-lg bg-red-50 border border-red-200 p-3 dark:bg-dark-accent-error/10 dark:border-dark-accent-error/50">
+                <p className="text-sm text-red-800 dark:text-dark-accent-error">{error}</p>
               </div>
             )}
 
@@ -504,8 +504,8 @@ export function WhatsAppProfile() {
       </div>
 
       {/* Profile About Section */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-600 dark:bg-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">About Text</h3>
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-dark-border dark:bg-dark-surface">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-text-primary mb-4">About Text</h3>
         
         <div className="space-y-4">
           <div>
@@ -522,11 +522,11 @@ export function WhatsAppProfile() {
               placeholder="Brief business description (max 512 characters)"
             />
             <div className="mt-2 flex justify-between items-center">
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-gray-500 dark:text-dark-text-secondary">
                 {about.length}/512 characters
               </p>
               {about.length > 512 && (
-                <p className="text-xs text-red-600 dark:text-red-400">Exceeds maximum length</p>
+                <p className="text-xs text-red-600 dark:text-dark-accent-error">Exceeds maximum length</p>
               )}
             </div>
           </div>
@@ -551,58 +551,58 @@ export function WhatsAppProfile() {
         <ModalBody>
           {previewLoading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin dark:border-white" />
-              <span className="ml-3 text-sm text-gray-600 dark:text-gray-400">Loading preview...</span>
+              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin dark:border-dark-accent-primary" />
+              <span className="ml-3 text-sm text-gray-600 dark:text-dark-text-secondary">Loading preview...</span>
             </div>
           ) : previewData?.preview ? (
             <div className="space-y-4">
               {/* Summary Alert */}
-              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-dark-accent-primary/50 dark:bg-dark-accent-primary/10">
                 <div className="flex items-start gap-3">
-                  <svg className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5 text-blue-600 dark:text-dark-accent-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                  <p className="text-sm text-blue-800 dark:text-dark-accent-primary">
                     {previewData.preview.summary}
                   </p>
                 </div>
               </div>
 
               {/* Fields Table */}
-              <div className="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+              <div className="border border-gray-200 dark:border-dark-border rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50 dark:bg-gray-800">
+                    <thead className="bg-gray-50 dark:bg-dark-elevated">
                       <tr>
-                        <th className="text-left p-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Field</th>
-                        <th className="text-left p-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Brancr Value</th>
-                        <th className="text-left p-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Current WhatsApp</th>
-                        <th className="text-center p-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Status</th>
+                        <th className="text-left p-3 text-sm font-semibold text-gray-900 dark:text-dark-text-primary">Field</th>
+                        <th className="text-left p-3 text-sm font-semibold text-gray-900 dark:text-dark-text-primary">Brancr Value</th>
+                        <th className="text-left p-3 text-sm font-semibold text-gray-900 dark:text-dark-text-primary">Current WhatsApp</th>
+                        <th className="text-center p-3 text-sm font-semibold text-gray-900 dark:text-dark-text-primary">Status</th>
                       </tr>
                     </thead>
                     <tbody>
                       {previewData.preview.fields.map((field, idx) => (
-                        <tr key={idx} className="border-t border-gray-200 dark:border-gray-600">
-                          <td className="p-3 text-sm font-medium text-gray-900 dark:text-gray-100">{field.name}</td>
-                          <td className="p-3 text-sm text-gray-700 dark:text-gray-300">
+                        <tr key={idx} className="border-t border-gray-200 dark:border-dark-border">
+                          <td className="p-3 text-sm font-medium text-gray-900 dark:text-dark-text-primary">{field.name}</td>
+                          <td className="p-3 text-sm text-gray-700 dark:text-dark-text-secondary">
                             {field.brancr_value || (
-                              <span className="text-gray-400 dark:text-gray-500 italic">Not set</span>
+                              <span className="text-gray-400 dark:text-dark-text-secondary italic">Not set</span>
                             )}
                           </td>
-                          <td className="p-3 text-sm text-gray-700 dark:text-gray-300">
+                          <td className="p-3 text-sm text-gray-700 dark:text-dark-text-secondary">
                             {field.whatsapp_value ? (
-                              <span className="text-gray-600 dark:text-gray-400">{field.whatsapp_value}</span>
+                              <span className="text-gray-600 dark:text-dark-text-secondary">{field.whatsapp_value}</span>
                             ) : (
-                              <span className="text-gray-400 dark:text-gray-500 italic">Not set</span>
+                              <span className="text-gray-400 dark:text-dark-text-secondary italic">Not set</span>
                             )}
                           </td>
                           <td className="p-3 text-center">
                             {field.will_change ? (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-dark-accent-primary/20 dark:text-dark-accent-primary">
                                 Will update
                               </span>
                             ) : (
-                              <svg className="h-5 w-5 text-green-600 dark:text-green-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="h-5 w-5 text-green-600 dark:text-dark-accent-success mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                               </svg>
                             )}
@@ -615,12 +615,12 @@ export function WhatsAppProfile() {
               </div>
 
               {!hasChanges && (
-                <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
+                <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-dark-accent-success/50 dark:bg-dark-accent-success/10">
                   <div className="flex items-start gap-3">
-                    <svg className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-5 w-5 text-green-600 dark:text-dark-accent-success mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <p className="text-sm text-green-800 dark:text-green-200">
+                    <p className="text-sm text-green-800 dark:text-dark-accent-success">
                       Your WhatsApp profile already matches your business profile. No changes needed.
                     </p>
                   </div>
@@ -628,12 +628,12 @@ export function WhatsAppProfile() {
               )}
             </div>
           ) : (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-dark-accent-error/50 dark:bg-dark-accent-error/10">
               <div className="flex items-start gap-3">
-                <svg className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-5 w-5 text-red-600 dark:text-dark-accent-error mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="text-sm text-red-800 dark:text-red-200">
+                <p className="text-sm text-red-800 dark:text-dark-accent-error">
                   Failed to load preview. Please try again.
                 </p>
               </div>

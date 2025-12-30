@@ -222,28 +222,28 @@ export default function OrdersPage() {
           <div className="stat-card group">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-info-400/20 to-info-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Total Orders</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total Orders</p>
               <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">{stats.total_orders}</p>
             </div>
           </div>
           <div className="stat-card group">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-warning-400/20 to-warning-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Pending</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Pending</p>
               <p className="mt-2 text-2xl font-bold text-warning-600 dark:text-warning-400 sm:text-3xl">{stats.pending_orders}</p>
             </div>
           </div>
           <div className="stat-card group">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-success-400/20 to-success-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Completed</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Completed</p>
               <p className="mt-2 text-2xl font-bold text-success-600 dark:text-success-400 sm:text-3xl">{stats.completed_orders}</p>
             </div>
           </div>
           <div className="stat-card group col-span-2 lg:col-span-1">
             <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-accent-400/20 to-accent-500/20 blur-2xl transition-transform group-hover:scale-150" />
             <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-300 sm:text-sm">Total Revenue</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total Revenue</p>
               <p className="mt-2 text-xl font-bold text-gray-900 dark:text-gray-100 sm:text-2xl lg:text-3xl">
                 {stats.currency} {(stats.total_revenue ?? 0).toLocaleString()}
               </p>
@@ -313,10 +313,10 @@ export default function OrdersPage() {
       {/* Orders List */}
       {isLoading ? (
         <div className="space-y-4">
-          <div className="h-6 w-48 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
+          <div className="h-6 w-48 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-600" />
           <div className="space-y-3">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-24 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-700" />
+              <div key={i} className="h-24 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-600" />
             ))}
           </div>
         </div>
@@ -326,15 +326,15 @@ export default function OrdersPage() {
             <XIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
           </div>
           <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load orders</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">Please try refreshing the page</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Please try refreshing the page</p>
         </div>
       ) : filteredOrders.length === 0 ? (
         <div className="card p-12 text-center sm:p-16">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-600">
             <PackageIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
           </div>
           <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">No orders found</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             {query || statusFilter || platformFilter
               ? "Try adjusting your search or filters"
               : "Orders will appear here when customers commit to purchase"}

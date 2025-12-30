@@ -404,7 +404,7 @@ export default function ProductsPage() {
                 itemsPerPage={itemsPerPage}
                 totalItems={products.length}
               />
-            </div>
+          </div>
           )}
         </>
       )}

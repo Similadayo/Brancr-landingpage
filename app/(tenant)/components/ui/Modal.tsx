@@ -68,7 +68,7 @@ export function Modal({
       {/* Modal */}
       <div
         className={cn(
-          'relative z-50 w-full rounded-2xl bg-white shadow-2xl dark:bg-gray-700',
+          'relative z-50 w-full rounded-2xl bg-white shadow-2xl dark:bg-dark-surface',
           sizeClasses[size],
           'max-h-[90vh] overflow-hidden',
           className
@@ -95,12 +95,12 @@ interface ModalHeaderProps {
 
 export function ModalHeader({ children, onClose, className }: ModalHeaderProps) {
   return (
-    <div className={cn('flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-600', className)}>
+    <div className={cn('flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-dark-border', className)}>
       <div className="flex-1">{children}</div>
       {onClose && (
         <button
           onClick={onClose}
-          className="ml-4 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+          className="ml-4 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-dark-elevated dark:hover:text-dark-text-primary"
           aria-label="Close modal"
         >
           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,7 +119,7 @@ interface ModalTitleProps {
 
 export function ModalTitle({ children, className }: ModalTitleProps) {
   return (
-    <h2 id="modal-title" className={cn('text-xl font-semibold text-gray-900 dark:text-gray-100', className)}>
+    <h2 id="modal-title" className={cn('text-xl font-semibold text-gray-900 dark:text-dark-text-primary', className)}>
       {children}
     </h2>
   );
@@ -145,7 +145,7 @@ interface ModalFooterProps {
 
 export function ModalFooter({ children, className }: ModalFooterProps) {
   return (
-    <div className={cn('flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-600', className)}>
+    <div className={cn('flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-dark-border', className)}>
       {children}
     </div>
   );

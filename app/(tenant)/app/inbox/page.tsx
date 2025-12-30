@@ -375,7 +375,7 @@ export default function InboxPage() {
                     className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                       isActive
                         ? "bg-accent text-white shadow-sm dark:bg-white dark:text-gray-100"
-                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600"
                     }`}
                     onClick={() => setActiveStatusFilter(tab)}
                   >

@@ -19,7 +19,7 @@ export function Card({
   href,
   onClick,
 }: CardProps) {
-  const baseStyles = 'rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all dark:border-gray-600 dark:bg-gray-700';
+  const baseStyles = 'rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all dark:border-dark-border dark:bg-dark-surface';
   const hoverStyles = hoverable || href ? 'hover:border-primary/50 hover:shadow-md cursor-pointer active:scale-[0.98]' : '';
   
   const content = (
@@ -67,7 +67,7 @@ interface CardTitleProps {
 
 export function CardTitle({ children, className }: CardTitleProps) {
   return (
-    <h3 className={cn('text-lg font-semibold text-gray-900 dark:text-gray-100', className)}>
+    <h3 className={cn('text-lg font-semibold text-gray-900 dark:text-dark-text-primary', className)}>
       {children}
     </h3>
   );
@@ -80,7 +80,7 @@ interface CardContentProps {
 
 export function CardContent({ children, className }: CardContentProps) {
   return (
-    <div className={cn('text-sm text-gray-600 dark:text-gray-300', className)}>
+    <div className={cn('text-sm text-gray-600 dark:text-dark-text-secondary', className)}>
       {children}
     </div>
   );
