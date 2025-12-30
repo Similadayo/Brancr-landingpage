@@ -369,8 +369,8 @@ export default function CampaignsPage() {
             onClick={() => setActiveTab("scheduled")}
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "scheduled"
-                ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-100"
-                : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600"
+                ? "bg-accent text-white shadow-md dark:bg-dark-accent-primary dark:text-white"
+                : "text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600"
             }`}
           >
             <ClockIcon className="w-4 h-4" />
@@ -385,8 +385,8 @@ export default function CampaignsPage() {
             onClick={() => setActiveTab("published")}
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "published"
-                ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-100"
-                : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600"
+                ? "bg-accent text-white shadow-md dark:bg-dark-accent-primary dark:text-white"
+                : "text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600"
             }`}
           >
             <CheckCircleIcon className="w-4 h-4" />
@@ -401,8 +401,8 @@ export default function CampaignsPage() {
             onClick={() => setActiveTab("drafts")}
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               activeTab === "drafts"
-                ? "bg-accent text-white shadow-md dark:bg-white dark:text-gray-100"
-                : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600"
+                ? "bg-accent text-white shadow-md dark:bg-dark-accent-primary dark:text-white"
+                : "text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600"
             }`}
           >
             <DocumentTextIcon className="w-4 h-4" />

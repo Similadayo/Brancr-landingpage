@@ -325,16 +325,16 @@ export default function OrdersPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-error-100 dark:bg-error-900/30">
             <XIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
           </div>
-          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load orders</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Please try refreshing the page</p>
+          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Failed to load orders</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-white">Please try refreshing the page</p>
         </div>
       ) : filteredOrders.length === 0 ? (
         <div className="card p-12 text-center sm:p-16">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-600">
             <PackageIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
           </div>
-          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">No orders found</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">No orders found</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-white">
             {query || statusFilter || platformFilter
               ? "Try adjusting your search or filters"
               : "Orders will appear here when customers commit to purchase"}
@@ -345,7 +345,7 @@ export default function OrdersPage() {
           <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-600 dark:bg-gray-700/50 sm:px-6 sm:py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 sm:gap-3">
-                <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 sm:text-sm">Order List</p>
+                <p className="text-xs font-semibold text-gray-900 dark:text-white sm:text-sm">Order List</p>
                 <span className="badge badge-gray text-[10px] sm:text-xs">{filteredOrders.length}</span>
               </div>
             </div>
@@ -375,28 +375,28 @@ export default function OrdersPage() {
                   {/* Mobile View */}
                   <div className="space-y-3 sm:hidden">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-base font-semibold text-gray-900 dark:text-gray-100">{order.order_number}</p>
+                      <p className="text-base font-semibold text-gray-900 dark:text-white">{order.order_number}</p>
                       {autoCreated && <span className="badge badge-info text-[10px]">Auto</span>}
                       {isNew && <span className="badge badge-success text-[10px]">New</span>}
                       <span className={`badge ${getStatusBadge(order.status)} text-[10px]`}>{order.status}</span>
                       <span className="badge badge-gray text-[10px] capitalize">{order.platform}</span>
                     </div>
                     <div className="space-y-1.5">
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        Customer: <span className="font-medium text-gray-900 dark:text-gray-100">{order.customer_name}</span>
+                      <p className="text-sm text-gray-600 dark:text-white">
+                        Customer: <span className="font-medium text-gray-900 dark:text-white">{order.customer_name}</span>
                       </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        Items: <span className="font-medium text-gray-900 dark:text-gray-100">{itemCount}</span>
+                      <p className="text-sm text-gray-600 dark:text-white">
+                        Items: <span className="font-medium text-gray-900 dark:text-white">{itemCount}</span>
                       </p>
                       <div onClick={(e) => e.preventDefault()}>
                         <CopyToClipboard text={order.payment_reference} showLabel={false} className="text-xs" />
                       </div>
                     </div>
                     <div className="flex items-end justify-between">
-                      <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                      <p className="text-lg font-bold text-gray-900 dark:text-white">
                         {order.currency} {(order.total_amount ?? 0).toLocaleString()}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-300">
+                      <p className="text-xs text-gray-500 dark:text-white">
                         {new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                       </p>
                     </div>
@@ -406,11 +406,11 @@ export default function OrdersPage() {
                   <div className="hidden grid-cols-12 items-center gap-3 md:grid lg:gap-4">
                     <div className="col-span-3 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">{order.order_number}</p>
+                        <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">{order.order_number}</p>
                         {autoCreated && <span className="badge badge-info text-[10px]">Auto</span>}
                         {isNew && <span className="badge badge-success text-[10px]">New</span>}
                       </div>
-                      <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-300">
+                      <p className="mt-0.5 text-xs text-gray-500 dark:text-white">
                         {new Date(order.created_at).toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
@@ -420,8 +420,8 @@ export default function OrdersPage() {
                     </div>
 
                     <div className="col-span-3 min-w-0">
-                      <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{order.customer_name}</p>
-                      <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-300 capitalize">
+                      <p className="truncate text-sm font-medium text-gray-900 dark:text-white">{order.customer_name}</p>
+                      <p className="mt-0.5 text-xs text-gray-500 dark:text-white capitalize">
                         {order.platform} • {itemCount} item(s)
                       </p>
                     </div>
@@ -431,7 +431,7 @@ export default function OrdersPage() {
                     </div>
 
                     <div className="col-span-2 text-right">
-                      <p className="text-base font-bold text-gray-900 dark:text-gray-100">
+                      <p className="text-base font-bold text-gray-900 dark:text-white">
                         {order.currency} {(order.total_amount ?? 0).toLocaleString()}
                       </p>
                     </div>

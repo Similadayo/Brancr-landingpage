@@ -520,7 +520,7 @@ export default function IntegrationsPage() {
               <div key={platform} className="card p-5 sm:p-6">
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg">
+                    <h3 className="text-base font-bold text-gray-900 dark:text-white sm:text-lg">
                       {isWhatsApp ? "WhatsApp Business" : name}
                     </h3>
                     {isWhatsApp && connected && (
@@ -541,22 +541,22 @@ export default function IntegrationsPage() {
 
                 {/* Platform Details */}
                 {platform === "facebook" && connected && integration?.page_name ? (
-                  <p className="mb-3 text-xs text-gray-500 dark:text-gray-300">{integration.page_name}</p>
+                  <p className="mb-3 text-xs text-gray-500 dark:text-white">{integration.page_name}</p>
                 ) : platform === "instagram" && connected ? (
                   <div className="mb-3 space-y-1">
                     {integration?.instagram_handle ? (
-                      <p className="text-xs text-gray-500 dark:text-gray-300">@{integration.instagram_handle}</p>
+                      <p className="text-xs text-gray-500 dark:text-white">@{integration.instagram_handle}</p>
                     ) : integration?.username ? (
-                      <p className="text-xs text-gray-500 dark:text-gray-300">@{integration.username}</p>
+                      <p className="text-xs text-gray-500 dark:text-white">@{integration.username}</p>
                     ) : null}
                   </div>
                 ) : connected && integration?.username && !isWhatsApp ? (
-                  <p className="mb-3 text-xs text-gray-500 dark:text-gray-300">@{integration.username}</p>
+                  <p className="mb-3 text-xs text-gray-500 dark:text-white">@{integration.username}</p>
                 ) : null}
 
                 {/* Status Description */}
                 {!isWhatsApp && (
-                  <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">{status.description}</p>
+                  <p className="mb-4 text-sm text-gray-600 dark:text-white">{status.description}</p>
                 )}
 
                 {/* Webhook Status */}
@@ -671,7 +671,7 @@ export default function IntegrationsPage() {
 
                 {/* Helper text */}
                 {!isWhatsApp && (
-                  <p className="mt-3 text-xs text-gray-500 dark:text-gray-300">{status.helper}</p>
+                  <p className="mt-3 text-xs text-gray-500 dark:text-white">{status.helper}</p>
                 )}
               </div>
             );
@@ -682,11 +682,11 @@ export default function IntegrationsPage() {
       {/* Info Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
         <div className="card p-5 sm:p-6">
-          <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg">Provider-Owned WhatsApp</h3>
-          <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
+          <h3 className="text-base font-bold text-gray-900 dark:text-white sm:text-lg">Provider-Owned WhatsApp</h3>
+          <p className="mt-3 text-sm text-gray-600 dark:text-white">
             Brancr manages your WhatsApp Business Account. Select a number from our pool or add your own number for verification.
           </p>
-          <div className="mt-4 space-y-3 text-sm text-gray-600 dark:text-gray-300">
+          <div className="mt-4 space-y-3 text-sm text-gray-600 dark:text-white">
             <div className="flex items-start gap-3">
               <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-success-500" aria-hidden />
               <span>Brancr handles WhatsApp Business Account setup and billing</span>
@@ -702,20 +702,20 @@ export default function IntegrationsPage() {
           </div>
         </div>
         <div className="card p-5 sm:p-6">
-          <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg">Connection History</h3>
-          <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
+          <h3 className="text-base font-bold text-gray-900 dark:text-white sm:text-lg">Connection History</h3>
+          <p className="mt-3 text-sm text-gray-600 dark:text-white">
             Brancr logs key integration events to help you audit onboarding.
           </p>
           <div className="mt-4 space-y-3">
             {connectionHistory.slice(0, 2).map((entry) => (
               <div key={entry.id} className="rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700/50">
-                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{entry.action}</p>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-300">{entry.at}</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">{entry.action}</p>
+                <p className="mt-1 text-xs text-gray-500 dark:text-white">{entry.at}</p>
               </div>
             ))}
             <Link
               href="/app/integrations/history"
-              className="block rounded-xl border border-dashed border-gray-200 bg-gray-50 p-3 text-center text-xs text-gray-500 transition hover:border-accent hover:text-accent dark:border-gray-600 dark:bg-gray-700/50 dark:hover:border-accent"
+              className="block rounded-xl border border-dashed border-gray-200 bg-gray-50 p-3 text-center text-xs text-gray-500 transition hover:border-accent hover:text-accent dark:border-gray-600 dark:bg-gray-700/50 dark:text-white dark:hover:border-accent"
             >
               View full history →
             </Link>

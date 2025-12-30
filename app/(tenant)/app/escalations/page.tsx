@@ -269,16 +269,16 @@ export default function EscalationsPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-error-100 dark:bg-error-900/30">
             <AlertIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
           </div>
-          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load escalations</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{error.message}</p>
+          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Failed to load escalations</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-white">{error.message}</p>
         </div>
       ) : filteredEscalations.length === 0 ? (
         <div className="card p-12 text-center sm:p-16">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
             <AlertIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
           </div>
-          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">No escalations found</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">No escalations found</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-white">
             {searchQuery || priorityFilter !== "all" || platformFilter !== "all"
               ? "Try adjusting your search or filters"
               : "All escalations have been handled"}
@@ -342,11 +342,11 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
           <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
                       {escalation.customerName}
                     </h3>
                     {escalation.customerUsername && (
-                  <span className="text-sm text-gray-500 dark:text-gray-400 shrink-0">
+                  <span className="text-sm text-gray-500 dark:text-white shrink-0">
                         @{escalation.customerUsername}
                       </span>
                     )}
@@ -355,7 +355,7 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
                 <span className={`badge ${PLATFORM_BADGES[escalation.platform.toLowerCase()] ?? "badge-gray"} text-xs font-medium`}>
                   {escalation.platform}
                 </span>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+                <span className="text-sm text-gray-500 dark:text-white">
                   {formatTimeAgo(escalation.createdAt)}
                 </span>
               </div>
@@ -372,7 +372,7 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
 
           {/* Message Preview */}
           <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
-            <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed line-clamp-3">
+            <p className="text-sm text-gray-800 dark:text-white leading-relaxed line-clamp-3">
                   {escalation.message}
                 </p>
               </div>
@@ -380,13 +380,13 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
           {/* Intent and Tone - Better Styled */}
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Intent:</span>
+              <span className="text-xs font-semibold text-gray-500 dark:text-white uppercase tracking-wide">Intent:</span>
               <span className="inline-flex items-center rounded-lg bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:text-white">
                 {escalation.intent}
                 </span>
               </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Tone:</span>
+              <span className="text-xs font-semibold text-gray-500 dark:text-white uppercase tracking-wide">Tone:</span>
               <span className={`inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold ${
                 escalation.tone.toLowerCase() === 'negative' 
                   ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-white'

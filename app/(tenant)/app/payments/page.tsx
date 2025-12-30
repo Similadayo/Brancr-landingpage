@@ -270,16 +270,16 @@ export default function PaymentsPage() {
 					<div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-error-100 dark:bg-error-900/30">
 						<XIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
 					</div>
-					<p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load payments</p>
-					<p className="mt-2 text-sm text-gray-600 dark:text-gray-300">Please try refreshing the page</p>
+					<p className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Failed to load payments</p>
+					<p className="mt-2 text-sm text-gray-600 dark:text-white">Please try refreshing the page</p>
 				</div>
 			) : filteredPayments.length === 0 ? (
 				<div className="card p-12 text-center sm:p-16">
 					<div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
 						<CreditCardIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
 					</div>
-					<p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">No payments found</p>
-					<p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+					<p className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">No payments found</p>
+					<p className="mt-2 text-sm text-gray-600 dark:text-white">
 						{query || statusFilter || verificationFilter
 							? "Try adjusting your search or filters"
 							: "Payments will appear here when customers make payments"}
@@ -290,7 +290,7 @@ export default function PaymentsPage() {
 					<div className="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-600 dark:bg-gray-700/50 sm:px-6 sm:py-4">
 						<div className="flex items-center justify-between">
 							<div className="flex items-center gap-2 sm:gap-3">
-								<p className="text-xs font-semibold text-gray-900 dark:text-gray-100 sm:text-sm">Payment List</p>
+								<p className="text-xs font-semibold text-gray-900 dark:text-white sm:text-sm">Payment List</p>
 								<span className="badge badge-gray text-[10px] sm:text-xs">{filteredPayments.length}</span>
 							</div>
 						</div>
@@ -314,27 +314,27 @@ export default function PaymentsPage() {
 									{/* Mobile View */}
 									<div className="space-y-3 sm:hidden">
 										<div className="flex flex-wrap items-center gap-2">
-											<p className="text-base font-semibold text-gray-900 dark:text-gray-100">{payment.order_number}</p>
+											<p className="text-base font-semibold text-gray-900 dark:text-white">{payment.order_number}</p>
 											<span className={`badge ${getStatusBadge(payment.status)}`}>{payment.status}</span>
 											<span className={`badge ${getVerificationStatusBadge(payment.verification_status)}`}>
 												{payment.verification_status}
 											</span>
 										</div>
 										<div className="space-y-1.5">
-											<p className="text-sm text-gray-600 dark:text-gray-300">
-												Customer: <span className="font-medium text-gray-900 dark:text-gray-100">{payment.customer_name}</span>
+											<p className="text-sm text-gray-600 dark:text-white">
+												Customer: <span className="font-medium text-gray-900 dark:text-white">{payment.customer_name}</span>
 											</p>
-											<p className="text-sm text-gray-600 dark:text-gray-300">
-												Ref: <span className="font-mono font-medium text-gray-900 dark:text-gray-100">{payment.payment_reference}</span>
+											<p className="text-sm text-gray-600 dark:text-white">
+												Ref: <span className="font-mono font-medium text-gray-900 dark:text-white">{payment.payment_reference}</span>
 											</p>
 											{payment.verified_at && (
-												<p className="text-xs text-gray-500 dark:text-gray-300">
+												<p className="text-xs text-gray-500 dark:text-white">
 													Verified: {new Date(payment.verified_at).toLocaleString()}
 												</p>
 											)}
 										</div>
 										<div className="flex items-center justify-between">
-											<p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+											<p className="text-lg font-bold text-gray-900 dark:text-white">
 												{payment.currency} {payment.amount.toLocaleString()}
 											</p>
 											{canAct && (
@@ -376,10 +376,10 @@ export default function PaymentsPage() {
 									<div className="hidden grid-cols-12 items-center gap-3 md:grid lg:gap-4">
 										<div className="col-span-3 min-w-0">
 											<div className="flex items-center gap-2">
-												<p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">{payment.order_number}</p>
+												<p className="truncate text-sm font-semibold text-gray-900 dark:text-white">{payment.order_number}</p>
 												<span className={`badge ${getStatusBadge(payment.status)}`}>{payment.status}</span>
 											</div>
-											<p className="mt-1 text-xs text-gray-500 dark:text-gray-300">
+											<p className="mt-1 text-xs text-gray-500 dark:text-white">
 												{new Date(payment.created_at).toLocaleDateString("en-US", {
 													month: "short",
 													day: "numeric",
@@ -389,23 +389,23 @@ export default function PaymentsPage() {
 										</div>
 
 										<div className="col-span-3 min-w-0">
-											<p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{payment.customer_name}</p>
+											<p className="truncate text-sm font-medium text-gray-900 dark:text-white">{payment.customer_name}</p>
 											{payment.customer_phone && (
-												<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-300">{payment.customer_phone}</p>
+												<p className="mt-0.5 text-xs text-gray-500 dark:text-white">{payment.customer_phone}</p>
 											)}
 											{payment.verified_at && (
-												<p className="mt-0.5 text-xs text-gray-400 dark:text-gray-400">
+												<p className="mt-0.5 text-xs text-gray-400 dark:text-white">
 													Verified: {new Date(payment.verified_at).toLocaleString()}
 												</p>
 											)}
 										</div>
 
 										<div className="col-span-3 min-w-0">
-											<p className="truncate font-mono text-sm font-semibold text-gray-900 dark:text-gray-100">
+											<p className="truncate font-mono text-sm font-semibold text-gray-900 dark:text-white">
 												{payment.payment_reference}
 											</p>
 											{payment.transaction_id && (
-												<p className="mt-0.5 truncate font-mono text-xs text-gray-500 dark:text-gray-300">
+												<p className="mt-0.5 truncate font-mono text-xs text-gray-500 dark:text-white">
 													Txn: {payment.transaction_id}
 												</p>
 											)}
@@ -415,7 +415,7 @@ export default function PaymentsPage() {
 										</div>
 
 										<div className="col-span-2 text-right">
-											<p className="text-base font-bold text-gray-900 dark:text-gray-100">
+											<p className="text-base font-bold text-gray-900 dark:text-white">
 												{payment.currency} {payment.amount.toLocaleString()}
 											</p>
 										</div>
