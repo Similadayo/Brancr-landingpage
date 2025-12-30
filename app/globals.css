@@ -169,6 +169,19 @@ html.dark .text-gray-200 { color: #E0E0E0 !important; }
 html.dark .text-gray-300 { color: #B0B0B0 !important; }
 html.dark .text-gray-400 { color: #B0B0B0 !important; }
 
+/* Accent Colors for Dark Mode */
+html.dark .bg-primary { background-color: #4BA3FF !important; }
+html.dark .text-primary { color: #4BA3FF !important; }
+html.dark .hover\:bg-primary\/90:hover { background-color: #6BB8FF !important; }
+html.dark .bg-success-100 { background-color: #43B047 !important; }
+html.dark .text-success-700 { color: #43B047 !important; }
+html.dark .bg-warning-100 { background-color: #E9A600 !important; }
+html.dark .text-warning-700 { color: #E9A600 !important; }
+html.dark .bg-error-100 { background-color: #E04848 !important; }
+html.dark .text-error-700 { color: #E04848 !important; }
+html.dark .bg-info-100 { background-color: #4BA3FF !important; }
+html.dark .text-info-700 { color: #4BA3FF !important; }
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -319,7 +332,7 @@ html.dark .text-gray-400 { color: #B0B0B0 !important; }
   .search-input {
     @apply w-full h-11 rounded-xl border border-gray-200 bg-white pl-11 pr-4 text-sm text-gray-900 placeholder:text-gray-500 transition-all duration-200;
     @apply hover:border-gray-300 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20;
-    @apply dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder:text-gray-400;
+    @apply dark:border-dark-border dark:bg-dark-surface dark:text-dark-text-primary dark:placeholder:text-dark-text-secondary;
     @apply sm:h-11;
   }
 

@@ -28,11 +28,11 @@ export default function LoginForm() {
 
     try {
       await authApi.login({ email: email.trim(), password });
-      
+
       // Check onboarding status after login
       try {
         const userData = await authApi.me();
-        
+
         // Redirect based on onboarding status
         if (!userData.onboarding?.complete) {
           router.push('/app/onboarding');
@@ -44,7 +44,7 @@ export default function LoginForm() {
         // If me() fails, just go to nextUrl (user is logged in, just can't check onboarding)
         router.push(nextUrl);
       }
-      
+
       // Use setTimeout to ensure navigation happens after state updates
       setTimeout(() => {
         router.refresh();
@@ -70,7 +70,7 @@ export default function LoginForm() {
         ) : null}
 
         <div>
-          <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Email
           </label>
           <input
@@ -81,14 +81,14 @@ export default function LoginForm() {
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:border-primary"
             placeholder="you@company.com"
           />
         </div>
 
         <div>
           <div className="flex items-center justify-between">
-            <label htmlFor="password" className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Password
             </label>
           </div>
@@ -100,7 +100,7 @@ export default function LoginForm() {
             required
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:border-primary"
             placeholder="••••••••"
           />
         </div>
@@ -108,7 +108,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/50 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
+          className="inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/50 dark:bg-dark-accent-primary dark:text-white dark:hover:bg-[#6BB8FF]"
         >
           {isSubmitting ? "Signing in…" : "Sign in"}
         </button>
@@ -119,14 +119,14 @@ export default function LoginForm() {
           <div className="w-full border-t border-gray-200"></div>
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-gray-500">Or continue with</span>
+          <span className="bg-white px-2 text-gray-500 dark:bg-dark-surface dark:text-gray-400">Or continue with</span>
         </div>
       </div>
 
       <button
         type="button"
         onClick={handleGoogleLogin}
-        className="inline-flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 hover:border-gray-300"
+        className="inline-flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 hover:border-gray-300 dark:bg-dark-elevated dark:border-dark-border dark:text-gray-200 dark:hover:bg-dark-surface"
       >
         <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path

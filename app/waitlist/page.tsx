@@ -47,7 +47,7 @@ export default function WaitlistPage() {
   };
 
   return (
-    <main className="min-h-screen bg-neutral-bg">
+    <main className="min-h-screen bg-neutral-bg dark:bg-dark-bg">
       <Header />
       <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
@@ -57,10 +57,10 @@ export default function WaitlistPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-dark-text-primary mb-4">
               Join the Brancr Waitlist
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-600 dark:text-dark-text-secondary">
               Be among the first to experience AI-powered marketing for your
               business.
             </p>
@@ -70,13 +70,13 @@ export default function WaitlistPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100"
+            className="bg-white dark:bg-dark-surface rounded-2xl p-8 shadow-xl border border-gray-100 dark:border-dark-border"
           >
             {status === "success" ? (
               <div className="text-center py-8">
-                <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
                   <svg
-                    className="w-8 h-8 text-green-600"
+                    className="w-8 h-8 text-green-600 dark:text-green-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -89,13 +89,13 @@ export default function WaitlistPage() {
                     />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-text-primary mb-2">
                   You&apos;re on the list!
                 </h2>
-                <p className="text-gray-600 mb-6">{message}</p>
+                <p className="text-gray-600 dark:text-dark-text-secondary mb-6">{message}</p>
                 <Link
                   href="/"
-                  className="inline-block bg-accent text-white px-6 py-3 rounded-lg font-semibold hover:bg-accent/90 transition-colors dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
+                  className="inline-block bg-accent text-white px-6 py-3 rounded-lg font-semibold hover:bg-accent/90 transition-colors dark:bg-dark-accent-primary dark:text-white dark:hover:bg-[#6BB8FF]"
                 >
                   Back to Home
                 </Link>
@@ -105,7 +105,7 @@ export default function WaitlistPage() {
                 <div>
                   <label
                     htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2"
                   >
                     Full Name
                   </label>
@@ -117,7 +117,7 @@ export default function WaitlistPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-dark-border dark:bg-dark-elevated dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all dark:placeholder:text-dark-text-secondary"
                     placeholder="John Doe"
                   />
                 </div>
@@ -125,7 +125,7 @@ export default function WaitlistPage() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2"
                   >
                     Email Address
                   </label>
@@ -137,18 +137,17 @@ export default function WaitlistPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-dark-border dark:bg-dark-elevated dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all dark:placeholder:text-dark-text-secondary"
                     placeholder="john@example.com"
                   />
                 </div>
 
                 {message && (
                   <div
-                    className={`p-4 rounded-lg ${
-                      status === "error"
-                        ? "bg-red-50 text-red-700"
-                        : "bg-blue-50 text-blue-700"
-                    }`}
+                    className={`p-4 rounded-lg ${status === "error"
+                        ? "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300"
+                        : "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
+                      }`}
                   >
                     {message}
                   </div>
@@ -157,12 +156,12 @@ export default function WaitlistPage() {
                 <button
                   type="submit"
                   disabled={status === "loading"}
-                  className="w-full bg-accent text-white px-6 py-3 rounded-lg font-semibold hover:bg-accent/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
+                  className="w-full bg-accent text-white px-6 py-3 rounded-lg font-semibold hover:bg-accent/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg dark:bg-dark-accent-primary dark:text-white dark:hover:bg-[#6BB8FF]"
                 >
                   {status === "loading" ? "Submitting..." : "Join Waitlist"}
                 </button>
 
-                <p className="text-xs text-gray-500 text-center">
+                <p className="text-xs text-gray-500 dark:text-dark-text-secondary text-center">
                   No credit card required • We&apos;ll notify you when Brancr is
                   ready
                 </p>
@@ -178,7 +177,7 @@ export default function WaitlistPage() {
           >
             <Link
               href="/"
-              className="text-gray-600 hover:text-primary transition-colors"
+              className="text-gray-600 dark:text-dark-text-secondary hover:text-primary dark:hover:text-dark-accent-primary transition-colors"
             >
               ← Back to Home
             </Link>

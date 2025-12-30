@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-neutral-bg">
+    <div className="min-h-screen bg-neutral-bg dark:bg-dark-bg">
       <div className="flex min-h-screen flex-col lg:flex-row">
         <div className="relative hidden w-full max-w-xl flex-1 overflow-hidden bg-gradient-to-br from-primary via-primary/80 to-primary/60 px-12 py-12 text-white lg:flex">
           <div className="flex min-h-full flex-col">
@@ -32,11 +32,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               <Image src="/logo-dark.svg" alt="Brancr" width={36} height={36} className="dark:brightness-0 dark:invert" />
               Brancr
             </Link>
-            <nav className="flex items-center gap-4 text-sm text-gray-600">
-              <Link href="/pricing" className="hover:text-primary transition">
+            <nav className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+              <Link href="/pricing" className="hover:text-primary dark:hover:text-white transition">
                 Pricing
               </Link>
-              <Link href="/contact" className="hover:text-primary transition">
+              <Link href="/contact" className="hover:text-primary dark:hover:text-white transition">
                 Contact
               </Link>
             </nav>
@@ -46,7 +46,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <div className="w-full max-w-md">{children}</div>
           </main>
 
-          <footer className="px-6 pb-6 text-center text-xs text-gray-500 sm:px-8">
+          <footer className="px-6 pb-6 text-center text-xs text-gray-500 dark:text-gray-400 sm:px-8">
             © {new Date().getFullYear()} Brancr. All rights reserved.
           </footer>
         </div>
