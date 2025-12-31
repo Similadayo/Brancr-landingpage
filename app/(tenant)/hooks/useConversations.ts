@@ -110,14 +110,14 @@ export function useConversations(filters?: { platform?: string; status?: string;
         if (!Array.isArray(conversations)) {
           return [];
         }
-        
+
         // Map conversations and handle customer names
         const mappedConversations = conversations.map((conversation) => {
           // Backend returns customer_name from customer.DisplayName
           // Use it directly from the API response
           let customerName = conversation.customer_name?.trim() || "";
           const platform = (conversation.platform ?? "whatsapp").toLowerCase();
-          
+
           // Only use fallback if customer_name is truly empty or "Unknown contact"
           // Trust the backend to provide correct names
           if (!customerName || customerName === "" || customerName === "Unknown contact") {
@@ -128,37 +128,37 @@ export function useConversations(filters?: { platform?: string; status?: string;
               customerName = "Unknown contact";
             }
           }
-          
+
           return {
-          id: Number(conversation.id),
-          customer_id: conversation.customer_id,
+            id: Number(conversation.id),
+            customer_id: conversation.customer_id,
             customer_name: customerName,
-          customer_avatar: conversation.customer_avatar,
+            customer_avatar: conversation.customer_avatar,
             platform: platform as ConversationSummary["platform"],
-          status: (conversation.status === "active" || conversation.status === "resolved" || conversation.status === "archived" 
-            ? conversation.status 
-            : "active") as ConversationSummary["status"],
-          last_message: conversation.last_message || "",
-          last_message_at: conversation.last_message_at || conversation.updated_at,
-          last_message_media: conversation.last_message_media || null,
-          unread_count: conversation.unread_count ?? 0,
-          created_at: conversation.created_at,
-          updated_at: conversation.updated_at,
-          tags: conversation.tags || [],
-          assignee: conversation.assignee ?? null,
+            status: (conversation.status === "active" || conversation.status === "resolved" || conversation.status === "archived"
+              ? conversation.status
+              : "active") as ConversationSummary["status"],
+            last_message: conversation.last_message || "",
+            last_message_at: conversation.last_message_at || conversation.updated_at,
+            last_message_media: conversation.last_message_media || null,
+            unread_count: conversation.unread_count ?? 0,
+            created_at: conversation.created_at,
+            updated_at: conversation.updated_at,
+            tags: conversation.tags || [],
+            assignee: conversation.assignee ?? null,
           };
         });
-        
+
         // For Instagram, ensure we group by customer_id + platform
         // Always prefer the real customer conversation over AI-only ones
         const groupedConversations = new Map<string, ConversationSummary>();
-        
+
         for (const conv of mappedConversations) {
           if (conv.platform === "instagram") {
             // Group Instagram conversations by customer_id + platform
             const key = `${conv.customer_id}-${conv.platform}`;
             const existing = groupedConversations.get(key);
-            
+
             if (!existing) {
               // First conversation for this customer
               groupedConversations.set(key, conv);
@@ -166,7 +166,7 @@ export function useConversations(filters?: { platform?: string; status?: string;
               // Merge: Always prefer the conversation with the real customer name
               const existingIsAI = isAIMessageName(existing.customer_name);
               const currentIsAI = isAIMessageName(conv.customer_name);
-              
+
               // Always prefer the conversation that doesn't look like an AI response
               if (currentIsAI && !existingIsAI) {
                 // Keep existing (it's the real customer conversation)
@@ -222,7 +222,7 @@ export function useConversations(filters?: { platform?: string; status?: string;
             groupedConversations.set(String(conv.id), conv);
           }
         }
-        
+
         // Filter out ALL conversations that have AI response names (AI-only chats)
         // Only show conversations with real customer names
         const filteredConversations = Array.from(groupedConversations.values()).filter((conv) => {
@@ -230,11 +230,11 @@ export function useConversations(filters?: { platform?: string; status?: string;
           if (conv.platform === "instagram") {
             return !isAIMessageName(conv.customer_name);
           }
-          
+
           // For other platforms, show all conversations
           return true;
         });
-        
+
         hasNotifiedConversations503 = false; // reset once service recovers
         return filteredConversations;
       } catch (error) {
@@ -282,11 +282,11 @@ export function useConversation(conversationId: string | null) {
       try {
         const response = await tenantApi.conversation(conversationId);
         const platform = (response.platform ?? "whatsapp").toLowerCase();
-        
+
         // Backend returns customer_name from customer.DisplayName
         // Use it directly from the API response
         let customerName = response.customer_name?.trim() || "";
-        
+
         // Only use fallback if customer_name is truly empty or "Unknown contact"
         // Trust the backend to provide correct names
         if (!customerName || customerName === "" || customerName === "Unknown contact") {
@@ -297,7 +297,7 @@ export function useConversation(conversationId: string | null) {
             customerName = "Unknown contact";
           }
         }
-        
+
         return {
           id: Number(response.id),
           customer_id: response.customer_id,
@@ -349,14 +349,14 @@ export function useSendReply(conversationId: string | null) {
     },
     onSuccess: (response) => {
       toast.success("Reply sent");
-      
+
       // Optimistically update the conversation cache with the new message
       if (response.interaction) {
         queryClient.setQueryData<ConversationDetail>(
           ["conversation", conversationId],
           (oldData) => {
             if (!oldData) return oldData;
-            
+
             // Map the interaction to Message type
             // Backend already sets content correctly (final_reply for outgoing, content for incoming)
             const newMessage: Message = {
@@ -375,14 +375,14 @@ export function useSendReply(conversationId: string | null) {
               metadata: response.interaction.metadata,
               media: response.interaction.media || null,
             };
-            
+
             // Add new message and sort by created_at ascending
             const updatedMessages = [...oldData.messages, newMessage].sort((a, b) => {
               const dateA = new Date(a.created_at).getTime();
               const dateB = new Date(b.created_at).getTime();
               return dateA - dateB;
             });
-            
+
             return {
               ...oldData,
               messages: updatedMessages,
@@ -391,7 +391,7 @@ export function useSendReply(conversationId: string | null) {
           }
         );
       }
-      
+
       // Still invalidate to ensure we have the latest data
       void queryClient.invalidateQueries({ queryKey: ["conversation", conversationId] });
       void queryClient.invalidateQueries({ queryKey: ["conversations"] });
@@ -399,7 +399,7 @@ export function useSendReply(conversationId: string | null) {
     onError: (error) => {
       const errorBody = error && typeof error === 'object' && 'body' in error ? (error as any).body : {};
       const alertType = errorBody?.alert_type || errorBody?.error || '';
-      
+
       // Log critical platform errors to monitoring
       if (alertType === 'whatsapp_template_failure' || alertType === 'instagram_rate_limit') {
         captureException(new Error(`Platform error: ${alertType}`), {
@@ -408,7 +408,7 @@ export function useSendReply(conversationId: string | null) {
           conversation_id: conversationId,
         });
       }
-      
+
       const message = getUserFriendlyErrorMessage(error, {
         action: 'sending reply',
         resource: 'message',
@@ -498,7 +498,12 @@ export function useMarkConversationRead() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (conversationId: string) => {
-      if (!conversationId) throw new Error("No conversation id");
+      // Validate that the conversation ID is present and not literally "NaN" string
+      if (!conversationId || conversationId === "NaN") {
+        console.warn("Attempted to mark invalid conversation ID as read:", conversationId);
+        return conversationId; // Return early without hitting the API
+      }
+
       if (suppressMarkReadUntil && Date.now() < suppressMarkReadUntil) {
         return conversationId; // skip hitting API while service is down
       }
@@ -515,6 +520,8 @@ export function useMarkConversationRead() {
       }
     },
     onSuccess: (conversationId) => {
+      if (!conversationId || conversationId === "NaN") return;
+
       queryClient.setQueryData<ConversationSummary[]>(["conversations"], (old) => {
         if (!old) return old;
         return old.map((conv) =>
