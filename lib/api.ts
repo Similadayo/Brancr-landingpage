@@ -677,6 +677,19 @@ export const tenantApi = {
       active_seats: { used: number; limit: number };
     }>("/api/tenant/usage"),
 
+  escalationSettings: () =>
+    get<{
+      enabled: boolean;
+      escalation_behavior: "always_on" | "configurable" | "advanced";
+      is_configurable: boolean;
+    }>("/api/tenant/settings/escalation"),
+
+  updateEscalationSettings: (payload: { enabled: boolean }) =>
+    put<typeof payload, { success: boolean; enabled: boolean }>(
+      "/api/tenant/settings/escalation",
+      payload
+    ),
+
   // Integrations endpoints
   integrations: () =>
     get<{

@@ -30,12 +30,13 @@ import { IndustrySelector } from "../../components/IndustrySelector";
 import { useTenantIndustry } from "../../hooks/useIndustry";
 import { WhatsAppProfile } from "../../components/WhatsAppProfile";
 
-type TabKey = "profile" | "industry" | "notifications" | "team" | "billing" | "whatsapp";
+type TabKey = "profile" | "industry" | "notifications" | "team" | "billing" | "whatsapp" | "ai_behavior";
 
 const TABS: Array<{ key: TabKey; label: string; icon: React.ReactNode }> = [
   { key: "profile", label: "Business Profile", icon: <UserIcon className="w-4 h-4" /> },
   { key: "industry", label: "Industry", icon: <BuildingOfficeIcon className="w-4 h-4" /> },
   { key: "notifications", label: "Notifications", icon: <BellIcon className="w-4 h-4" /> },
+  { key: "ai_behavior", label: "AI Behavior", icon: <SparklesIcon className="w-4 h-4" /> },
   { key: "team", label: "Team", icon: <UsersIcon className="w-4 h-4" /> },
   { key: "billing", label: "Billing & Plan", icon: <CreditCardIcon className="w-4 h-4" /> },
   { key: "whatsapp", label: "WhatsApp Profile", icon: <WhatsAppIcon className="w-4 h-4" /> },
@@ -287,6 +288,77 @@ export default function SettingsPage() {
             </div>
           </div>
         );
+      case "ai_behavior":
+        return (
+          <div className="space-y-6">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <SparklesIcon className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold text-gray-900">Escalation Settings</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-6">
+                Control when the AI should escalate conversations to a human agent.
+              </p>
+
+              {escalationSettingsQuery.isLoading ? (
+                <div className="h-24 animate-pulse rounded-lg bg-gray-50" />
+              ) : escalationSettingsQuery.data ? (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <div>
+                      <p className="font-semibold text-gray-900">
+                        {escalationSettingsQuery.data.escalation_behavior === "advanced"
+                          ? "Smart Escalation (Pro)"
+                          : "Automatic Escalation"}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {escalationSettingsQuery.data.escalation_behavior === "always_on" && "AI will escalate when it doesn't know the answer or when requested."}
+                        {escalationSettingsQuery.data.escalation_behavior === "configurable" && "You can enable or disable automatic escalation to human agents."}
+                        {escalationSettingsQuery.data.escalation_behavior === "advanced" && "AI handles most queries and only escalates high-priority issues (payment, disputes)."}
+                      </p>
+                    </div>
+
+                    {escalationSettingsQuery.data.is_configurable ? (
+                      <label className="relative inline-flex cursor-pointer items-center">
+                        <input
+                          type="checkbox"
+                          className="peer sr-only"
+                          checked={escalationSettingsQuery.data.enabled}
+                          onChange={(e) => updateEscalationMutation.mutate({ enabled: e.target.checked })}
+                          disabled={updateEscalationMutation.isPending}
+                        />
+                        <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-primary/80"></div>
+                      </label>
+                    ) : (
+                      <div className="flex items-center gap-2 rounded-full bg-gray-200 px-3 py-1 text-xs font-semibold text-gray-600">
+                        {escalationSettingsQuery.data.enabled ? "Active" : "Disabled"}
+                        {!escalationSettingsQuery.data.enabled && <span className="text-gray-400">(Locked)</span>}
+                      </div>
+                    )}
+                  </div>
+
+                  {!escalationSettingsQuery.data.is_configurable && (
+                    <div className="rounded-lg bg-blue-50 p-4 border border-blue-100">
+                      <div className="flex gap-3">
+                        <div className="mt-0.5"><div className="h-1.5 w-1.5 rounded-full bg-blue-600"></div></div>
+                        <div>
+                          <p className="text-sm font-medium text-blue-900">Why can't I change this?</p>
+                          <p className="mt-1 text-sm text-blue-700">
+                            {escalationSettingsQuery.data.escalation_behavior === "always_on"
+                              ? "Trial plans have escalation enabled by default to ensure you see how AI works with human agents."
+                              : "Your plan has advanced AI behavior managed automatically."}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-red-500">Failed to load settings.</div>
+              )}
+            </div>
+          </div>
+        );
       case "notifications":
         return (
           <form className="space-y-6">
@@ -529,6 +601,9 @@ export default function SettingsPage() {
     teamQuery.data,
     teamQuery.isLoading,
     usageQuery.data,
+    escalationSettingsQuery.data,
+    escalationSettingsQuery.isLoading,
+    updateEscalationMutation,
     isLoadingProfile,
     profileForm,
     updateProfileMutation,
@@ -573,8 +648,8 @@ export default function SettingsPage() {
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${activeTab === tab.key
-                  ? "border-primary bg-primary text-white shadow-md"
-                  : "border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary"
+                ? "border-primary bg-primary text-white shadow-md"
+                : "border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary"
                 }`}
             >
               {tab.icon}
