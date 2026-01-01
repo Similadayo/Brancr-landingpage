@@ -85,7 +85,13 @@ export default function CalendarPage() {
     } else {
       scheduledPosts.forEach((p) => {
         const d = new Date(p.scheduled_at || p.created_at);
-        const key = d.toISOString().slice(0, 10);
+        // Use local date string to avoid UTC shifting
+        // Format: YYYY-MM-DD in local time
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        const key = `${year}-${month}-${day}`;
+
         const list = map.get(key) || [];
         list.push({
           id: p.id,
@@ -111,7 +117,9 @@ export default function CalendarPage() {
     setCursor(new Date());
   };
 
-  const selectedDateKey = selectedDate ? selectedDate.toISOString().slice(0, 10) : null;
+  const selectedDateKey = selectedDate
+    ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`
+    : null;
   const selectedDatePosts = selectedDateKey ? entriesByDate.get(selectedDateKey) || [] : [];
 
   return (
@@ -153,46 +161,45 @@ export default function CalendarPage() {
       {/* Navigation and View Toggle */}
       <div className="card p-4 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigateMonth("prev")}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-primary hover:text-primary"
-            aria-label="Previous month"
-          >
-            <ChevronLeftIcon className="h-5 w-5" />
-          </button>
-          <button
-            onClick={goToToday}
-            className="rounded-lg border border-gray-200 bg-white px-4 py-1.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
-          >
-            Today
-          </button>
-          <button
-            onClick={() => navigateMonth("next")}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-primary hover:text-primary"
-            aria-label="Next month"
-          >
-            <ChevronRightIcon className="h-5 w-5" />
-          </button>
-          <h2 className="ml-4 text-lg font-semibold text-gray-900">{monthName}</h2>
-        </div>
-
-        {/* View Mode Toggle */}
-        <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-1">
-          {(["month", "week", "day"] as ViewMode[]).map((mode) => (
+          <div className="flex items-center gap-2">
             <button
-              key={mode}
-              onClick={() => setViewMode(mode)}
-              className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
-                viewMode === mode
+              onClick={() => navigateMonth("prev")}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-primary hover:text-primary"
+              aria-label="Previous month"
+            >
+              <ChevronLeftIcon className="h-5 w-5" />
+            </button>
+            <button
+              onClick={goToToday}
+              className="rounded-lg border border-gray-200 bg-white px-4 py-1.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+            >
+              Today
+            </button>
+            <button
+              onClick={() => navigateMonth("next")}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-primary hover:text-primary"
+              aria-label="Next month"
+            >
+              <ChevronRightIcon className="h-5 w-5" />
+            </button>
+            <h2 className="ml-4 text-lg font-semibold text-gray-900">{monthName}</h2>
+          </div>
+
+          {/* View Mode Toggle */}
+          <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-1">
+            {(["month", "week", "day"] as ViewMode[]).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${viewMode === mode
                   ? "bg-white text-primary shadow-sm"
                   : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              {mode.charAt(0).toUpperCase() + mode.slice(1)}
-            </button>
-          ))}
-        </div>
+                  }`}
+              >
+                {mode.charAt(0).toUpperCase() + mode.slice(1)}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -211,7 +218,11 @@ export default function CalendarPage() {
           <div className="grid grid-cols-7 gap-px bg-gray-100 dark:bg-gray-700">
             {/* Calendar Cells */}
             {monthCells.map((d, idx) => {
-              const key = d.toISOString().slice(0, 10);
+              const year = d.getFullYear();
+              const month = String(d.getMonth() + 1).padStart(2, "0");
+              const day = String(d.getDate()).padStart(2, "0");
+              const key = `${year}-${month}-${day}`;
+
               const items = entriesByDate.get(key) || [];
               const isCurrentMonth = d.getMonth() === cursor.getMonth();
               const isTodayDate = isToday(d);
@@ -224,58 +235,56 @@ export default function CalendarPage() {
                       setSelectedDate(d);
                     }
                   }}
-                  className={`min-h-[80px] cursor-pointer bg-white p-2 transition-colors dark:bg-gray-700 sm:min-h-[120px] ${
-                    isCurrentMonth
-                      ? isTodayDate
-                        ? "bg-accent/5 ring-2 ring-accent"
-                        : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                      : "bg-gray-50/50 opacity-50 dark:bg-gray-700/30"
-                  }`}
-                >
-                <div className="flex items-center justify-between mb-2">
-                  <span
-                    className={`text-sm font-semibold ${
-                      isTodayDate ? "text-primary" : isCurrentMonth ? "text-gray-900" : "text-gray-400"
+                  className={`min-h-[80px] cursor-pointer bg-white p-2 transition-colors dark:bg-gray-700 sm:min-h-[120px] ${isCurrentMonth
+                    ? isTodayDate
+                      ? "bg-accent/5 ring-2 ring-accent"
+                      : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                    : "bg-gray-50/50 opacity-50 dark:bg-gray-700/30"
                     }`}
-                  >
-                    {d.getDate()}
-                  </span>
-                  {items.length > 0 && (
-                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-white">
-                      {items.length}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span
+                      className={`text-sm font-semibold ${isTodayDate ? "text-primary" : isCurrentMonth ? "text-gray-900" : "text-gray-400"
+                        }`}
+                    >
+                      {d.getDate()}
                     </span>
-                  )}
-                </div>
-                <div className="space-y-1">
-                  {items.slice(0, 3).map((it, i) => {
-                    const draggable = Boolean(it.id);
-                    return (
-                      <div
-                        key={i}
-                        draggable={draggable}
-                        onDragStart={(e) => {
-                          if (!draggable) return;
-                          e.dataTransfer.setData("text/post-id", it.id as string);
-                          e.dataTransfer.setData("text/scheduled-time", it.time || "09:00:00");
-                        }}
-                        onDragOver={(e) => e.preventDefault()}
-                        className="group truncate rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 transition hover:border-accent hover:bg-accent/5 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
-                        title={draggable ? "Drag to reschedule" : it.name}
-                      >
-                        <div className="flex items-center gap-1">
-                          <ClockIcon className="h-3 w-3 text-gray-400" />
-                          <span className="truncate">{it.name}</span>
+                    {items.length > 0 && (
+                      <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-white">
+                        {items.length}
+                      </span>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    {items.slice(0, 3).map((it, i) => {
+                      const draggable = Boolean(it.id);
+                      return (
+                        <div
+                          key={i}
+                          draggable={draggable}
+                          onDragStart={(e) => {
+                            if (!draggable) return;
+                            e.dataTransfer.setData("text/post-id", it.id as string);
+                            e.dataTransfer.setData("text/scheduled-time", it.time || "09:00:00");
+                          }}
+                          onDragOver={(e) => e.preventDefault()}
+                          className="group truncate rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 transition hover:border-accent hover:bg-accent/5 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                          title={draggable ? "Drag to reschedule" : it.name}
+                        >
+                          <div className="flex items-center gap-1">
+                            <ClockIcon className="h-3 w-3 text-gray-400" />
+                            <span className="truncate">{it.name}</span>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                  {items.length > 3 && (
-                    <div className="text-xs font-medium text-gray-500">+{items.length - 3} more</div>
-                  )}
+                      );
+                    })}
+                    {items.length > 3 && (
+                      <div className="text-xs font-medium text-gray-500">+{items.length - 3} more</div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
           </div>
         </section>
       )}
@@ -360,13 +369,12 @@ export default function CalendarPage() {
                         <h3 className="text-sm font-semibold text-gray-900">{post.name}</h3>
                         {post.status && (
                           <span
-                            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase ${
-                              post.status === "scheduled"
-                                ? "border-blue-200 bg-blue-50 text-blue-700"
-                                : post.status === "posted"
+                            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase ${post.status === "scheduled"
+                              ? "border-blue-200 bg-blue-50 text-blue-700"
+                              : post.status === "posted"
                                 ? "border-green-200 bg-green-50 text-green-700"
                                 : "border-gray-200 bg-gray-50 text-gray-600"
-                            }`}
+                              }`}
                           >
                             {post.status}
                           </span>

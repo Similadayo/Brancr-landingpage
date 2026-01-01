@@ -21,8 +21,8 @@ import {
 } from "../../../components/icons";
 import ConfirmModal from '@/app/components/ConfirmModal';
 
-export default function CampaignDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function CampaignDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const queryClient = useQueryClient();
   const { data: post, isLoading, error } = useScheduledPost(id);
   const cancelMutation = useCancelScheduledPost();
@@ -186,44 +186,44 @@ export default function CampaignDetailPage({ params }: { params: Promise<{ id: s
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
-          {canPublish && (
-            <button
-              onClick={handlePublishNow}
-              disabled={isPublishing}
-              className="inline-flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 shadow-sm transition hover:bg-green-100 disabled:opacity-50"
-            >
-              {isPublishing ? (
-                <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-green-600/20 border-t-green-600" />
-                  Publishing...
-                </>
-              ) : (
-                <>
-                  <PlayIcon className="h-4 w-4" />
-                  Publish Now
-                </>
-              )}
-            </button>
-          )}
-          {canCancel && (
-            <button
-              onClick={handleCancel}
-              disabled={cancelMutation.isPending}
-              className="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 shadow-sm transition hover:bg-rose-100 disabled:opacity-50"
-            >
-              {cancelMutation.isPending ? (
-                <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-rose-600/20 border-t-rose-600" />
-                  Cancelling...
-                </>
-              ) : (
-                <>
-                  <TrashIcon className="h-4 w-4" />
-                  Cancel Post
-                </>
-              )}
-            </button>
-          )}
+            {canPublish && (
+              <button
+                onClick={handlePublishNow}
+                disabled={isPublishing}
+                className="inline-flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 shadow-sm transition hover:bg-green-100 disabled:opacity-50"
+              >
+                {isPublishing ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-green-600/20 border-t-green-600" />
+                    Publishing...
+                  </>
+                ) : (
+                  <>
+                    <PlayIcon className="h-4 w-4" />
+                    Publish Now
+                  </>
+                )}
+              </button>
+            )}
+            {canCancel && (
+              <button
+                onClick={handleCancel}
+                disabled={cancelMutation.isPending}
+                className="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 shadow-sm transition hover:bg-rose-100 disabled:opacity-50"
+              >
+                {cancelMutation.isPending ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-rose-600/20 border-t-rose-600" />
+                    Cancelling...
+                  </>
+                ) : (
+                  <>
+                    <TrashIcon className="h-4 w-4" />
+                    Cancel Post
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -96,7 +96,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         // Refetch immediately to ensure OnboardingGuard has fresh data
         void queryClient.refetchQueries({ queryKey: ['auth', 'me'] });
         void queryClient.refetchQueries({ queryKey: ['onboarding', 'status'] });
-        
+
         // Use replace instead of push to avoid history issues, and use window.location for immediate redirect
         router.replace('/app');
         // Force immediate redirect using window.location to bypass any React state issues
@@ -105,7 +105,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         }, 100);
         return;
       }
-      
+
       // Backend returns steps after 'industry', so if step is undefined, user is on 'industry' step
       // If step is 'complete', we've already handled it above with redirect
       // This code should only run if complete is false, but handle edge cases
@@ -113,10 +113,10 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         // This shouldn't happen since we check complete above, but handle it
         return;
       }
-      
+
       const stepFromStatus = onboardingStatus.step || 'industry';
       setCurrentStep(stepFromStatus as OnboardingStep);
-      
+
       // Load saved data for pre-filling forms
       setSavedData({
         industry: tenantIndustry?.industry_id ? { industry_id: tenantIndustry.industry_id } : undefined,
@@ -140,7 +140,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     setIsSubmitting(true);
     try {
       let response;
-      
+
       // If skipping optional step, just move forward
       if (skip && step === 'business_details') {
         setCompletedSteps((prev) => new Set(prev).add(step));
@@ -151,7 +151,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         setIsSubmitting(false);
         return;
       }
-      
+
       switch (step) {
         case 'industry':
           response = await tenantApi.onboardingIndustry(data as any);
@@ -174,21 +174,21 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       }
 
       setCompletedSteps((prev) => new Set(prev).add(step));
-      
+
       // Show success message with benefit information
       const currentStepData = STEPS.find((s) => s.id === step);
-      const benefitMessage = currentStepData?.benefit 
+      const benefitMessage = currentStepData?.benefit
         ? `${currentStepData.benefit}! ${(response as any)?.message || 'Step completed successfully.'}`
         : (response as any)?.message || 'Step completed successfully.';
       toast.success(benefitMessage, {
         duration: 4000,
         icon: '✅',
       });
-      
+
       // Invalidate queries to refresh onboarding status
       void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
       void queryClient.invalidateQueries({ queryKey: ['onboarding', 'status'] });
-      
+
       // Move to next step from response or default to next step
       const nextStep = (response as any)?.next_step || STEPS[currentStepIndex + 1]?.id;
       if (nextStep && STEPS.find((s) => s.id === nextStep)) {
@@ -248,7 +248,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     } finally {
       setIsSubmitting(false);
     }
- };
+  };
 
   const renderStep = () => {
     // If onboarding is complete, show redirect message (redirect should happen in useEffect)
@@ -286,7 +286,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to load onboarding</h3>
           <p className="text-sm text-gray-600 mb-4 text-center max-w-md">
-            {onboardingError instanceof ApiError 
+            {onboardingError instanceof ApiError
               ? onboardingError.message || 'An error occurred while loading your onboarding status.'
               : 'Unable to connect to the server. Please check your connection and try again.'}
           </p>
@@ -458,14 +458,14 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
                 )}
               </div>
             </div>
-            
+
             {/* Step Indicators */}
             <div className="flex items-center gap-2">
               {STEPS.map((step, index) => {
                 const isCompleted = index < currentStepIndex;
                 const isCurrent = index === currentStepIndex;
                 const isUpcoming = index > currentStepIndex;
-                
+
                 return (
                   <motion.div
                     key={step.id}
@@ -475,13 +475,12 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
                     className="relative"
                   >
                     <div
-                      className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${
-                        isCompleted
-                          ? 'bg-primary shadow-lg shadow-primary/50'
-                          : isCurrent
+                      className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${isCompleted
+                        ? 'bg-primary shadow-lg shadow-primary/50'
+                        : isCurrent
                           ? 'bg-primary ring-4 ring-primary/20 scale-125'
                           : 'bg-gray-200'
-                      }`}
+                        }`}
                       title={step.title}
                     />
                     {isCompleted && (
@@ -508,7 +507,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
               })}
             </div>
           </div>
-          
+
           {/* Step Progress Text */}
           <div className="mt-4 flex items-center gap-2">
             <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
