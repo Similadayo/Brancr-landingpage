@@ -5,6 +5,8 @@ import {
   useBilling,
   useTeamMembers,
   useUsage,
+  useEscalationSettings,
+  useUpdateEscalationSettings,
 } from "../../hooks/useSettingsData";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { tenantApi, ApiError } from "@/lib/api";
@@ -49,6 +51,8 @@ export default function SettingsPage() {
   const teamQuery = useTeamMembers();
   const billingQuery = useBilling();
   const usageQuery = useUsage();
+  const escalationSettingsQuery = useEscalationSettings();
+  const updateEscalationMutation = useUpdateEscalationSettings();
   const { data: tenantIndustry } = useTenantIndustry();
 
   // Fetch business profile data
