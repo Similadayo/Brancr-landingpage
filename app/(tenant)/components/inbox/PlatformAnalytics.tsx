@@ -63,15 +63,7 @@ export function PlatformAnalytics({ platform }: PlatformAnalyticsProps) {
       );
     }
 
-    // Debug: Log insights to see what's being returned
-    if (typeof window !== 'undefined' && instagramData.insights) {
-      console.log('Instagram Insights received:', {
-        count: instagramData.insights.length,
-        metrics: instagramData.insights.map(m => ({ name: m.name, title: m.title, values: m.values.length })),
-        period: instagramData.period,
-        account_id: instagramData.account_id,
-      });
-    }
+
 
     return (
       <div className="space-y-4">
@@ -79,16 +71,16 @@ export function PlatformAnalytics({ platform }: PlatformAnalyticsProps) {
           <InstagramIcon className="h-5 w-5 text-pink-600" />
           <h3 className="text-sm font-semibold text-gray-900">Instagram Analytics</h3>
         </div>
-        
+
         <div className="px-4 space-y-3">
           {instagramData.insights.map((metric) => {
             const latestValue = metric.values[metric.values.length - 1];
-            const previousValue = metric.values.length > 1 
-              ? metric.values[metric.values.length - 2] 
+            const previousValue = metric.values.length > 1
+              ? metric.values[metric.values.length - 2]
               : null;
-            
-            const change = previousValue 
-              ? latestValue.value - previousValue.value 
+
+            const change = previousValue
+              ? latestValue.value - previousValue.value
               : null;
             const changePercent = previousValue && previousValue.value > 0
               ? ((change! / previousValue.value) * 100).toFixed(1)
@@ -112,9 +104,8 @@ export function PlatformAnalytics({ platform }: PlatformAnalyticsProps) {
                     {latestValue.value.toLocaleString()}
                   </span>
                   {change !== null && (
-                    <span className={`text-xs font-medium ${
-                      change >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
+                    <span className={`text-xs font-medium ${change >= 0 ? 'text-green-600' : 'text-red-600'
+                      }`}>
                       {change >= 0 ? '↑' : '↓'} {Math.abs(change).toLocaleString()}
                       {changePercent && ` (${changePercent}%)`}
                     </span>
