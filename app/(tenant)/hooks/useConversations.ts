@@ -22,8 +22,8 @@ export type InteractionMedia = {
 };
 
 export type ConversationSummary = {
-  id: number;
-  customer_id: number;
+  id: string;
+  customer_id: string;
   customer_name: string;
   customer_avatar?: string;
   customer_phone?: string;
@@ -42,7 +42,7 @@ export type ConversationSummary = {
 };
 
 export type Message = {
-  id: number;
+  id: string;
   direction: "incoming" | "outgoing";
   message_type: "text" | "image" | "video" | "comment" | "audio" | "document" | "sticker";
   content: string;
@@ -59,8 +59,8 @@ export type Message = {
 };
 
 export type ConversationDetail = {
-  id: number;
-  customer_id: number;
+  id: string;
+  customer_id: string;
   customer_name: string;
   customer_avatar?: string;
   customer_phone?: string;
@@ -130,8 +130,8 @@ export function useConversations(filters?: { platform?: string; status?: string;
           }
 
           return {
-            id: Number(conversation.id),
-            customer_id: conversation.customer_id,
+            id: String(conversation.id),
+            customer_id: String(conversation.customer_id),
             customer_name: customerName,
             customer_avatar: conversation.customer_avatar,
             platform: platform as ConversationSummary["platform"],
@@ -299,8 +299,8 @@ export function useConversation(conversationId: string | null) {
         }
 
         return {
-          id: Number(response.id),
-          customer_id: response.customer_id,
+          id: String(response.id),
+          customer_id: String(response.customer_id),
           customer_name: customerName,
           customer_avatar: response.customer_avatar,
           customer_phone: response.customer_phone,
@@ -311,7 +311,7 @@ export function useConversation(conversationId: string | null) {
             ? response.status
             : "active") as ConversationDetail["status"],
           messages: Array.isArray(response.messages) ? response.messages.map((msg) => ({
-            id: Number(msg.id),
+            id: String(msg.id),
             direction: msg.direction,
             message_type: msg.message_type,
             content: msg.content,
@@ -360,7 +360,7 @@ export function useSendReply(conversationId: string | null) {
             // Map the interaction to Message type
             // Backend already sets content correctly (final_reply for outgoing, content for incoming)
             const newMessage: Message = {
-              id: response.interaction.id,
+              id: String(response.interaction.id),
               direction: response.interaction.direction,
               message_type: response.interaction.message_type,
               content: response.interaction.content, // Backend handles the logic
