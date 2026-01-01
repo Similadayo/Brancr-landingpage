@@ -342,7 +342,7 @@ export default function SettingsPage() {
                       <div className="flex gap-3">
                         <div className="mt-0.5"><div className="h-1.5 w-1.5 rounded-full bg-blue-600"></div></div>
                         <div>
-                          <p className="text-sm font-medium text-blue-900">Why can't I change this?</p>
+                          <p className="text-sm font-medium text-blue-900">Why can&apos;t I change this?</p>
                           <p className="mt-1 text-sm text-blue-700">
                             {escalationSettingsQuery.data.escalation_behavior === "always_on"
                               ? "Trial plans have escalation enabled by default to ensure you see how AI works with human agents."
@@ -608,6 +608,7 @@ export default function SettingsPage() {
     profileForm,
     updateProfileMutation,
     tenantIndustry,
+    queryClient,
   ]);
 
   return (
