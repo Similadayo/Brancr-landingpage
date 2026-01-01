@@ -49,7 +49,7 @@ export default function SettingsPage() {
   const billingQuery = useBilling();
   const usageQuery = useUsage();
   const { data: tenantIndustry } = useTenantIndustry();
-  
+
   // Fetch business profile data
   const { data: onboardingData, isLoading: isLoadingProfile } = useQuery({
     queryKey: ["onboarding", "status"],
@@ -57,7 +57,7 @@ export default function SettingsPage() {
   });
 
   const businessProfile = onboardingData?.business_profile;
-  
+
   // Form state for business profile
   const [profileForm, setProfileForm] = useState({
     name: "",
@@ -106,7 +106,7 @@ export default function SettingsPage() {
     switch (activeTab) {
       case "profile":
         return (
-          <form 
+          <form
             className="space-y-6"
             onSubmit={(e) => {
               e.preventDefault();
@@ -415,32 +415,35 @@ export default function SettingsPage() {
                 <div className="mt-2 h-20 animate-pulse rounded-lg bg-gray-50" />
               ) : billingQuery.data ? (
                 <>
-                  <p className="text-xs font-medium uppercase tracking-wider text-gray-500">
-                    {billingQuery.data.plan}
-                    {billingQuery.data.trialDaysRemaining
-                      ? ` • ${billingQuery.data.trialDaysRemaining} days remaining`
-                      : null}
-                  </p>
-                  <p className="mt-4 text-4xl font-bold text-gray-900">
-                    {billingQuery.data.currency} {billingQuery.data.amount}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    per {billingQuery.data.cadence === "annual" ? "year" : "month"}
-                  </p>
-                  <div className="mt-6 space-y-2 text-xs text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <CheckCircleIcon className="h-4 w-4 text-green-600" />
-                      <span>5,000 monthly conversations</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircleIcon className="h-4 w-4 text-green-600" />
-                      <span>AI assisted replies</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircleIcon className="h-4 w-4 text-green-600" />
-                      <span>WhatsApp, Instagram, Facebook integrations</span>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-medium uppercase tracking-wider text-gray-500">
+                      {billingQuery.data.plan.name}
+                    </p>
+                    {billingQuery.data.trial.is_trial && (
+                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                        Start Trial • {billingQuery.data.trial.days_remaining} days left
+                      </span>
+                    )}
                   </div>
+
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <p className="text-4xl font-bold text-gray-900">
+                      {billingQuery.data.plan.currency} {billingQuery.data.plan.price}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      per {billingQuery.data.plan.billing_period}
+                    </p>
+                  </div>
+
+                  <div className="mt-6 space-y-2 text-xs text-gray-600">
+                    {billingQuery.data.plan.features.map((feature: string) => (
+                      <div key={feature} className="flex items-center gap-2">
+                        <CheckCircleIcon className="h-4 w-4 text-green-600" />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
                   <button className="mt-6 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90">
                     Upgrade Plan
                   </button>
@@ -449,12 +452,14 @@ export default function SettingsPage() {
                 <p className="mt-2 text-xs text-gray-500">Plan details unavailable.</p>
               )}
             </div>
+
             <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
                 <ChartBarIcon className="h-5 w-5 text-gray-400" />
                 <h3 className="text-base font-semibold text-gray-900">Usage</h3>
               </div>
               <p className="mb-6 text-xs text-gray-500">Monitor limits for conversations, templates, and seats.</p>
+
               <div className="space-y-5">
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -469,20 +474,21 @@ export default function SettingsPage() {
                       style={{
                         width: usageQuery.data
                           ? `${Math.min(
-                              100,
-                              (usageQuery.data.conversations.used / usageQuery.data.conversations.limit) * 100
-                            )}%`
+                            100,
+                            (usageQuery.data.conversations.used / usageQuery.data.conversations.limit) * 100
+                          )}%`
                           : "0%",
                       }}
                       aria-hidden
                     />
                   </div>
                 </div>
+
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-semibold text-gray-900">Active Seats</span>
                     <span className="text-sm text-gray-600">
-                      {usageQuery.data?.seats.used ?? "--"} / {usageQuery.data?.seats.limit ?? "--"}
+                      {usageQuery.data?.active_seats.used ?? "--"} / {usageQuery.data?.active_seats.limit ?? "--"}
                     </span>
                   </div>
                   <div className="h-2.5 rounded-full bg-gray-100">
@@ -490,7 +496,7 @@ export default function SettingsPage() {
                       className="h-2.5 rounded-full bg-primary transition-all"
                       style={{
                         width: usageQuery.data
-                          ? `${Math.min(100, (usageQuery.data.seats.used / usageQuery.data.seats.limit) * 100)}%`
+                          ? `${Math.min(100, (usageQuery.data.active_seats.used / usageQuery.data.active_seats.limit) * 100)}%`
                           : "0%",
                       }}
                       aria-hidden
@@ -566,11 +572,10 @@ export default function SettingsPage() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${
-                activeTab === tab.key
+              className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${activeTab === tab.key
                   ? "border-primary bg-primary text-white shadow-md"
                   : "border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary"
-              }`}
+                }`}
             >
               {tab.icon}
               {tab.label}

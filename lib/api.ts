@@ -234,8 +234,8 @@ export const tenantApi = {
   conversations: (params?: { platform?: string; status?: string; search?: string; limit?: number }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== '').map(([k, v]) => [k, String(v)]) as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== '').map(([k, v]) => [k, String(v)]) as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       conversations: Array<{
@@ -324,9 +324,9 @@ export const tenantApi = {
       body = formData;
     }
 
-    return post<typeof body, { 
-      success: boolean; 
-      message: string; 
+    return post<typeof body, {
+      success: boolean;
+      message: string;
       interaction: {
         id: number;
         direction: "incoming" | "outgoing";
@@ -402,8 +402,8 @@ export const tenantApi = {
   analytics: (params?: { platform?: string; start_date?: string; end_date?: string }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== '') as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== '') as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       summary: {
@@ -467,8 +467,8 @@ export const tenantApi = {
   performanceSummary: (params?: { period?: string }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       period: string;
@@ -647,17 +647,34 @@ export const tenantApi = {
 
   billing: () =>
     get<{
-      plan: string;
-      amount: number;
-      currency: string;
-      cadence: "monthly" | "annual";
-      trial_days_remaining?: number;
+      plan: {
+        type: string;
+        name: string;
+        price: number;
+        currency: string;
+        billing_period: string;
+        features: string[];
+      };
+      trial: {
+        is_trial: boolean;
+        days_remaining: number;
+        ends_at: string | null;
+      };
+      subscription: {
+        status: 'trial' | 'active' | 'paused' | 'cancelled' | 'suspended';
+        expires_at: string | null;
+        last_payment?: {
+          amount: number;
+          currency: string;
+          date: string;
+        };
+      };
     }>("/api/tenant/billing"),
 
   usage: () =>
     get<{
       conversations: { used: number; limit: number };
-      seats: { used: number; limit: number };
+      active_seats: { used: number; limit: number };
     }>("/api/tenant/usage"),
 
   // Integrations endpoints
@@ -710,8 +727,8 @@ export const tenantApi = {
   scheduledPosts: (params?: { status?: string; page?: number; limit?: number }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       data: Array<{
@@ -787,8 +804,8 @@ export const tenantApi = {
   calendar: (params?: { start_date?: string; end_date?: string; platform?: string }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       entries: Array<{
@@ -807,8 +824,8 @@ export const tenantApi = {
   mediaList: (params?: { type?: string; tag?: string; campaign?: string; q?: string; limit?: number }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       items: Array<{
@@ -999,7 +1016,7 @@ export const tenantApi = {
     post<typeof payload, { ready: boolean; message?: string }>("/api/tenant/whatsapp/check-number", payload),
 
   connectWhatsApp: (payload: { provider?: "meta_embedded" | "gupshup" | "respondio" | "auto"; phone_number?: string; channel_id?: string }) =>
-    post<typeof payload, { 
+    post<typeof payload, {
       success: boolean;
       provider: string;
       onboarding_url?: string;
@@ -1274,7 +1291,7 @@ export const tenantApi = {
     ),
 
   getDrafts: (key?: string) =>
-    get<{ drafts: Array<{ id: string; key: string; content: unknown; metadata?: unknown; owner_id?: number; created_at: string; updated_at: string }>}>(
+    get<{ drafts: Array<{ id: string; key: string; content: unknown; metadata?: unknown; owner_id?: number; created_at: string; updated_at: string }> }>(
       `/api/tenant/drafts${key ? `?key=${encodeURIComponent(key)}` : ""}`
     ),
 
@@ -1311,7 +1328,7 @@ export const tenantApi = {
         try {
           const { captureException } = await import('./observability');
           captureException(new Error('AI mode endpoint 405'), { action: 'getAIMode', status: 405 });
-        } catch {}
+        } catch { }
         // Return a shape compatible with callers that may access updated_at/updated_by
         return { mode: 'ai', updated_at: undefined, updated_by: undefined } as { mode: 'ai' | 'human'; updated_at?: string; updated_by?: string };
       }
@@ -1351,10 +1368,10 @@ export const tenantApi = {
   escalations: (params?: { priority?: "low" | "normal" | "high" | "urgent" | "critical"; limit?: number }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params)
-            .filter(([_, v]) => v !== undefined && v !== null)
-            .map(([k, v]) => [k, String(v)] as [string, string])
-        ).toString()}`
+        Object.entries(params)
+          .filter(([_, v]) => v !== undefined && v !== null)
+          .map(([k, v]) => [k, String(v)] as [string, string])
+      ).toString()}`
       : "";
     return get<{
       escalations: Array<{
@@ -1434,8 +1451,8 @@ export const tenantApi = {
   escalationStats: (params?: { start_date?: string; end_date?: string }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       total: number;
@@ -1449,8 +1466,8 @@ export const tenantApi = {
   tiktokVideos: (params?: { max_count?: number; cursor?: string }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       videos: Array<{
@@ -1535,8 +1552,8 @@ export const tenantApi = {
   tiktokAnalytics: (params?: { start_date?: string; end_date?: string }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       total_views: number;
@@ -1563,8 +1580,8 @@ export const tenantApi = {
   tiktokComments: (videoId: string, params?: { max_count?: number; cursor?: string }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       comments: Array<{
@@ -1643,8 +1660,8 @@ export const tenantApi = {
   products: (params?: { category?: string; search?: string; limit?: number }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       products: Array<{
@@ -1737,8 +1754,8 @@ export const tenantApi = {
   menuItems: (params?: { category?: string; search?: string; limit?: number }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       menu_items: Array<{
@@ -1831,8 +1848,8 @@ export const tenantApi = {
   services: (params?: { category?: string; search?: string; limit?: number }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       services: Array<{
@@ -2055,8 +2072,8 @@ export const tenantApi = {
   orders: (params?: { status?: string; platform?: string; limit?: number; offset?: number }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       orders: Array<{
@@ -2165,8 +2182,8 @@ export const tenantApi = {
   payments: (params?: { status?: string; verification_status?: string; limit?: number; offset?: number }) => {
     const query = params
       ? `?${new URLSearchParams(
-          Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
-        ).toString()}`
+        Object.entries(params).filter(([_, v]) => v !== undefined && v !== "") as [string, string][]
+      ).toString()}`
       : "";
     return get<{
       payments: Array<{
@@ -2614,4 +2631,3 @@ export const tenantApi = {
   },
 };
 
- 

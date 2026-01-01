@@ -71,35 +71,37 @@ export function useApiKeys() {
 }
 
 export function useBilling() {
-  return useQuery<
-    {
-      plan: string;
-      amount: number;
-      currency: string;
-      cadence: string;
-      trialDaysRemaining?: number;
-    },
-    Error
-  >({
+  return useQuery({
     queryKey: ["billing"],
     queryFn: async () => {
       try {
         const response = await tenantApi.billing();
-        return {
-          plan: response.plan,
-          amount: response.amount,
-          currency: response.currency,
-          cadence: response.cadence,
-          trialDaysRemaining: response.trial_days_remaining,
-        };
+        return response;
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
+          // Fallback mock data matching new structure
           return {
-            plan: "Trial",
-            amount: 89,
-            currency: "USD",
-            cadence: "monthly",
-            trialDaysRemaining: 30,
+            plan: {
+              type: "trial",
+              name: "Trial",
+              price: 0,
+              currency: "USD",
+              billing_period: "monthly",
+              features: [
+                "AI-powered customer replies",
+                "WhatsApp, Instagram, Facebook integrations",
+                "Basic analytics"
+              ]
+            },
+            trial: {
+              is_trial: true,
+              days_remaining: 30,
+              ends_at: "2026-01-31T00:00:00Z"
+            },
+            subscription: {
+              status: "trial",
+              expires_at: null
+            }
           };
         }
         throw error;
@@ -109,13 +111,7 @@ export function useBilling() {
 }
 
 export function useUsage() {
-  return useQuery<
-    {
-      conversations: { used: number; limit: number };
-      seats: { used: number; limit: number };
-    },
-    Error
-  >({
+  return useQuery({
     queryKey: ["usage"],
     queryFn: async () => {
       try {
@@ -124,7 +120,7 @@ export function useUsage() {
         if (error instanceof ApiError && error.status === 404) {
           return {
             conversations: { used: 2140, limit: 5000 },
-            seats: { used: 4, limit: 10 },
+            active_seats: { used: 4, limit: 10 },
           };
         }
         throw error;
