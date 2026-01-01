@@ -168,6 +168,7 @@ export function useRevokeApiKey() {
   });
 }
 
+
 export function useUpdateWebhook() {
   return useMutation({
     mutationFn: (payload: { url: string }) => tenantApi.updateWebhook(payload),
@@ -179,6 +180,46 @@ export function useUpdateWebhook() {
         toast.error(error.message);
       } else {
         toast.error("Unable to update webhook.");
+      }
+    },
+  });
+}
+
+export function useEscalationSettings() {
+  return useQuery({
+    queryKey: ["escalation-settings"],
+    queryFn: async () => {
+      try {
+        const response = await tenantApi.escalationSettings();
+        return response;
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 404) {
+          // Fallback mock data
+          return {
+            enabled: true,
+            escalation_behavior: "configurable" as const,
+            is_configurable: true,
+          };
+        }
+        throw error;
+      }
+    },
+  });
+}
+
+export function useUpdateEscalationSettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { enabled: boolean }) => tenantApi.updateEscalationSettings(payload),
+    onSuccess: (data) => {
+      toast.success(data.enabled ? "Escalation enabled" : "Escalation disabled");
+      void queryClient.invalidateQueries({ queryKey: ["escalation-settings"] });
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to update settings");
       }
     },
   });
