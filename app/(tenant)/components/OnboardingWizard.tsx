@@ -303,41 +303,6 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     }
 
     switch (currentStep) {
-      case 'magic_input':
-        return (
-          <MagicInputStep
-            onComplete={(profile) => {
-              setMagicProfileData(profile);
-              setCurrentStep('magic_confirmation');
-            }}
-            onSkip={() => {
-              // Skip to manual setup -> Industry step
-              // We simulate a step update but don't save API data yet as it's just navigation
-              setCurrentStep('industry');
-            }}
-            isLoading={isSubmitting}
-          />
-        );
-      case 'magic_confirmation':
-        return magicProfileData ? (
-          <MagicConfirmationStep
-            data={magicProfileData}
-            onComplete={() => {
-              // Confirmed! The component handled saving data.
-              // Move to social connect (skipping manual steps) OR business details.
-              setCurrentStep('social_connect');
-
-              // Invalidate queries to refresh sidebar etc
-              void queryClient.invalidateQueries({ queryKey: ['tenant-industry'] });
-              void queryClient.invalidateQueries({ queryKey: ['onboarding', 'status'] });
-            }}
-            onBack={() => setCurrentStep('magic_input')}
-            isLoading={isSubmitting}
-          />
-        ) : (
-          // Fallback if data missing
-          <div className="flex justify-center p-8">Missing profile data. <button onClick={() => setCurrentStep('magic_input')} className="ml-2 text-primary underline">Go back</button></div>
-        );
       case 'industry':
         return (
           <IndustryStep
