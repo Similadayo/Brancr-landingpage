@@ -179,9 +179,9 @@ export default function MagicProfilePage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative z-10 w-full max-w-2xl"
+        className="relative z-10 w-full max-w-2xl mx-auto"
       >
-        <div className="bg-white dark:bg-dark-surface rounded-3xl shadow-2xl border border-gray-100 dark:border-dark-border overflow-hidden p-8">
+        <div className="bg-white dark:bg-dark-surface rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-100 dark:border-dark-border overflow-hidden p-5 sm:p-8">
           <AnimatePresence mode="wait">
             {step === 'input' ? (
               <motion.div
@@ -193,15 +193,15 @@ export default function MagicProfilePage() {
               >
                 {/* Header */}
                 <div className="text-center space-y-2">
-                  <div className="flex justify-center mb-4">
-                    <div className="bg-gradient-to-br from-primary/20 to-purple-500/20 p-4 rounded-2xl">
-                      <span className="text-4xl">✨</span>
+                  <div className="flex justify-center mb-3 sm:mb-4">
+                    <div className="bg-gradient-to-br from-primary/20 to-purple-500/20 p-3 sm:p-4 rounded-xl sm:rounded-2xl">
+                      <span className="text-3xl sm:text-4xl">✨</span>
                     </div>
                   </div>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                     Let&apos;s set up your business
                   </h1>
-                  <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                  <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-md mx-auto">
                     Enter your website or describe what you do, and we&apos;ll use AI to set up your profile automatically.
                   </p>
                 </div>
@@ -257,11 +257,11 @@ export default function MagicProfilePage() {
                 </div>
 
                 {/* Actions */}
-                <div className="space-y-3">
+                <div className="space-y-3 pt-2">
                   <button
                     onClick={handleGenerate}
                     disabled={loading || (!url && !description)}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-purple-600 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-purple-600 px-4 py-3 sm:py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
                   >
                     {loading ? (
                       <>
@@ -298,17 +298,17 @@ export default function MagicProfilePage() {
               >
                 {/* Header */}
                 <div className="text-center space-y-2">
-                  <div className="flex justify-center mb-4">
-                    <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-full">
-                      <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="flex justify-center mb-3 sm:mb-4">
+                    <div className="bg-green-100 dark:bg-green-900/30 p-2.5 sm:p-3 rounded-full">
+                      <svg className="w-7 h-7 sm:w-8 sm:h-8 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
                   </div>
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                     Here&apos;s what we found 🎯
                   </h1>
-                  <p className="text-gray-500 dark:text-gray-400">
+                  <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
                     Review and edit if needed.
                   </p>
                 </div>
@@ -324,7 +324,7 @@ export default function MagicProfilePage() {
                 )}
 
                 {/* Form */}
-                <div className="bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-xl p-6 space-y-4">
+                <div className="bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-lg sm:rounded-xl p-4 sm:p-6 space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Business Name
@@ -369,18 +369,18 @@ export default function MagicProfilePage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => setStep('input')}
                     disabled={loading}
-                    className="px-6 py-3 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition dark:border-dark-border dark:text-gray-300 dark:hover:bg-dark-bg"
+                    className="order-2 sm:order-1 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition dark:border-dark-border dark:text-gray-300 dark:hover:bg-dark-bg text-center"
                   >
                     ← Back
                   </button>
                   <button
                     onClick={handleConfirm}
                     disabled={loading}
-                    className="flex-1 rounded-xl bg-primary px-6 py-3 text-white font-semibold shadow-lg shadow-primary/25 hover:scale-[1.02] active:scale-95 transition disabled:opacity-50"
+                    className="order-1 sm:order-2 flex-1 rounded-xl bg-primary px-5 sm:px-6 py-2.5 sm:py-3 text-white font-semibold shadow-lg shadow-primary/25 hover:scale-[1.02] active:scale-95 transition disabled:opacity-50 text-center"
                   >
                     {loading ? 'Saving...' : 'Looks Good! Continue →'}
                   </button>

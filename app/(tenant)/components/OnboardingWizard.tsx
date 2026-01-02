@@ -403,14 +403,14 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         </div>
 
         {/* Beautiful Header */}
-        <div className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 border-b border-gray-100 px-8 py-6 dark:from-dark-elevated dark:via-dark-surface dark:to-dark-elevated dark:border-dark-border">
+        <div className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 border-b border-gray-100 px-5 py-5 sm:px-8 sm:py-6 dark:from-dark-elevated dark:via-dark-surface dark:to-dark-elevated dark:border-dark-border">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: 'spring' }}
-                className="text-4xl"
+                className="text-3xl sm:text-4xl"
               >
                 {STEPS[currentStepIndex]?.icon}
               </motion.div>
@@ -420,7 +420,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent dark:from-white dark:to-gray-300"
+                  className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent dark:from-white dark:to-gray-300"
                 >
                   {STEPS[currentStepIndex]?.title}
                 </motion.h2>
@@ -429,7 +429,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: 0.1 }}
-                  className="mt-1 text-sm text-gray-600 dark:text-gray-400"
+                  className="mt-1 text-xs sm:text-sm text-gray-600 dark:text-gray-400"
                 >
                   {STEPS[currentStepIndex]?.description}
                 </motion.p>
@@ -517,7 +517,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
 
         {/* Content with smooth transitions */}
         <div className="overflow-y-auto max-h-[calc(92vh-180px)] bg-gradient-to-b from-white to-gray-50/50 scrollbar-thin dark:from-dark-surface dark:to-dark-elevated">
-          <div className="px-8 py-8">
+          <div className="px-5 py-5 sm:px-8 sm:py-8">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStep}
