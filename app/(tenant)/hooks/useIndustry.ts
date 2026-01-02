@@ -24,6 +24,45 @@ export type TenantIndustry = {
   };
 };
 
+const FALLBACK_INDUSTRIES: Industry[] = [
+  {
+    id: 1,
+    name: "Retail & E-commerce",
+    category: "Retail",
+    description: "Sell physical products online or in-store. Includes inventory management, variants, and stock tracking.",
+    has_products: true,
+    has_menu: false,
+    has_services: false
+  },
+  {
+    id: 2,
+    name: "Restaurant & Food",
+    category: "Food & Beverage",
+    description: "For restaurants, cafes, and food delivery. Manage menus, modifiers, and preparation times.",
+    has_products: false,
+    has_menu: true,
+    has_services: false
+  },
+  {
+    id: 3,
+    name: "Professional Services",
+    category: "Services",
+    description: "For agencies, consultants, and service providers. Manage service packages and hourly rates.",
+    has_products: false,
+    has_menu: false,
+    has_services: true
+  },
+  {
+    id: 4,
+    name: "Beauty & Wellness",
+    category: "Services",
+    description: "Salons, spas, and wellness centers. Manage service lists and appointments.",
+    has_products: true, // Often sell products too
+    has_menu: false,
+    has_services: true
+  }
+];
+
 export function useIndustries() {
   return useQuery<Industry[], Error>({
     queryKey: ["industries"],
@@ -32,10 +71,17 @@ export function useIndustries() {
         const response = await tenantApi.getIndustries();
         return response.industries || [];
       } catch (error) {
+        // If forbidden (during onboarding), return fallback list to allow user to proceed
+        if (error instanceof ApiError && error.status === 403) {
+          console.warn("Using fallback industries due to 403 Forbidden (likely during onboarding)");
+          return FALLBACK_INDUSTRIES;
+        }
         console.error("Failed to load industries:", error);
-        return [];
+        // Return fallback on other errors too, to avoid breaking the UI completely
+        return FALLBACK_INDUSTRIES;
       }
     },
+    retry: false, // Don't retry if it fails, just use fallback
   });
 }
 
@@ -46,10 +92,15 @@ export function useTenantIndustry() {
       try {
         return await tenantApi.getTenantIndustry();
       } catch (error) {
+        // Suppress 403 errors which are expected during onboarding
+        if (error instanceof ApiError && error.status === 403) {
+          return null;
+        }
         console.error("Failed to load tenant industry:", error);
         return null;
       }
     },
+    retry: false,
   });
 }
 
