@@ -7,7 +7,6 @@ import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { tenantApi, ApiError } from '@/lib/api';
 import { getUserFriendlyErrorMessage, ErrorMessages } from '@/lib/error-messages';
-import { useTenantIndustry } from '../hooks/useIndustry';
 import { IndustryStep } from './onboarding/IndustryStep';
 import { BusinessProfileStep } from './onboarding/BusinessProfileStep';
 import { PersonaStep } from './onboarding/PersonaStep';
@@ -81,8 +80,8 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     retry: false,
   });
 
-  // Load tenant industry separately
-  const { data: tenantIndustry } = useTenantIndustry();
+  // NOTE: useTenantIndustry() was removed from here as it causes 403 errors during onboarding.
+  // The industry is fetched separately by IndustryStep when needed.
 
   // Update current step and saved data when status loads
   useEffect(() => {
