@@ -63,9 +63,10 @@ export function MagicConfirmationStep({ data, onComplete, onBack, isLoading }: M
 
             // 3. Save Persona
             await tenantApi.onboardingPersona({
-                tone: data.persona.tone,
-                audience: data.persona.audience,
-                values: data.persona.values,
+                bot_name: name.trim() + " AI", // Default bot name
+                tone: data.persona.tone || "Professional",
+                language: "English", // Default language
+                style_notes: `Target Audience: ${data.persona.audience}. Core Values: ${data.persona.values.join(", ")}`,
             });
 
             toast.success('Profile confirmed!');
