@@ -38,6 +38,11 @@ export default function ResetPasswordPage() {
         event.preventDefault();
         setError(null);
 
+        if (!token) {
+            setError("Invalid token");
+            return;
+        }
+
         if (passwords.password !== passwords.confirmPassword) {
             setError("Passwords do not match");
             return;
