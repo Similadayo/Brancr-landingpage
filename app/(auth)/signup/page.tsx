@@ -85,10 +85,20 @@ export default function SignupPage() {
         router.refresh();
       }
     } catch (err) {
+      console.error("Signup error details:", err);
+
       if (err instanceof ApiError) {
+        // Log specific API error details
+        console.error("API Error Status:", err.status);
+        console.error("API Error Body:", err.body);
+
+        setError(err.message || "An error occurred during signup.");
+      } else if (err instanceof Error) {
+        console.error("Standard Error:", err.message);
         setError(err.message);
       } else {
-        setError("We couldn't create your account. Please try again.");
+        console.error("Unknown error type:", err);
+        setError("We couldn't create your account. Please try again or contact support.");
       }
       setIsSubmitting(false);
     }

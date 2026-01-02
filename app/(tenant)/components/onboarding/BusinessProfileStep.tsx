@@ -94,33 +94,33 @@ export function BusinessProfileStep({
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof BusinessProfileData, string>> = {};
     const finalLocation = formData.location === 'Other' && customLocation ? customLocation : formData.location;
-    
+
     if (!formData.name?.trim()) {
       newErrors.name = 'Business name is required';
     } else if (formData.name.trim().length < 2) {
       newErrors.name = 'Business name must be at least 2 characters';
     }
-    
+
     if (!formData.industry) {
       newErrors.industry = 'Please select an industry';
     }
-    
+
     if (!formData.description?.trim()) {
       newErrors.description = 'Description is required';
     } else if (formData.description.trim().length < 10) {
       newErrors.description = 'Description must be at least 10 characters';
     }
-    
+
     if (!finalLocation?.trim()) {
       newErrors.location = 'Location is required';
     } else if (formData.location === 'Other' && !customLocation?.trim()) {
       newErrors.location = 'Please specify your location';
     }
-    
+
     if (formData.website && !/^https?:\/\/.+\..+/.test(formData.website)) {
       newErrors.website = 'Please enter a valid website URL (e.g., https://example.com)';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -138,7 +138,7 @@ export function BusinessProfileStep({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="name" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+        <label htmlFor="name" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5 dark:text-gray-200">
           <span className="text-primary">🏢</span>
           Business Name <span className="text-red-500">*</span>
         </label>
@@ -151,15 +151,14 @@ export function BusinessProfileStep({
             setFormData({ ...formData, name: e.target.value });
             if (errors.name) setErrors({ ...errors, name: undefined });
           }}
-          className={`w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 ${
-            errors.name
+          className={`w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:ring-primary/20 ${errors.name
               ? 'border-red-300 focus:border-red-500 focus:ring-red/20'
-              : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300'
-          }`}
+              : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300 dark:hover:border-gray-600'
+            }`}
           placeholder="Enter your business name"
         />
         {errors.name && (
-          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1 dark:text-red-400">
             <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -169,7 +168,7 @@ export function BusinessProfileStep({
       </div>
 
       <div>
-        <label htmlFor="industry" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+        <label htmlFor="industry" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5 dark:text-gray-200">
           <span className="text-primary">🏭</span>
           Industry <span className="text-red-500">*</span>
         </label>
@@ -188,7 +187,7 @@ export function BusinessProfileStep({
           searchable
         />
         {errors.industry && (
-          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1 dark:text-red-400">
             <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -198,7 +197,7 @@ export function BusinessProfileStep({
       </div>
 
       <div>
-        <label htmlFor="description" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+        <label htmlFor="description" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5 dark:text-gray-200">
           <span className="text-primary">📝</span>
           Description <span className="text-red-500">*</span>
         </label>
@@ -211,28 +210,27 @@ export function BusinessProfileStep({
             setFormData({ ...formData, description: e.target.value });
             if (errors.description) setErrors({ ...errors, description: undefined });
           }}
-          className={`w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 resize-none ${
-            errors.description
+          className={`w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 resize-none dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:ring-primary/20 ${errors.description
               ? 'border-red-300 focus:border-red-500 focus:ring-red/20'
-              : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300'
-          }`}
+              : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300 dark:hover:border-gray-600'
+            }`}
           placeholder="Tell us about your business, what you do, and what makes you unique..."
         />
         {errors.description ? (
-          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1 dark:text-red-400">
             <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             {errors.description}
           </p>
         ) : (
-          <p className="mt-2 text-xs text-gray-500">Help us understand your business better</p>
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Help us understand your business better</p>
         )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="location" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+          <label htmlFor="location" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5 dark:text-gray-200">
             <span className="text-primary">📍</span>
             Location <span className="text-red-500">*</span>
           </label>
@@ -265,16 +263,15 @@ export function BusinessProfileStep({
                   setFormData({ ...formData, location: e.target.value || 'Other' });
                   if (errors.location) setErrors({ ...errors, location: undefined });
                 }}
-                className={`mt-2 w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 ${
-                  errors.location
+                className={`mt-2 w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:ring-primary/20 ${errors.location
                     ? 'border-red-300 focus:border-red-500 focus:ring-red/20'
-                    : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300'
-                }`}
+                    : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300 dark:hover:border-gray-600'
+                  }`}
                 placeholder="Enter your location (City, Country)"
                 autoFocus
               />
               {errors.location && (
-                <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+                <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1 dark:text-red-400">
                   <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -284,7 +281,7 @@ export function BusinessProfileStep({
             </>
           )}
           {errors.location && formData.location !== 'Other' && (
-            <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+            <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1 dark:text-red-400">
               <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -294,9 +291,9 @@ export function BusinessProfileStep({
         </div>
 
         <div>
-          <label htmlFor="website" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+          <label htmlFor="website" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5 dark:text-gray-200">
             <span className="text-primary">🌐</span>
-            Website <span className="text-xs text-gray-500 font-normal">(optional)</span>
+            Website <span className="text-xs text-gray-500 font-normal dark:text-gray-400">(optional)</span>
           </label>
           <input
             id="website"
@@ -306,15 +303,14 @@ export function BusinessProfileStep({
               setFormData({ ...formData, website: e.target.value });
               if (errors.website) setErrors({ ...errors, website: undefined });
             }}
-            className={`w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 ${
-              errors.website
+            className={`w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:ring-primary/20 ${errors.website
                 ? 'border-red-300 focus:border-red-500 focus:ring-red/20'
-                : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300'
-            }`}
+                : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300 dark:hover:border-gray-600'
+              }`}
             placeholder="https://example.com"
           />
           {errors.website && (
-            <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+            <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1 dark:text-red-400">
               <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -325,27 +321,27 @@ export function BusinessProfileStep({
       </div>
 
       <div>
-        <label htmlFor="operating_hours" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+        <label htmlFor="operating_hours" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5 dark:text-gray-200">
           <span className="text-primary">🕐</span>
-          Operating Hours <span className="text-xs text-gray-500 font-normal">(optional)</span>
+          Operating Hours <span className="text-xs text-gray-500 font-normal dark:text-gray-400">(optional)</span>
         </label>
         <input
           id="operating_hours"
           type="text"
           value={formData.operating_hours}
           onChange={(e) => setFormData({ ...formData, operating_hours: e.target.value })}
-          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
+          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300 dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:ring-primary/20 dark:hover:border-gray-600"
           placeholder="Mon-Fri 9am-5pm, Sat 10am-2pm"
         />
-        <p className="mt-2 text-xs text-gray-500">Let customers know when you&apos;re available</p>
+        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Let customers know when you&apos;re available</p>
       </div>
 
-      <div className="flex items-center justify-between gap-3 pt-6 border-t border-gray-100">
+      <div className="flex items-center justify-between gap-3 pt-6 border-t border-gray-100 dark:border-dark-border">
         {onBack && (
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-dark-surface dark:border-dark-border dark:text-gray-200 dark:hover:bg-dark-elevated dark:hover:border-gray-600"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

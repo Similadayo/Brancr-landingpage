@@ -72,21 +72,21 @@ export function PersonaStep({
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof PersonaData, string>> = {};
-    
+
     if (!formData.bot_name?.trim()) {
       newErrors.bot_name = 'Bot name is required';
     } else if (formData.bot_name.trim().length < 2) {
       newErrors.bot_name = 'Bot name must be at least 2 characters';
     }
-    
+
     if (!formData.tone) {
       newErrors.tone = 'Please select a tone';
     }
-    
+
     if (!formData.language) {
       newErrors.language = 'Please select a language';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -102,7 +102,7 @@ export function PersonaStep({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="bot_name" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+        <label htmlFor="bot_name" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5 dark:text-gray-200">
           <span className="text-primary">🤖</span>
           Bot Name <span className="text-red-500">*</span>
         </label>
@@ -115,11 +115,10 @@ export function PersonaStep({
             setFormData({ ...formData, bot_name: e.target.value });
             if (errors.bot_name) setErrors({ ...errors, bot_name: undefined });
           }}
-          className={`w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 ${
-            errors.bot_name
+          className={`w-full rounded-xl border-2 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:outline-none focus:ring-4 dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:ring-primary/20 ${errors.bot_name
               ? 'border-red-300 focus:border-red-500 focus:ring-red/20'
-              : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300'
-          }`}
+              : 'border-gray-200 focus:border-primary focus:ring-primary/10 hover:border-gray-300 dark:hover:border-gray-600'
+            }`}
           placeholder="Luna, Alex, Sam, or your custom name"
           list="bot-name-suggestions"
         />
@@ -134,19 +133,19 @@ export function PersonaStep({
           <option value="Morgan" />
         </datalist>
         {errors.bot_name ? (
-          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1 dark:text-red-400">
             <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             {errors.bot_name}
           </p>
         ) : (
-          <p className="mt-2 text-xs text-gray-500">This is how your AI assistant will introduce itself to customers</p>
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">This is how your AI assistant will introduce itself to customers</p>
         )}
       </div>
 
       <div>
-        <label htmlFor="tone" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+        <label htmlFor="tone" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5 dark:text-gray-200">
           <span className="text-primary">🎭</span>
           Tone <span className="text-red-500">*</span>
         </label>
@@ -162,20 +161,20 @@ export function PersonaStep({
           searchable
         />
         {errors.tone ? (
-          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1">
+          <p className="mt-1.5 text-xs font-medium text-red-600 flex items-center gap-1 dark:text-red-400">
             <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             {errors.tone}
           </p>
         ) : (
-          <p className="mt-2 text-xs text-gray-500">Choose how your AI should communicate with customers</p>
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Choose how your AI should communicate with customers</p>
         )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="language" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+          <label htmlFor="language" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5 dark:text-gray-200">
             <span className="text-primary">🌍</span>
             Language <span className="text-red-500">*</span>
           </label>
@@ -189,7 +188,7 @@ export function PersonaStep({
         </div>
 
         <div className="flex items-center">
-          <div className="mt-8 rounded-xl border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white p-4 w-full hover:border-primary/50 transition-all duration-200">
+          <div className="mt-8 rounded-xl border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white p-4 w-full hover:border-primary/50 transition-all duration-200 dark:bg-dark-surface dark:from-dark-elevated dark:to-dark-surface dark:border-dark-border dark:hover:border-primary/50">
             <label htmlFor="humor" className="flex items-center gap-3 cursor-pointer group">
               <div className="relative">
                 <input
@@ -199,17 +198,15 @@ export function PersonaStep({
                   onChange={(e) => setFormData({ ...formData, humor: e.target.checked })}
                   className="sr-only"
                 />
-                <div className={`h-6 w-11 rounded-full transition-all duration-200 ${
-                  formData.humor ? 'bg-primary shadow-lg shadow-primary/30' : 'bg-gray-300'
-                }`}>
-                  <div className={`h-5 w-5 rounded-full bg-white shadow-md transform transition-transform duration-200 mt-0.5 ${
-                    formData.humor ? 'translate-x-5' : 'translate-x-0.5'
-                  }`} />
+                <div className={`h-6 w-11 rounded-full transition-all duration-200 ${formData.humor ? 'bg-primary shadow-lg shadow-primary/30' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}>
+                  <div className={`h-5 w-5 rounded-full bg-white shadow-md transform transition-transform duration-200 mt-0.5 ${formData.humor ? 'translate-x-5' : 'translate-x-0.5'
+                    }`} />
                 </div>
               </div>
               <div>
-                <span className="text-sm font-semibold text-gray-800">Include humor</span>
-                <p className="text-xs text-gray-500 mt-0.5">Add a playful touch to responses</p>
+                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Include humor</span>
+                <p className="text-xs text-gray-500 mt-0.5 dark:text-gray-400">Add a playful touch to responses</p>
               </div>
             </label>
           </div>
@@ -217,27 +214,27 @@ export function PersonaStep({
       </div>
 
       <div>
-        <label htmlFor="style_notes" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+        <label htmlFor="style_notes" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5 dark:text-gray-200">
           <span className="text-primary">✨</span>
-          Style Notes <span className="text-xs text-gray-500 font-normal">(optional)</span>
+          Style Notes <span className="text-xs text-gray-500 font-normal dark:text-gray-400">(optional)</span>
         </label>
         <textarea
           id="style_notes"
           rows={4}
           value={formData.style_notes}
           onChange={(e) => setFormData({ ...formData, style_notes: e.target.value })}
-          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300 resize-none"
+          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300 resize-none dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:ring-primary/20 dark:hover:border-gray-600"
           placeholder="Always use emojis, keep responses under 100 words, use formal language, etc."
         />
-        <p className="mt-2 text-xs text-gray-500">Customize how your AI communicates with specific guidelines</p>
+        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Customize how your AI communicates with specific guidelines</p>
       </div>
 
-      <div className="flex items-center justify-between gap-3 pt-6 border-t border-gray-100">
+      <div className="flex items-center justify-between gap-3 pt-6 border-t border-gray-100 dark:border-dark-border">
         {onBack && (
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-dark-surface dark:border-dark-border dark:text-gray-200 dark:hover:bg-dark-elevated dark:hover:border-gray-600"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

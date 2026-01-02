@@ -52,8 +52,8 @@ export function IndustryStep({ onComplete, onBack, savedData, isLoading }: Indus
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-semibold text-gray-900">Select Your Industry</h2>
-        <p className="mt-2 text-sm text-gray-600">
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Select Your Industry</h2>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
           Choose the industry that best describes your business. This helps us customize your experience.
         </p>
       </div>
@@ -68,21 +68,21 @@ export function IndustryStep({ onComplete, onBack, savedData, isLoading }: Indus
         <button
           type="button"
           onClick={() => { setSelectedIndustryId(-1); setShowOtherInput(true); }}
-          className={`rounded-lg border px-4 py-2 text-sm font-semibold ${selectedIndustryId === -1 ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 bg-white text-gray-700'} transition hover:scale-105`}
+          className={`rounded-lg border px-4 py-2 text-sm font-semibold ${selectedIndustryId === -1 ? 'border-primary bg-primary/5 text-primary dark:bg-primary/20' : 'border-gray-200 bg-white text-gray-700 dark:bg-dark-surface dark:border-dark-border dark:text-gray-200'} transition hover:scale-105`}
         >
           My industry isn&apos;t listed — enter it
         </button>
         {showOtherInput && (
           <div className="mt-3">
-            <label className="block text-sm font-semibold text-gray-900">Other industry</label>
+            <label className="block text-sm font-semibold text-gray-900 dark:text-white">Other industry</label>
             <input
               type="text"
               value={otherIndustryName}
               onChange={(e) => setOtherIndustryName(e.target.value)}
               placeholder={'Describe your industry (e.g., "Custom floristry")'}
-              className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="mt-2 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:ring-primary/40"
             />
-            <p className="mt-2 text-xs text-gray-500">We&apos;ll review and add new industries on request; creating custom industries requires backend support.</p>
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">We&apos;ll review and add new industries on request; creating custom industries requires backend support.</p>
           </div>
         )}
       </div>
@@ -92,7 +92,7 @@ export function IndustryStep({ onComplete, onBack, savedData, isLoading }: Indus
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-dark-surface dark:border-dark-border dark:text-gray-200 dark:hover:bg-dark-elevated dark:hover:border-gray-600"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

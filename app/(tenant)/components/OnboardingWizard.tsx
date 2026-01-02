@@ -399,10 +399,10 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ type: 'spring', duration: 0.5 }}
-        className="relative w-full max-w-4xl max-h-[92vh] overflow-hidden rounded-3xl bg-white shadow-2xl border border-gray-100 mx-auto"
+        className="relative w-full max-w-4xl max-h-[92vh] overflow-hidden rounded-3xl bg-white shadow-2xl border border-gray-100 mx-auto dark:bg-dark-surface dark:border-dark-border"
       >
         {/* Gradient Progress Bar */}
-        <div className="h-1.5 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 relative overflow-hidden">
+        <div className="h-1.5 bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 relative overflow-hidden dark:from-dark-elevated dark:via-dark-surface dark:to-dark-elevated">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
@@ -412,7 +412,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         </div>
 
         {/* Beautiful Header */}
-        <div className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 border-b border-gray-100 px-8 py-6">
+        <div className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 border-b border-gray-100 px-8 py-6 dark:from-dark-elevated dark:via-dark-surface dark:to-dark-elevated dark:border-dark-border">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <motion.div
@@ -429,7 +429,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent"
+                  className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent dark:from-white dark:to-gray-300"
                 >
                   {STEPS[currentStepIndex]?.title}
                 </motion.h2>
@@ -438,7 +438,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: 0.1 }}
-                  className="mt-1 text-sm text-gray-600"
+                  className="mt-1 text-sm text-gray-600 dark:text-gray-400"
                 >
                   {STEPS[currentStepIndex]?.description}
                 </motion.p>
@@ -448,12 +448,12 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.2 }}
-                    className="mt-2 flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-1.5 w-fit"
+                    className="mt-2 flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-1.5 w-fit dark:bg-primary/20"
                   >
-                    <svg className="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4 text-primary dark:text-primary-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span className="text-xs font-semibold text-primary">{STEPS[currentStepIndex]?.benefit}</span>
+                    <span className="text-xs font-semibold text-primary dark:text-primary-light">{STEPS[currentStepIndex]?.benefit}</span>
                   </motion.div>
                 )}
               </div>
@@ -478,8 +478,8 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
                       className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${isCompleted
                         ? 'bg-primary shadow-lg shadow-primary/50'
                         : isCurrent
-                          ? 'bg-primary ring-4 ring-primary/20 scale-125'
-                          : 'bg-gray-200'
+                          ? 'bg-primary ring-4 ring-primary/20 scale-125 dark:ring-primary/40'
+                          : 'bg-gray-200 dark:bg-dark-border'
                         }`}
                       title={step.title}
                     />
@@ -510,7 +510,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
 
           {/* Step Progress Text */}
           <div className="mt-4 flex items-center gap-2">
-            <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden dark:bg-dark-border">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
@@ -518,14 +518,14 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
                 className="h-full bg-gradient-to-r from-primary to-primary/80 rounded-full"
               />
             </div>
-            <span className="text-xs font-semibold text-gray-500 min-w-[60px] text-right">
+            <span className="text-xs font-semibold text-gray-500 min-w-[60px] text-right dark:text-gray-400">
               {currentStepIndex + 1} / {STEPS.length}
             </span>
           </div>
         </div>
 
         {/* Content with smooth transitions */}
-        <div className="overflow-y-auto max-h-[calc(92vh-180px)] bg-gradient-to-b from-white to-gray-50/50 scrollbar-thin">
+        <div className="overflow-y-auto max-h-[calc(92vh-180px)] bg-gradient-to-b from-white to-gray-50/50 scrollbar-thin dark:from-dark-surface dark:to-dark-elevated">
           <div className="px-8 py-8">
             <AnimatePresence mode="wait">
               <motion.div

@@ -107,9 +107,9 @@ export function BusinessDetailsStep({
       {/* FAQs */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <label className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-gray-200">
             <span className="text-primary">❓</span>
-            FAQs <span className="text-xs text-gray-500 font-normal">(optional)</span>
+            FAQs <span className="text-xs text-gray-500 font-normal dark:text-gray-400">(optional)</span>
           </label>
           <button
             type="button"
@@ -123,20 +123,20 @@ export function BusinessDetailsStep({
           </button>
         </div>
         {faqs.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-6 text-center">
-            <p className="text-sm text-gray-500">No FAQs added yet</p>
-            <p className="mt-1 text-xs text-gray-400">Click &quot;Add FAQ&quot; to get started</p>
+          <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-6 text-center dark:border-gray-700 dark:bg-dark-elevated">
+            <p className="text-sm text-gray-500 dark:text-gray-400">No FAQs added yet</p>
+            <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">Click &quot;Add FAQ&quot; to get started</p>
           </div>
         ) : (
           <div className="space-y-3">
             {faqs.map((faq, index) => (
-              <div key={index} className="rounded-xl border-2 border-gray-200 bg-white p-4 space-y-3 shadow-sm hover:border-primary/50 transition-all duration-200">
+              <div key={index} className="rounded-xl border-2 border-gray-200 bg-white p-4 space-y-3 shadow-sm hover:border-primary/50 transition-all duration-200 dark:bg-dark-surface dark:border-dark-border dark:hover:border-gray-600">
                 <input
                   type="text"
                   placeholder="Question"
                   value={faq.question}
                   onChange={(e) => updateFAQ(index, 'question', e.target.value)}
-                  className="w-full rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
+                  className="w-full rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300 dark:bg-dark-elevated dark:border-dark-border dark:text-white dark:focus:ring-primary/20 dark:hover:border-gray-600"
                 />
                 <div className="flex gap-3">
                   <textarea
@@ -144,12 +144,12 @@ export function BusinessDetailsStep({
                     value={faq.answer}
                     onChange={(e) => updateFAQ(index, 'answer', e.target.value)}
                     rows={2}
-                    className="flex-1 rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300 resize-none"
+                    className="flex-1 rounded-lg border-2 border-gray-200 bg-white px-3 py-2.5 text-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300 resize-none dark:bg-dark-elevated dark:border-dark-border dark:text-white dark:focus:ring-primary/20 dark:hover:border-gray-600"
                   />
                   <button
                     type="button"
                     onClick={() => removeFAQ(index)}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border-2 border-red-200 bg-red-50 px-3 py-2.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:bg-red-100 hover:border-red-300"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border-2 border-red-200 bg-red-50 px-3 py-2.5 text-xs font-semibold text-red-700 transition-all duration-200 hover:bg-red-100 hover:border-red-300 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200 dark:hover:bg-red-900/30"
                   >
                     <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -165,45 +165,45 @@ export function BusinessDetailsStep({
 
       {/* Keywords */}
       <div>
-        <label htmlFor="keywords" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+        <label htmlFor="keywords" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5 dark:text-gray-200">
           <span className="text-primary">🏷️</span>
-          Keywords <span className="text-xs text-gray-500 font-normal">(optional)</span>
+          Keywords <span className="text-xs text-gray-500 font-normal dark:text-gray-400">(optional)</span>
         </label>
         <input
           id="keywords"
           type="text"
           value={keywords}
           onChange={(e) => setKeywords(e.target.value)}
-          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
+          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300 dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:ring-primary/20 dark:hover:border-gray-600"
           placeholder="pizza, italian, food, delivery"
         />
-        <p className="mt-2 text-xs text-gray-500">Comma-separated keywords relevant to your business</p>
+        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Comma-separated keywords relevant to your business</p>
       </div>
 
       {/* Knowledge Base */}
       <div>
-        <label htmlFor="knowledge_base" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5">
+        <label htmlFor="knowledge_base" className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-2.5 dark:text-gray-200">
           <span className="text-primary">📚</span>
-          Knowledge Base <span className="text-xs text-gray-500 font-normal">(optional)</span>
+          Knowledge Base <span className="text-xs text-gray-500 font-normal dark:text-gray-400">(optional)</span>
         </label>
         <textarea
           id="knowledge_base"
           rows={5}
           value={knowledgeBase}
           onChange={(e) => setKnowledgeBase(e.target.value)}
-          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300 resize-none"
+          className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition-all duration-200 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10 hover:border-gray-300 resize-none dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:ring-primary/20 dark:hover:border-gray-600"
           placeholder="Additional information about your business that the AI should know..."
         />
-        <p className="mt-2 text-xs text-gray-500">Provide context to help your AI assistant understand your business better</p>
+        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Provide context to help your AI assistant understand your business better</p>
       </div>
 
-      <div className="flex items-center justify-between gap-3 pt-6 border-t border-gray-100">
+      <div className="flex items-center justify-between gap-3 pt-6 border-t border-gray-100 dark:border-dark-border">
         <div className="flex items-center gap-3">
           {onBack && (
             <button
               type="button"
               onClick={onBack}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-dark-surface dark:border-dark-border dark:text-gray-200 dark:hover:bg-dark-elevated dark:hover:border-gray-600"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -217,7 +217,7 @@ export function BusinessDetailsStep({
             <button
               type="button"
               onClick={onSkip}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-6 py-3.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:bg-primary/5 hover:text-primary hover:shadow-md"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-6 py-3.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:bg-primary/5 hover:text-primary hover:shadow-md dark:bg-dark-surface dark:border-dark-border dark:text-gray-200 dark:hover:bg-dark-elevated dark:hover:border-primary/50 dark:hover:text-primary"
             >
               Skip for now
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
