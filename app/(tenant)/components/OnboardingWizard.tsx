@@ -9,32 +9,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { tenantApi, ApiError } from '@/lib/api';
 import { getUserFriendlyErrorMessage, ErrorMessages } from '@/lib/error-messages';
 import { IndustryStep } from './onboarding/IndustryStep';
-import { MagicInputStep } from './onboarding/MagicInputStep';
-import { MagicConfirmationStep } from './onboarding/MagicConfirmationStep';
 import { BusinessProfileStep } from './onboarding/BusinessProfileStep';
 import { PersonaStep } from './onboarding/PersonaStep';
 import { BusinessDetailsStep } from './onboarding/BusinessDetailsStep';
 import { SocialConnectStep } from './onboarding/SocialConnectStep';
 
-type OnboardingStep = 'magic_input' | 'magic_confirmation' | 'industry' | 'business_profile' | 'persona' | 'business_details' | 'social_connect' | 'complete';
+type OnboardingStep = 'industry' | 'business_profile' | 'persona' | 'business_details' | 'social_connect' | 'complete';
 
 const STEPS: Array<{ id: OnboardingStep; title: string; description: string; icon: string; optional?: boolean; timeEstimate?: string; benefit?: string }> = [
-  {
-    id: 'magic_input',
-    title: 'Magic Setup',
-    description: 'Auto-generate your profile',
-    icon: '✨',
-    timeEstimate: '1 min',
-    benefit: 'Save time with AI',
-  },
-  {
-    id: 'magic_confirmation',
-    title: 'Review',
-    description: 'Confirm generated details',
-    icon: '✅',
-    timeEstimate: '1 min',
-    benefit: 'Ensure accuracy',
-  },
   {
     id: 'industry',
     title: 'Industry Selection',
@@ -91,7 +73,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     persona?: any;
     business_details?: any;
   }>({});
-  const [magicProfileData, setMagicProfileData] = useState<any>(null);
+
 
 
 
@@ -109,7 +91,6 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
   useEffect(() => {
     if (onboardingStatus) {
       if (onboardingStatus.complete === true) {
-        // ... existing redirect logic ...
         void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
         void queryClient.invalidateQueries({ queryKey: ['onboarding', 'status'] });
         void queryClient.refetchQueries({ queryKey: ['auth', 'me'] });
@@ -126,33 +107,21 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         return;
       }
 
-      // If backend says 'industry' (default start), we want to show 'magic_input' first
-      // UNLESS the user has already explicitly started the 'industry' step or later.
-      // But onboardingStatus.step usually returns the *next* step to complete.
-      // If status is 'industry', it means they haven't finished industry.
-      // So checking if they have saved data might be better?
-      // For now, let's map 'industry' -> 'magic_input' effectively inserting it before.
-
       const stepFromStatus = onboardingStatus.step || 'industry';
-      const effectiveStep = stepFromStatus === 'industry' && !magicProfileData ? 'magic_input' : stepFromStatus;
-
-      setCurrentStep(effectiveStep as OnboardingStep);
+      setCurrentStep(stepFromStatus as OnboardingStep);
 
       // Load saved data for pre-filling forms
-      // Note: Industry data is handled by IndustryStep separately
       setSavedData({
-        // Industry is managed by its own step/query
         business_profile: onboardingStatus.business_profile,
         persona: onboardingStatus.persona,
         business_details: onboardingStatus.business_details,
       });
     } else if (!isLoadingStatus && !onboardingError) {
-      // If status hasn't loaded yet but we're not in error state
       if (!currentStep) {
-        setCurrentStep('magic_input');
+        setCurrentStep('industry');
       }
     }
-  }, [onboardingStatus, initialStep, isLoadingStatus, onboardingError, currentStep, router, queryClient, magicProfileData]);
+  }, [onboardingStatus, initialStep, isLoadingStatus, onboardingError, currentStep, router, queryClient]);
 
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
@@ -219,8 +188,6 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       }
     } catch (error) {
       const stepMessages: Record<OnboardingStep, string> = {
-        magic_input: 'Failed to generate profile',
-        magic_confirmation: 'Failed to confirm profile',
         industry: ErrorMessages.onboarding.industry,
         business_profile: ErrorMessages.onboarding.businessProfile,
         persona: ErrorMessages.onboarding.persona,

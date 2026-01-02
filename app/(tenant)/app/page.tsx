@@ -36,6 +36,7 @@ import {
 } from "../components/icons";
 import { OrderCard, PaymentCard } from "../components/cards";
 import { NotificationsPanel } from "../components/dashboard/NotificationsPanel";
+import { AdventureWidget } from "../components/onboarding/AdventureWidget";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -44,13 +45,13 @@ function cn(...classes: Array<string | false | null | undefined>) {
 export default function TenantOverviewPage() {
   const { tenant } = useTenant();
   const { data: tenantIndustry } = useTenantIndustry();
-  
+
   // Fetch all dashboard data
   const { data: overviewData } = useQuery({
     queryKey: ["tenant", "overview"],
     queryFn: () => tenantApi.overview(),
   });
-  
+
   const { data: scheduledPostsData } = useScheduledPosts();
   const { data: upcomingPostsData } = useScheduledPosts({ status: "scheduled", limit: 5 });
   const { data: performanceSummary } = usePerformanceSummary("7d");
@@ -61,7 +62,7 @@ export default function TenantOverviewPage() {
   const { data: mediaData } = useMedia({ limit: 5 });
   const { data: ordersData } = useOrders({ limit: 5 });
   const { data: paymentsData } = usePayments({ limit: 5 });
-  
+
   // Industry-specific data
   const { data: productsData } = useProducts({ limit: 5 });
   const { data: menuItemsData } = useMenuItems({ limit: 5 });
@@ -226,7 +227,7 @@ export default function TenantOverviewPage() {
             backgroundSize: '40px 40px'
           }} />
         </div>
-        
+
         <div className="relative z-10">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0 flex-1">
@@ -240,18 +241,18 @@ export default function TenantOverviewPage() {
                 Here&apos;s your complete overview of automation, conversations, and campaign performance
               </p>
             </div>
-            
+
             {/* Quick Action Buttons */}
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
-              <Link 
-                href="/app/posts/new" 
+              <Link
+                href="/app/posts/new"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-primary shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 sm:px-6 sm:py-3.5"
               >
                 <PlusIcon className="w-5 h-5" />
                 <span>Create Post</span>
               </Link>
-              <Link 
-                href="/app/integrations" 
+              <Link
+                href="/app/integrations"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20 hover:border-white/50 active:scale-95 sm:px-6 sm:py-3.5"
               >
                 <LinkIcon className="w-5 h-5" />
@@ -261,6 +262,9 @@ export default function TenantOverviewPage() {
           </div>
         </div>
       </div>
+
+      {/* Adventure Widget - Getting Started Checklist */}
+      <AdventureWidget />
 
       {/* Critical Alerts Banner */}
       {(stats.pendingEscalations > 0 || stats.unreadMessages > 0) && (
