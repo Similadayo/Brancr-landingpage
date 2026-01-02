@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { AuthCard } from "../components/AuthCard";
+import { AuthCard } from "../../components/AuthCard";
 import { authApi, ApiError } from "@/lib/api";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
