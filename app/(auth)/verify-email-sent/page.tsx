@@ -1,12 +1,12 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { AuthCard } from "../../components/AuthCard";
-import { useState } from "react";
+import { AuthCard } from "../components/AuthCard";
+import { useState, Suspense } from "react";
 import { authApi } from "@/lib/api";
 import { toast } from "react-hot-toast";
 
-export default function VerifyEmailSentPage() {
+function VerifyEmailSentContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const email = searchParams.get("email");
@@ -60,5 +60,19 @@ export default function VerifyEmailSentPage() {
                 </button>
             </div>
         </AuthCard>
+    );
+}
+
+export default function VerifyEmailSentPage() {
+    return (
+        <Suspense fallback={
+            <AuthCard title="Check your email">
+                <div className="flex justify-center p-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                </div>
+            </AuthCard>
+        }>
+            <VerifyEmailSentContent />
+        </Suspense>
     );
 }

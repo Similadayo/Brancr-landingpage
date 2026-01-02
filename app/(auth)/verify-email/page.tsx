@@ -1,12 +1,12 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { AuthCard } from "../../components/AuthCard";
+import { useEffect, useState, Suspense } from "react";
+import { AuthCard } from "../components/AuthCard";
 import { authApi } from "@/lib/api";
 import { CheckCircleIcon, XCircleIcon } from "@/app/(tenant)/components/icons";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const token = searchParams.get("token");
@@ -70,5 +70,20 @@ export default function VerifyEmailPage() {
                 )}
             </div>
         </AuthCard>
+    );
+}
+
+export default function VerifyEmailPage() {
+    return (
+        <Suspense fallback={
+            <AuthCard title="Email Verification">
+                <div className="flex flex-col items-center space-y-6 text-center py-8">
+                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+                    <p className="text-gray-600 dark:text-gray-300">Loading...</p>
+                </div>
+            </AuthCard>
+        }>
+            <VerifyEmailContent />
+        </Suspense>
     );
 }

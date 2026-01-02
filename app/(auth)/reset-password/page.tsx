@@ -1,12 +1,12 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AuthCard } from "../../components/AuthCard";
+import { AuthCard } from "../components/AuthCard";
 import { authApi, ApiError } from "@/lib/api";
 import { toast } from "react-hot-toast";
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
@@ -128,5 +128,19 @@ export default function ResetPasswordPage() {
                 </button>
             </form>
         </AuthCard>
+    );
+}
+
+export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={
+            <AuthCard title="Set new password">
+                <div className="flex justify-center p-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                </div>
+            </AuthCard>
+        }>
+            <ResetPasswordContent />
+        </Suspense>
     );
 }
