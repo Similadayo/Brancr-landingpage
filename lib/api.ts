@@ -115,7 +115,19 @@ export async function apiFetch<TResponse = unknown>(
     return undefined as TResponse;
   }
 
-  return (await response.json()) as TResponse;
+  const text = await response.text();
+  if (!text) {
+    return undefined as TResponse;
+  }
+
+  try {
+    return JSON.parse(text) as TResponse;
+  } catch (e) {
+    console.error("Failed to parse JSON response:", text);
+    // If it's 2xx but failed to parse, we might want to return text or throw.
+    // Given the context, throwing seems appropriate to catch malformed server responses.
+    throw new ApiError("Failed to parse API response", response.status);
+  }
 }
 
 // Convenience helpers for common HTTP verbs
