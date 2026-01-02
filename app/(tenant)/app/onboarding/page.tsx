@@ -261,40 +261,44 @@ export default function MagicProfilePage() {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                       Website or Social Link
                     </label>
-                    <div className="flex gap-3 mb-2">
+                    {/* Unified input container - matching PhoneInput design */}
+                    <div className="flex w-full items-center rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30 dark:bg-dark-bg dark:border-dark-border">
+                      {/* Platform Selector - inside the input */}
                       <select
                         value={platform}
                         onChange={(e) => setPlatform(e.target.value)}
-                        className="rounded-xl border border-gray-200 px-3 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-dark-bg dark:border-dark-border dark:text-white"
+                        className="shrink-0 appearance-none bg-transparent pl-4 pr-2 py-3 text-sm text-gray-700 dark:text-gray-300 focus:outline-none cursor-pointer border-0 focus:ring-0"
                       >
-                        <option value="auto">Auto-detect</option>
+                        <option value="auto">Auto</option>
                         <option value="website">Website</option>
                         <option value="instagram">Instagram</option>
                         <option value="facebook">Facebook</option>
                         <option value="tiktok">TikTok</option>
-                        <option value="twitter">X (Twitter)</option>
+                        <option value="twitter">X</option>
                         <option value="linkedin">LinkedIn</option>
                       </select>
-                      <div className="relative flex-1">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                          </svg>
-                        </div>
-                        <input
-                          type="text"
-                          value={url}
-                          onChange={(e) => setUrl(e.target.value)}
-                          placeholder={
-                            platform === 'instagram' ? '@username' :
-                              platform === 'website' ? 'yourbusiness.com' :
-                                'Link or handle...'
-                          }
-                          className="w-full rounded-xl border border-gray-200 pl-10 pr-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-dark-bg dark:border-dark-border dark:text-white"
-                        />
-                      </div>
+
+                      {/* Vertical Divider */}
+                      <div className="h-6 w-px bg-gray-200 dark:bg-dark-border mx-1" />
+
+                      {/* URL/Handle Input */}
+                      <input
+                        type="text"
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        placeholder={
+                          platform === 'instagram' ? '@username or instagram.com/...' :
+                            platform === 'website' ? 'yourbusiness.com' :
+                              platform === 'facebook' ? 'facebook.com/yourpage' :
+                                platform === 'tiktok' ? '@username or tiktok.com/@...' :
+                                  platform === 'twitter' ? '@username or x.com/...' :
+                                    platform === 'linkedin' ? 'linkedin.com/in/...' :
+                                      'yourwebsite.com or @handle'
+                        }
+                        className="block w-full flex-1 border-0 bg-transparent py-3 pl-2 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:ring-0 focus:outline-none dark:text-white"
+                      />
                     </div>
-                    <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">Enter your website URL, any social media link, or just your handle</p>
+                    <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">Enter your website URL, any social media link, or just your handle</p>
                   </div>
 
                   <div className="relative">
