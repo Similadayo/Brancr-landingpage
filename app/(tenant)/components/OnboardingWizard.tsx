@@ -219,11 +219,14 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       }
     } catch (error) {
       const stepMessages: Record<OnboardingStep, string> = {
+        magic_input: 'Failed to generate profile',
+        magic_confirmation: 'Failed to confirm profile',
         industry: ErrorMessages.onboarding.industry,
         business_profile: ErrorMessages.onboarding.businessProfile,
         persona: ErrorMessages.onboarding.persona,
         business_details: ErrorMessages.onboarding.businessDetails,
         social_connect: ErrorMessages.onboarding.complete,
+        complete: ErrorMessages.onboarding.complete,
       };
       const message = getUserFriendlyErrorMessage(error, {
         action: 'saving onboarding step',
