@@ -53,16 +53,36 @@ export default function MagicProfilePage() {
 
   const handleGenerate = async () => {
     if (!url && !description) {
-      setError('Please enter your website or describe your business');
+      setError('Please enter your website/handle or describe your business');
       return;
     }
 
     setLoading(true);
     setError('');
 
+    // Smart URL handling: detect if it's an Instagram handle vs full URL
+    let processedUrl = url.trim();
+    if (processedUrl) {
+      // Remove @ if present
+      if (processedUrl.startsWith('@')) {
+        processedUrl = processedUrl.substring(1);
+      }
+
+      // Check if it looks like a plain handle (no dots, no slashes, no protocol)
+      const looksLikeHandle = !processedUrl.includes('.') && !processedUrl.includes('/') && !processedUrl.includes(':');
+
+      if (looksLikeHandle) {
+        // Convert to Instagram URL
+        processedUrl = `https://instagram.com/${processedUrl}`;
+      } else if (!processedUrl.startsWith('http://') && !processedUrl.startsWith('https://')) {
+        // Add https:// if missing
+        processedUrl = `https://${processedUrl}`;
+      }
+    }
+
     try {
       const result = await tenantApi.magicProfile({
-        url: url.trim() || undefined,
+        url: processedUrl || undefined,
         description: description.trim() || undefined,
       });
 
@@ -190,7 +210,7 @@ export default function MagicProfilePage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                      Website or Social Media URL
+                      Website or Instagram Handle
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -199,13 +219,14 @@ export default function MagicProfilePage() {
                         </svg>
                       </div>
                       <input
-                        type="url"
+                        type="text"
                         value={url}
                         onChange={(e) => setUrl(e.target.value)}
-                        placeholder="https://instagram.com/yourbusiness"
+                        placeholder="@yourbusiness or yourbusiness.com"
                         className="w-full rounded-xl border border-gray-200 pl-10 pr-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-dark-bg dark:border-dark-border dark:text-white"
                       />
                     </div>
+                    <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">Enter your IG handle (e.g. @shoplagos) or website URL</p>
                   </div>
 
                   <div className="relative">
