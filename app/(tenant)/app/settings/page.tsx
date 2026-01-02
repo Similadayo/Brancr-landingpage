@@ -26,19 +26,24 @@ import {
   ChartBarIcon,
   BuildingOfficeIcon,
   WhatsAppIcon,
+
   LockClosedIcon,
+  LinkIcon,
 } from "../../components/icons";
 import PersonaSummary from './persona/PersonaSummary';
 import { IndustrySelector } from "../../components/IndustrySelector";
 import { useTenantIndustry } from "../../hooks/useIndustry";
 import { WhatsAppProfile } from "../../components/WhatsAppProfile";
+import { useIntegrations } from "../../hooks/useIntegrations";
+import TelegramConnectButton from "../../components/TelegramConnectButton";
 
-type TabKey = "profile" | "industry" | "notifications" | "team" | "billing" | "whatsapp" | "ai_behavior" | "security";
+type TabKey = "profile" | "industry" | "notifications" | "team" | "billing" | "whatsapp" | "integrations" | "ai_behavior" | "security";
 
 const TABS: Array<{ key: TabKey; label: string; icon: React.ReactNode }> = [
   { key: "profile", label: "Business Profile", icon: <UserIcon className="w-4 h-4" /> },
   { key: "industry", label: "Industry", icon: <BuildingOfficeIcon className="w-4 h-4" /> },
   { key: "notifications", label: "Notifications", icon: <BellIcon className="w-4 h-4" /> },
+  { key: "integrations", label: "Integrations", icon: <LinkIcon className="w-4 h-4" /> },
   { key: "ai_behavior", label: "AI Behavior", icon: <SparklesIcon className="w-4 h-4" /> },
   { key: "team", label: "Team", icon: <UsersIcon className="w-4 h-4" /> },
   { key: "billing", label: "Billing & Plan", icon: <CreditCardIcon className="w-4 h-4" /> },
@@ -55,7 +60,9 @@ export default function SettingsPage() {
   const usageQuery = useUsage();
   const escalationSettingsQuery = useEscalationSettings();
   const updateEscalationMutation = useUpdateEscalationSettings();
+
   const { data: tenantIndustry } = useTenantIndustry();
+  const { data: integrations } = useIntegrations();
 
   // Fetch business profile data
   const { data: onboardingData, isLoading: isLoadingProfile } = useQuery({
@@ -133,6 +140,36 @@ export default function SettingsPage() {
 
   const renderTabContent = useMemo(() => {
     switch (activeTab) {
+      case "integrations":
+        const telegram = integrations?.find(i => i.platform === 'telegram');
+
+        return (
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Connected Platforms</h3>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {telegram && telegram.connected ? (
+                <div className="flex items-center justify-between p-4 rounded-xl border border-green-200 bg-green-50 dark:bg-green-900/10 dark:border-green-800 shadow-sm">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 flex-shrink-0 bg-[#0088cc]/10 rounded-full flex items-center justify-center text-[#0088cc]">
+                      <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <strong className="block text-gray-900 dark:text-white">Telegram</strong>
+                      <p className="text-sm text-gray-500">Connected</p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700">
+                    Connected ✅
+                  </span>
+                </div>
+              ) : (
+                <TelegramConnectButton variant="card" />
+              )}
+            </div>
+          </div>
+        );
       case "profile":
         return (
           <form
@@ -718,6 +755,7 @@ export default function SettingsPage() {
     changePasswordMutation,
     tenantIndustry,
     queryClient,
+    integrations,
   ]);
 
   return (

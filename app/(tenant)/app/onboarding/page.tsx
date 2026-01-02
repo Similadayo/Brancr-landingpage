@@ -1,24 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useQueryClient, useQuery } from '@tanstack/react-query';
-import { toast } from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
-import { tenantApi, authApi, ApiError } from '@/lib/api';
-import { useIndustries, FALLBACK_INDUSTRIES } from '../../hooks/useIndustry';
+import OnboardingSuccess from '../../components/onboarding/OnboardingSuccess';
 
-type ProfileData = {
-  name: string;
-  description: string;
-  industry: string;
-  persona: {
-    tone: string;
-    audience: string;
-    values: string[];
-  };
-  confidence: 'high' | 'medium' | 'low';
-};
+// ... (other imports)
 
 export default function MagicProfilePage() {
   const router = useRouter();
@@ -26,121 +10,25 @@ export default function MagicProfilePage() {
   const { data: industries = [] } = useIndustries();
 
   // State
-  const [step, setStep] = useState<'input' | 'confirm'>('input');
-  const [url, setUrl] = useState('');
-  const [platform, setPlatform] = useState('auto');
-  const [description, setDescription] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [step, setStep] = useState<'input' | 'confirm' | 'success'>('input');
+  // ... (rest of state)
 
-  // Editable confirmation fields
-  const [editName, setEditName] = useState('');
-  const [editDescription, setEditDescription] = useState('');
-
-  // Check if onboarding is already complete
-  const { data: onboardingStatus, isLoading: isLoadingStatus } = useQuery({
-    queryKey: ['onboarding', 'status'],
-    queryFn: () => tenantApi.onboardingStatus(),
-    retry: false,
-  });
-
-  // Redirect if already complete
+  // ... (useEffect for redirect)
   useEffect(() => {
-    if (!isLoadingStatus && onboardingStatus?.complete === true) {
+    // Redirect if complete AND NOT viewing success screen
+    if (!isLoadingStatus && onboardingStatus?.complete === true && step !== 'success') {
       router.replace('/app');
     }
-  }, [isLoadingStatus, onboardingStatus, router]);
+  }, [isLoadingStatus, onboardingStatus, router, step]);
 
-  const handleGenerate = async () => {
-    if (!url && !description) {
-      setError('Please enter your website/handle or describe your business');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    // Smart URL handling
-    let processedUrl = url.trim();
-    let additionalDesc = '';
-
-    if (processedUrl) {
-      // Remove @ if present for simple processing
-      let clean = processedUrl.startsWith('@') ? processedUrl.substring(1) : processedUrl;
-
-      // If user explicitly selected a platform, force the URL format
-      if (platform !== 'auto' && platform !== 'website') {
-        const platformUrls: Record<string, string> = {
-          instagram: 'https://instagram.com/',
-          facebook: 'https://facebook.com/',
-          tiktok: 'https://tiktok.com/@',
-          twitter: 'https://x.com/',
-          linkedin: 'https://linkedin.com/in/'
-        };
-        const baseUrl = platformUrls[platform];
-        if (baseUrl && !processedUrl.includes('http')) {
-          // Check if they already typed the base url to avoid doubling
-          if (!processedUrl.includes(baseUrl.replace('https://', ''))) {
-            processedUrl = `${baseUrl}${clean}`;
-          }
-        }
-      }
-
-      // Fallback auto-detection if still needed
-      const hasDot = processedUrl.includes('.');
-      if (hasDot) {
-        if (!processedUrl.match(/^https?:\/\//)) {
-          processedUrl = `https://${processedUrl}`;
-        }
-      } else {
-        // It's a handle without a known platform URL
-        if (platform === 'auto') {
-          additionalDesc = `Business Handle/Name: ${processedUrl}`;
-          processedUrl = '';
-        }
-      }
-    }
-
-    // Combine manual description with handle info
-    const finalDescription = [description.trim(), additionalDesc].filter(Boolean).join('. ');
-
-    try {
-      const result = await tenantApi.magicProfile({
-        url: processedUrl || undefined,
-        description: finalDescription || undefined,
-      });
-
-      if (result.success && result.profile) {
-        setProfileData(result.profile);
-        setEditName(result.profile.name);
-        setEditDescription(result.profile.description);
-        setStep('confirm');
-
-        if (result.profile.confidence === 'low') {
-          setError("We couldn't find much info. Please review carefully.");
-        }
-      } else {
-        toast.error(result.message || 'Failed to generate profile');
-      }
-    } catch (err) {
-      console.error('Magic Profile Error:', err);
-      if (err instanceof ApiError) {
-        toast.error(err.message || 'Failed to analyze');
-      } else {
-        toast.error('Something went wrong. Try manual setup.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  // ... (handleGenerate)
 
   const handleConfirm = async () => {
     if (!profileData) return;
 
     setLoading(true);
     try {
-      // 1. Save Business Profile
+      // ... (saving business profile, industry, persona)
       await tenantApi.onboardingBusinessProfile({
         name: editName.trim(),
         description: editDescription.trim(),
@@ -153,7 +41,6 @@ export default function MagicProfilePage() {
       let industriesList = industries;
       if (!industriesList || industriesList.length === 0) {
         try {
-          // Try fetching fresh if hook didn't load
           const response = await tenantApi.getIndustries();
           industriesList = response.industries || [];
         } catch (err) {
@@ -162,7 +49,6 @@ export default function MagicProfilePage() {
         }
       }
 
-      // If still empty (e.g. hook failed and api call blocked), explicitly use fallback
       if (!industriesList || industriesList.length === 0) {
         industriesList = FALLBACK_INDUSTRIES;
       }
@@ -175,8 +61,6 @@ export default function MagicProfilePage() {
       if (matchedIndustry) {
         await tenantApi.onboardingIndustry({ industry_id: matchedIndustry.id });
       } else {
-        // Default to first fallback if no match found
-        console.warn('No matching industry found, defaulting to Retail');
         if (FALLBACK_INDUSTRIES[0]) {
           await tenantApi.onboardingIndustry({ industry_id: FALLBACK_INDUSTRIES[0].id });
         }
@@ -193,12 +77,13 @@ export default function MagicProfilePage() {
       // 4. Mark onboarding complete
       await tenantApi.onboardingComplete();
 
-      // 5. Refresh queries and redirect
+      // 5. Refresh queries and show success screen
       await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
       await queryClient.invalidateQueries({ queryKey: ['onboarding', 'status'] });
 
-      toast.success('Welcome to Brancr! 🎉');
-      router.push('/app');
+      toast.success('Profile created successfully! 🎉');
+      setStep('success'); // Navigate to success screen instead of Dashboard
+
     } catch (err) {
       console.error('Confirm Error:', err);
       toast.error('Failed to save profile. Please try again.');
@@ -207,14 +92,7 @@ export default function MagicProfilePage() {
     }
   };
 
-  // Show loading while checking status
-  if (isLoadingStatus) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-dark-bg dark:via-dark-surface dark:to-dark-elevated flex items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
-      </div>
-    );
-  }
+  // ... (loading check)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-dark-bg dark:via-dark-surface dark:to-dark-elevated flex items-center justify-center p-4">
@@ -233,9 +111,13 @@ export default function MagicProfilePage() {
       >
         <div className="bg-white dark:bg-dark-surface rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-100 dark:border-dark-border overflow-hidden p-5 sm:p-8">
           <AnimatePresence mode="wait">
-            {step === 'input' ? (
+            {step === 'success' ? (
+              <OnboardingSuccess key="success" onComplete={() => router.push('/app')} />
+            ) : step === 'input' ? (
               <motion.div
                 key="input"
+                // ... (input step content)
+
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
