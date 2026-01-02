@@ -64,7 +64,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
   const router = useRouter();
   const queryClient = useQueryClient();
   // Initialize with 'industry' as default for new users
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>(initialStep || 'magic_input');
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>(initialStep || 'industry');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<Set<OnboardingStep>>(new Set());
   const [savedData, setSavedData] = useState<{
