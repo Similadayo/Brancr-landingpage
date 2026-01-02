@@ -6,14 +6,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useTenant } from "../../providers/TenantProvider";
 import { useWebSocketTenant } from "@/lib/hooks/use-websocket-tenant";
-import { 
-  useConversations, 
-  useConversation, 
-  useSendReply, 
-  useUpdateConversationStatus, 
-  useUpdateConversation, 
+import {
+  useConversations,
+  useConversation,
+  useSendReply,
+  useUpdateConversationStatus,
+  useUpdateConversation,
   useSuggestReplies,
   useMarkConversationRead,
+  useDeleteConversation,
+  useBulkDeleteConversations,
 } from "@/app/(tenant)/hooks/useConversations";
 import type { TenantNotification } from "@/lib/api";
 import { getUserFriendlyErrorMessage, ErrorMessages } from "@/lib/error-messages";
@@ -37,6 +39,7 @@ import {
   TelegramIcon,
   AllMessagesIcon,
   PlusIcon,
+  TrashIcon,
 } from "../../components/icons";
 
 const STATUS_FILTERS = ["All", "Unsigned", "Assigned", "Resolved"];
@@ -59,6 +62,14 @@ export default function InboxPage() {
   const [attachments, setAttachments] = useState<File[]>([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const searchParams = useSearchParams();
+
+  // Multi-select mode for bulk delete
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // Delete mutations
+  const { mutate: deleteConversation, isPending: isDeleting } = useDeleteConversation();
+  const { mutate: bulkDeleteConversations, isPending: isBulkDeleting } = useBulkDeleteConversations();
 
   useEffect(() => {
     const handle = setTimeout(() => {
@@ -88,7 +99,7 @@ export default function InboxPage() {
   }, [activeStatusFilter, activePlatformFilter, debouncedSearch]);
 
   const { data: conversationsData, isLoading, error } = useConversations(apiFilters);
-  
+
   const conversations = useMemo(() => {
     return Array.isArray(conversationsData) ? conversationsData : [];
   }, [conversationsData]);
@@ -113,7 +124,7 @@ export default function InboxPage() {
       // Get the most recent message time for each conversation
       const timeA = new Date(a.last_message_at || a.updated_at || a.created_at).getTime();
       const timeB = new Date(b.last_message_at || b.updated_at || b.created_at).getTime();
-      
+
       // Sort by most recent message time (newest first)
       // If times are equal, prioritize conversations with unread messages
       if (timeB === timeA) {
@@ -121,16 +132,62 @@ export default function InboxPage() {
         if (a.unread_count === 0 && b.unread_count > 0) return 1;
         return 0;
       }
-      
+
       return timeB - timeA;
     });
   }, [conversationsWithEffectiveUnread]);
-  
+
   const { data: conversationDetail } = useConversation(selectedConversationId);
   const sendReplyMutation = useSendReply(selectedConversationId);
   const updateStatusMutation = useUpdateConversationStatus(selectedConversationId);
   const updateConversationMutation = useUpdateConversation(selectedConversationId);
   const { mutate: markConversationRead } = useMarkConversationRead();
+
+  // Handle single delete
+  const handleDeleteConversation = useCallback((id: string) => {
+    if (!id) return;
+    if (confirm('Delete this conversation? This cannot be undone.')) {
+      deleteConversation(id, {
+        onSuccess: () => {
+          // Clear selection if it was the active one
+          if (selectedConversationId === id) {
+            setSelectedConversationId(null);
+            setMobileView('list');
+          }
+        },
+      });
+    }
+  }, [deleteConversation, selectedConversationId]);
+
+  // Handle bulk delete
+  const handleBulkDelete = useCallback(() => {
+    if (selectedIds.size === 0) return;
+    if (confirm(`Delete ${selectedIds.size} conversation${selectedIds.size !== 1 ? 's' : ''}? This cannot be undone.`)) {
+      bulkDeleteConversations(Array.from(selectedIds), {
+        onSuccess: () => {
+          setSelectedIds(new Set());
+          setSelectMode(false);
+          if (selectedConversationId && selectedIds.has(selectedConversationId)) {
+            setSelectedConversationId(null);
+            setMobileView('list');
+          }
+        },
+      });
+    }
+  }, [bulkDeleteConversations, selectedIds, selectedConversationId]);
+
+  // Toggle selection
+  const toggleSelection = useCallback((id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
 
   useWebSocketTenant((message) => {
     if (!message || typeof message !== "object") return;
@@ -347,7 +404,7 @@ export default function InboxPage() {
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
-    
+
     if (diffMins < 1) return "Just now";
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
@@ -361,9 +418,8 @@ export default function InboxPage() {
       {/* Main Content - Three Panel Layout */}
       <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
         {/* Left Panel - Conversation List */}
-        <section className={`flex flex-col h-full border-r border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 transition-transform duration-300 overflow-hidden ${
-          mobileView === "chat" ? "hidden md:flex" : "flex"
-        }`}>
+        <section className={`flex flex-col h-full border-r border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 transition-transform duration-300 overflow-hidden ${mobileView === "chat" ? "hidden md:flex" : "flex"
+          }`}>
           {/* Status Tabs */}
           <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 md:px-4 md:py-2.5">
             <div className="flex gap-1 flex-wrap">
@@ -372,11 +428,10 @@ export default function InboxPage() {
                 return (
                   <button
                     key={tab}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                      isActive
-                        ? "bg-accent text-white shadow-sm dark:bg-white dark:text-gray-900"
-                        : "text-gray-600 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
-                    }`}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${isActive
+                      ? "bg-accent text-white shadow-sm dark:bg-white dark:text-gray-900"
+                      : "text-gray-600 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
+                      }`}
                     onClick={() => setActiveStatusFilter(tab)}
                   >
                     {tab}
@@ -391,11 +446,10 @@ export default function InboxPage() {
             <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 md:px-4 md:py-2.5">
               <div className="flex gap-1.5 flex-wrap">
                 <button
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
-                    activePlatformFilter === "All"
-                      ? "bg-accent/10 dark:bg-accent/20 text-accent dark:text-accent-400 border border-accent/20 dark:border-accent/30"
-                      : "text-gray-600 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
-                  }`}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${activePlatformFilter === "All"
+                    ? "bg-accent/10 dark:bg-accent/20 text-accent dark:text-accent-400 border border-accent/20 dark:border-accent/30"
+                    : "text-gray-600 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
+                    }`}
                   onClick={() => setActivePlatformFilter("All")}
                 >
                   <AllMessagesIcon className="w-3.5 h-3.5" />
@@ -404,26 +458,25 @@ export default function InboxPage() {
                 {availablePlatforms.map((platform) => {
                   const isActive = activePlatformFilter.toLowerCase() === platform.toLowerCase();
                   const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
-                                     platform === "instagram" ? InstagramIcon :
-                                     platform === "facebook" ? FacebookIcon :
-                                     platform === "telegram" ? TelegramIcon :
-                                     AllMessagesIcon;
+                    platform === "instagram" ? InstagramIcon :
+                      platform === "facebook" ? FacebookIcon :
+                        platform === "telegram" ? TelegramIcon :
+                          AllMessagesIcon;
                   const platformName = platform === "whatsapp" ? "WhatsApp" :
-                                     platform === "instagram" ? "Instagram" :
-                                     platform === "facebook" ? "Messenger" :
-                                     platform === "telegram" ? "Telegram" :
-                                     platform === "tiktok" ? "TikTok" :
-                                     platform === "email" ? "Email" :
-                                     platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : "Unknown";
-                  
+                    platform === "instagram" ? "Instagram" :
+                      platform === "facebook" ? "Messenger" :
+                        platform === "telegram" ? "Telegram" :
+                          platform === "tiktok" ? "TikTok" :
+                            platform === "email" ? "Email" :
+                              platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : "Unknown";
+
                   return (
                     <button
                       key={platform}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
-                        isActive
-                          ? "bg-accent/10 dark:bg-accent/20 text-accent dark:text-accent-400 border border-accent/20 dark:border-accent/30"
-                          : "text-gray-600 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
-                      }`}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${isActive
+                        ? "bg-accent/10 dark:bg-accent/20 text-accent dark:text-accent-400 border border-accent/20 dark:border-accent/30"
+                        : "text-gray-600 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
+                        }`}
                       onClick={() => setActivePlatformFilter(platform)}
                     >
                       <PlatformIcon className="w-3.5 h-3.5" />
@@ -434,7 +487,7 @@ export default function InboxPage() {
               </div>
             </div>
           )}
-          
+
           {/* Search */}
           <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 md:px-4 md:py-2.5">
             <div className="relative">
@@ -455,7 +508,61 @@ export default function InboxPage() {
               />
             </div>
           </div>
-          
+
+          {/* Multi-Select Action Bar */}
+          {selectMode && (
+            <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-rose-50 dark:bg-rose-900/20 px-3 py-2 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.size === sortedConversations.length && sortedConversations.length > 0}
+                  onChange={() => {
+                    if (selectedIds.size === sortedConversations.length) {
+                      setSelectedIds(new Set());
+                    } else {
+                      setSelectedIds(new Set(sortedConversations.map(c => String(c.id))));
+                    }
+                  }}
+                  className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
+                />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {selectedIds.size} selected
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleBulkDelete}
+                  disabled={selectedIds.size === 0 || isBulkDeleting}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <TrashIcon className="h-4 w-4" />
+                  Delete ({selectedIds.size})
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectMode(false);
+                    setSelectedIds(new Set());
+                  }}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Select Mode Toggle */}
+          {!selectMode && sortedConversations.length > 0 && (
+            <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 flex justify-end">
+              <button
+                onClick={() => setSelectMode(true)}
+                className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+              >
+                Select
+              </button>
+            </div>
+          )}
+
           {/* Conversation List */}
           <div className="flex-1 overflow-y-auto scrollbar-thin">
             {isLoading ? (
@@ -497,25 +604,44 @@ export default function InboxPage() {
                   const isActive = selectedConversationId === String(conversation.id);
                   const unread = conversation.unread_count > 0;
                   const platform = conversation.platform.toLowerCase();
-                  
+
                   // Get platform icon
                   const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
-                                     platform === "instagram" ? InstagramIcon :
-                                     platform === "facebook" ? FacebookIcon :
-                                     platform === "telegram" ? TelegramIcon :
-                                     AllMessagesIcon;
-                  
+                    platform === "instagram" ? InstagramIcon :
+                      platform === "facebook" ? FacebookIcon :
+                        platform === "telegram" ? TelegramIcon :
+                          AllMessagesIcon;
+
                   return (
                     <button
                       key={conversation.id}
-                      onClick={() => handleConversationSelect(String(conversation.id))}
-                      className={`group w-full px-3 py-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent/60 ${
-                        isActive
-                          ? "bg-accent/5 dark:bg-accent/10 border-l-4 border-accent shadow-sm"
+                      onClick={() => {
+                        if (selectMode) {
+                          toggleSelection(String(conversation.id));
+                        } else {
+                          handleConversationSelect(String(conversation.id));
+                        }
+                      }}
+                      className={`group w-full px-3 py-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent/60 ${isActive
+                        ? "bg-accent/5 dark:bg-accent/10 border-l-4 border-accent shadow-sm"
+                        : selectedIds.has(String(conversation.id))
+                          ? "bg-rose-50 dark:bg-rose-900/10"
                           : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-start gap-3">
+                        {/* Checkbox in select mode */}
+                        {selectMode && (
+                          <div className="flex-shrink-0 pt-0.5">
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(String(conversation.id))}
+                              onChange={() => toggleSelection(String(conversation.id))}
+                              onClick={(e) => e.stopPropagation()}
+                              className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
+                            />
+                          </div>
+                        )}
                         {/* Avatar */}
                         <div className="flex-shrink-0 relative">
                           {conversation.customer_avatar ? (
@@ -573,9 +699,8 @@ export default function InboxPage() {
         </section>
 
         {/* Center Panel - Chat Conversation */}
-        <section className={`flex h-full flex-col bg-white dark:bg-gray-700 border-r border-gray-200 dark:border-gray-600 transition-transform duration-300 overflow-hidden ${
-          mobileView === "list" ? "hidden md:flex" : "flex"
-        }`}>
+        <section className={`flex h-full flex-col bg-white dark:bg-gray-700 border-r border-gray-200 dark:border-gray-600 transition-transform duration-300 overflow-hidden ${mobileView === "list" ? "hidden md:flex" : "flex"
+          }`}>
           {activeConversation ? (
             <>
               {/* Chat Header - Fixed */}
@@ -613,10 +738,10 @@ export default function InboxPage() {
                       {(() => {
                         const platform = activeConversation.platform.toLowerCase();
                         const PlatformIcon = platform === "whatsapp" ? WhatsAppIcon :
-                                           platform === "instagram" ? InstagramIcon :
-                                           platform === "facebook" ? FacebookIcon :
-                                           platform === "telegram" ? TelegramIcon :
-                                           AllMessagesIcon;
+                          platform === "instagram" ? InstagramIcon :
+                            platform === "facebook" ? FacebookIcon :
+                              platform === "telegram" ? TelegramIcon :
+                                AllMessagesIcon;
                         return (
                           <>
                             <PlatformIcon className="h-4 w-4 text-gray-600 dark:text-gray-300" />
@@ -628,7 +753,7 @@ export default function InboxPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <button 
+                  <button
                     className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
                     aria-label="Favorite conversation"
                   >
@@ -636,13 +761,15 @@ export default function InboxPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                     </svg>
                   </button>
-                  <button 
-                    className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
-                    aria-label="More options"
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteConversation(selectedConversationId!)}
+                    disabled={isDeleting || !selectedConversationId}
+                    className="p-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Delete conversation"
+                    title="Delete conversation"
                   >
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                    </svg>
+                    <TrashIcon className="h-5 w-5" />
                   </button>
                   <button
                     type="button"
@@ -670,23 +797,22 @@ export default function InboxPage() {
                     </span>
                   </div>
                 )}
-                
+
                 <div className="space-y-4 px-4 py-4 pb-4">
                   {messages.map((message: Message) => {
                     const isIncoming = message.direction === "incoming";
                     const isOutgoing = message.direction === "outgoing";
-                    
+
                     return (
                       <div
                         key={message.id}
                         className={`flex ${isIncoming ? "justify-start" : "justify-end"}`}
                       >
                         <div
-                          className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-sm ${
-                            isIncoming
-                              ? "bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600"
-                              : "bg-accent text-white dark:bg-white dark:text-gray-100"
-                          }`}
+                          className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-sm ${isIncoming
+                            ? "bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600"
+                            : "bg-accent text-white dark:bg-white dark:text-gray-100"
+                            }`}
                           role="article"
                           aria-label={`${isIncoming ? 'Incoming' : 'Outgoing'} message`}
                         >
@@ -695,30 +821,27 @@ export default function InboxPage() {
                             <div className="space-y-2">
                               <MessageMedia media={message.media} />
                               {/* Show content as additional text if it exists and is not just a placeholder description */}
-                              {message.content && 
-                               !message.content.match(/^\[(Voice note|Image|Video|Document|Sticker)\]:\s*/i) && (
-                                <p className={`text-sm whitespace-pre-wrap break-words ${
-                                  isOutgoing ? "text-white/90" : "text-gray-600 dark:text-gray-300"
-                                }`}>
-                                  {message.content}
-                                </p>
-                              )}
+                              {message.content &&
+                                !message.content.match(/^\[(Voice note|Image|Video|Document|Sticker)\]:\s*/i) && (
+                                  <p className={`text-sm whitespace-pre-wrap break-words ${isOutgoing ? "text-white/90" : "text-gray-600 dark:text-gray-300"
+                                    }`}>
+                                    {message.content}
+                                  </p>
+                                )}
                             </div>
                           ) : (
                             /* Text Content - Only show if no media */
                             message.content && (
-                              <p className={`text-sm whitespace-pre-wrap break-words ${
-                                isOutgoing ? "text-white" : "text-gray-700 dark:text-gray-200"
-                              }`}>
+                              <p className={`text-sm whitespace-pre-wrap break-words ${isOutgoing ? "text-white" : "text-gray-700 dark:text-gray-200"
+                                }`}>
                                 {message.content}
                               </p>
                             )
                           )}
-                          
+
                           {/* Timestamp */}
-                          <div className={`mt-2 text-xs ${
-                            isOutgoing ? "text-white/70" : "text-gray-500 dark:text-gray-300"
-                          }`}>
+                          <div className={`mt-2 text-xs ${isOutgoing ? "text-white/70" : "text-gray-500 dark:text-gray-300"
+                            }`}>
                             {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
                           </div>
                         </div>
@@ -738,7 +861,7 @@ export default function InboxPage() {
               <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3 z-10">
                 <div className="flex items-end gap-2">
                   <div className="relative">
-                    <button 
+                    <button
                       type="button"
                       onClick={handleAttachmentClick}
                       className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
@@ -776,7 +899,7 @@ export default function InboxPage() {
                     Press Cmd+Enter or Ctrl+Enter to send
                   </span>
                   <div className="relative">
-                    <button 
+                    <button
                       type="button"
                       onClick={handleToggleEmojiPicker}
                       className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
@@ -789,7 +912,7 @@ export default function InboxPage() {
                     {showEmojiPicker && (
                       <div className="absolute bottom-12 right-0 z-20 w-48 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 p-2 shadow-lg">
                         <div className="grid grid-cols-6 gap-1 text-lg">
-                          {["😀","😁","😂","😊","😍","🤔","🙌","🔥","👍","🎉","🙏","😅","😎","🤩","🥳","🤝","💡","📌"].map((emoji) => (
+                          {["😀", "😁", "😂", "😊", "😍", "🤔", "🙌", "🔥", "👍", "🎉", "🙏", "😅", "😎", "🤩", "🥳", "🤝", "💡", "📌"].map((emoji) => (
                             <button
                               key={emoji}
                               type="button"
@@ -849,9 +972,8 @@ export default function InboxPage() {
         </section>
 
         {/* Right Panel - Analytics or Chat Details */}
-        <aside className={`hidden md:flex flex-col h-full border-l border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 transition-transform duration-300 overflow-hidden ${
-          mobileView === "list" ? "hidden" : ""
-        }`}>
+        <aside className={`hidden md:flex flex-col h-full border-l border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 transition-transform duration-300 overflow-hidden ${mobileView === "list" ? "hidden" : ""
+          }`}>
           {activeConversation ? (
             <>
               {(() => {
@@ -904,7 +1026,7 @@ export default function InboxPage() {
                               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{activeConversation.customer_name}</p>
                               {activeConversation.customer_phone ? (
                                 <p className="text-xs text-gray-500 dark:text-gray-300">
-                                  {activeConversation.customer_country_code 
+                                  {activeConversation.customer_country_code
                                     ? `+${activeConversation.customer_country_code} ${activeConversation.customer_dial_code || activeConversation.customer_phone}`
                                     : activeConversation.customer_phone}
                                 </p>
@@ -937,7 +1059,7 @@ export default function InboxPage() {
                               <div className="flex justify-between">
                                 <span className="text-gray-500 dark:text-gray-300">Phone:</span>
                                 <span className="text-gray-900 dark:text-gray-100 font-medium">
-                                  {activeConversation.customer_country_code 
+                                  {activeConversation.customer_country_code
                                     ? `+${activeConversation.customer_country_code} ${activeConversation.customer_dial_code || activeConversation.customer_phone}`
                                     : activeConversation.customer_phone}
                                 </span>

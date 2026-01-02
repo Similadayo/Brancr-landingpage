@@ -532,3 +532,83 @@ export function useMarkConversationRead() {
     },
   });
 }
+
+// Delete a single conversation
+export function useDeleteConversation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (conversationId: string) => {
+      if (!conversationId) {
+        throw new Error("Conversation ID is required");
+      }
+      const response = await fetch(`/api/tenant/conversations/${conversationId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new ApiError(data.message || 'Failed to delete conversation', response.status);
+      }
+      return response.json();
+    },
+    onSuccess: (_, conversationId) => {
+      toast.success("Conversation deleted");
+      // Remove from cache immediately
+      queryClient.setQueryData<ConversationSummary[]>(["conversations"], (old) => {
+        if (!old) return old;
+        return old.filter((conv) => String(conv.id) !== conversationId);
+      });
+      void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      void queryClient.removeQueries({ queryKey: ["conversation", conversationId] });
+    },
+    onError: (error) => {
+      const message = getUserFriendlyErrorMessage(error, {
+        action: 'deleting conversation',
+      });
+      toast.error(message || "Unable to delete conversation");
+    },
+  });
+}
+
+// Bulk delete multiple conversations
+export function useBulkDeleteConversations() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      if (!ids.length) {
+        throw new Error("No conversations selected");
+      }
+      const response = await fetch('/api/tenant/conversations', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ids }),
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new ApiError(data.message || 'Failed to delete conversations', response.status);
+      }
+      return response.json();
+    },
+    onSuccess: (result, deletedIds) => {
+      const count = result.deleted || deletedIds.length;
+      toast.success(`${count} conversation${count !== 1 ? 's' : ''} deleted`);
+      // Remove from cache immediately
+      queryClient.setQueryData<ConversationSummary[]>(["conversations"], (old) => {
+        if (!old) return old;
+        return old.filter((conv) => !deletedIds.includes(String(conv.id)));
+      });
+      void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      // Remove individual conversation queries
+      for (const id of deletedIds) {
+        void queryClient.removeQueries({ queryKey: ["conversation", id] });
+      }
+    },
+    onError: (error) => {
+      const message = getUserFriendlyErrorMessage(error, {
+        action: 'deleting conversations',
+      });
+      toast.error(message || "Unable to delete conversations");
+    },
+  });
+}
