@@ -4,16 +4,17 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tenantApi } from '@/lib/api';
 import { toast } from 'react-hot-toast';
+import { useIntegrations } from '../hooks/useIntegrations';
 import { WhatsAppProfilePicture } from './WhatsAppProfilePicture';
 import Select, { SelectOption } from './ui/Select';
 import { Button } from './ui/Button';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
 import { Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from './ui/Modal';
 
-type Vertical = 
-  | "OTHER" | "AUTO" | "BEAUTY" | "APPAREL" | "EDU" | "ENTERTAIN" 
-  | "EVENT_PLAN" | "FINANCE" | "GROCERY" | "GOVT" | "HOTEL" 
-  | "HEALTH" | "NONPROFIT" | "PROF_SERVICES" | "RETAIL" 
+type Vertical =
+  | "OTHER" | "AUTO" | "BEAUTY" | "APPAREL" | "EDU" | "ENTERTAIN"
+  | "EVENT_PLAN" | "FINANCE" | "GROCERY" | "GOVT" | "HOTEL"
+  | "HEALTH" | "NONPROFIT" | "PROF_SERVICES" | "RETAIL"
   | "TRAVEL" | "RESTAURANT";
 
 interface ProfileDetails {
@@ -69,7 +70,7 @@ const VERTICAL_OPTIONS: SelectOption<Vertical>[] = [
 // Helper function to parse address into components
 function parseAddress(address: string) {
   if (!address) return { add_line1: '', city: '', state: '', pin_code: '', country: '' };
-  
+
   // Try to parse common address formats
   const parts = address.split(',').map(s => s.trim());
   return {
@@ -88,6 +89,10 @@ export function WhatsAppProfile() {
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
+  // Check authentication status first
+  const { data: integrations } = useIntegrations();
+  const whatsappConnected = integrations?.some(i => i.platform === 'whatsapp' && i.connected);
+
   // Load profile details
   const { data: profileData, isLoading: isLoadingProfile, error: profileError } = useQuery({
     queryKey: ['whatsapp-profile'],
@@ -101,6 +106,7 @@ export function WhatsAppProfile() {
         throw err;
       }
     },
+    enabled: !!whatsappConnected,
     retry: false,
   });
 
@@ -117,6 +123,7 @@ export function WhatsAppProfile() {
         throw err;
       }
     },
+    enabled: !!whatsappConnected,
     retry: false,
   });
 
@@ -200,7 +207,7 @@ export function WhatsAppProfile() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    
+
     // Build updates object with only non-empty fields
     const updates: UpdateProfileRequest = {};
     if (formData.add_line1) updates.add_line1 = formData.add_line1;
@@ -283,14 +290,14 @@ export function WhatsAppProfile() {
   return (
     <div className="space-y-6">
       {/* Show error message if no WhatsApp app found, but still show the form */}
-      {((profileError && (profileError as any)?.status === 404) || 
+      {((profileError && (profileError as any)?.status === 404) ||
         (aboutError && (aboutError as any)?.status === 404)) && (
-        <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 dark:border-dark-accent-warning/50 dark:bg-dark-accent-warning/10">
-          <p className="text-sm text-yellow-800 dark:text-dark-accent-warning">
-            <strong>Note:</strong> WhatsApp profile features require a connected WhatsApp Business account. Some features may not be available until the account is fully set up.
-          </p>
-        </div>
-      )}
+          <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 dark:border-dark-accent-warning/50 dark:bg-dark-accent-warning/10">
+            <p className="text-sm text-yellow-800 dark:text-dark-accent-warning">
+              <strong>Note:</strong> WhatsApp profile features require a connected WhatsApp Business account. Some features may not be available until the account is fully set up.
+            </p>
+          </div>
+        )}
 
       {/* Profile Picture Section */}
       <WhatsAppProfilePicture />
@@ -322,7 +329,7 @@ export function WhatsAppProfile() {
       {/* Profile Details Form */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-dark-border dark:bg-dark-surface">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-text-primary mb-4">Business Profile</h3>
-        
+
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin dark:border-white" />
@@ -506,7 +513,7 @@ export function WhatsAppProfile() {
       {/* Profile About Section */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-dark-border dark:bg-dark-surface">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-text-primary mb-4">About Text</h3>
-        
+
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2" htmlFor="about-text">

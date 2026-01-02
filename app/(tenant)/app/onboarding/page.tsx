@@ -6,7 +6,7 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { tenantApi, authApi, ApiError } from '@/lib/api';
-import { useIndustries } from '../../hooks/useIndustry';
+import { useIndustries, FALLBACK_INDUSTRIES } from '../../hooks/useIndustry';
 
 type ProfileData = {
   name: string;
@@ -28,6 +28,7 @@ export default function MagicProfilePage() {
   // State
   const [step, setStep] = useState<'input' | 'confirm'>('input');
   const [url, setUrl] = useState('');
+  const [platform, setPlatform] = useState('auto');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -60,30 +61,54 @@ export default function MagicProfilePage() {
     setLoading(true);
     setError('');
 
-    // Smart URL handling: detect if it's an Instagram handle vs full URL
+    // Smart URL handling
     let processedUrl = url.trim();
+    let additionalDesc = '';
+
     if (processedUrl) {
-      // Remove @ if present
-      if (processedUrl.startsWith('@')) {
-        processedUrl = processedUrl.substring(1);
+      // Remove @ if present for simple processing
+      let clean = processedUrl.startsWith('@') ? processedUrl.substring(1) : processedUrl;
+
+      // If user explicitly selected a platform, force the URL format
+      if (platform !== 'auto' && platform !== 'website') {
+        const platformUrls: Record<string, string> = {
+          instagram: 'https://instagram.com/',
+          facebook: 'https://facebook.com/',
+          tiktok: 'https://tiktok.com/@',
+          twitter: 'https://x.com/',
+          linkedin: 'https://linkedin.com/in/'
+        };
+        const baseUrl = platformUrls[platform];
+        if (baseUrl && !processedUrl.includes('http')) {
+          // Check if they already typed the base url to avoid doubling
+          if (!processedUrl.includes(baseUrl.replace('https://', ''))) {
+            processedUrl = `${baseUrl}${clean}`;
+          }
+        }
       }
 
-      // Check if it looks like a plain handle (no dots, no slashes, no protocol)
-      const looksLikeHandle = !processedUrl.includes('.') && !processedUrl.includes('/') && !processedUrl.includes(':');
-
-      if (looksLikeHandle) {
-        // Convert to Instagram URL
-        processedUrl = `https://instagram.com/${processedUrl}`;
-      } else if (!processedUrl.startsWith('http://') && !processedUrl.startsWith('https://')) {
-        // Add https:// if missing
-        processedUrl = `https://${processedUrl}`;
+      // Fallback auto-detection if still needed
+      const hasDot = processedUrl.includes('.');
+      if (hasDot) {
+        if (!processedUrl.match(/^https?:\/\//)) {
+          processedUrl = `https://${processedUrl}`;
+        }
+      } else {
+        // It's a handle without a known platform URL
+        if (platform === 'auto') {
+          additionalDesc = `Business Handle/Name: ${processedUrl}`;
+          processedUrl = '';
+        }
       }
     }
+
+    // Combine manual description with handle info
+    const finalDescription = [description.trim(), additionalDesc].filter(Boolean).join('. ');
 
     try {
       const result = await tenantApi.magicProfile({
         url: processedUrl || undefined,
-        description: description.trim() || undefined,
+        description: finalDescription || undefined,
       });
 
       if (result.success && result.profile) {
@@ -125,11 +150,36 @@ export default function MagicProfilePage() {
       });
 
       // 2. Save Industry (map name to ID)
-      const matchedIndustry = industries.find(
-        (ind) => ind.name.toLowerCase() === profileData.industry.toLowerCase()
+      let industriesList = industries;
+      if (!industriesList || industriesList.length === 0) {
+        try {
+          // Try fetching fresh if hook didn't load
+          const response = await tenantApi.getIndustries();
+          industriesList = response.industries || [];
+        } catch (err) {
+          console.warn('Failed to fetch industries, using fallback:', err);
+          industriesList = FALLBACK_INDUSTRIES;
+        }
+      }
+
+      // If still empty (e.g. hook failed and api call blocked), explicitly use fallback
+      if (!industriesList || industriesList.length === 0) {
+        industriesList = FALLBACK_INDUSTRIES;
+      }
+
+      const matchedIndustry = industriesList.find(
+        (ind) => ind.name.toLowerCase() === profileData.industry.toLowerCase() ||
+          ind.name.toLowerCase().includes(profileData.industry.toLowerCase())
       );
+
       if (matchedIndustry) {
         await tenantApi.onboardingIndustry({ industry_id: matchedIndustry.id });
+      } else {
+        // Default to first fallback if no match found
+        console.warn('No matching industry found, defaulting to Retail');
+        if (FALLBACK_INDUSTRIES[0]) {
+          await tenantApi.onboardingIndustry({ industry_id: FALLBACK_INDUSTRIES[0].id });
+        }
       }
 
       // 3. Save Persona
@@ -210,23 +260,42 @@ export default function MagicProfilePage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                      Website or Instagram Handle
+                      Website or Social Link
                     </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
+                    <div className="flex gap-3 mb-2">
+                      <select
+                        value={platform}
+                        onChange={(e) => setPlatform(e.target.value)}
+                        className="rounded-xl border border-gray-200 px-3 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-dark-bg dark:border-dark-border dark:text-white"
+                      >
+                        <option value="auto">Auto-detect</option>
+                        <option value="website">Website</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="twitter">X (Twitter)</option>
+                        <option value="linkedin">LinkedIn</option>
+                      </select>
+                      <div className="relative flex-1">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                          </svg>
+                        </div>
+                        <input
+                          type="text"
+                          value={url}
+                          onChange={(e) => setUrl(e.target.value)}
+                          placeholder={
+                            platform === 'instagram' ? '@username' :
+                              platform === 'website' ? 'yourbusiness.com' :
+                                'Link or handle...'
+                          }
+                          className="w-full rounded-xl border border-gray-200 pl-10 pr-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-dark-bg dark:border-dark-border dark:text-white"
+                        />
                       </div>
-                      <input
-                        type="text"
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                        placeholder="@yourbusiness or yourbusiness.com"
-                        className="w-full rounded-xl border border-gray-200 pl-10 pr-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-dark-bg dark:border-dark-border dark:text-white"
-                      />
                     </div>
-                    <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">Enter your IG handle (e.g. @shoplagos) or website URL</p>
+                    <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">Enter your website URL, any social media link, or just your handle</p>
                   </div>
 
                   <div className="relative">

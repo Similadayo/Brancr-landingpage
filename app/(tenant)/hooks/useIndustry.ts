@@ -24,7 +24,7 @@ export type TenantIndustry = {
   };
 };
 
-const FALLBACK_INDUSTRIES: Industry[] = [
+export const FALLBACK_INDUSTRIES: Industry[] = [
   {
     id: 1,
     name: "Retail & E-commerce",

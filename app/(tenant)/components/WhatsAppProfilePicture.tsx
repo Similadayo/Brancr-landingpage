@@ -4,11 +4,16 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tenantApi } from '@/lib/api';
 import { toast } from 'react-hot-toast';
+import { useIntegrations } from '../hooks/useIntegrations';
 
 export function WhatsAppProfilePicture() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
+
+  // Check authentication status first
+  const { data: integrations } = useIntegrations();
+  const whatsappConnected = integrations?.some(i => i.platform === 'whatsapp' && i.connected);
 
   // Load existing profile picture
   const { data, isLoading, error: fetchError } = useQuery({
@@ -24,6 +29,7 @@ export function WhatsAppProfilePicture() {
         throw err;
       }
     },
+    enabled: !!whatsappConnected,
     retry: false,
   });
 
@@ -88,7 +94,7 @@ export function WhatsAppProfilePicture() {
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-dark-border dark:bg-dark-surface">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-text-primary mb-4">WhatsApp Profile Picture</h3>
-      
+
       <div className="space-y-4">
         {/* Current Profile Picture */}
         {photoUrl && (
