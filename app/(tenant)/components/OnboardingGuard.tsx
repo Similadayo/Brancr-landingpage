@@ -60,9 +60,9 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   // Explicitly check for === true to prevent new users from skipping onboarding
   // Only treat as complete if explicitly true, not undefined/null
   const onboardingComplete = onboardingStatus?.complete === true || userData?.onboarding?.complete === true;
-  
+
   const currentStep = onboardingStatus?.step || userData?.onboarding?.step;
-  
+
   // Filter out 'complete' step - OnboardingWizard doesn't accept it
   const validStep = currentStep && currentStep !== 'complete' ? currentStep : undefined;
 
@@ -72,11 +72,7 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   // If onboarding is not complete, show wizard as overlay blocking other pages
   if (!onboardingComplete) {
     return (
-      <>
-        <OnboardingWizard initialStep={validStep as 'industry' | 'business_profile' | 'persona' | 'business_details' | 'social_connect' | undefined} />
-        {/* Render children behind the modal so layout doesn't break */}
-        <div className="opacity-0 pointer-events-none">{children}</div>
-      </>
+      <OnboardingWizard initialStep={validStep as 'industry' | 'business_profile' | 'persona' | 'business_details' | 'social_connect' | undefined} />
     );
   }
 
