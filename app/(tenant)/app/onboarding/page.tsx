@@ -351,7 +351,7 @@ export default function MagicProfilePage() {
 
                   <div className="pt-2 border-t border-gray-200 dark:border-dark-border">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">AI Insights</h4>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-gray-500 dark:text-gray-400">Industry:</span>
                         <p className="font-medium text-gray-900 dark:text-white">{profileData?.industry}</p>
@@ -360,9 +360,9 @@ export default function MagicProfilePage() {
                         <span className="text-gray-500 dark:text-gray-400">Tone:</span>
                         <p className="font-medium text-gray-900 dark:text-white">{profileData?.persona.tone}</p>
                       </div>
-                      <div>
+                      <div className="sm:col-span-2">
                         <span className="text-gray-500 dark:text-gray-400">Audience:</span>
-                        <p className="font-medium text-gray-900 dark:text-white">{profileData?.persona.audience}</p>
+                        <p className="font-medium text-gray-900 dark:text-white leading-relaxed">{profileData?.persona.audience}</p>
                       </div>
                     </div>
                   </div>
