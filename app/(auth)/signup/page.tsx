@@ -67,12 +67,13 @@ export default function SignupPage() {
       });
 
       // Handle redirect based on verification status
-      if (result.verification_required && !result.email_verified) {
+      // If result is undefined (empty response), treat as success and go to onboarding
+      if (result?.verification_required && !result?.email_verified) {
         router.push(result.redirect_to || "/auth/verify-email-sent");
         return;
       }
 
-      // If already verified or no verification required, check session and go to onboarding
+      // If already verified, no verification required, or empty response - go to onboarding
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       try {
