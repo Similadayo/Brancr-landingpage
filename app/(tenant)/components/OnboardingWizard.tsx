@@ -117,8 +117,9 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       setCurrentStep(stepFromStatus as OnboardingStep);
 
       // Load saved data for pre-filling forms
+      // Note: Industry data is handled by IndustryStep separately
       setSavedData({
-        industry: tenantIndustry?.industry_id ? { industry_id: tenantIndustry.industry_id } : undefined,
+        industry: onboardingStatus.industry ? { industry_id: onboardingStatus.industry.industry_id } : undefined,
         business_profile: onboardingStatus.business_profile,
         persona: onboardingStatus.persona,
         business_details: onboardingStatus.business_details,
@@ -130,7 +131,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         setCurrentStep('industry');
       }
     }
-  }, [onboardingStatus, tenantIndustry, initialStep, isLoadingStatus, onboardingError, currentStep, router, queryClient]);
+  }, [onboardingStatus, initialStep, isLoadingStatus, onboardingError, currentStep, router, queryClient]);
 
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
