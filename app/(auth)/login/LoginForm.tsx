@@ -36,21 +36,8 @@ export default function LoginForm() {
         return;
       }
 
-      // Check onboarding status after login
-      try {
-        const userData = await authApi.me();
-
-        // Redirect based on onboarding status
-        if (!userData.onboarding?.complete) {
-          router.push('/app/onboarding');
-        } else {
-          router.push(nextUrl);
-        }
-      } catch (meError) {
-        void meError;
-        // If me() fails, just go to nextUrl (user is logged in, just can't check onboarding)
-        router.push(nextUrl);
-      }
+      // Redirect to dashboard - OnboardingGuard will handle showing wizard if needed
+      router.push(nextUrl);
 
       // Use setTimeout to ensure navigation happens after state updates
       setTimeout(() => {
