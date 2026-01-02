@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDownIcon, CheckCircleIcon } from '../icons';
 
 type ChecklistItem = {
     id: string;
@@ -97,7 +100,7 @@ export function AdventureWidget() {
                                             : 'border-gray-300 dark:border-gray-600 text-transparent group-hover:border-primary/50'
                                         }
                   `}>
-                                        <CheckIcon className="w-4 h-4" />
+                                        <CheckCircleIcon className="w-4 h-4" />
                                     </div>
                                     <div className={item.complete ? 'opacity-50 line-through grayscale' : ''}>
                                         <div className="flex items-center gap-2">
