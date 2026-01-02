@@ -42,6 +42,8 @@ export function MagicConfirmationStep({ data, onComplete, onBack, isLoading }: M
             await tenantApi.onboardingBusinessProfile({
                 name: name.trim(),
                 description: description.trim(),
+                industry: data.industry,
+                location: "Online", // Defaulting to Online for magic profile flow if not captured
             });
 
             // 2. Save Industry
