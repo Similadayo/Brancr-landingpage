@@ -27,7 +27,14 @@ export default function LoginForm() {
     setError(null);
 
     try {
-      await authApi.login({ email: email.trim(), password });
+      const response = await authApi.login({ email: email.trim(), password });
+
+      // Check email verification status
+      // Note: The login response now includes email_verified
+      if (response.email_verified === false) {
+        router.push(`/auth/verify-email-sent?email=${encodeURIComponent(email)}`);
+        return;
+      }
 
       // Check onboarding status after login
       try {

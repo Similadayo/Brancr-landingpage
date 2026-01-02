@@ -170,10 +170,29 @@ export const authApi = {
     password: string;
     company_name: string;
     phone: string;
-  }) => post<typeof payload, { tenant_id: number; name: string; email: string }>("/api/auth/signup", payload),
+  }) => post<typeof payload, {
+    success: boolean;
+    tenant_id: string;
+    name: string;
+    email: string;
+    email_verified: boolean;
+    verification_required: boolean;
+    onboarding_required: boolean;
+    redirect_to: string;
+    message: string;
+  }>("/api/auth/signup", payload),
 
   login: (payload: { email: string; password: string }) =>
-    post<typeof payload, { tenant_id: number; name: string; email: string }>("/api/auth/login", payload),
+    post<typeof payload, {
+      success: boolean;
+      tenant_id: string;
+      name: string;
+      email: string;
+      email_verified: boolean;
+      onboarding_required: boolean;
+      redirect_to: string;
+      message: string;
+    }>("/api/auth/login", payload),
 
   logout: () => post<undefined, void>("/api/auth/logout"),
 
@@ -185,6 +204,7 @@ export const authApi = {
       tenant?: { id?: number };
       name?: string;
       email?: string;
+      email_verified?: boolean;
       plan?: string;
       status?: string;
       onboarding?: {
@@ -210,8 +230,20 @@ export const authApi = {
     return raw as any;
   },
 
-  requestPasswordReset: (payload: { email: string }) =>
-    post<typeof payload, void>("/api/auth/forgot-password", payload, { parseJson: false }),
+  verifyEmail: (payload: { token: string }) =>
+    post<typeof payload, { success: boolean; message: string }>("/api/auth/verify-email", payload),
+
+  resendVerification: (payload: { email: string }) =>
+    post<typeof payload, { success: boolean; message: string }>("/api/auth/resend-verification", payload),
+
+  forgotPassword: (payload: { email: string }) =>
+    post<typeof payload, { success: boolean; message: string }>("/api/auth/forgot-password", payload),
+
+  resetPassword: (payload: { token: string; new_password: string }) =>
+    post<typeof payload, { success: boolean; message: string }>("/api/auth/reset-password", payload),
+
+  changePassword: (payload: { current_password: string; new_password: string }) =>
+    post<typeof payload, { success: boolean; message: string }>("/api/auth/change-password", payload),
 };
 
 export const tenantApi = {

@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthCard } from "../components/AuthCard";
+import { PhoneInput } from "../components/PhoneInput";
 import { ApiError, authApi } from "@/lib/api";
 import { signupSchema, validateWithErrors } from "@/lib/validation";
 
@@ -65,17 +66,20 @@ export default function SignupPage() {
         phone: formValues.phone.trim(),
       });
 
-      // Wait a bit for the session to be set up, then verify auth and redirect
+      // Handle redirect based on verification status
+      if (result.verification_required && !result.email_verified) {
+        router.push(result.redirect_to || "/auth/verify-email-sent");
+        return;
+      }
+
+      // If already verified or no verification required, check session and go to onboarding
       await new Promise((resolve) => setTimeout(resolve, 100));
-      
+
       try {
-        // Verify we're authenticated by checking user data
-        const userData = await authApi.me();
-        // After signup, always redirect to onboarding
+        await authApi.me();
         router.push("/app/onboarding");
         router.refresh();
       } catch (authErr) {
-        // If auth check fails, still try to redirect (the page will handle it)
         console.warn('Auth check after signup failed, redirecting anyway:', authErr);
         router.push("/app/onboarding");
         router.refresh();
@@ -97,12 +101,12 @@ export default function SignupPage() {
     >
       <form className="space-y-4" onSubmit={handleSubmit}>
         {error ? (
-          <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+          <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-rose-900/20 dark:border-rose-800 dark:text-rose-200">{error}</p>
         ) : null}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Full name
             </label>
             <input
@@ -112,15 +116,15 @@ export default function SignupPage() {
               required
               value={formValues.name}
               onChange={(event) => updateField("name", event.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:border-primary"
               placeholder="Ada Lovelace"
               autoComplete="name"
             />
-            {fieldErrors['name'] && <p className="mt-2 text-xs text-rose-600">{fieldErrors['name']}</p>}
+            {fieldErrors['name'] && <p className="mt-2 text-xs text-rose-600 dark:text-rose-400">{fieldErrors['name']}</p>}
           </div>
 
           <div>
-            <label htmlFor="company_name" className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="company_name" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Business name
             </label>
             <input
@@ -130,16 +134,16 @@ export default function SignupPage() {
               required
               value={formValues.company_name}
               onChange={(event) => updateField("company_name", event.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:border-primary"
               placeholder="Brancr Studio"
               autoComplete="organization"
             />
-            {fieldErrors['company_name'] && <p className="mt-2 text-xs text-rose-600">{fieldErrors['company_name']}</p>}
+            {fieldErrors['company_name'] && <p className="mt-2 text-xs text-rose-600 dark:text-rose-400">{fieldErrors['company_name']}</p>}
           </div>
         </div>
 
         <div>
-          <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Work email
           </label>
           <input
@@ -149,33 +153,30 @@ export default function SignupPage() {
             required
             value={formValues.email}
             onChange={(event) => updateField("email", event.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:border-primary"
             placeholder="you@company.com"
             autoComplete="email"
           />
-          {fieldErrors['email'] && <p className="mt-2 text-xs text-rose-600">{fieldErrors['email']}</p>}
+          {fieldErrors['email'] && <p className="mt-2 text-xs text-rose-600 dark:text-rose-400">{fieldErrors['email']}</p>}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="phone" className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="phone" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Phone number
             </label>
-            <input
+            <PhoneInput
               id="phone"
               name="phone"
-              type="tel"
               required
               value={formValues.phone}
-              onChange={(event) => updateField("phone", event.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              placeholder="+234 801 234 5678"
+              onChange={(val) => updateField("phone", val)}
               autoComplete="tel"
             />
-            {fieldErrors['phone'] && <p className="mt-2 text-xs text-rose-600">{fieldErrors['phone']}</p>}
+            {fieldErrors['phone'] && <p className="mt-2 text-xs text-rose-600 dark:text-rose-400">{fieldErrors['phone']}</p>}
           </div>
           <div>
-            <label htmlFor="password" className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Password
             </label>
             <input
@@ -186,18 +187,18 @@ export default function SignupPage() {
               minLength={8}
               value={formValues.password}
               onChange={(event) => updateField("password", event.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:bg-dark-surface dark:border-dark-border dark:text-white dark:focus:border-primary"
               placeholder="Create a strong password"
               autoComplete="new-password"
             />
-            {fieldErrors['password'] && <p className="mt-2 text-xs text-rose-600">{fieldErrors['password']}</p>}
+            {fieldErrors['password'] && <p className="mt-2 text-xs text-rose-600 dark:text-rose-400">{fieldErrors['password']}</p>}
           </div>
         </div>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/50 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
+          className="inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/50 dark:bg-dark-accent-primary dark:text-white dark:hover:bg-dark-accent-primary/90"
         >
           {isSubmitting ? "Creating account…" : "Create account"}
         </button>
@@ -205,17 +206,17 @@ export default function SignupPage() {
 
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200"></div>
+          <div className="w-full border-t border-gray-200 dark:border-dark-border"></div>
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-gray-500">Or continue with</span>
+          <span className="bg-white px-2 text-gray-500 dark:bg-dark-surface dark:text-gray-400">Or continue with</span>
         </div>
       </div>
 
       <button
         type="button"
         onClick={handleGoogleSignup}
-        className="inline-flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 hover:border-gray-300"
+        className="inline-flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 hover:border-gray-300 dark:bg-dark-elevated dark:border-dark-border dark:text-gray-200 dark:hover:bg-dark-surface"
       >
         <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -238,13 +239,13 @@ export default function SignupPage() {
         Sign up with Google
       </button>
 
-      <p className="mt-4 text-xs text-gray-500">
+      <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
         By creating an account you agree to Brancr&apos;s{" "}
-        <a href="/terms" className="text-primary underline-offset-4 hover:underline">
+        <a href="/terms" className="text-primary underline-offset-4 hover:underline dark:text-primary-dark">
           Terms of Service
         </a>{" "}
         and{" "}
-        <a href="/privacy-policy" className="text-primary underline-offset-4 hover:underline">
+        <a href="/privacy-policy" className="text-primary underline-offset-4 hover:underline dark:text-primary-dark">
           Privacy Policy
         </a>
         .

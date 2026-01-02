@@ -9,7 +9,7 @@ import {
   useUpdateEscalationSettings,
 } from "../../hooks/useSettingsData";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { tenantApi, ApiError } from "@/lib/api";
+import { tenantApi, authApi, ApiError } from "@/lib/api";
 import { toast } from "react-hot-toast";
 import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import {
@@ -26,13 +26,14 @@ import {
   ChartBarIcon,
   BuildingOfficeIcon,
   WhatsAppIcon,
+  LockClosedIcon,
 } from "../../components/icons";
 import PersonaSummary from './persona/PersonaSummary';
 import { IndustrySelector } from "../../components/IndustrySelector";
 import { useTenantIndustry } from "../../hooks/useIndustry";
 import { WhatsAppProfile } from "../../components/WhatsAppProfile";
 
-type TabKey = "profile" | "industry" | "notifications" | "team" | "billing" | "whatsapp" | "ai_behavior";
+type TabKey = "profile" | "industry" | "notifications" | "team" | "billing" | "whatsapp" | "ai_behavior" | "security";
 
 const TABS: Array<{ key: TabKey; label: string; icon: React.ReactNode }> = [
   { key: "profile", label: "Business Profile", icon: <UserIcon className="w-4 h-4" /> },
@@ -42,6 +43,7 @@ const TABS: Array<{ key: TabKey; label: string; icon: React.ReactNode }> = [
   { key: "team", label: "Team", icon: <UsersIcon className="w-4 h-4" /> },
   { key: "billing", label: "Billing & Plan", icon: <CreditCardIcon className="w-4 h-4" /> },
   { key: "whatsapp", label: "WhatsApp Profile", icon: <WhatsAppIcon className="w-4 h-4" /> },
+  { key: "security", label: "Security", icon: <LockClosedIcon className="w-4 h-4" /> },
 ];
 
 export default function SettingsPage() {
@@ -104,6 +106,28 @@ export default function SettingsPage() {
     onError: (err) => {
       if (err instanceof ApiError) toast.error(err.message);
       else toast.error("Failed to update profile");
+    },
+  });
+
+  // Password change state
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const changePasswordMutation = useMutation({
+    mutationFn: (data: typeof passwordForm) => authApi.changePassword({
+      current_password: data.currentPassword,
+      new_password: data.newPassword,
+    }),
+    onSuccess: () => {
+      toast.success("Password updated successfully");
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    },
+    onError: (err: unknown) => {
+      if (err instanceof ApiError) toast.error(err.message);
+      else toast.error("Failed to update password");
     },
   });
 
@@ -595,6 +619,85 @@ export default function SettingsPage() {
             <WhatsAppProfile />
           </div>
         );
+      case "security":
+        return (
+          <div className="max-w-xl space-y-6">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-dark-surface dark:border-dark-border">
+              <div className="flex items-center gap-2 mb-4">
+                <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Change Password</h3>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                Ensure your account is using a long, random password to stay secure.
+              </p>
+
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+                  toast.error("New passwords do not match");
+                  return;
+                }
+                if (passwordForm.newPassword.length < 8) {
+                  toast.error("Password must be at least 8 characters");
+                  return;
+                }
+                changePasswordMutation.mutate(passwordForm);
+              }} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-gray-200 mb-2" htmlFor="current-password">
+                    Current Password
+                  </label>
+                  <input
+                    id="current-password"
+                    type="password"
+                    required
+                    value={passwordForm.currentPassword}
+                    onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-dark-elevated dark:border-dark-border dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-gray-200 mb-2" htmlFor="new-password">
+                    New Password
+                  </label>
+                  <input
+                    id="new-password"
+                    type="password"
+                    required
+                    minLength={8}
+                    value={passwordForm.newPassword}
+                    onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-dark-elevated dark:border-dark-border dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-gray-200 mb-2" htmlFor="confirm-password">
+                    Confirm New Password
+                  </label>
+                  <input
+                    id="confirm-password"
+                    type="password"
+                    required
+                    minLength={8}
+                    value={passwordForm.confirmPassword}
+                    onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                    className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-dark-elevated dark:border-dark-border dark:text-white"
+                  />
+                </div>
+
+                <div className="flex justify-end pt-2">
+                  <button
+                    type="submit"
+                    disabled={changePasswordMutation.isPending}
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-dark-accent-primary"
+                  >
+                    {changePasswordMutation.isPending ? "Updating..." : "Update Password"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
@@ -611,6 +714,8 @@ export default function SettingsPage() {
     isLoadingProfile,
     profileForm,
     updateProfileMutation,
+    passwordForm,
+    changePasswordMutation,
     tenantIndustry,
     queryClient,
   ]);
