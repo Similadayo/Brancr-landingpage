@@ -137,7 +137,7 @@ export default function MagicProfilePage() {
         bot_name: editName.trim() + ' AI',
         tone: profileData.persona.tone || 'Professional',
         language: 'English',
-        style_notes: `Target Audience: ${profileData.persona.audience}. Core Values: ${profileData.persona.values.join(', ')}`,
+        style_notes: `Target Audience: ${profileData.persona.audience}. Core Values: ${Array.isArray(profileData.persona.values) ? profileData.persona.values.join(', ') : profileData.persona.values || ''}`,
       });
 
       // 4. Mark onboarding complete
