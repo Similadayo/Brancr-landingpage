@@ -1,5 +1,6 @@
 'use client';
 
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
@@ -8,14 +9,32 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { tenantApi, ApiError } from '@/lib/api';
 import { getUserFriendlyErrorMessage, ErrorMessages } from '@/lib/error-messages';
 import { IndustryStep } from './onboarding/IndustryStep';
+import { MagicInputStep } from './onboarding/MagicInputStep';
+import { MagicConfirmationStep } from './onboarding/MagicConfirmationStep';
 import { BusinessProfileStep } from './onboarding/BusinessProfileStep';
 import { PersonaStep } from './onboarding/PersonaStep';
 import { BusinessDetailsStep } from './onboarding/BusinessDetailsStep';
 import { SocialConnectStep } from './onboarding/SocialConnectStep';
 
-type OnboardingStep = 'industry' | 'business_profile' | 'persona' | 'business_details' | 'social_connect';
+type OnboardingStep = 'magic_input' | 'magic_confirmation' | 'industry' | 'business_profile' | 'persona' | 'business_details' | 'social_connect' | 'complete';
 
 const STEPS: Array<{ id: OnboardingStep; title: string; description: string; icon: string; optional?: boolean; timeEstimate?: string; benefit?: string }> = [
+  {
+    id: 'magic_input',
+    title: 'Magic Setup',
+    description: 'Auto-generate your profile',
+    icon: '✨',
+    timeEstimate: '1 min',
+    benefit: 'Save time with AI',
+  },
+  {
+    id: 'magic_confirmation',
+    title: 'Review',
+    description: 'Confirm generated details',
+    icon: '✅',
+    timeEstimate: '1 min',
+    benefit: 'Ensure accuracy',
+  },
   {
     id: 'industry',
     title: 'Industry Selection',
@@ -63,7 +82,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
   const router = useRouter();
   const queryClient = useQueryClient();
   // Initialize with 'industry' as default for new users
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>(initialStep || 'industry');
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>(initialStep || 'magic_input');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<Set<OnboardingStep>>(new Set());
   const [savedData, setSavedData] = useState<{
@@ -72,6 +91,9 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     persona?: any;
     business_details?: any;
   }>({});
+  const [magicProfileData, setMagicProfileData] = useState<any>(null);
+
+
 
   // Load onboarding status on mount
   const { data: onboardingStatus, isLoading: isLoadingStatus, error: onboardingError } = useQuery({
@@ -86,35 +108,35 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
   // Update current step and saved data when status loads
   useEffect(() => {
     if (onboardingStatus) {
-      // If onboarding is complete, redirect immediately
-      // Explicitly check for === true to prevent new users from skipping onboarding
       if (onboardingStatus.complete === true) {
-        // Invalidate and refetch queries to ensure fresh data
+        // ... existing redirect logic ...
         void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
         void queryClient.invalidateQueries({ queryKey: ['onboarding', 'status'] });
-        // Refetch immediately to ensure OnboardingGuard has fresh data
         void queryClient.refetchQueries({ queryKey: ['auth', 'me'] });
         void queryClient.refetchQueries({ queryKey: ['onboarding', 'status'] });
 
-        // Use replace instead of push to avoid history issues, and use window.location for immediate redirect
         router.replace('/app');
-        // Force immediate redirect using window.location to bypass any React state issues
         setTimeout(() => {
           window.location.href = '/app';
         }, 100);
         return;
       }
 
-      // Backend returns steps after 'industry', so if step is undefined, user is on 'industry' step
-      // If step is 'complete', we've already handled it above with redirect
-      // This code should only run if complete is false, but handle edge cases
       if (onboardingStatus.step === 'complete') {
-        // This shouldn't happen since we check complete above, but handle it
         return;
       }
 
+      // If backend says 'industry' (default start), we want to show 'magic_input' first
+      // UNLESS the user has already explicitly started the 'industry' step or later.
+      // But onboardingStatus.step usually returns the *next* step to complete.
+      // If status is 'industry', it means they haven't finished industry.
+      // So checking if they have saved data might be better?
+      // For now, let's map 'industry' -> 'magic_input' effectively inserting it before.
+
       const stepFromStatus = onboardingStatus.step || 'industry';
-      setCurrentStep(stepFromStatus as OnboardingStep);
+      const effectiveStep = stepFromStatus === 'industry' && !magicProfileData ? 'magic_input' : stepFromStatus;
+
+      setCurrentStep(effectiveStep as OnboardingStep);
 
       // Load saved data for pre-filling forms
       // Note: Industry data is handled by IndustryStep separately
@@ -125,13 +147,12 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
         business_details: onboardingStatus.business_details,
       });
     } else if (!isLoadingStatus && !onboardingError) {
-      // If status hasn't loaded yet but we're not in error state, ensure we have a default step
-      // This handles the case where the API call hasn't completed yet
-      if (currentStep === 'industry' || !currentStep) {
-        setCurrentStep('industry');
+      // If status hasn't loaded yet but we're not in error state
+      if (!currentStep) {
+        setCurrentStep('magic_input');
       }
     }
-  }, [onboardingStatus, initialStep, isLoadingStatus, onboardingError, currentStep, router, queryClient]);
+  }, [onboardingStatus, initialStep, isLoadingStatus, onboardingError, currentStep, router, queryClient, magicProfileData]);
 
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
@@ -312,6 +333,41 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
     }
 
     switch (currentStep) {
+      case 'magic_input':
+        return (
+          <MagicInputStep
+            onComplete={(profile) => {
+              setMagicProfileData(profile);
+              setCurrentStep('magic_confirmation');
+            }}
+            onSkip={() => {
+              // Skip to manual setup -> Industry step
+              // We simulate a step update but don't save API data yet as it's just navigation
+              setCurrentStep('industry');
+            }}
+            isLoading={isSubmitting}
+          />
+        );
+      case 'magic_confirmation':
+        return magicProfileData ? (
+          <MagicConfirmationStep
+            data={magicProfileData}
+            onComplete={() => {
+              // Confirmed! The component handled saving data.
+              // Move to social connect (skipping manual steps) OR business details.
+              setCurrentStep('social_connect');
+
+              // Invalidate queries to refresh sidebar etc
+              void queryClient.invalidateQueries({ queryKey: ['tenant-industry'] });
+              void queryClient.invalidateQueries({ queryKey: ['onboarding', 'status'] });
+            }}
+            onBack={() => setCurrentStep('magic_input')}
+            isLoading={isSubmitting}
+          />
+        ) : (
+          // Fallback if data missing
+          <div className="flex justify-center p-8">Missing profile data. <button onClick={() => setCurrentStep('magic_input')} className="ml-2 text-primary underline">Go back</button></div>
+        );
       case 'industry':
         return (
           <IndustryStep

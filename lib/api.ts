@@ -2028,6 +2028,24 @@ export const tenantApi = {
       payload
     ),
 
+  // Magic Profile endpoint
+  magicProfile: (payload: { url?: string; description?: string }) =>
+    post<typeof payload, {
+      success: boolean;
+      profile: {
+        name: string;
+        description: string;
+        industry: string;
+        persona: {
+          tone: string;
+          audience: string;
+          values: string[];
+        };
+        confidence: "high" | "medium" | "low";
+      };
+      message?: string;
+    }>("/api/tenant/onboarding/magic-profile", payload),
+
   // Payment Account Management endpoints
   paymentAccounts: () =>
     get<{
