@@ -560,7 +560,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
           </div>
         </aside>
 
-        <div className={cn("flex min-h-screen flex-1 flex-col min-w-0 max-w-full overflow-x-hidden transition-all duration-300", isSidebarCollapsed ? "lg:ml-[92px]" : "lg:ml-[276px]")}>
+        <div className={cn("flex min-h-screen flex-1 flex-col min-w-0 max-w-full transition-all duration-300", isSidebarCollapsed ? "lg:ml-[92px]" : "lg:ml-[276px]")}>
           {/* Top Header Bar with Stats */}
           <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface w-full max-w-full">
             <div className="px-4 lg:px-6 max-w-full">
