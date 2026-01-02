@@ -119,7 +119,7 @@ export function OnboardingWizard({ initialStep }: { initialStep?: OnboardingStep
       // Load saved data for pre-filling forms
       // Note: Industry data is handled by IndustryStep separately
       setSavedData({
-        industry: onboardingStatus.industry ? { industry_id: onboardingStatus.industry.industry_id } : undefined,
+        // Industry is managed by its own step/query
         business_profile: onboardingStatus.business_profile,
         persona: onboardingStatus.persona,
         business_details: onboardingStatus.business_details,
