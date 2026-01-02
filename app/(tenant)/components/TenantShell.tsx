@@ -79,27 +79,27 @@ function cn(...classes: Array<string | false | null | undefined>) {
 // Helper function to get display name and initials from tenant
 function getTenantDisplayInfo(tenant: any) {
   const displayName = (
-    tenant?.business_profile?.name?.trim() || 
-    tenant?.business_name?.trim() || 
-    tenant?.name?.trim() || 
-    tenant?.email?.split("@")[0] || 
+    tenant?.business_profile?.name?.trim() ||
+    tenant?.business_name?.trim() ||
+    tenant?.name?.trim() ||
+    tenant?.email?.split("@")[0] ||
     "User"
   );
-  
+
   const nameParts = displayName.split(/\s+/).filter(Boolean);
   let initials = "";
-  
+
   if (nameParts.length > 0) {
     const firstInitial = nameParts[0]?.charAt(0)?.toUpperCase() || "";
     const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1]?.charAt(0)?.toUpperCase() || "" : "";
     initials = firstInitial + lastInitial;
   }
-  
+
   // Ensure we always have at least one initial
   if (!initials || initials.length === 0) {
     initials = displayName.charAt(0).toUpperCase() || "U";
   }
-  
+
   return { displayName, initials };
 }
 
@@ -129,7 +129,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
   // Fetch stats for header - use the hook to get processed integrations (includes WhatsApp)
   const { data: integrationsData } = useIntegrations();
   const integrations = Array.isArray(integrationsData) ? integrationsData : [];
-  
+
   // Use the same hook as Overview page for consistency
   const { data: scheduledPostsData } = useScheduledPosts();
   const scheduledPosts = Array.isArray(scheduledPostsData) ? scheduledPostsData : [];
@@ -200,7 +200,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
       setDisplayAIMode(mode);
       queryClient.setQueryData(['ai_mode'], { mode });
       if (!supportsGetAIMode && typeof window !== 'undefined') {
-        try { localStorage.setItem('ai_mode_override', mode); } catch {}
+        try { localStorage.setItem('ai_mode_override', mode); } catch { }
       }
     },
     onSuccess: (data) => {
@@ -375,7 +375,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
             : pathname === item.href || pathname?.startsWith(`${item.href}/`);
           return renderNavItem(item, compact, isActive);
         })}
-        
+
         {/* Industry-based navigation items */}
         {industryNavItems.length > 0 && (
           <>
@@ -391,7 +391,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
         {/* Settings Section (Collapsible) */}
         {!compact && (
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-dark-border">
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-dark-border">
             <button
               onClick={() => setIsSettingsExpanded(!isSettingsExpanded)}
               className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm font-semibold text-gray-700 dark:text-dark-text-primary hover:bg-gray-50 dark:hover:bg-dark-elevated transition"
@@ -426,7 +426,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
 
         {/* Settings Section (Compact/Collapsed) */}
         {compact && (
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-dark-border">
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-dark-border">
             {settingsNavItems.map((item) => {
               const isSettingsRoot = item.href === "/app/settings";
               const isActive = isSettingsRoot
@@ -441,11 +441,11 @@ export function TenantShell({ children }: { children: ReactNode }) {
   }
 
   return (
-            <div
-              data-tenant-shell
-              data-tenant-page={isInboxPage ? "inbox" : "default"}
-              className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-dark-bg dark:via-dark-bg dark:to-dark-bg overflow-x-hidden max-w-full w-full"
-            >
+    <div
+      data-tenant-shell
+      data-tenant-page={isInboxPage ? "inbox" : "default"}
+      className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-dark-bg dark:via-dark-bg dark:to-dark-bg overflow-x-hidden max-w-full w-full"
+    >
       {/* Mobile overlay */}
       {isMobileNavOpen ? (
         <div
@@ -496,8 +496,8 @@ export function TenantShell({ children }: { children: ReactNode }) {
         {/* Desktop sidebar */}
         <aside
           className={cn(
-          "fixed top-0 left-0 hidden h-screen shrink-0 border-r border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface px-3 py-6 transition-all duration-300 lg:flex lg:flex-col z-30",
-          sidebarWidthClass
+            "fixed top-0 left-0 hidden h-screen shrink-0 border-r border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface px-3 py-6 transition-all duration-300 lg:flex lg:flex-col z-30",
+            sidebarWidthClass
           )}
         >
           <div className={cn("flex items-center", isSidebarCollapsed ? "justify-center" : "justify-start")}>
@@ -563,7 +563,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
         <div className={cn("flex min-h-screen flex-1 flex-col min-w-0 max-w-full overflow-x-hidden transition-all duration-300", isSidebarCollapsed ? "lg:ml-[92px]" : "lg:ml-[276px]")}>
           {/* Top Header Bar with Stats */}
           <header className="sticky top-0 z-20 border-b border-gray-200 dark:border-dark-border bg-white dark:bg-dark-surface w-full max-w-full">
-            <div className="px-4 lg:px-6 max-w-full overflow-x-hidden">
+            <div className="px-4 lg:px-6 max-w-full">
               <div className="flex h-16 items-center justify-between gap-4">
                 {/* Left: Page Title */}
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0">
@@ -599,7 +599,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
                       <p className="text-sm font-bold text-gray-900 dark:text-dark-text-primary">{stats.conversations}</p>
                     </div>
                   </div>
-                  
+
                   {/* AI Mode Toggle - Hidden on mobile */}
                   <div className="hidden lg:flex items-center">
                     <AIToggle
