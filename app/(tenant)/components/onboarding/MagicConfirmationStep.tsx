@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { tenantApi, ApiError } from '@/lib/api';
-import { useSetTenantIndustry } from '../../hooks/useIndustry';
+import { useSetTenantIndustry, useIndustries } from '../../hooks/useIndustry';
 
 type MagicProfileData = {
     name: string;
@@ -33,34 +33,34 @@ export function MagicConfirmationStep({ data, onComplete, onBack, isLoading }: M
     // currently we only allow simple edits to name/desc here for speed.
     // Advanced editing can be done in settings later.
 
-    const setIndustryMutation = useSetTenantIndustry();
+    const { data: industries = [] } = useIndustries();
 
     const handleConfirm = async () => {
         setIsSaving(true);
         try {
             // 1. Save Business Profile
-            await tenantApi.updateBusinessProfile({
+            await tenantApi.onboardingBusinessProfile({
                 name: name.trim(),
                 description: description.trim(),
-                website: "", // We don't have this in profile return yet, or need to pass it through
             });
 
             // 2. Save Industry
-            // The backend should return an industry_id or key that we can use.
-            // If the backend returns a string 'Retail', we might need to find the ID.
-            // For now, let's assume the magic profile response returns a valid industry ID or we default.
-            // Since the type says string, let's try to pass it to a special endpoint or mapping?
-            // Actually, checking the plan: "Save using EXISTING endpoints"
-            // If data.industry is a string, we need to map it. 
-            // For MVP, lets assume the backend returns the closest mapped ID or we skip industry auto-set if unknown.
-            // OR, we use the `onboardingIndustry` endpoint which might accept string? No, it takes ID.
+            // Find matching industry by name (case-insensitive) to get the ID
+            const matchedIndustry = industries.find(
+                (ind) => ind.name.toLowerCase() === data.industry.toLowerCase()
+            );
 
-            // Temporary solution: Call a new endpoint or do best effort mapping. 
-            // Let's rely on the user to fix industry if it's wrong, or skip this step if we can't map it.
-            // Ideally, the Magic Profile API should return an `industry_id`.
+            if (matchedIndustry) {
+                await tenantApi.onboardingIndustry({ industry_id: matchedIndustry.id });
+            } else {
+                console.warn("Could not map magic industry to ID:", data.industry);
+                // Try to persist the string industry name if possible, or fall back to 'Other' if we can guess it?
+                // For now, if we can't map it, we skip the explicit industry step save.
+                // The user logic might need to revisit this in Settings later.
+            }
 
             // 3. Save Persona
-            await tenantApi.updatePersona({
+            await tenantApi.onboardingPersona({
                 tone: data.persona.tone,
                 audience: data.persona.audience,
                 values: data.persona.values,
