@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import { useMedia, useUploadMedia, useDeleteMedia, useUpdateMedia } from "@/app/(tenant)/hooks/useMedia";
 import {
@@ -21,8 +21,22 @@ import {
 import Select from "@/app/(tenant)/components/ui/Select";
 import { Pagination } from "@/app/(tenant)/components/ui/Pagination";
 import ConfirmModal from '@/app/components/ConfirmModal';
+import { MediaSidebar } from "../../components/media/MediaSidebar";
+import { MediaQuickView } from "../../components/media/MediaQuickView";
 
 type ViewMode = "grid" | "list";
+type MediaAsset = {
+  id: number;
+  type: 'image' | 'video' | 'carousel';
+  name: string;
+  caption?: string | null;
+  urls: string[];
+  url?: string;
+  thumbnail_url?: string;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
+};
 
 export default function MediaLibraryPage() {
   const [query, setQuery] = useState("");
@@ -37,21 +51,60 @@ export default function MediaLibraryPage() {
   const itemsPerPage = 20;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data: assets = [], isLoading, error } = useMedia({ 
-    q: query || undefined, 
-    type: type || undefined 
+  // New state for sidebar and quick view
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [dateRange, setDateRange] = useState<'all' | 'today' | 'week' | 'month'>('all');
+  const [quickViewAsset, setQuickViewAsset] = useState<MediaAsset | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const { data: assets = [], isLoading, error } = useMedia({
+    q: query || undefined,
+    type: type || undefined
   });
   const uploadMutation = useUploadMedia();
   const deleteMutation = useDeleteMedia();
   const updateMutation = useUpdateMedia();
 
+  // Get all unique tags from assets
+  const availableTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    assets.forEach((asset) => {
+      asset.tags?.forEach((tag) => tagSet.add(tag));
+    });
+    return Array.from(tagSet).sort();
+  }, [assets]);
+
   const filtered = useMemo(() => {
-    return assets.map((asset) => ({
+    let result = assets.map((asset) => ({
       ...asset,
       url: asset.url || asset.urls?.[0] || "",
       thumbnail_url: asset.thumbnail_url || asset.urls?.[0] || "",
     }));
-  }, [assets]);
+
+    // Filter by selected tags
+    if (selectedTags.length > 0) {
+      result = result.filter((asset) =>
+        selectedTags.some((tag) => asset.tags?.includes(tag))
+      );
+    }
+
+    // Filter by date range
+    if (dateRange !== 'all') {
+      const now = new Date();
+      const cutoff = new Date();
+      if (dateRange === 'today') {
+        cutoff.setHours(0, 0, 0, 0);
+      } else if (dateRange === 'week') {
+        cutoff.setDate(now.getDate() - 7);
+      } else if (dateRange === 'month') {
+        cutoff.setMonth(now.getMonth() - 1);
+      }
+      result = result.filter((asset) => new Date(asset.created_at) >= cutoff);
+    }
+
+    return result;
+  }, [assets, selectedTags, dateRange]);
 
   // Pagination
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
@@ -97,22 +150,22 @@ export default function MediaLibraryPage() {
 
   async function handleUpload(files: FileList | null) {
     if (!files || files.length === 0) return;
-    
+
     // Validate files before upload
     const fileArray = Array.from(files);
     const validFiles: File[] = [];
     const errors: string[] = [];
-    
+
     fileArray.forEach((file) => {
       // Check file type
       const isImage = file.type.startsWith('image/');
       const isVideo = file.type.startsWith('video/');
-      
+
       if (!isImage && !isVideo) {
         errors.push(`${file.name}: Invalid file type. Only images and videos are supported.`);
         return;
       }
-      
+
       // Check file size (50MB limit for videos, 10MB for images)
       const maxSize = isVideo ? 50 * 1024 * 1024 : 10 * 1024 * 1024; // 50MB for videos, 10MB for images
       if (file.size > maxSize) {
@@ -120,10 +173,10 @@ export default function MediaLibraryPage() {
         errors.push(`${file.name}: File too large. Maximum size is ${maxSizeMB}MB.`);
         return;
       }
-      
+
       validFiles.push(file);
     });
-    
+
     // Show errors if any
     if (errors.length > 0) {
       errors.forEach((error) => toast.error(error));
@@ -132,23 +185,23 @@ export default function MediaLibraryPage() {
         return; // No valid files to upload
       }
     }
-    
+
     if (validFiles.length === 0) {
       toast.error('No valid files to upload');
       return;
     }
-    
+
     // Create FormData with valid files
     const form = new FormData();
     validFiles.forEach((file) => {
       form.append("file", file);
     });
-    
+
     try {
       await uploadMutation.mutateAsync(form);
       setIsUploadOpen(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
-      
+
       // Show success message with file count
       if (validFiles.length > 0) {
         const videoCount = validFiles.filter(f => f.type.startsWith('video/')).length;
@@ -176,8 +229,68 @@ export default function MediaLibraryPage() {
     }
   }, [selectedMediaIds.length]);
 
+  // Drag and drop handlers
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set false if we're leaving the container (not entering a child)
+    if (e.currentTarget === e.target) {
+      setIsDragging(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      handleUpload(files);
+    }
+  }, []);
+
+  // Handle quick view update
+  const handleQuickViewUpdate = useCallback((id: string, data: { caption?: string; tags?: string[] }) => {
+    updateMutation.mutate({ assetId: id, payload: data });
+  }, [updateMutation]);
+
+  // Handle quick view delete
+  const handleQuickViewDelete = useCallback((id: string) => {
+    deleteMutation.mutate(id);
+    setQuickViewAsset(null);
+  }, [deleteMutation]);
+
   return (
-    <div className="space-y-6">
+    <div
+      className="space-y-6 relative"
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      {/* Drag and Drop Overlay */}
+      {isDragging && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/20 backdrop-blur-sm">
+          <div className="rounded-2xl border-4 border-dashed border-primary bg-white/90 dark:bg-gray-800/90 p-12 text-center shadow-2xl">
+            <ArrowUpTrayIcon className="mx-auto h-16 w-16 text-primary mb-4" />
+            <p className="text-xl font-semibold text-gray-900 dark:text-white">Drop files to upload</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Images and videos supported</p>
+          </div>
+        </div>
+      )}
+
       {/* Modern Hero Section */}
       <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-600 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
         <div className="absolute inset-0 opacity-10 dark:opacity-20">
@@ -202,13 +315,13 @@ export default function MediaLibraryPage() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => setIsUploadOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
-          >
-            <PlusIcon className="w-4 h-4" />
-            Upload Media
-          </button>
+              <button
+                onClick={() => setIsUploadOpen(true)}
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
+              >
+                <PlusIcon className="w-4 h-4" />
+                Upload Media
+              </button>
             </div>
           </div>
         </div>
@@ -230,7 +343,17 @@ export default function MediaLibraryPage() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <FunnelIcon className="h-4 w-4 text-gray-400" />
+          {/* Sidebar Toggle */}
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className={`rounded-lg border p-2.5 transition ${!sidebarCollapsed
+              ? 'border-primary bg-primary/10 text-primary'
+              : 'border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary'
+              }`}
+            title={sidebarCollapsed ? "Show filters" : "Hide filters"}
+          >
+            <FunnelIcon className="h-4 w-4" />
+          </button>
           <div className="w-44">
             <Select
               value={(type ?? '') as 'image' | 'video' | 'carousel' | ''}
@@ -245,32 +368,30 @@ export default function MediaLibraryPage() {
               buttonClassName="px-3 py-2.5 text-sm rounded-lg"
             />
           </div>
-            <button
-              onClick={() => {
-                setType(undefined);
-                setQuery("");
-              }}
-              className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary"
-              title="Clear filters"
-            >
-              Clear
-            </button>
+          <button
+            onClick={() => {
+              setType(undefined);
+              setQuery("");
+            }}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary"
+            title="Clear filters"
+          >
+            Clear
+          </button>
         </div>
         <div className="flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1">
           <button
             onClick={() => setViewMode("grid")}
-            className={`rounded-md p-2 transition ${
-              viewMode === "grid" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-gray-900"
-            }`}
+            className={`rounded-md p-2 transition ${viewMode === "grid" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-gray-900"
+              }`}
             aria-label="Grid view"
           >
             <Squares2X2Icon className="h-4 w-4" />
           </button>
           <button
             onClick={() => setViewMode("list")}
-            className={`rounded-md p-2 transition ${
-              viewMode === "list" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-gray-900"
-            }`}
+            className={`rounded-md p-2 transition ${viewMode === "list" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-gray-900"
+              }`}
             aria-label="List view"
           >
             <ListBulletIcon className="h-4 w-4" />
@@ -395,25 +516,157 @@ export default function MediaLibraryPage() {
         </div>
       ) : viewMode === "grid" ? (
         <>
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {paginatedMedia.map((asset, index) => {
-            const isSelected = selectedMediaIds.includes(String(asset.id));
-            const selectionIndex = isSelected ? selectedMediaIds.indexOf(String(asset.id)) + 1 : null;
-            return (
-              <div key={asset.id} className="relative group">
-                <div
-                  className={`relative overflow-hidden rounded-xl border-2 transition-all cursor-pointer ${
-                    isSelected
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {paginatedMedia.map((asset, index) => {
+              const isSelected = selectedMediaIds.includes(String(asset.id));
+              const selectionIndex = isSelected ? selectedMediaIds.indexOf(String(asset.id)) + 1 : null;
+              return (
+                <div key={asset.id} className="relative group">
+                  <div
+                    className={`relative overflow-hidden rounded-xl border-2 transition-all cursor-pointer ${isSelected
                       ? "border-primary ring-4 ring-primary/20 shadow-lg scale-[1.02]"
                       : "border-gray-200 hover:border-primary/50 hover:shadow-md"
-                  } bg-white`}
-                  onClick={() => toggleMedia(asset.id)}
+                      } bg-white`}
+                    onClick={() => toggleMedia(asset.id)}
+                    onDoubleClick={() => setQuickViewAsset(asset as MediaAsset)}
+                  >
+                    <div className="relative aspect-video overflow-hidden bg-gray-50">
+                      {asset.type === 'video' ? (
+                        <video
+                          src={asset.url}
+                          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                          muted
+                          playsInline
+                          preload="metadata"
+                        />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={asset.thumbnail_url || asset.url}
+                          alt={asset.caption || `Media ${index + 1}`}
+                          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      )}
+                      {/* Selection Badge */}
+                      {isSelected && (
+                        <>
+                          <div className="absolute inset-0 bg-primary/10" />
+                          <div className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-lg">
+                            {selectionIndex}
+                          </div>
+                          <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow-lg">
+                            <CheckCircleIcon className="h-4 w-4" />
+                          </div>
+                        </>
+                      )}
+                      {/* Type Badge */}
+                      <span className="absolute right-2 bottom-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
+                        {asset.type}
+                      </span>
+                      {/* Preview Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const previewUrl = (asset.url || asset.thumbnail_url || "") as string;
+                          if (previewUrl) {
+                            setPreviewMedia({ id: String(asset.id), url: previewUrl, type: asset.type });
+                          }
+                        }}
+                        className="absolute left-2 bottom-2 rounded-full bg-black/70 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 backdrop-blur-sm"
+                        aria-label="Preview media"
+                      >
+                        {asset.type === 'video' ? (
+                          <svg className="h-4 w-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        ) : (
+                          <EyeIcon className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                    <div className="space-y-2 p-3">
+                      <p className="line-clamp-2 text-xs text-gray-600">{asset.caption || "No caption"}</p>
+                      {asset.tags && asset.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {asset.tags.slice(0, 2).map((t) => (
+                            <span key={t} className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
+                              {t}
+                            </span>
+                          ))}
+                          {asset.tags.length > 2 && (
+                            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
+                              +{asset.tags.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between text-xs">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Edit functionality
+                          }}
+                          className="flex items-center gap-1 font-medium text-primary hover:text-primary/80 transition"
+                        >
+                          <PencilIcon className="h-3 w-3" />
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowDeleteMediaId(String(asset.id));
+                          }}
+                          className="flex items-center gap-1 font-medium text-rose-600 hover:text-rose-700 transition"
+                        >
+                          <TrashIcon className="h-3 w-3" />
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                itemsPerPage={itemsPerPage}
+                totalItems={filtered.length}
+              />
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <div className="space-y-2">
+            {paginatedMedia.map((asset) => {
+              const isSelected = selectedMediaIds.includes(String(asset.id));
+              return (
+                <div
+                  key={asset.id}
+                  className={`flex items-center gap-4 rounded-xl border-2 p-4 transition ${isSelected
+                    ? "border-primary bg-primary/5"
+                    : "border-gray-200 bg-white hover:border-primary/50"
+                    }`}
                 >
-                  <div className="relative aspect-video overflow-hidden bg-gray-50">
+                  <div
+                    className="relative h-20 w-20 shrink-0 cursor-pointer overflow-hidden rounded-lg"
+                    onClick={() => toggleMedia(asset.id)}
+                  >
                     {asset.type === 'video' ? (
                       <video
                         src={asset.url}
-                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        className="h-full w-full object-cover"
                         muted
                         playsInline
                         preload="metadata"
@@ -422,28 +675,36 @@ export default function MediaLibraryPage() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={asset.thumbnail_url || asset.url}
-                        alt={asset.caption || `Media ${index + 1}`}
-                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        alt={asset.caption || "Media"}
+                        className="h-full w-full object-cover"
                         loading="lazy"
                       />
                     )}
-                    {/* Selection Badge */}
                     {isSelected && (
-                      <>
-                        <div className="absolute inset-0 bg-primary/10" />
-                        <div className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-lg">
-                          {selectionIndex}
-                        </div>
-                        <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow-lg">
-                          <CheckCircleIcon className="h-4 w-4" />
-                        </div>
-                      </>
+                      <div className="absolute inset-0 flex items-center justify-center bg-primary/20">
+                        <CheckCircleIcon className="h-6 w-6 text-primary" />
+                      </div>
                     )}
-                    {/* Type Badge */}
-                    <span className="absolute right-2 bottom-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
-                      {asset.type}
-                    </span>
-                    {/* Preview Button */}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-gray-900">{asset.caption || "No caption"}</p>
+                    <div className="mt-1 flex items-center gap-2">
+                      <span className="text-xs text-gray-500 capitalize">{asset.type}</span>
+                      {asset.tags && asset.tags.length > 0 && (
+                        <>
+                          <span className="text-gray-300">•</span>
+                          <div className="flex flex-wrap gap-1">
+                            {asset.tags.slice(0, 3).map((t) => (
+                              <span key={t} className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -453,187 +714,46 @@ export default function MediaLibraryPage() {
                           setPreviewMedia({ id: String(asset.id), url: previewUrl, type: asset.type });
                         }
                       }}
-                      className="absolute left-2 bottom-2 rounded-full bg-black/70 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 backdrop-blur-sm"
-                      aria-label="Preview media"
+                      className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
                     >
                       {asset.type === 'video' ? (
-                        <svg className="h-4 w-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                        <svg className="h-3.5 w-3.5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M8 5v14l11-7z" />
                         </svg>
                       ) : (
-                        <EyeIcon className="h-4 w-4" />
+                        <EyeIcon className="h-3.5 w-3.5" />
                       )}
+                      Preview
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowDeleteMediaId(String(asset.id));
+                      }}
+                      className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
+                    >
+                      <TrashIcon className="h-3.5 w-3.5" />
+                      Delete
                     </button>
                   </div>
-                  <div className="space-y-2 p-3">
-                    <p className="line-clamp-2 text-xs text-gray-600">{asset.caption || "No caption"}</p>
-                    {asset.tags && asset.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {asset.tags.slice(0, 2).map((t) => (
-                          <span key={t} className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-                            {t}
-                          </span>
-                        ))}
-                        {asset.tags.length > 2 && (
-                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-                            +{asset.tags.length - 2}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between text-xs">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Edit functionality
-                        }}
-                        className="flex items-center gap-1 font-medium text-primary hover:text-primary/80 transition"
-                      >
-                        <PencilIcon className="h-3 w-3" />
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowDeleteMediaId(String(asset.id));
-                        }}
-                        className="flex items-center gap-1 font-medium text-rose-600 hover:text-rose-700 transition"
-                      >
-                        <TrashIcon className="h-3 w-3" />
-                        Delete
-                      </button>
-                    </div>
-                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-        
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-6">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-              itemsPerPage={itemsPerPage}
-              totalItems={filtered.length}
-            />
+              );
+            })}
           </div>
-        )}
-        </>
-      ) : (
-        <>
-        <div className="space-y-2">
-          {paginatedMedia.map((asset) => {
-            const isSelected = selectedMediaIds.includes(String(asset.id));
-            return (
-              <div
-                key={asset.id}
-                className={`flex items-center gap-4 rounded-xl border-2 p-4 transition ${
-                  isSelected
-                    ? "border-primary bg-primary/5"
-                    : "border-gray-200 bg-white hover:border-primary/50"
-                }`}
-              >
-                <div
-                  className="relative h-20 w-20 shrink-0 cursor-pointer overflow-hidden rounded-lg"
-                  onClick={() => toggleMedia(asset.id)}
-                >
-                  {asset.type === 'video' ? (
-                    <video
-                      src={asset.url}
-                      className="h-full w-full object-cover"
-                      muted
-                      playsInline
-                      preload="metadata"
-                    />
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={asset.thumbnail_url || asset.url}
-                      alt={asset.caption || "Media"}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                    />
-                  )}
-                  {isSelected && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-primary/20">
-                      <CheckCircleIcon className="h-6 w-6 text-primary" />
-                    </div>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-gray-900">{asset.caption || "No caption"}</p>
-                  <div className="mt-1 flex items-center gap-2">
-                    <span className="text-xs text-gray-500 capitalize">{asset.type}</span>
-                    {asset.tags && asset.tags.length > 0 && (
-                      <>
-                        <span className="text-gray-300">•</span>
-                        <div className="flex flex-wrap gap-1">
-                          {asset.tags.slice(0, 3).map((t) => (
-                            <span key={t} className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-                              {t}
-                            </span>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const previewUrl = (asset.url || asset.thumbnail_url || "") as string;
-                      if (previewUrl) {
-                        setPreviewMedia({ id: String(asset.id), url: previewUrl, type: asset.type });
-                      }
-                    }}
-                    className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
-                  >
-                    {asset.type === 'video' ? (
-                      <svg className="h-3.5 w-3.5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    ) : (
-                      <EyeIcon className="h-3.5 w-3.5" />
-                    )}
-                    Preview
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowDeleteMediaId(String(asset.id));
-                    }}
-                    className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100"
-                  >
-                    <TrashIcon className="h-3.5 w-3.5" />
-                    Delete
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-6">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-              itemsPerPage={itemsPerPage}
-              totalItems={filtered.length}
-            />
-          </div>
-        )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                itemsPerPage={itemsPerPage}
+                totalItems={filtered.length}
+              />
+            </div>
+          )}
         </>
       )}
 
@@ -751,6 +871,37 @@ export default function MediaLibraryPage() {
           onConfirm={confirmBulkDelete}
           onCancel={() => setShowBulkDeleteConfirm(false)}
         />
+      )}
+
+      {/* Sidebar Filter Panel (Fixed position) */}
+      {!sidebarCollapsed && (
+        <div className="fixed left-0 top-16 bottom-0 z-40 hidden lg:block">
+          <MediaSidebar
+            type={type}
+            onTypeChange={setType}
+            selectedTags={selectedTags}
+            onTagsChange={setSelectedTags}
+            availableTags={availableTags}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            isCollapsed={sidebarCollapsed}
+            onToggleCollapse={() => setSidebarCollapsed(true)}
+          />
+        </div>
+      )}
+
+      {/* Quick View Panel (Fixed position) */}
+      {quickViewAsset && (
+        <div className="fixed right-0 top-16 bottom-0 z-40">
+          <MediaQuickView
+            asset={quickViewAsset}
+            onClose={() => setQuickViewAsset(null)}
+            onDelete={handleQuickViewDelete}
+            onUpdate={handleQuickViewUpdate}
+            isDeleting={deleteMutation.isPending}
+            isUpdating={updateMutation.isPending}
+          />
+        </div>
       )}
 
     </div>
