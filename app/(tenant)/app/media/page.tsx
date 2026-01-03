@@ -861,35 +861,50 @@ export default function MediaLibraryPage() {
         />
       )}
 
-      {/* Sidebar Filter Panel (Fixed position) */}
+      {/* Sidebar Filter Panel (Slide-over modal) */}
       {!sidebarCollapsed && (
-        <div className="fixed left-0 top-16 bottom-0 z-40 hidden lg:block">
-          <MediaSidebar
-            type={type}
-            onTypeChange={setType}
-            selectedTags={selectedTags}
-            onTagsChange={setSelectedTags}
-            availableTags={availableTags}
-            dateRange={dateRange}
-            onDateRangeChange={setDateRange}
-            isCollapsed={sidebarCollapsed}
-            onToggleCollapse={() => setSidebarCollapsed(true)}
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40 bg-black/30 lg:hidden"
+            onClick={() => setSidebarCollapsed(true)}
           />
-        </div>
+          {/* Sidebar */}
+          <div className="fixed right-0 top-0 bottom-0 z-50 w-72 shadow-xl">
+            <MediaSidebar
+              type={type}
+              onTypeChange={setType}
+              selectedTags={selectedTags}
+              onTagsChange={setSelectedTags}
+              availableTags={availableTags}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+              isCollapsed={sidebarCollapsed}
+              onToggleCollapse={() => setSidebarCollapsed(true)}
+            />
+          </div>
+        </>
       )}
 
-      {/* Quick View Panel (Fixed position) */}
+      {/* Quick View Panel (Modal) */}
       {quickViewAsset && (
-        <div className="fixed right-0 top-16 bottom-0 z-40">
-          <MediaQuickView
-            asset={quickViewAsset}
-            onClose={() => setQuickViewAsset(null)}
-            onDelete={handleQuickViewDelete}
-            onUpdate={handleQuickViewUpdate}
-            isDeleting={deleteMutation.isPending}
-            isUpdating={updateMutation.isPending}
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40 bg-black/30"
+            onClick={() => setQuickViewAsset(null)}
           />
-        </div>
+          <div className="fixed right-0 top-0 bottom-0 z-50 w-80 shadow-xl">
+            <MediaQuickView
+              asset={quickViewAsset}
+              onClose={() => setQuickViewAsset(null)}
+              onDelete={handleQuickViewDelete}
+              onUpdate={handleQuickViewUpdate}
+              isDeleting={deleteMutation.isPending}
+              isUpdating={updateMutation.isPending}
+            />
+          </div>
+        </>
       )}
 
     </div>

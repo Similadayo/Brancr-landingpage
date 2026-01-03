@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDownIcon, ChevronRightIcon, FunnelIcon, XIcon } from '../icons';
+import { ChevronDownIcon, ChevronRightIcon, FunnelIcon, XIcon, ImageIcon, FilmIcon, Squares2X2Icon } from '../icons';
 
 type MediaSidebarProps = {
     type: string | undefined;
@@ -15,11 +15,11 @@ type MediaSidebarProps = {
     onToggleCollapse: () => void;
 };
 
-const TYPE_OPTIONS = [
-    { value: undefined, label: 'All Types', icon: '📁' },
-    { value: 'image', label: 'Images', icon: '🖼️' },
-    { value: 'video', label: 'Videos', icon: '🎬' },
-    { value: 'carousel', label: 'Carousels', icon: '📚' },
+const TYPE_OPTIONS: { value: string | undefined; label: string; iconName: 'folder' | 'image' | 'video' | 'carousel' }[] = [
+    { value: undefined, label: 'All Types', iconName: 'folder' },
+    { value: 'image', label: 'Images', iconName: 'image' },
+    { value: 'video', label: 'Videos', iconName: 'video' },
+    { value: 'carousel', label: 'Carousels', iconName: 'carousel' },
 ];
 
 const DATE_OPTIONS = [
@@ -28,6 +28,20 @@ const DATE_OPTIONS = [
     { value: 'week' as const, label: 'This Week' },
     { value: 'month' as const, label: 'This Month' },
 ];
+
+// Helper to get icon component
+function TypeIcon({ iconName, className }: { iconName: string; className?: string }) {
+    switch (iconName) {
+        case 'image':
+            return <ImageIcon className={className} />;
+        case 'video':
+            return <FilmIcon className={className} />;
+        case 'carousel':
+            return <Squares2X2Icon className={className} />;
+        default:
+            return <FunnelIcon className={className} />;
+    }
+}
 
 export function MediaSidebar({
     type,
@@ -132,11 +146,11 @@ export function MediaSidebar({
                                 key={option.value ?? 'all'}
                                 onClick={() => onTypeChange(option.value)}
                                 className={`flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm transition ${type === option.value
-                                        ? 'bg-primary/10 text-primary font-medium'
-                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                    ? 'bg-primary/10 text-primary font-medium'
+                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                     }`}
                             >
-                                <span>{option.icon}</span>
+                                <TypeIcon iconName={option.iconName} className="h-4 w-4" />
                                 <span>{option.label}</span>
                             </button>
                         ))}
@@ -168,8 +182,8 @@ export function MediaSidebar({
                                         key={tag}
                                         onClick={() => toggleTag(tag)}
                                         className={`px-2.5 py-1 rounded-full text-xs font-medium transition ${selectedTags.includes(tag)
-                                                ? 'bg-primary text-white'
-                                                : 'bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500'
+                                            ? 'bg-primary text-white'
+                                            : 'bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500'
                                             }`}
                                     >
                                         {tag}
@@ -206,8 +220,8 @@ export function MediaSidebar({
                                 key={option.value}
                                 onClick={() => onDateRangeChange(option.value)}
                                 className={`flex items-center w-full px-3 py-2 rounded-lg text-sm transition ${dateRange === option.value
-                                        ? 'bg-primary/10 text-primary font-medium'
-                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                    ? 'bg-primary/10 text-primary font-medium'
+                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                                     }`}
                             >
                                 {option.label}
