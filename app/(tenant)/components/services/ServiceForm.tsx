@@ -10,6 +10,7 @@ import { getUserFriendlyErrorMessage, parseApiFieldErrors } from '@/lib/error-me
 import Link from "next/link";
 import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
+import { useDraft, useAutoSaveDraft, useDeleteDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 
 type ServiceFormProps = {
   service?: Service | null;
@@ -20,6 +21,12 @@ export default function ServiceForm({ service }: ServiceFormProps) {
   const createMutation = useCreateService();
   const updateMutation = useUpdateService();
   const deleteMutation = useDeleteService();
+
+  const { data: draft, isLoading: draftLoading } = useDraft(DRAFT_KEYS.SERVICE_CREATE);
+  const deleteDraft = useDeleteDraft();
+
+  // Only auto-save if creating a new service
+  const isCreateMode = !service;
 
   const [formData, setFormData] = useState({
     name: service?.name || "",
@@ -36,6 +43,20 @@ export default function ServiceForm({ service }: ServiceFormProps) {
     packages: (service?.packages || []).map((p: any) => ({ ...p, price: p?.price !== undefined ? String(p.price) : "" })),
     is_active: service?.is_active ?? true,
   });
+
+  // Auto-save hook
+  const { isSaving } = useAutoSaveDraft(DRAFT_KEYS.SERVICE_CREATE, formData, isCreateMode && !draftLoading);
+
+  // Restore draft
+  useEffect(() => {
+    if (isCreateMode && draft) {
+      const content = parseDraftContent<typeof formData>(draft);
+      if (content) {
+        setFormData((prev) => ({ ...prev, ...content }));
+        toast.success("Draft restored");
+      }
+    }
+  }, [isCreateMode, draft]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -157,6 +178,8 @@ export default function ServiceForm({ service }: ServiceFormProps) {
       } else {
         await createMutation.mutateAsync(payload);
         toast.success("Service created successfully");
+        // Clear draft
+        if (draft?.id) deleteDraft.mutate(draft.id);
       }
       router.push("/app/services");
     } catch (error: any) {

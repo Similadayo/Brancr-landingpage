@@ -46,11 +46,12 @@ export default function DraftsModal({
 
         // Try to include a local snapshot (key-based) as a local-only draft when present
         try {
-          const raw = localStorage.getItem(`drafts-local-${keyName}`);
+          const raw = localStorage.getItem(`drafts-local-content-${keyName}`);
           if (raw) {
             const snap = JSON.parse(raw);
             if (snap && snap.content) {
-              const localId = snap.draftId || `local-${snap.updatedAt || Date.now()}`;
+              const updatedAt = snap.updated_at || snap.updatedAt || new Date().toISOString();
+              const localId = snap.draftId || `local-${updatedAt}`;
               const already = serverList.find((d) => d.id === localId);
               if (!already) {
                 serverList.push({
@@ -59,8 +60,8 @@ export default function DraftsModal({
                   content: snap.content,
                   metadata: snap.metadata,
                   owner_id: undefined,
-                  created_at: snap.updatedAt ? new Date(snap.updatedAt).toISOString() : new Date().toISOString(),
-                  updated_at: snap.updatedAt ? new Date(snap.updatedAt).toISOString() : new Date().toISOString(),
+                  created_at: updatedAt,
+                  updated_at: updatedAt,
                   // @ts-ignore temporary flag for UI
                   _local_only: true,
                   // @ts-ignore store snapshot for restore
@@ -95,7 +96,7 @@ export default function DraftsModal({
                     try {
                       setDeletingId(d.id);
                       if ((d as any)._local_only) {
-                        try { localStorage.removeItem(`drafts-local-${keyName}`); } catch (e) { /* ignore */ }
+                        try { localStorage.removeItem(`drafts-local-content-${keyName}`); } catch (e) { /* ignore */ }
                         setDeletingId(null);
                         try { await Promise.resolve(onDiscard?.(d.id)); } catch (e) { /* ignore */ }
                         toast.dismiss(t.id);
@@ -155,7 +156,7 @@ export default function DraftsModal({
       // If local-only synthetic draft, remove local snapshot
       const found = drafts.find((d) => d.id === id);
       if ((found as any)?._local_only) {
-        try { localStorage.removeItem(`drafts-local-${keyName}`); } catch (e) { /* ignore */ }
+        try { localStorage.removeItem(`drafts-local-content-${keyName}`); } catch (e) { /* ignore */ }
         setDrafts((prev) => prev.filter((d) => d.id !== id));
         try { await Promise.resolve(onDiscard?.(id)); } catch (e) { /* ignore */ }
         toast.success('Draft removed');
@@ -216,7 +217,7 @@ export default function DraftsModal({
                   <div className="min-w-0">
                     <div className="flex items-center gap-3">
                       <div className="text-sm font-medium text-gray-900">Saved {new Date(d.updated_at).toLocaleString()}</div>
-                      { (d as any)._local_only && (
+                      {(d as any)._local_only && (
                         <div className="rounded-full bg-yellow-50 px-2 py-0.5 text-xs font-medium text-yellow-700 border border-yellow-100">Saved locally</div>
                       )}
                     </div>

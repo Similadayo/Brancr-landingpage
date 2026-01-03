@@ -17,7 +17,7 @@ import PostReview from "@/app/(tenant)/components/posting/PostReview";
 import TikTokOptions from "@/app/(tenant)/components/posting/TikTokOptions";
 import ConfirmModal from '@/app/components/ConfirmModal';
 import DraftsModal from '@/app/(tenant)/components/posting/DraftsModal';
-import useAutosaveDraft from '@/app/(tenant)/hooks/useDrafts';
+import { useDraft, useAutoSaveDraft, useDeleteDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 
 type Step = "upload" | "media" | "caption" | "platforms" | "schedule" | "review";
 
@@ -50,74 +50,61 @@ export default function NewPostPage() {
   const [isAIGenerating, setIsAIGenerating] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [scheduledAt, setScheduledAt] = useState<string | null>(null);
-  
+
   // TikTok-specific options
   const [tiktokDisableDuet, setTiktokDisableDuet] = useState(false);
   const [tiktokDisableStitch, setTiktokDisableStitch] = useState(false);
   const [tiktokDisableComment, setTiktokDisableComment] = useState(false);
   const [tiktokScheduleTime, setTiktokScheduleTime] = useState<string | null>(null);
 
-  // Remote draft availability
-  const [remoteDraftAvailable, setRemoteDraftAvailable] = useState<any | null>(null);
   const [showDraftsModal, setShowDraftsModal] = useState(false);
-  const [showRemoteConflict, setShowRemoteConflict] = useState<any | null>(null);
 
-  // Auto-save draft to localStorage (fast local fallback)
-  useEffect(() => {
-    const draft = {
-      uploadedMedia,
-      selectedMediaIds,
-      caption,
-      enhanceCaption,
-      selectedPlatforms,
-      scheduledAt,
-      step,
-    };
-    localStorage.setItem("post-draft", JSON.stringify(draft));
-  }, [uploadedMedia, selectedMediaIds, caption, enhanceCaption, selectedPlatforms, scheduledAt, step]);
+  // Draft Hooks
+  const { data: draft, isLoading: draftLoading } = useDraft(DRAFT_KEYS.POST_CREATE);
+  const deleteDraft = useDeleteDraft();
 
-  // Load draft on mount (local fallback)
+  // Restore draft
   useEffect(() => {
-    const savedDraft = localStorage.getItem("post-draft");
-    if (savedDraft) {
-      try {
-        const draft = JSON.parse(savedDraft);
-        if (draft.selectedMediaIds) setSelectedMediaIds(draft.selectedMediaIds);
-        if (draft.caption) setCaption(draft.caption);
-        if (draft.enhanceCaption !== undefined) setEnhanceCaption(draft.enhanceCaption);
-        if (draft.selectedPlatforms) setSelectedPlatforms(draft.selectedPlatforms);
-        if (draft.scheduledAt) setScheduledAt(draft.scheduledAt);
-        if (draft.step) setStep(draft.step);
-      } catch (e) {
-        // Ignore parse errors
+    if (draft) {
+      const content = parseDraftContent<any>(draft);
+      if (content) {
+        if (content.uploadedMedia) setUploadedMedia(content.uploadedMedia);
+        if (content.selectedMediaIds) setSelectedMediaIds(content.selectedMediaIds);
+        if (content.caption) setCaption(content.caption);
+        if (content.enhanceCaption !== undefined) setEnhanceCaption(content.enhanceCaption);
+        if (content.selectedPlatforms) setSelectedPlatforms(content.selectedPlatforms);
+        if (content.scheduledAt) setScheduledAt(content.scheduledAt);
+        if (content.step) setStep(content.step);
+        if (content.tiktokDisableDuet !== undefined) setTiktokDisableDuet(content.tiktokDisableDuet);
+        if (content.tiktokDisableStitch !== undefined) setTiktokDisableStitch(content.tiktokDisableStitch);
+        if (content.tiktokDisableComment !== undefined) setTiktokDisableComment(content.tiktokDisableComment);
+        if (content.tiktokScheduleTime) setTiktokScheduleTime(content.tiktokScheduleTime);
+
+        toast.success("Draft restored");
       }
     }
-  }, []);
+  }, [draft]);
 
-  // Server-backed autosave via drafts API
-  const { content: remoteDraftContent, setContent: setRemoteContent, status: draftStatus, draftId, lastSyncedAt, restoreRemote, deleteDraft } = useAutosaveDraft({
-    key: 'compose.post',
-    initialContent: null,
-    debounceMs: 1000,
-    onRemoteNewer: (remote) => {
-      // Open a conflict modal to let user decide
-      setShowRemoteConflict(remote);
-      setRemoteDraftAvailable(remote as any);
-    },
-  });
+  // Construct draft content
+  const draftContent = useMemo(() => ({
+    uploadedMedia,
+    selectedMediaIds,
+    caption,
+    enhanceCaption,
+    selectedPlatforms,
+    scheduledAt,
+    step,
+    tiktokDisableDuet,
+    tiktokDisableStitch,
+    tiktokDisableComment,
+    tiktokScheduleTime,
+  }), [
+    uploadedMedia, selectedMediaIds, caption, enhanceCaption, selectedPlatforms, scheduledAt, step,
+    tiktokDisableDuet, tiktokDisableStitch, tiktokDisableComment, tiktokScheduleTime
+  ]);
 
-  // Sync page state into remote autosave
-  useEffect(() => {
-    setRemoteContent({
-      uploadedMedia,
-      selectedMediaIds,
-      caption,
-      enhanceCaption,
-      selectedPlatforms,
-      scheduledAt,
-      step,
-    });
-  }, [uploadedMedia, selectedMediaIds, caption, enhanceCaption, selectedPlatforms, scheduledAt, step, setRemoteContent]);
+  // Auto-save
+  const { isSaving } = useAutoSaveDraft(DRAFT_KEYS.POST_CREATE, draftContent, !draftLoading);
 
   const currentStepIndex = STEPS.indexOf(step);
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
@@ -180,10 +167,10 @@ export default function NewPostPage() {
         media_ids: mediaIds,
         include_hashtags: true,
       });
-      
+
       // API returns { caption: string } - empty string is a valid successful response
       const generatedCaption = res.caption || "";
-      
+
       // Always set the caption and show success if API call completed without error
       // An empty caption is a valid response, not an error condition
       setCaption(generatedCaption);
@@ -272,14 +259,8 @@ export default function NewPostPage() {
 
       const response = await tenantApi.createPost(payload);
 
-      // Clear draft on success (local + server)
-      localStorage.removeItem("post-draft");
-      try {
-        // Fire-and-forget delete; hook will enqueue and process
-        void deleteDraft();
-      } catch (e) {
-        // ignore
-      }
+      // Clear draft on success
+      if (draft?.id) deleteDraft.mutate(draft.id);
 
       // Invalidate queries to refresh the campaigns page
       void queryClient.invalidateQueries({ queryKey: ["scheduled-posts"] });
@@ -417,52 +398,7 @@ export default function NewPostPage() {
       </div>
 
       {/* Drafts / Restore button - moved outside hero */}
-      {remoteDraftAvailable && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-          <div className="flex items-center justify-between">
-            <div>Newer draft available — saved at {new Date(remoteDraftAvailable.updated_at).toLocaleString()}.</div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={async () => {
-                  await restoreRemote(remoteDraftAvailable.id);
-                  setRemoteDraftAvailable(null);
-                  const savedAgo = Math.max(0, Date.now() - new Date(remoteDraftAvailable.updated_at).getTime());
-                  const mins = Math.floor(savedAgo / 60000);
-                  const text = mins < 1 ? 'less than a minute ago' : `${mins} minute${mins > 1 ? 's' : ''} ago`;
-                  toast((t) => (
-                    <div className="flex items-center gap-3">
-                      <div>Restored draft — saved {text}</div>
-                      <button
-                        className="ml-4 rounded-md bg-white px-2 py-1 text-xs font-semibold text-rose-600 border border-rose-200"
-                        onClick={async () => {
-                          try {
-                            await deleteDraft(remoteDraftAvailable.id);
-                            toast.success('Draft discarded');
-                            toast.dismiss(t.id);
-                          } catch (e) {
-                            toast.error('Failed to discard draft');
-                          }
-                        }}
-                      >
-                        Discard
-                      </button>
-                    </div>
-                  ), { duration: 8000 });
-                }}
-                className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
-              >
-                Restore
-              </button>
-              <button
-                onClick={() => setRemoteDraftAvailable(null)}
-                className="rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-50"
-              >
-                Dismiss
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Drafts button and status */}
       <div className="flex items-center justify-between">
@@ -475,16 +411,10 @@ export default function NewPostPage() {
             Drafts
           </button>
           <div aria-live="polite" aria-atomic="true">
-            {navigator.onLine === false ? (
-              <span className="text-xs text-gray-500">Offline — Saved locally</span>
-            ) : draftStatus === 'saving' ? (
-              <span className="text-xs text-gray-500">Saving…</span>
-            ) : draftStatus === 'saved' ? (
-              <span className="text-xs text-gray-500">{lastSyncedAt ? `Saved at ${new Date(lastSyncedAt).toLocaleTimeString()}` : 'Saved'}</span>
-            ) : draftStatus === 'error' ? (
-              <span className="text-xs text-rose-600">Save failed (retrying)</span>
+            {isSaving ? (
+              <span className="text-xs text-gray-500">Saving...</span>
             ) : (
-              <span className="text-xs text-gray-500">Draft status: {draftStatus}</span>
+              <span className="text-xs text-gray-500">Draft saved</span>
             )}
           </div>
         </div>
@@ -520,36 +450,29 @@ export default function NewPostPage() {
       <DraftsModal
         open={showDraftsModal}
         onClose={() => setShowDraftsModal(false)}
-        keyName="compose.post"
+        keyName={DRAFT_KEYS.POST_CREATE}
         onRestore={(d) => {
-          // restore and show toast with discard action
-          void restoreRemote(d.id);
-          const savedAgo = Math.max(0, Date.now() - new Date(d.updated_at).getTime());
-          const mins = Math.floor(savedAgo / 60000);
-          const text = mins < 1 ? 'less than a minute ago' : `${mins} minute${mins > 1 ? 's' : ''} ago`;
-          toast((t) => (
-            <div className="flex items-center gap-3">
-              <div>Restored draft — saved {text}</div>
-              <button
-                className="ml-4 rounded-md bg-white px-2 py-1 text-xs font-semibold text-rose-600 border border-rose-200"
-                onClick={async () => {
-                  try {
-                    await deleteDraft(d.id);
-                    toast.success('Draft discarded');
-                    toast.dismiss(t.id);
-                  } catch (e) {
-                    toast.error('Failed to discard draft');
-                  }
-                }}
-              >
-                Discard
-              </button>
-            </div>
-          ), { duration: 8000 });
+          const content = parseDraftContent<any>(draft);
+          if (content) {
+            if (content.uploadedMedia) setUploadedMedia(content.uploadedMedia);
+            if (content.selectedMediaIds) setSelectedMediaIds(content.selectedMediaIds);
+            if (content.caption) setCaption(content.caption);
+            if (content.enhanceCaption !== undefined) setEnhanceCaption(content.enhanceCaption);
+            if (content.selectedPlatforms) setSelectedPlatforms(content.selectedPlatforms);
+            if (content.scheduledAt) setScheduledAt(content.scheduledAt);
+            if (content.step) setStep(content.step);
+            // tiktok
+            if (content.tiktokDisableDuet !== undefined) setTiktokDisableDuet(content.tiktokDisableDuet);
+            if (content.tiktokDisableStitch !== undefined) setTiktokDisableStitch(content.tiktokDisableStitch);
+            if (content.tiktokDisableComment !== undefined) setTiktokDisableComment(content.tiktokDisableComment);
+            if (content.tiktokScheduleTime) setTiktokScheduleTime(content.tiktokScheduleTime);
+
+            toast.success('Draft restored');
+          }
         }}
         onDiscard={async (id) => {
           try {
-            await deleteDraft(id);
+            await deleteDraft.mutate(id);
           } catch (e) {
             // ignore
           }
@@ -557,49 +480,7 @@ export default function NewPostPage() {
       />
 
       {/* Remote conflict dialog (if remote draft appears different) */}
-      {showRemoteConflict && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" />
-          <div className="z-50 w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
-            <h3 className="text-lg font-semibold">Remote draft detected</h3>
-            <p className="mt-2 text-sm text-gray-600">A newer draft exists on the server. Would you like to restore it, keep your local draft, or review differences?</p>
-            <div className="mt-4 flex items-center gap-2 justify-end">
-              <button
-                onClick={() => {
-                  // Review differences -> open drafts modal
-                  setShowDraftsModal(true);
-                  setShowRemoteConflict(null);
-                }}
-                className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700"
-              >
-                Review differences
-              </button>
-              <button
-                onClick={async () => {
-                  // Keep local
-                  setShowRemoteConflict(null);
-                  setRemoteDraftAvailable(null);
-                }}
-                className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700"
-              >
-                Keep local
-              </button>
-              <button
-                onClick={async () => {
-                  // Restore remote
-                  await restoreRemote(showRemoteConflict.id);
-                  setShowRemoteConflict(null);
-                  setRemoteDraftAvailable(null);
-                  toast.success('Remote draft restored');
-                }}
-                className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
-              >
-                Restore remote
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Progress Bar */}
       <div className="space-y-2">
@@ -631,13 +512,12 @@ export default function NewPostPage() {
                   setStep(stepKey);
                 }
               }}
-              className={`rounded-xl border px-3 py-2 text-center text-xs font-semibold transition-all ${
-                isActive
-                  ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
-                  : isCompleted
+              className={`rounded-xl border px-3 py-2 text-center text-xs font-semibold transition-all ${isActive
+                ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
+                : isCompleted
                   ? "border-green-300 bg-green-50 text-green-700 hover:border-green-400"
                   : "border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
-              } ${idx <= currentStepIndex ? "cursor-pointer hover:scale-105" : ""}`}
+                } ${idx <= currentStepIndex ? "cursor-pointer hover:scale-105" : ""}`}
               disabled={idx > currentStepIndex}
               aria-label={`Step ${idx + 1}: ${label}`}
             >
@@ -693,7 +573,7 @@ export default function NewPostPage() {
               onChange={setScheduledAt}
               selectedPlatforms={selectedPlatforms}
             />
-            
+
             {/* TikTok-specific options */}
             {selectedPlatforms.includes("tiktok") && (
               <TikTokOptions

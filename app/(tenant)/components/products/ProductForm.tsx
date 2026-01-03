@@ -11,6 +11,7 @@ import { getUserFriendlyErrorMessage, parseApiFieldErrors } from '@/lib/error-me
 import Link from "next/link";
 import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
+import { useDraft, useAutoSaveDraft, useDeleteDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 
 type ProductFormProps = {
   product?: Product | null;
@@ -21,6 +22,12 @@ export default function ProductForm({ product }: ProductFormProps) {
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
   const deleteMutation = useDeleteProduct();
+
+  const { data: draft, isLoading: draftLoading } = useDraft(DRAFT_KEYS.PRODUCT_CREATE);
+  const deleteDraft = useDeleteDraft();
+
+  // Only auto-save if creating a new product
+  const isCreateMode = !product;
 
   const [formData, setFormData] = useState({
     name: product?.name || "",
@@ -39,6 +46,21 @@ export default function ProductForm({ product }: ProductFormProps) {
     images: product?.images || [],
     variants: product?.variants || {},
   });
+
+  // Auto-save hook
+  const { isSaving } = useAutoSaveDraft(DRAFT_KEYS.PRODUCT_CREATE, formData, isCreateMode && !draftLoading);
+
+  // Restore draft
+  useEffect(() => {
+    if (isCreateMode && draft) {
+      const content = parseDraftContent<typeof formData>(draft);
+      if (content) {
+        // Merge with defaults if needed, or just set
+        setFormData((prev) => ({ ...prev, ...content }));
+        toast.success("Draft restored");
+      }
+    }
+  }, [isCreateMode, draft]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -84,10 +106,10 @@ export default function ProductForm({ product }: ProductFormProps) {
       const base = Object.keys(prev).reduce((acc: Record<string, string>, k) => {
         if (!['negotiation_min_price', 'negotiation_max_price'].includes(k)) acc[k] = prev[k];
         return acc;
-      }, {} as Record<string,string>);
+      }, {} as Record<string, string>);
       return { ...base, ...nextErrors };
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.negotiation_mode, formData.negotiation_min_price, formData.negotiation_max_price]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -137,6 +159,8 @@ export default function ProductForm({ product }: ProductFormProps) {
       } else {
         await createMutation.mutateAsync(payload);
         toast.success("Product created successfully");
+        // Clear draft
+        if (draft?.id) deleteDraft.mutate(draft.id);
       }
       router.push("/app/products");
     } catch (error: any) {
@@ -326,7 +350,7 @@ export default function ProductForm({ product }: ProductFormProps) {
         <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4">
           <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900 flex items-center justify-between">
             <span>Optional</span>
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.939l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clipRule="evenodd"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.939l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clipRule="evenodd" /></svg>
           </summary>
 
           <div className="mt-4 space-y-4">

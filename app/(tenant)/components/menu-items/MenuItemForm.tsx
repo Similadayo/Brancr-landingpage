@@ -10,6 +10,7 @@ import { getUserFriendlyErrorMessage, parseApiFieldErrors } from '@/lib/error-me
 import Link from "next/link";
 import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
+import { useDraft, useAutoSaveDraft, useDeleteDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 
 const DIETARY_OPTIONS = [
   'Vegetarian',
@@ -31,6 +32,12 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
   const updateMutation = useUpdateMenuItem();
   const deleteMutation = useDeleteMenuItem();
 
+  const { data: draft, isLoading: draftLoading } = useDraft(DRAFT_KEYS.MENU_ITEM_CREATE);
+  const deleteDraft = useDeleteDraft();
+
+  // Only auto-save if creating a new item
+  const isCreateMode = !item;
+
   const [formData, setFormData] = useState({
     name: item?.name || "",
     description: item?.description || "",
@@ -47,6 +54,20 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
     is_active: item?.is_active ?? true,
     images: item?.images || [],
   });
+
+  // Auto-save hook
+  const { isSaving } = useAutoSaveDraft(DRAFT_KEYS.MENU_ITEM_CREATE, formData, isCreateMode && !draftLoading);
+
+  // Restore draft
+  useEffect(() => {
+    if (isCreateMode && draft) {
+      const content = parseDraftContent<typeof formData>(draft);
+      if (content) {
+        setFormData((prev) => ({ ...prev, ...content }));
+        toast.success("Draft restored");
+      }
+    }
+  }, [isCreateMode, draft]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -149,6 +170,7 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
       } else {
         await createMutation.mutateAsync(payload);
         toast.success("Menu item created successfully");
+        if (draft?.id) deleteDraft.mutate(draft.id);
       }
       router.push("/app/menu-items");
     } catch (error: any) {
