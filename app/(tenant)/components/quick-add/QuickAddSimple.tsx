@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import ParsedItemsReview from './ParsedItemsReview';
 import Select from '../ui/Select';
 import { toast } from 'react-hot-toast';
+import { tenantApi } from '@/lib/api';
 
 const INDUSTRIES = [
 	{ value: 'products', label: 'Products' },
@@ -25,19 +26,25 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 
 	const handleParse = async () => {
 		if (!text.trim()) return toast.error('Paste some text to parse');
+		setParsing(true);
 		try {
-			setParsing(true);
-			const res = await fetch(`/api/tenant/${industry}/parse`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ text, source: 'paste' }),
-			});
-			if (!res.ok) throw new Error('Parse failed');
-			const data = await res.json();
-			setParsed(Array.isArray(data) ? data : []);
-		} catch (e) {
+			if (industry === 'menu') {
+				const res = await tenantApi.parseMenuText({ text, default_currency: 'NGN' });
+				setParsed(res.items || []);
+			} else {
+				const res = await fetch(`/api/tenant/${industry}/parse`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ text, source: 'paste' }),
+				});
+				if (!res.ok) throw new Error('Parse failed');
+				const data = await res.json();
+				setParsed(Array.isArray(data) ? data : []);
+			}
+		} catch (e: any) {
 			console.error('Parse error:', e);
-			toast.error('Failed to parse input');
+			const msg = e?.body?.errors?.[0] || 'Failed to parse input';
+			toast.error(msg);
 		} finally {
 			setParsing(false);
 		}
@@ -47,7 +54,7 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 		<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900">
 			{/* Hero Section */}
 			<div className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-b border-primary/10 dark:from-primary/20 dark:via-primary/10 dark:border-primary/20">
-				<div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMSIvPjwvZz48L2c+PC9zdmc+')] opacity-40 dark:opacity-20"></div>
+				<div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZCI+PGcgaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiPjxjaXJjbGUgY3g9IjMwIiBjeT0iMzAiIHI9IjEiLz48L2c+PC9nPg==')] opacity-40 dark:opacity-20"></div>
 				<div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 					<div className="max-w-3xl mx-auto text-center">
 						<h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">
@@ -118,54 +125,61 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 										if (!file) return;
 										const form = new FormData();
 										form.append('file', file);
+										setParsing(true);
+
 										try {
-											setParsing(true);
-											const res = await fetch(`/api/tenant/${industry}/parse/file`, { method: 'POST', body: form });
-											if (res.status === 202) {
-												const body = await res.json();
-												const jobId = body?.job_id;
-												if (jobId) {
-													setJobId(jobId);
-													setJobStatus('pending');
-													// poll job status
-													let attempt = 0;
-													let delay = 200; // start shorter for responsiveness
-													const maxAttempts = 30;
-													// eslint-disable-next-line no-constant-condition
-													while (true) {
-														const jobRes = await fetch(`/api/tenant/${industry}/parse/jobs/${jobId}`);
-														if (!jobRes.ok) {
-															toast.error('Failed to check job status');
-															setJobStatus('error');
-															break;
-														}
-														const jobData = await jobRes.json();
-														setJobStatus(jobData.status);
-														if (jobData.status === 'done') {
-															setParsed(Array.isArray(jobData.result) ? jobData.result : []);
-															break;
-														}
-														if (jobData.status === 'failed') {
-															toast.error('File parse failed');
-															break;
-														}
-														attempt += 1;
-														if (attempt >= maxAttempts) {
-															toast.error('Parsing timed out');
-															setJobStatus('timeout');
-															break;
-														}
-														// exponential backoff
-														await new Promise((r) => setTimeout(r, delay + Math.floor(Math.random() * 200)));
-														delay = Math.min(8000, delay * 2);
-													}
-													setJobId(null);
-													setJobStatus(null);
-												}
+											if (industry === 'menu') {
+												form.append('default_currency', 'NGN');
+												const res = await tenantApi.parseMenuFile(form);
+												setParsed(res.items || []);
 											} else {
-												if (!res.ok) throw new Error('Upload failed');
-												const data = await res.json();
-												setParsed(Array.isArray(data) ? data : []);
+												const res = await fetch(`/api/tenant/${industry}/parse/file`, { method: 'POST', body: form });
+												if (res.status === 202) {
+													const body = await res.json();
+													const jobId = body?.job_id;
+													if (jobId) {
+														setJobId(jobId);
+														setJobStatus('pending');
+														// poll job status
+														let attempt = 0;
+														let delay = 200; // start shorter for responsiveness
+														const maxAttempts = 30;
+														// eslint-disable-next-line no-constant-condition
+														while (true) {
+															const jobRes = await fetch(`/api/tenant/${industry}/parse/jobs/${jobId}`);
+															if (!jobRes.ok) {
+																toast.error('Failed to check job status');
+																setJobStatus('error');
+																break;
+															}
+															const jobData = await jobRes.json();
+															setJobStatus(jobData.status);
+															if (jobData.status === 'done') {
+																setParsed(Array.isArray(jobData.result) ? jobData.result : []);
+																break;
+															}
+															if (jobData.status === 'failed') {
+																toast.error('File parse failed');
+																break;
+															}
+															attempt += 1;
+															if (attempt >= maxAttempts) {
+																toast.error('Parsing timed out');
+																setJobStatus('timeout');
+																break;
+															}
+															// exponential backoff
+															await new Promise((r) => setTimeout(r, delay + Math.floor(Math.random() * 200)));
+															delay = Math.min(8000, delay * 2);
+														}
+														setJobId(null);
+														setJobStatus(null);
+													}
+												} else {
+													if (!res.ok) throw new Error('Upload failed');
+													const data = await res.json();
+													setParsed(Array.isArray(data) ? data : []);
+												}
 											}
 										} catch (err) {
 											console.error(err);

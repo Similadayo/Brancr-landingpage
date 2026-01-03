@@ -624,6 +624,8 @@ export const tenantApi = {
   deleteTemplate: (templateId: string) =>
     del<{ success: boolean }>(`/api/tenant/templates/${templateId}`),
 
+
+
   // Team management endpoints (some return 501 Not Implemented)
   teamMembers: () =>
     get<{
@@ -1906,6 +1908,40 @@ export const tenantApi = {
 
   deleteMenuItem: (menuItemId: number) =>
     del<{ success: boolean; message?: string }>(`/api/tenant/menu-items/${menuItemId}`),
+
+  parseMenuText: (payload: { text: string; default_currency?: string }) =>
+    post<typeof payload, {
+      success: boolean;
+      parsed_count: number;
+      items: Array<{
+        name: string;
+        description?: string;
+        price: number;
+        currency: string;
+        category?: string;
+        dietary_info?: string[];
+        spice_level?: string;
+      }>;
+      errors: string[];
+    }>("/api/tenant/menu-items/parse-text", payload),
+
+  parseMenuFile: (formData: FormData) =>
+    post<FormData, {
+      success: boolean;
+      parsed_count: number;
+      items: Array<{
+        name: string;
+        description?: string;
+        price: number;
+        currency: string;
+        category?: string;
+        dietary_info?: string[];
+        spice_level?: string;
+      }>;
+      errors: string[];
+      file_name: string;
+      file_type: string;
+    }>("/api/tenant/menu-items/parse-file", formData),
 
   // Service management endpoints (Consultants/Agencies)
   services: (params?: { category?: string; search?: string; limit?: number }) => {
