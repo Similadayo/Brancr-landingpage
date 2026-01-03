@@ -10,6 +10,7 @@ import { WhatsAppNumberSelector } from "@/app/(tenant)/components/WhatsAppNumber
 import { authApi, tenantApi } from '@/lib/api';
 import ConfirmModal from '@/app/components/ConfirmModal';
 import { LinkIcon, CheckCircleIcon, XIcon, ChevronRightIcon, AlertIcon } from "../../components/icons";
+import TelegramConnectButton from "@/app/(tenant)/components/TelegramConnectButton";
 
 const STATUS_MAP: Record<
   "connected" | "pending" | "action_required" | "not_connected",
@@ -85,7 +86,7 @@ export default function IntegrationsPage() {
   const [disconnectingPlatform, setDisconnectingPlatform] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
   const [showDisconnectConfirmFor, setShowDisconnectConfirmFor] = useState<string | null>(null);
-  
+
   // Stepper flow state
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [connectionStep, setConnectionStep] = useState<ConnectionStep>('select');
@@ -206,7 +207,7 @@ export default function IntegrationsPage() {
     setConnectionStep('connect');
 
     try {
-      const successRedirect = typeof window !== 'undefined' 
+      const successRedirect = typeof window !== 'undefined'
         ? `${window.location.origin}/app/integrations?platform=${platform}&status=success`
         : `/app/integrations?platform=${platform}&status=success`;
 
@@ -267,7 +268,7 @@ export default function IntegrationsPage() {
       setSelectedPlatform(null);
     } else if (status === 'error' || error) {
       let errorMessage = message || 'Unknown error';
-      
+
       if (error === 'access_denied' || errorReason === 'user_denied') {
         errorMessage = 'Connection cancelled. You can try again when ready.';
       } else if (errorDescription) {
@@ -275,7 +276,7 @@ export default function IntegrationsPage() {
       } else if (error) {
         errorMessage = `Connection failed: ${error}`;
       }
-      
+
       toast.error(errorMessage);
       window.history.replaceState({}, '', window.location.pathname);
       setIsConnecting(null);
@@ -322,14 +323,13 @@ export default function IntegrationsPage() {
           >
             View audit log
           </Link>
-          <Link
-            href="https://t.me/brancrbot"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary w-full sm:w-auto justify-center"
+          <TelegramConnectButton
+            variant="solid"
+            tenantId={tenantId}
+            className="w-full sm:w-auto justify-center"
           >
             Launch Telegram assistant
-          </Link>
+          </TelegramConnectButton>
         </div>
       </header>
 
@@ -396,15 +396,14 @@ export default function IntegrationsPage() {
                     <div key={step.key} className="flex flex-1 items-center">
                       <div className="flex flex-col items-center">
                         <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition ${
-                            isCompleted
-                              ? 'border-success-500 bg-success-500 text-white'
-                              : isActive
+                          className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition ${isCompleted
+                            ? 'border-success-500 bg-success-500 text-white'
+                            : isActive
                               ? 'border-accent-500 bg-accent-500 text-white dark:bg-white dark:text-gray-100 dark:border-white'
                               : isAccessible
-                              ? 'border-gray-300 bg-white text-gray-400 dark:border-gray-600 dark:bg-gray-700'
-                              : 'border-gray-200 bg-gray-50 text-gray-300 dark:border-gray-600 dark:bg-gray-700/50'
-                          }`}
+                                ? 'border-gray-300 bg-white text-gray-400 dark:border-gray-600 dark:bg-gray-700'
+                                : 'border-gray-200 bg-gray-50 text-gray-300 dark:border-gray-600 dark:bg-gray-700/50'
+                            }`}
                         >
                           {isCompleted ? (
                             <CheckCircleIcon className="h-5 w-5" />
@@ -531,11 +530,11 @@ export default function IntegrationsPage() {
                     )}
                   </div>
                   <span className={`badge ${status.badge} shrink-0 text-[10px]`}>
-                    {isWhatsApp && connected 
+                    {isWhatsApp && connected
                       ? (whatsappCurrent?.phone_number || whatsappStatus?.phone_number || integration?.external_id || "Connected")
-                      : isWhatsApp && !connected 
-                      ? "No Number Assigned" 
-                      : status.label}
+                      : isWhatsApp && !connected
+                        ? "No Number Assigned"
+                        : status.label}
                   </span>
                 </div>
 
@@ -630,14 +629,13 @@ export default function IntegrationsPage() {
                     </>
                   ) : platform === "telegram" ? (
                     <>
-                      <a
-                        href="https://t.me/brancrbot"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-primary text-xs"
+                      <TelegramConnectButton
+                        variant="solid"
+                        tenantId={tenantId}
+                        className="text-xs px-3 py-1.5 h-auto"
                       >
                         Open bot deep link
-                      </a>
+                      </TelegramConnectButton>
                       {guide && (
                         <Link
                           href={guide.href}
