@@ -547,7 +547,7 @@ export function useDeleteConversation() {
       toast.success("Conversation deleted");
       // Remove from cache immediately
       queryClient.setQueryData<ConversationSummary[]>(["conversations"], (old) => {
-        if (!old) return old;
+        if (!old || !Array.isArray(old)) return [];
         return old.filter((conv) => String(conv.id) !== conversationId);
       });
       void queryClient.invalidateQueries({ queryKey: ["conversations"] });
@@ -577,7 +577,7 @@ export function useBulkDeleteConversations() {
       toast.success(`${count} conversation${count !== 1 ? 's' : ''} deleted`);
       // Remove from cache immediately
       queryClient.setQueryData<ConversationSummary[]>(["conversations"], (old) => {
-        if (!old) return old;
+        if (!old || !Array.isArray(old)) return [];
         return old.filter((conv) => !deletedIds.includes(String(conv.id)));
       });
       void queryClient.invalidateQueries({ queryKey: ["conversations"] });

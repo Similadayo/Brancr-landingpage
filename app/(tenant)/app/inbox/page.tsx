@@ -167,14 +167,16 @@ export default function InboxPage() {
     const { id } = deleteConfirmationState;
     if (!id) return;
 
+    // Close modal immediately
+    setDeleteConfirmationState(prev => ({ ...prev, isOpen: false }));
+
     deleteConversation(id, {
-      onSuccess: () => {
-        // Clear selection if it was the active one
+      onSettled: () => {
+        // Always clear selection and go back to list
         if (selectedConversationId === id) {
           setSelectedConversationId(null);
           setMobileView('list');
         }
-        setDeleteConfirmationState(prev => ({ ...prev, isOpen: false }));
       },
     });
   };
@@ -192,15 +194,17 @@ export default function InboxPage() {
   const confirmBulkDelete = () => {
     if (selectedIds.size === 0) return;
 
+    // Close modal immediately
+    setDeleteConfirmationState(prev => ({ ...prev, isOpen: false }));
+
     bulkDeleteConversations(Array.from(selectedIds), {
-      onSuccess: () => {
+      onSettled: () => {
         setSelectedIds(new Set());
         setSelectMode(false);
         if (selectedConversationId && selectedIds.has(selectedConversationId)) {
           setSelectedConversationId(null);
           setMobileView('list');
         }
-        setDeleteConfirmationState(prev => ({ ...prev, isOpen: false }));
       },
     });
   };
