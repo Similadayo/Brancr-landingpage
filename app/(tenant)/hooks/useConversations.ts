@@ -541,15 +541,7 @@ export function useDeleteConversation() {
       if (!conversationId) {
         throw new Error("Conversation ID is required");
       }
-      const response = await fetch(`/api/tenant/conversations/${conversationId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new ApiError(data.message || 'Failed to delete conversation', response.status);
-      }
-      return response.json();
+      return tenantApi.deleteConversation(conversationId);
     },
     onSuccess: (_, conversationId) => {
       toast.success("Conversation deleted");
@@ -578,17 +570,7 @@ export function useBulkDeleteConversations() {
       if (!ids.length) {
         throw new Error("No conversations selected");
       }
-      const response = await fetch('/api/tenant/conversations', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ ids }),
-      });
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new ApiError(data.message || 'Failed to delete conversations', response.status);
-      }
-      return response.json();
+      return tenantApi.bulkDeleteConversations(ids);
     },
     onSuccess: (result, deletedIds) => {
       const count = result.deleted || deletedIds.length;

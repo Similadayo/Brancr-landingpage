@@ -411,6 +411,12 @@ export const tenantApi = {
   updateConversation: (conversationId: string, payload: { notes?: string; tags?: string[] }) =>
     patch<typeof payload, { success: boolean }>(`/api/tenant/conversations/${conversationId}`, payload),
 
+  deleteConversation: (conversationId: string) =>
+    del<{ success: boolean }>(`/api/tenant/conversations/${conversationId}`),
+
+  bulkDeleteConversations: (ids: string[]) =>
+    del<{ success: boolean; deleted: number }>(`/api/tenant/conversations`, { body: JSON.stringify({ ids }) }),
+
   suggestReplies: (conversationId: string) =>
     post<undefined, { suggestions: Array<{ reply: string; tone?: string; confidence?: number }> }>(`/api/tenant/conversations/${conversationId}/suggest-replies`),
 
