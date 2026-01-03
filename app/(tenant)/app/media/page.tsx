@@ -354,27 +354,15 @@ export default function MediaLibraryPage() {
           >
             <FunnelIcon className="h-4 w-4" />
           </button>
-          <div className="w-44">
-            <Select
-              value={(type ?? '') as 'image' | 'video' | 'carousel' | ''}
-              onChange={(value) => setType(value || undefined)}
-              options={[
-                { value: '', label: 'All Types' },
-                { value: 'image', label: 'Images' },
-                { value: 'video', label: 'Videos' },
-                { value: 'carousel', label: 'Carousels' },
-              ]}
-              searchable={false}
-              buttonClassName="px-3 py-2.5 text-sm rounded-lg"
-            />
-          </div>
           <button
             onClick={() => {
               setType(undefined);
               setQuery("");
+              setSelectedTags([]);
+              setDateRange('all');
             }}
             className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary"
-            title="Clear filters"
+            title="Clear all filters"
           >
             Clear
           </button>
