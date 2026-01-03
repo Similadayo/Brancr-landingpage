@@ -820,22 +820,20 @@ export default function InboxPage() {
               <div className="relative flex-1 overflow-y-auto min-h-0 scrollbar-thin">
                 {/* Wallpaper Background - Dark Mode */}
                 <div
-                  className="fixed inset-0 z-0 opacity-[0.08] pointer-events-none hidden dark:block"
+                  className="sticky top-0 left-0 right-0 h-full w-full z-0 opacity-[0.15] pointer-events-none hidden dark:block -mb-[100%]"
                   style={{
                     backgroundImage: "url('/chat-bg-pattern.png')",
                     backgroundRepeat: "repeat",
                     backgroundSize: "300px",
-                    backgroundAttachment: "fixed",
                   }}
                 />
                 {/* Wallpaper Background - Light Mode */}
                 <div
-                  className="fixed inset-0 z-0 opacity-[0.06] pointer-events-none block dark:hidden"
+                  className="sticky top-0 left-0 right-0 h-full w-full z-0 opacity-[0.10] pointer-events-none block dark:hidden -mb-[100%]"
                   style={{
                     backgroundImage: "url('/chat-bg-pattern-light.png')",
                     backgroundRepeat: "repeat",
                     backgroundSize: "300px",
-                    backgroundAttachment: "fixed",
                   }}
                 />
 
