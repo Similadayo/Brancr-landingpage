@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { tenantApi, ApiError } from '@/lib/api';
 import { useIndustries, FALLBACK_INDUSTRIES } from '../../hooks/useIndustry';
 import OnboardingSuccess from '../../components/onboarding/OnboardingSuccess';
+import { ChevronDownIcon } from '../../components/icons';
 
 type ProfileData = {
   name: string;
@@ -264,22 +265,25 @@ export default function MagicProfilePage() {
                     {/* Unified input container - matching PhoneInput design */}
                     <div className="flex w-full items-center rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30 dark:bg-dark-bg dark:border-dark-border">
                       {/* Platform Selector - inside the input */}
-                      <select
-                        value={platform}
-                        onChange={(e) => setPlatform(e.target.value)}
-                        className="shrink-0 appearance-none bg-transparent pl-4 pr-2 py-3 text-sm text-gray-700 dark:text-gray-300 focus:outline-none cursor-pointer border-0 focus:ring-0"
-                      >
-                        <option value="auto">Auto</option>
-                        <option value="website">Website</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="facebook">Facebook</option>
-                        <option value="tiktok">TikTok</option>
-                        <option value="twitter">X</option>
-                        <option value="linkedin">LinkedIn</option>
-                      </select>
+                      <div className="relative flex items-center">
+                        <select
+                          value={platform}
+                          onChange={(e) => setPlatform(e.target.value)}
+                          className="appearance-none bg-transparent pl-4 pr-8 py-3 text-sm text-gray-700 dark:text-gray-300 focus:outline-none cursor-pointer border-0 focus:ring-0 max-w-[140px]"
+                        >
+                          <option value="auto">Auto</option>
+                          <option value="website">Website</option>
+                          <option value="instagram">Instagram</option>
+                          <option value="facebook">Facebook</option>
+                          <option value="tiktok">TikTok</option>
+                          <option value="twitter">X</option>
+                          <option value="linkedin">LinkedIn</option>
+                        </select>
+                        <ChevronDownIcon className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                      </div>
 
                       {/* Vertical Divider */}
-                      <div className="h-6 w-px bg-gray-200 dark:bg-dark-border mx-1" />
+                      <div className="h-6 w-px bg-gray-200 dark:bg-dark-border mx-1 shrink-0" />
 
                       {/* URL/Handle Input */}
                       <input
@@ -295,7 +299,7 @@ export default function MagicProfilePage() {
                                     platform === 'linkedin' ? 'linkedin.com/in/...' :
                                       'yourwebsite.com or @handle'
                         }
-                        className="block w-full flex-1 border-0 bg-transparent py-3 pl-2 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:ring-0 focus:outline-none dark:text-white"
+                        className="block w-full min-w-0 flex-1 border-0 bg-transparent py-3 pl-2 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:ring-0 focus:outline-none dark:text-white"
                       />
                     </div>
                     <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">Enter your website URL, any social media link, or just your handle</p>
