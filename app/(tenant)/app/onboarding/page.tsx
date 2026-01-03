@@ -265,11 +265,11 @@ export default function MagicProfilePage() {
                     {/* Unified input container - matching PhoneInput design */}
                     <div className="flex w-full items-center rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30 dark:bg-dark-bg dark:border-dark-border">
                       {/* Platform Selector - inside the input */}
-                      <div className="relative flex items-center">
+                      <div className="relative flex items-center shrink-0">
                         <select
                           value={platform}
                           onChange={(e) => setPlatform(e.target.value)}
-                          className="appearance-none bg-transparent pl-4 pr-8 py-3 text-sm text-gray-700 dark:text-gray-300 focus:outline-none cursor-pointer border-0 focus:ring-0 max-w-[140px]"
+                          className="appearance-none bg-transparent pl-4 pr-8 py-3 text-sm text-gray-700 dark:text-gray-300 focus:outline-none cursor-pointer border-0 focus:ring-0 w-auto max-w-[140px]"
                         >
                           <option value="auto">Auto</option>
                           <option value="website">Website</option>
