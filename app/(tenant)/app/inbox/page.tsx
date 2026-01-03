@@ -340,8 +340,13 @@ export default function InboxPage() {
     return msgs;
   }, [conversationDetail?.messages]);
 
+  // Scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages.length > 0) {
+      // Use 'auto' behavior for instant scroll to avoid "scrolling down" animation on load
+      // We can refine this later to only be 'auto' on first load if needed, but 'auto' is generally safer for "start at bottom"
+      messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -732,7 +737,7 @@ export default function InboxPage() {
         </section>
 
         {/* Center Panel - Chat Conversation */}
-        <section className={`flex h-full flex-col bg-white dark:bg-gray-700 border-r border-gray-200 dark:border-gray-600 transition-transform duration-300 overflow-hidden ${mobileView === "list" ? "hidden md:flex" : "flex"
+        <section className={`relative flex h-full flex-col bg-white dark:bg-gray-700 border-r border-gray-200 dark:border-gray-600 transition-transform duration-300 overflow-hidden ${mobileView === "list" ? "hidden md:flex" : "flex"
           }`}>
           {activeConversation ? (
             <>
@@ -820,26 +825,28 @@ export default function InboxPage() {
                 </div>
               </header>
 
+              {/* Wallpaper Background - Dark Mode */}
+              <div
+                className="absolute inset-0 z-0 opacity-[0.15] pointer-events-none hidden dark:block"
+                style={{
+                  backgroundImage: "url('/chat-bg-pattern.png')",
+                  backgroundRepeat: "repeat",
+                  backgroundSize: "300px",
+                }}
+              />
+              {/* Wallpaper Background - Light Mode */}
+              <div
+                className="absolute inset-0 z-0 opacity-[0.10] pointer-events-none block dark:hidden"
+                style={{
+                  backgroundImage: "url('/chat-bg-pattern-light.png')",
+                  backgroundRepeat: "repeat",
+                  backgroundSize: "300px",
+                }}
+              />
+
               {/* Messages - Scrollable */}
-              <div className="relative flex-1 overflow-y-auto min-h-0 scrollbar-thin">
-                {/* Wallpaper Background - Dark Mode */}
-                <div
-                  className="sticky top-0 left-0 right-0 h-full w-full z-0 opacity-[0.15] pointer-events-none hidden dark:block -mb-[100%]"
-                  style={{
-                    backgroundImage: "url('/chat-bg-pattern.png')",
-                    backgroundRepeat: "repeat",
-                    backgroundSize: "300px",
-                  }}
-                />
-                {/* Wallpaper Background - Light Mode */}
-                <div
-                  className="sticky top-0 left-0 right-0 h-full w-full z-0 opacity-[0.10] pointer-events-none block dark:hidden -mb-[100%]"
-                  style={{
-                    backgroundImage: "url('/chat-bg-pattern-light.png')",
-                    backgroundRepeat: "repeat",
-                    backgroundSize: "300px",
-                  }}
-                />
+              <div className="relative flex-1 overflow-y-auto min-h-0 scrollbar-thin z-10">
+
 
                 <div className="relative z-1 space-y-4 px-4 py-4 pb-4">
                   {messages.map((message: Message, index: number) => {
