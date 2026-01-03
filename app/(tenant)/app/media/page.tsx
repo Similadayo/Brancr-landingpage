@@ -328,63 +328,149 @@ export default function MediaLibraryPage() {
       </div>
 
       {/* Filters and Search */}
-      <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <MagnifyingGlassIcon
-            className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500"
-            aria-hidden="true"
-          />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search media by name, caption, or tags..."
-            className="w-full h-10 rounded-lg border border-gray-300 bg-white pl-11 pr-4 text-sm text-gray-900 placeholder:text-gray-500 transition hover:border-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <MagnifyingGlassIcon
+              className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500"
+              aria-hidden="true"
+            />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search media by name, caption, or tags..."
+              className="w-full h-10 rounded-lg border border-gray-300 bg-white pl-11 pr-4 text-sm text-gray-900 placeholder:text-gray-500 transition hover:border-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            {/* Filter Toggle */}
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className={`rounded-lg border p-2.5 transition ${!sidebarCollapsed
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary'
+                }`}
+              title={sidebarCollapsed ? "Show filters" : "Hide filters"}
+            >
+              <FunnelIcon className="h-4 w-4" />
+            </button>
+            {(type || selectedTags.length > 0 || dateRange !== 'all') && (
+              <button
+                onClick={() => {
+                  setType(undefined);
+                  setQuery("");
+                  setSelectedTags([]);
+                  setDateRange('all');
+                }}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary"
+                title="Clear all filters"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`rounded-md p-2 transition ${viewMode === "grid" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-gray-900"
+                }`}
+              aria-label="Grid view"
+            >
+              <Squares2X2Icon className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`rounded-md p-2 transition ${viewMode === "list" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-gray-900"
+                }`}
+              aria-label="List view"
+            >
+              <ListBulletIcon className="h-4 w-4" />
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          {/* Sidebar Toggle */}
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className={`rounded-lg border p-2.5 transition ${!sidebarCollapsed
-              ? 'border-primary bg-primary/10 text-primary'
-              : 'border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary'
-              }`}
-            title={sidebarCollapsed ? "Show filters" : "Hide filters"}
-          >
-            <FunnelIcon className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => {
-              setType(undefined);
-              setQuery("");
-              setSelectedTags([]);
-              setDateRange('all');
-            }}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary"
-            title="Clear all filters"
-          >
-            Clear
-          </button>
-        </div>
-        <div className="flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1">
-          <button
-            onClick={() => setViewMode("grid")}
-            className={`rounded-md p-2 transition ${viewMode === "grid" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-gray-900"
-              }`}
-            aria-label="Grid view"
-          >
-            <Squares2X2Icon className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => setViewMode("list")}
-            className={`rounded-md p-2 transition ${viewMode === "list" ? "bg-white text-primary shadow-sm" : "text-gray-600 hover:text-gray-900"
-              }`}
-            aria-label="List view"
-          >
-            <ListBulletIcon className="h-4 w-4" />
-          </button>
-        </div>
+
+        {/* Inline Filter Panel */}
+        {!sidebarCollapsed && (
+          <div className="border-t border-gray-200 p-4">
+            <div className="flex flex-wrap gap-6">
+              {/* Type Filter */}
+              <div>
+                <label className="text-xs font-medium text-gray-500 mb-2 block">Type</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { value: undefined, label: 'All' },
+                    { value: 'image', label: 'Images' },
+                    { value: 'video', label: 'Videos' },
+                    { value: 'carousel', label: 'Carousels' },
+                  ].map((option) => (
+                    <button
+                      key={option.value ?? 'all'}
+                      onClick={() => setType(option.value)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${type === option.value
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+                        }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Date Range Filter */}
+              <div>
+                <label className="text-xs font-medium text-gray-500 mb-2 block">Upload Date</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { value: 'all' as const, label: 'All Time' },
+                    { value: 'today' as const, label: 'Today' },
+                    { value: 'week' as const, label: 'This Week' },
+                    { value: 'month' as const, label: 'This Month' },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setDateRange(option.value)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${dateRange === option.value
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+                        }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tags Filter */}
+              {availableTags.length > 0 && (
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-2 block">Tags</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {availableTags.slice(0, 10).map((tag) => (
+                      <button
+                        key={tag}
+                        onClick={() => {
+                          if (selectedTags.includes(tag)) {
+                            setSelectedTags(selectedTags.filter(t => t !== tag));
+                          } else {
+                            setSelectedTags([...selectedTags, tag]);
+                          }
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${selectedTags.includes(tag)
+                          ? 'bg-primary text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+                          }`}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Selection Controls */}
@@ -859,31 +945,6 @@ export default function MediaLibraryPage() {
           onConfirm={confirmBulkDelete}
           onCancel={() => setShowBulkDeleteConfirm(false)}
         />
-      )}
-
-      {/* Sidebar Filter Panel (Slide-over modal) */}
-      {!sidebarCollapsed && (
-        <>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-40 bg-black/30 lg:hidden"
-            onClick={() => setSidebarCollapsed(true)}
-          />
-          {/* Sidebar */}
-          <div className="fixed right-0 top-0 bottom-0 z-50 w-72 shadow-xl">
-            <MediaSidebar
-              type={type}
-              onTypeChange={setType}
-              selectedTags={selectedTags}
-              onTagsChange={setSelectedTags}
-              availableTags={availableTags}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
-              isCollapsed={sidebarCollapsed}
-              onToggleCollapse={() => setSidebarCollapsed(true)}
-            />
-          </div>
-        </>
       )}
 
       {/* Quick View Panel (Modal) */}
