@@ -22,7 +22,7 @@ import { formatDate } from '@/lib/date';
 export default function OrderDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const orderId = parseInt(params.id as string);
+  const orderId = params.id as string;
   const { data: order, isLoading, error } = useOrder(orderId);
   const updateMutation = useUpdateOrder();
   const confirmPaymentMutation = useConfirmOrderPayment();

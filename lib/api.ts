@@ -2194,7 +2194,7 @@ export const tenantApi = {
       : "";
     return get<{
       orders: Array<{
-        id: number;
+        id: string;
         order_number: string;
         payment_reference: string;
         customer_name: string;
@@ -2217,9 +2217,9 @@ export const tenantApi = {
     }>(`/api/tenant/orders${query}`);
   },
 
-  order: (orderId: number) =>
+  order: (orderId: string | number) =>
     get<{
-      id: number;
+      id: string;
       order_number: string;
       payment_reference: string;
       customer_name: string;
@@ -2241,14 +2241,14 @@ export const tenantApi = {
       updated_at: string;
     }>(`/api/tenant/orders/${orderId}`),
 
-  updateOrder: (orderId: number, payload: {
+  updateOrder: (orderId: string | number, payload: {
     status?: "pending" | "confirmed" | "processing" | "completed" | "cancelled";
     notes?: string;
   }) =>
     put<typeof payload, {
       success: boolean;
       order: {
-        id: number;
+        id: string;
         order_number: string;
         payment_reference: string;
         customer_name: string;
@@ -2271,7 +2271,7 @@ export const tenantApi = {
       };
     }>(`/api/tenant/orders/${orderId}`, payload),
 
-  confirmOrderPayment: (orderId: number, payload: {
+  confirmOrderPayment: (orderId: string | number, payload: {
     payment_reference: string;
     notes?: string;
   }) =>
@@ -2279,7 +2279,7 @@ export const tenantApi = {
       success: boolean;
       message?: string;
       order: {
-        id: number;
+        id: string;
         status: "confirmed" | "processing" | "completed";
         payment_verified: boolean;
       };

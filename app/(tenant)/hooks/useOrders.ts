@@ -5,7 +5,7 @@ import { ApiError, tenantApi } from "@/lib/api";
 import { toast } from "react-hot-toast";
 
 export type Order = {
-  id: number;
+  id: string;
   order_number: string;
   payment_reference: string;
   customer_name: string;
@@ -26,7 +26,7 @@ export type Order = {
   created_at: string;
   updated_at: string;
   is_auto_created?: boolean;
-  conversation_id?: number;
+  conversation_id?: number | string;
 };
 
 export type OrderStats = {
@@ -52,7 +52,7 @@ export function useOrders(filters?: { status?: string; platform?: string; limit?
   });
 }
 
-export function useOrder(orderId: number) {
+export function useOrder(orderId: string | number) {
   return useQuery<Order | null, Error>({
     queryKey: ["orders", orderId],
     queryFn: async () => {
@@ -84,7 +84,7 @@ export function useOrderStats() {
 export function useUpdateOrder() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ orderId, payload }: { orderId: number; payload: { status?: "pending" | "confirmed" | "processing" | "completed" | "cancelled"; notes?: string } }) => {
+    mutationFn: async ({ orderId, payload }: { orderId: string | number; payload: { status?: "pending" | "confirmed" | "processing" | "completed" | "cancelled"; notes?: string } }) => {
       return tenantApi.updateOrder(orderId, payload);
     },
     onSuccess: (_, variables) => {
@@ -105,7 +105,7 @@ export function useUpdateOrder() {
 export function useConfirmOrderPayment() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ orderId, payload }: { orderId: number; payload: { payment_reference: string; notes?: string } }) => {
+    mutationFn: async ({ orderId, payload }: { orderId: string | number; payload: { payment_reference: string; notes?: string } }) => {
       return tenantApi.confirmOrderPayment(orderId, payload);
     },
     onSuccess: (_, variables) => {
