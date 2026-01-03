@@ -129,20 +129,24 @@ export function useCampaignStats() {
     queryKey: ["campaign-stats"],
     queryFn: async () => {
       try {
-        const response = await tenantApi.campaignStats();
+        const [scheduledRes, publishedRes, draftsRes] = await Promise.all([
+          tenantApi.scheduledPosts({ status: 'scheduled', limit: 1 }),
+          tenantApi.scheduledPosts({ status: 'posted', limit: 1 }),
+          tenantApi.getDrafts('compose.post')
+        ]);
+
         return {
-          scheduled: response?.scheduled ?? 0,
-          published: response?.published ?? 0,
-          draft: response?.draft ?? 0,
+          scheduled: scheduledRes.pagination?.total ?? 0,
+          published: publishedRes.pagination?.total ?? 0,
+          draft: draftsRes?.drafts?.length ?? 0,
         };
       } catch (error) {
-        if (error instanceof ApiError && error.status === 404) {
-          return { scheduled: 0, published: 0, draft: 0 };
-        }
-        throw error;
+        console.error("Failed to fetch campaign stats", error);
+        // Fallback to 0 if anything fails
+        return { scheduled: 0, published: 0, draft: 0 };
       }
     },
-    refetchInterval: 60000, // Poll every minute
+    refetchInterval: 30000, // Poll every 30 seconds
   });
 }
 

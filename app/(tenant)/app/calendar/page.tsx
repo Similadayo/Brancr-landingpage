@@ -54,11 +54,15 @@ export default function CalendarPage() {
   // Fetch calendar data
   const { data: calendarData } = useQuery({
     queryKey: ["calendar", monthKey],
-    queryFn: () =>
-      tenantApi.calendar({
-        start_date: `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}-01`,
-        end_date: `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}-31`,
-      }),
+    queryFn: () => {
+      const year = cursor.getFullYear();
+      const month = cursor.getMonth();
+      const lastDay = new Date(year, month + 1, 0).getDate();
+      return tenantApi.calendar({
+        start_date: `${year}-${String(month + 1).padStart(2, "0")}-01`,
+        end_date: `${year}-${String(month + 1).padStart(2, "0")}-${lastDay}`,
+      });
+    },
     retry: 0,
   });
   const { data: scheduledPostsData } = useScheduledPosts();
