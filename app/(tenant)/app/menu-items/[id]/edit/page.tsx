@@ -1,14 +1,12 @@
 'use client';
 
-import { use } from "react";
 import Link from "next/link";
 import { useMenuItems } from "../../../../hooks/useMenuItems";
 import MenuItemForm from "../../../../components/menu-items/MenuItemForm";
 
-export default function EditMenuItemPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
-  const menuItemId = parseInt(id, 10);
-  
+export default function EditMenuItemPage({ params }: { params: { id: string } }) {
+  const menuItemId = parseInt(params.id, 10);
+
   const { data: items = [], isLoading } = useMenuItems();
   const item = items.find((i) => i.id === menuItemId);
 
