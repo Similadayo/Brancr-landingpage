@@ -260,7 +260,7 @@ export default function IntegrationsPage() {
 
     if (status === 'success') {
       const platformName = platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : 'platform';
-      toast.success(`Successfully connected ${platformName}! 🎉`);
+      toast.success(`Successfully connected ${platformName}!`);
       void refetchIntegrations();
       window.history.replaceState({}, '', window.location.pathname);
       setIsConnecting(null);
@@ -338,7 +338,10 @@ export default function IntegrationsPage() {
         <div className="flex items-start gap-3">
           <AlertIcon className="h-5 w-5 shrink-0 text-warning-600 dark:text-warning-400 mt-0.5" />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-warning-900 dark:text-warning-100">⚠️ Important: WhatsApp number usage</p>
+            <p className="flex items-center gap-2 text-sm font-semibold text-warning-900 dark:text-warning-100">
+              <AlertIcon className="h-4 w-4" />
+              Important: WhatsApp number usage
+            </p>
             <p className="mt-1.5 text-xs text-warning-700 dark:text-warning-300 sm:text-sm">
               Once connected, this number cannot be used on the WhatsApp mobile app — messages will appear exclusively inside the Brancr Dashboard. If the number is currently registered on your phone, delete the account, wait 3 minutes, then connect. Or use a new number not previously associated with WhatsApp.
             </p>

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import TelegramConnectButton from '../TelegramConnectButton';
+import { SparklesIcon } from '../icons';
 
 interface Props {
     onComplete: () => void;
@@ -19,7 +20,7 @@ export default function OnboardingSuccess({ onComplete }: Props) {
                     transition={{ type: "spring", bounce: 0.5, delay: 0.2 }}
                     className="w-20 h-20 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center text-4xl mx-auto"
                 >
-                    🎉
+                    <SparklesIcon className="w-10 h-10" />
                 </motion.div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                     You&apos;re all set!

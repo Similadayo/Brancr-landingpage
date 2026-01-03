@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { authApi } from '@/lib/api';
+import { DevicePhoneMobileIcon, RocketIcon } from './icons';
 
 interface Props {
     variant?: 'inline' | 'card' | 'prominent' | 'solid';
@@ -47,7 +48,9 @@ export default function TelegramConnectButton({ variant = 'inline', onSuccess, t
     if (variant === 'prominent') {
         return (
             <div className="flex flex-col items-center p-6 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800 text-center space-y-4 max-w-sm mx-auto">
-                <div className="text-4xl">📱</div>
+                <div className="text-4xl text-[#0088cc]">
+                    <DevicePhoneMobileIcon className="w-10 h-10" />
+                </div>
                 <div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">Connect Your Telegram Bot</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Link your business bot to start receiving messages.</p>
@@ -57,7 +60,12 @@ export default function TelegramConnectButton({ variant = 'inline', onSuccess, t
                     disabled={loading}
                     className="w-full py-3 px-6 rounded-xl bg-[#0088cc] hover:bg-[#0077b5] text-white font-semibold shadow-md transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                    {loading ? 'Getting link...' : '🚀 Connect with Telegram'}
+                    {loading ? 'Getting link...' : (
+                        <>
+                            <RocketIcon className="w-5 h-5" />
+                            <span>Connect with Telegram</span>
+                        </>
+                    )}
                 </button>
                 <small className="text-xs text-gray-400 dark:text-gray-500">Opens Telegram app</small>
             </div>
@@ -120,7 +128,12 @@ export default function TelegramConnectButton({ variant = 'inline', onSuccess, t
             disabled={loading}
             className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0088cc]/10 hover:bg-[#0088cc]/20 text-[#0088cc] text-sm font-medium transition-colors disabled:opacity-50 ${className || ''}`}
         >
-            {loading ? 'Connecting...' : '📱 Connect Telegram'}
+            {loading ? 'Connecting...' : (
+                <>
+                    <DevicePhoneMobileIcon className="w-4 h-4" />
+                    <span>Connect Telegram</span>
+                </>
+            )}
         </button>
     );
 }

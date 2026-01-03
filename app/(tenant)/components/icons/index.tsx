@@ -932,3 +932,22 @@ export const LockClosedIcon = ({ className = "w-5 h-5", size }: IconProps) => (
     />
   </svg>
 );
+
+export const DevicePhoneMobileIcon = ({ className = "w-5 h-5", size }: IconProps) => (
+  <svg
+    className={className}
+    width={size || 20}
+    height={size || 20}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M10.5 1.5h3c5.25 0 6.75 1.5 6.75 6.75v7.5c0 5.25-1.5 6.75-6.75 6.75h-3c-5.25 0-6.75-1.5-6.75-6.75v-7.5c0-5.25 1.5-6.75 6.75-6.75z"
+    />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75v.008" />
+  </svg>
+);
