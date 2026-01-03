@@ -316,9 +316,9 @@ export default function ProductsPage() {
               return (
                 <div
                   key={product.id}
-                  className={`group relative overflow-hidden rounded-xl border-2 transition-all ${isSelected
-                      ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                      : "border-gray-200 bg-white hover:border-primary/30 hover:shadow-md"
+                  className={`group relative overflow-hidden rounded-xl border transition-all ${isSelected
+                    ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                    : "border-gray-200 bg-white shadow-sm hover:border-gray-300 hover:shadow-md"
                     }`}
                 >
                   <div
@@ -332,38 +332,71 @@ export default function ProductsPage() {
                     )}
                   </div>
 
-                  <div className="p-3 sm:p-4">
-                    <div className="mb-2">
-                      <h3 className="text-base font-semibold text-gray-900 line-clamp-1 sm:text-lg">{product.name}</h3>
-                      {product.category && (
-                        <p className="mt-0.5 text-xs text-gray-500 uppercase tracking-wider">{product.category}</p>
-                      )}
+                  <div className="p-4 pl-10">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">{product.name}</h3>
+                        {product.category && (
+                          <span className="mt-1 inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600 uppercase tracking-wider">
+                            {product.category}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <Link
+                          href={`/app/products/${product.id}/edit`}
+                          className="inline-flex items-center justify-center rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+                          aria-label={`Edit ${product.name}`}
+                          title="Edit"
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(product.id)}
+                          className="inline-flex items-center justify-center rounded-lg p-2 text-gray-500 transition hover:bg-rose-50 hover:text-rose-700"
+                          aria-label={`Delete ${product.name}`}
+                          title="Delete"
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
 
                     {product.description && (
-                      <p className="mb-2 line-clamp-2 text-xs text-gray-600 sm:mb-3 sm:text-sm">{product.description}</p>
+                      <p className="mt-2 line-clamp-2 text-xs text-gray-600">
+                        {product.description}
+                      </p>
                     )}
 
-                    <div className="mb-2 sm:mb-3">
-                      <p className="text-base font-bold text-gray-900 sm:text-lg">
-                        {product.currency} {product.price.toLocaleString()}
-                      </p>
-                      <p className="mt-0.5 text-xs text-gray-500">
-                        {formatNegotiationRule(product, negotiationSettings ?? undefined)}
-                      </p>
+                    <div className="mt-3 rounded-lg bg-gray-50 px-3 py-2">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <p className="text-xs font-medium text-gray-600">Price</p>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold text-gray-900">
+                            {product.currency} {product.price.toLocaleString()}
+                          </p>
+                          <p className="text-[10px] text-gray-500">
+                            {formatNegotiationRule(product, negotiationSettings ?? undefined)}
+                          </p>
+                        </div>
+                      </div>
                       {product.stock_count !== undefined && (
-                        <p className="mt-0.5 text-xs text-gray-500">
-                          Stock: {product.stock_count} {product.availability === "in_stock" ? "✅" : "❌"}
-                        </p>
+                        <div className="mt-1 flex items-center justify-between border-t border-gray-200/50 pt-1">
+                          <p className="text-xs text-gray-500">Stock</p>
+                          <p className="text-xs font-medium text-gray-700">
+                            {product.stock_count} {product.availability === "in_stock" ? "✅" : "❌"}
+                          </p>
+                        </div>
                       )}
                     </div>
 
                     {product.tags && product.tags.length > 0 && (
-                      <div className="mb-2 flex flex-wrap gap-1 sm:mb-3">
+                      <div className="mt-3 flex flex-wrap gap-1">
                         {product.tags.slice(0, 3).map((tag) => (
                           <span
                             key={tag}
-                            className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600"
+                            className="rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-semibold text-purple-700"
                           >
                             {tag}
                           </span>
@@ -371,22 +404,6 @@ export default function ProductsPage() {
                       </div>
                     )}
 
-                    <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-2">
-                      <Link
-                        href={`/app/products/${product.id}/edit`}
-                        className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition active:scale-95"
-                      >
-                        <PencilIcon className="h-3 w-3" />
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700 transition active:scale-95"
-                      >
-                        <TrashIcon className="h-3 w-3" />
-                        Delete
-                      </button>
-                    </div>
                   </div>
                 </div>
               );
