@@ -820,20 +820,22 @@ export default function InboxPage() {
               <div className="relative flex-1 overflow-y-auto min-h-0 scrollbar-thin">
                 {/* Wallpaper Background - Dark Mode */}
                 <div
-                  className="absolute inset-0 z-0 opacity-[0.15] pointer-events-none hidden dark:block"
+                  className="fixed inset-0 z-0 opacity-[0.08] pointer-events-none hidden dark:block"
                   style={{
                     backgroundImage: "url('/chat-bg-pattern.png')",
                     backgroundRepeat: "repeat",
-                    backgroundSize: "400px",
+                    backgroundSize: "300px",
+                    backgroundAttachment: "fixed",
                   }}
                 />
                 {/* Wallpaper Background - Light Mode */}
                 <div
-                  className="absolute inset-0 z-0 opacity-[0.12] pointer-events-none block dark:hidden"
+                  className="fixed inset-0 z-0 opacity-[0.06] pointer-events-none block dark:hidden"
                   style={{
                     backgroundImage: "url('/chat-bg-pattern-light.png')",
                     backgroundRepeat: "repeat",
-                    backgroundSize: "400px",
+                    backgroundSize: "300px",
+                    backgroundAttachment: "fixed",
                   }}
                 />
 
@@ -865,8 +867,8 @@ export default function InboxPage() {
                     return (
                       <div key={message.id}>
                         {showDateSeparator && dateLabel && (
-                          <div className="flex justify-center my-4 sticky top-0 z-20">
-                            <span className="bg-black/40 text-white dark:bg-black/50 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-semibold shadow-lg">
+                          <div className="flex justify-center my-3 sticky top-2 z-20">
+                            <span className="bg-gray-900/30 dark:bg-gray-900/40 text-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[11px] font-medium shadow-sm transition-opacity duration-300">
                               {dateLabel}
                             </span>
                           </div>
