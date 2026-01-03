@@ -820,7 +820,7 @@ export default function InboxPage() {
               <div className="relative flex-1 overflow-y-auto min-h-0 scrollbar-thin">
                 {/* Wallpaper Background - Dark Mode */}
                 <div
-                  className="absolute inset-0 z-0 opacity-[0.06] dark:opacity-[0.1] pointer-events-none hidden dark:block"
+                  className="absolute inset-0 z-0 opacity-[0.15] pointer-events-none hidden dark:block"
                   style={{
                     backgroundImage: "url('/chat-bg-pattern.png')",
                     backgroundRepeat: "repeat",
@@ -829,7 +829,7 @@ export default function InboxPage() {
                 />
                 {/* Wallpaper Background - Light Mode */}
                 <div
-                  className="absolute inset-0 z-0 opacity-[0.06] dark:opacity-[0.1] pointer-events-none block dark:hidden"
+                  className="absolute inset-0 z-0 opacity-[0.12] pointer-events-none block dark:hidden"
                   style={{
                     backgroundImage: "url('/chat-bg-pattern-light.png')",
                     backgroundRepeat: "repeat",
@@ -859,15 +859,15 @@ export default function InboxPage() {
 
                       if (messageDate.toDateString() === today.toDateString()) return "Today";
                       if (messageDate.toDateString() === yesterday.toDateString()) return "Yesterday";
-                      return messageDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+                      return messageDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
                     })() : null;
 
                     return (
                       <div key={message.id}>
-                        {showDateSeparator && (
-                          <div className="flex justify-center my-4 sticky top-2 z-10">
-                            <span className="bg-black/20 text-white dark:bg-black/30 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
-                              {getDateLabel(messageDate)}
+                        {showDateSeparator && dateLabel && (
+                          <div className="flex justify-center my-4 sticky top-0 z-20">
+                            <span className="bg-black/40 text-white dark:bg-black/50 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-semibold shadow-lg">
+                              {dateLabel}
                             </span>
                           </div>
                         )}
