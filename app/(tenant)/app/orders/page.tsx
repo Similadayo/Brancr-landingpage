@@ -24,8 +24,8 @@ export default function OrdersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   const queryClient = useQueryClient();
-  const lastOrderIdRef = useRef<number | null>(null);
-  const [newOrderIds, setNewOrderIds] = useState<Set<number>>(new Set());
+  const lastOrderIdRef = useRef<string | null>(null);
+  const [newOrderIds, setNewOrderIds] = useState<Set<string>>(new Set());
 
   const { data: ordersData, isLoading, error } = useOrders({
     status: statusFilter,
@@ -50,15 +50,22 @@ export default function OrdersPage() {
   useEffect(() => {
     if (orders.length === 0 || isLoading) return;
 
-    const currentMaxId = Math.max(...orders.map((o) => o.id));
-    
+    // Use created_at to detect new orders (since IDs are now UUIDs)
+    const sortedByTime = [...orders].sort((a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    const latestOrderId = sortedByTime[0]?.id;
+
     if (lastOrderIdRef.current === null) {
-      lastOrderIdRef.current = currentMaxId;
+      lastOrderIdRef.current = latestOrderId || null;
       return;
     }
 
-    if (currentMaxId > lastOrderIdRef.current) {
-      const newOrders = orders.filter((o) => o.id > lastOrderIdRef.current!);
+    // Find orders created after our last known newest order
+    const lastKnownOrder = orders.find(o => o.id === lastOrderIdRef.current);
+    if (lastKnownOrder) {
+      const lastKnownTime = new Date(lastKnownOrder.created_at).getTime();
+      const newOrders = orders.filter((o) => new Date(o.created_at).getTime() > lastKnownTime);
       newOrders.forEach((order) => {
         setNewOrderIds((prev) => new Set(prev).add(order.id));
         toast.success(
@@ -79,8 +86,8 @@ export default function OrdersPage() {
           { duration: 10000 }
         );
       });
-      lastOrderIdRef.current = currentMaxId;
     }
+    lastOrderIdRef.current = latestOrderId || lastOrderIdRef.current;
   }, [orders, isLoading]);
 
   // Remove "new" badge after 5 minutes
@@ -88,7 +95,7 @@ export default function OrdersPage() {
     const timer = setInterval(() => {
       setNewOrderIds((prev) => {
         const now = Date.now();
-        const filtered = new Set<number>();
+        const filtered = new Set<string>();
         prev.forEach((id) => {
           const order = orders.find((o) => o.id === id);
           if (order) {
@@ -444,7 +451,7 @@ export default function OrdersPage() {
               );
             })}
           </div>
-          
+
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="mt-6">
