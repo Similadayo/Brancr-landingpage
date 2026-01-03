@@ -45,7 +45,9 @@ export function AdventureWidget() {
             }
         },
         // Don't refetch too often
-        staleTime: 60000,
+        // Check for updates frequently for a responsive feel
+        staleTime: 5000,
+        refetchOnMount: 'always',
     });
 
     if (isLoading || !data) return null;
