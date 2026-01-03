@@ -54,7 +54,7 @@ export default function TenantOverviewPage() {
 
   const { data: scheduledPostsData } = useScheduledPosts();
   const { data: upcomingPostsData } = useScheduledPosts({ status: "scheduled", limit: 5 });
-  const { data: performanceSummary } = usePerformanceSummary("7d") as any;
+  const { data: performanceSummary } = usePerformanceSummary("7d");
   const { data: integrationsData } = useIntegrations();
   const { data: conversationsData } = useConversations({ limit: 100 });
   const { data: escalationsData } = useEscalations({ limit: 5 });

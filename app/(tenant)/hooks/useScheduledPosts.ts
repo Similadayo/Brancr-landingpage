@@ -32,14 +32,14 @@ export function useScheduledPosts(params?: { status?: string; page?: number; lim
     queryFn: async () => {
       try {
         const response = await tenantApi.scheduledPosts(params);
-        
+
         // Support both new paginated format (data) and old format (scheduled_posts) for backward compatibility
         const posts = response?.data || response?.scheduled_posts || [];
-        
+
         if (!Array.isArray(posts)) {
           return [];
         }
-        
+
         // Normalize array properties
         const normalized = posts.map((post) => ({
           ...post,
@@ -156,7 +156,7 @@ export type PerformanceSummary = {
   total_shares: number;
   total_posts: number;
   top_performing_post: {
-    id: number;
+    id: string;
     name: string;
     platform: string;
     impressions: number;
