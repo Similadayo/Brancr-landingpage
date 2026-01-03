@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { authApi } from '@/lib/api';
 
 interface Props {
     variant?: 'inline' | 'card' | 'prominent';
@@ -11,10 +12,16 @@ export default function TelegramConnectButton({ variant = 'inline', onSuccess }:
     const handleConnect = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/tenant/telegram-connect-link', {
-                credentials: 'include',
-            });
-            const { link } = await res.json();
+            // Fetch current user to get tenant ID
+            const user = await authApi.me();
+            const tenantId = user.tenant_id || (user as any).tenant?.id || (user as any).tenant?.tenant_id;
+
+            if (!tenantId) {
+                console.error('No tenant ID found');
+                return;
+            }
+
+            const link = `https://t.me/brancrbot?start=${tenantId}`;
 
             // Open Telegram in new tab
             window.open(link, '_blank');
