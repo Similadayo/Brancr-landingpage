@@ -1192,7 +1192,7 @@ export default function InboxPage() {
             Cancel
           </Button>
           <Button
-            variant="destructive"
+            variant="danger"
             onClick={deleteConfirmationState.type === 'single' ? confirmDeleteConversation : confirmBulkDelete}
             isLoading={isDeleting || isBulkDeleting}
           >
