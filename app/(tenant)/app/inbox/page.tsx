@@ -340,12 +340,21 @@ export default function InboxPage() {
     return msgs;
   }, [conversationDetail?.messages]);
 
+  // Track initial load per conversation to prevent "scrolling down" animation on switch
+  const isInitialLoadRef = useRef(true);
+
+  // Reset initial load state when conversation changes
+  useEffect(() => {
+    isInitialLoadRef.current = true;
+  }, [selectedConversationId]);
+
   // Scroll to bottom when messages change
   useEffect(() => {
     if (messages.length > 0) {
-      // Use 'auto' behavior for instant scroll to avoid "scrolling down" animation on load
-      // We can refine this later to only be 'auto' on first load if needed, but 'auto' is generally safer for "start at bottom"
-      messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+      // Use 'auto' behavior for instant scroll on first load, 'smooth' for updates
+      const behavior = isInitialLoadRef.current ? "auto" : "smooth";
+      messagesEndRef.current?.scrollIntoView({ behavior });
+      isInitialLoadRef.current = false;
     }
   }, [messages]);
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { authApi } from '@/lib/api';
+import { authApi, tenantApi } from '@/lib/api';
 import { DevicePhoneMobileIcon, RocketIcon } from './icons';
 
 interface Props {
@@ -16,19 +16,23 @@ export default function TelegramConnectButton({ variant = 'inline', onSuccess, t
     const handleConnect = async () => {
         setLoading(true);
         try {
-            let tenantId = propTenantId;
-            if (!tenantId) {
-                // Fetch current user to get tenant ID if not provided
-                const user = await authApi.me();
-                tenantId = user.tenant_id || (user as any).tenant?.id || (user as any).tenant?.tenant_id;
+            let token = '';
+            try {
+                const res = await tenantApi.telegramConnectToken();
+                if (res && res.token) {
+                    token = res.token;
+                }
+            } catch (e) {
+                console.error("Failed to generate telegram token", e);
+                // Fallback? No, user says tenantId fails.
             }
 
-            if (!tenantId) {
-                console.error('No tenant ID found');
+            if (!token) {
+                console.error('No connect token generated');
                 return;
             }
 
-            const link = `https://t.me/brancrbot?start=${tenantId}`;
+            const link = `https://t.me/brancrbot?start=${token}`;
 
             // Open Telegram in new tab
             window.open(link, '_blank');
