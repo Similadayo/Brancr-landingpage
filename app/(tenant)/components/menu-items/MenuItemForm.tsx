@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCreateMenuItem, useUpdateMenuItem, useDeleteMenuItem, type MenuItem } from "../../hooks/useMenuItems";
-import { XIcon, TrashIcon, ArrowLeftIcon } from "../icons";
+import { TrashIcon, ArrowLeftIcon } from "../icons";
 import ImageUploader from "../shared/ImageUploader";
 import { toast } from "react-hot-toast";
 import { getUserFriendlyErrorMessage, parseApiFieldErrors } from '@/lib/error-messages';
@@ -179,7 +179,6 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
     }
   };
 
-
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Modern Hero Section */}
@@ -215,37 +214,212 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="space-y-6">
+      {item && (
+        <>
+          <div className="flex justify-end">
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={deleteMutation.isPending}
+              className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-50"
+            >
+              <TrashIcon className="w-4 h-4" />
+              Delete
+            </button>
+          </div>
+          <ConfirmModal
+            open={showDeleteConfirm}
+            title="Delete menu item"
+            description="Are you sure you want to delete this menu item? This action cannot be undone."
+            confirmText="Delete"
+            onConfirm={() => { setShowDeleteConfirm(false); void handleDelete(); }}
+            onCancel={() => setShowDeleteConfirm(false)}
+          />
+        </>
+      )}
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+        {/* Primary Fields - always visible */}
+        <div className="space-y-4">
           <div>
-            <label htmlFor="menu-item-name" className="block text-sm font-semibold text-gray-700">Name *</label>
-            <input id="menu-item-name" type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700" />
+            <label htmlFor="menu-item-name" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Menu Item Name *</label>
+            <input
+              id="menu-item-name"
+              type="text"
+              required
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-600 dark:text-white"
+            />
+            {fieldErrors.name && <p className="mt-1 text-xs text-red-600">{fieldErrors.name}</p>}
           </div>
 
-          <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4">
-            <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900">Optional</summary>
-
-            <div className="mt-4 space-y-4">
-              <div>
-                <label htmlFor="menu-item-description" className="block text-sm font-semibold text-gray-700">Description</label>
-                <textarea id="menu-item-description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700" />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="menu-item-price" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Price *</label>
+              <input
+                id="menu-item-price"
+                type="number"
+                required
+                min="0"
+                step="0.01"
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-600 dark:text-white"
+              />
+              {fieldErrors.price && <p className="mt-1 text-xs text-red-600">{fieldErrors.price}</p>}
+            </div>
+            <div>
+              <label htmlFor="menu-item-currency" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Currency</label>
+              <div className="mt-1">
+                <Select
+                  id="menu-item-currency"
+                  value={formData.currency}
+                  onChange={(value) => setFormData({ ...formData, currency: String(value) })}
+                  options={[{ value: "NGN", label: "NGN" }, { value: "USD", label: "USD" }, { value: "EUR", label: "EUR" }]}
+                  searchable={false}
+                />
               </div>
+            </div>
+          </div>
+        </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="menu-item-price" className="block text-sm font-semibold text-gray-700">Price *</label>
-                  <input id="menu-item-price" type="number" required min="0" step="0.01" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700" />
+        {/* Optional - collapsed by default */}
+        <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4 mt-6 dark:bg-gray-900 dark:border-gray-700">
+          <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900 dark:text-white">Optional</summary>
+
+          <div className="mt-4 space-y-4">
+            <div>
+              <label htmlFor="menu-item-description" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Description</label>
+              <textarea
+                id="menu-item-description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="menu-item-category" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Category</label>
+                <input
+                  id="menu-item-category"
+                  type="text"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  placeholder="e.g., Appetizers, Main Course"
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                />
+              </div>
+              <div>
+                <label htmlFor="menu-item-prep-time" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Prep Time (minutes)</label>
+                <input
+                  id="menu-item-prep-time"
+                  type="number"
+                  min="0"
+                  value={formData.preparation_time}
+                  onChange={(e) => setFormData({ ...formData, preparation_time: e.target.value })}
+                  placeholder="e.g., 15"
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="menu-item-spice" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Spice Level</label>
+                <div className="mt-1">
+                  <Select
+                    id="menu-item-spice"
+                    value={formData.spice_level}
+                    onChange={(value) => setFormData({ ...formData, spice_level: value as any })}
+                    options={[
+                      { value: "none", label: "None" },
+                      { value: "mild", label: "Mild" },
+                      { value: "medium", label: "Medium" },
+                      { value: "hot", label: "Hot" },
+                      { value: "extra_hot", label: "Extra Hot" },
+                    ]}
+                    searchable={false}
+                  />
                 </div>
-                <div>
-                  <label htmlFor="menu-item-currency" className="block text-sm font-semibold text-gray-700">Currency</label>
-                  <div className="mt-1">
-                    <Select id="menu-item-currency" value={formData.currency} onChange={(value) => setFormData({ ...formData, currency: String(value) })} options={[{ value: "NGN", label: "NGN" }, { value: "USD", label: "USD" }]} searchable={false} />
-                  </div>
+              </div>
+              <div>
+                <label htmlFor="menu-item-availability" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Availability</label>
+                <div className="mt-1">
+                  <Select
+                    id="menu-item-availability"
+                    value={formData.availability}
+                    onChange={(value) => setFormData({ ...formData, availability: value as any })}
+                    options={[
+                      { value: "available", label: "Available" },
+                      { value: "sold_out", label: "Sold Out" },
+                      { value: "seasonal", label: "Seasonal" },
+                    ]}
+                    searchable={false}
+                  />
                 </div>
               </div>
             </div>
-          </details>
 
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Dietary Information</label>
+              <div className="flex flex-wrap gap-2">
+                {DIETARY_OPTIONS.map((diet) => (
+                  <button
+                    key={diet}
+                    type="button"
+                    onClick={() => toggleDietaryInfo(diet)}
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${formData.dietary_info.includes(diet)
+                      ? 'bg-primary text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                      }`}
+                  >
+                    {diet}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Images</label>
+              <ImageUploader
+                images={formData.images}
+                onChange={(images) => setFormData({ ...formData, images })}
+              />
+            </div>
+          </div>
+        </details>
+
+        {/* Active checkbox and submit */}
+        <div className="flex items-center gap-2 mt-6">
+          <input
+            type="checkbox"
+            id="menu-item-is-active"
+            checked={formData.is_active}
+            onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+          />
+          <label htmlFor="menu-item-is-active" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Menu item is active (visible to customers)
+          </label>
+        </div>
+
+        <div className="flex items-center justify-end gap-3 border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+          <Link
+            href="/app/menu-items"
+            className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:text-primary"
+          >
+            Cancel
+          </Link>
+          <button
+            type="submit"
+            disabled={isSubmitting || Object.keys(fieldErrors).length > 0}
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:opacity-50 sm:shadow-md"
+          >
+            {isSubmitting ? "Saving..." : item ? "Update Menu Item" : "Create Menu Item"}
+          </button>
         </div>
       </form>
     </div>
