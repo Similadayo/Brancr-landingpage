@@ -16,26 +16,17 @@ export default function TelegramConnectButton({ variant = 'inline', onSuccess, t
     const handleConnect = async () => {
         setLoading(true);
         try {
-            let token = '';
-            try {
-                const res = await tenantApi.telegramConnectToken();
-                if (res && res.token) {
-                    token = res.token;
-                }
-            } catch (e) {
-                console.error("Failed to generate telegram token", e);
-                // Fallback? No, user says tenantId fails.
-            }
+            // Get secure deep link from backend
+            // This generates a random token and stores it on the tenant record
+            const res = await tenantApi.getTelegramConnectLink();
 
-            if (!token) {
-                console.error('No connect token generated');
+            if (!res || !res.link) {
+                console.error('No link returned from API');
                 return;
             }
 
-            const link = `https://t.me/brancrbot?start=${token}`;
-
             // Open Telegram in new tab
-            window.open(link, '_blank');
+            window.open(res.link, '_blank');
 
             // Optional: Poll for connection status
             if (onSuccess) {

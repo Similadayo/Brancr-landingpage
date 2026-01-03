@@ -2378,8 +2378,8 @@ export const tenantApi = {
     }>(`/api/tenant/payments/${paymentId}/dispute`, payload),
 
   // Telegram endpoints
-  telegramConnectToken: () =>
-    post<undefined, { token: string }>(`/api/tenant/telegram/connect-token`),
+  getTelegramConnectLink: () =>
+    get<{ link: string }>(`/api/tenant/telegram-connect-link`),
 
   // Portal Token Management
   generatePortalToken: (orderId: number) =>
