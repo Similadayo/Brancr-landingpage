@@ -40,126 +40,126 @@ type Tab = "scheduled" | "published" | "drafts";
 
 // DraftsList component - moved outside to avoid parsing issues
 function DraftsList({ router }: { router: { push: (path: string) => void } }) {
-    const [drafts, setDrafts] = useState<any[]>([]);
-    const [loadingDrafts, setLoadingDrafts] = useState(false);
-    const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [drafts, setDrafts] = useState<any[]>([]);
+  const [loadingDrafts, setLoadingDrafts] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-    useEffect(() => {
-      let mounted = true;
-      (async () => {
-        setLoadingDrafts(true);
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setLoadingDrafts(true);
+      try {
+        const res: any = await tenantApi.getDrafts('compose.post');
+        const serverList = (res?.drafts || []).slice();
+
+        // Try to include a local snapshot (compose.post) as a local-only draft when present
         try {
-          const res: any = await tenantApi.getDrafts('compose.post');
-          const serverList = (res?.drafts || []).slice();
-
-          // Try to include a local snapshot (compose.post) as a local-only draft when present
-          try {
-            const raw = localStorage.getItem('drafts-local-compose.post');
-            if (raw) {
-              const snap = JSON.parse(raw);
-              if (snap && snap.content) {
-                // Build a synthetic draft object for display. If there is a matching server draft id, skip adding.
-                const localId = snap.draftId || `local-${snap.updatedAt || Date.now()}`;
-                const already = serverList.find((d: any) => d.id === localId);
-                if (!already) {
-                  serverList.push({
-                    id: localId,
-                    key: 'compose.post',
-                    content: snap.content,
-                    metadata: snap.metadata,
-                    owner_id: undefined,
-                    created_at: snap.updatedAt ? new Date(snap.updatedAt).toISOString() : new Date().toISOString(),
-                    updated_at: snap.updatedAt ? new Date(snap.updatedAt).toISOString() : new Date().toISOString(),
-                    _local_only: true,
-                    _local_snapshot: snap,
-                  });
-                }
+          const raw = localStorage.getItem('drafts-local-compose.post');
+          if (raw) {
+            const snap = JSON.parse(raw);
+            if (snap && snap.content) {
+              // Build a synthetic draft object for display. If there is a matching server draft id, skip adding.
+              const localId = snap.draftId || `local-${snap.updatedAt || Date.now()}`;
+              const already = serverList.find((d: any) => d.id === localId);
+              if (!already) {
+                serverList.push({
+                  id: localId,
+                  key: 'compose.post',
+                  content: snap.content,
+                  metadata: snap.metadata,
+                  owner_id: undefined,
+                  created_at: snap.updatedAt ? new Date(snap.updatedAt).toISOString() : new Date().toISOString(),
+                  updated_at: snap.updatedAt ? new Date(snap.updatedAt).toISOString() : new Date().toISOString(),
+                  _local_only: true,
+                  _local_snapshot: snap,
+                });
               }
             }
-          } catch (e) {
-            // ignore local snapshot parsing errors
           }
-
-          const list = serverList.slice().sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
-          if (mounted) setDrafts(list);
         } catch (e) {
-          console.error('Failed to load drafts:', e);
-        } finally {
-          if (mounted) setLoadingDrafts(false);
+          // ignore local snapshot parsing errors
         }
-      })();
-      return () => { mounted = false; };
-    }, []);
 
-    const handleRestore = async (id: string, draft: any) => {
-      try {
-        if (draft && draft._local_only) {
-          // Local-only snapshot: restore from snapshot content
-          const content = draft.content || draft._local_snapshot?.content;
-          localStorage.setItem('post-draft', JSON.stringify(content));
-          toast.success('Draft restored — opening composer');
-          router.push('/app/posts/new');
-          return;
-        }
-        const res: any = await tenantApi.getDraft(id);
-        const content = res.content;
-        // Save to local snapshot for compose page to pick up
+        const list = serverList.slice().sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+        if (mounted) setDrafts(list);
+      } catch (e) {
+        console.error('Failed to load drafts:', e);
+      } finally {
+        if (mounted) setLoadingDrafts(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  const handleRestore = async (id: string, draft: any) => {
+    try {
+      if (draft && draft._local_only) {
+        // Local-only snapshot: restore from snapshot content
+        const content = draft.content || draft._local_snapshot?.content;
         localStorage.setItem('post-draft', JSON.stringify(content));
         toast.success('Draft restored — opening composer');
         router.push('/app/posts/new');
-      } catch (e) {
-        toast.error('Failed to restore draft');
+        return;
       }
-    };
+      const res: any = await tenantApi.getDraft(id);
+      const content = res.content;
+      // Save to local snapshot for compose page to pick up
+      localStorage.setItem('post-draft', JSON.stringify(content));
+      toast.success('Draft restored — opening composer');
+      router.push('/app/posts/new');
+    } catch (e) {
+      toast.error('Failed to restore draft');
+    }
+  };
 
-    const handleDelete = async (id: string, draft: any) => {
-      setDeletingId(id);
-      try {
-        if (draft && draft._local_only) {
-          // Clear local snapshot
-          try {
-            localStorage.removeItem('drafts-local-compose.post');
-          } catch (e) {
-            // ignore
-          }
-          setDrafts((prev) => prev.filter((d) => d.id !== id));
-          toast.success('Draft removed');
-          setDeletingId(null);
-          return;
+  const handleDelete = async (id: string, draft: any) => {
+    setDeletingId(id);
+    try {
+      if (draft && draft._local_only) {
+        // Clear local snapshot
+        try {
+          localStorage.removeItem('drafts-local-compose.post');
+        } catch (e) {
+          // ignore
         }
-
-        await tenantApi.deleteDraft(id);
         setDrafts((prev) => prev.filter((d) => d.id !== id));
-        toast.success('Draft deleted');
-      } catch (e) {
-        toast.error('Failed to delete draft');
-      } finally {
+        toast.success('Draft removed');
         setDeletingId(null);
+        return;
       }
-    };
 
-    if (loadingDrafts) return <div className="p-4 text-sm text-gray-500">Loading drafts…</div>;
-    if (drafts.length === 0) return <div className="p-4 text-sm text-gray-500">No drafts found.</div>;
+      await tenantApi.deleteDraft(id);
+      setDrafts((prev) => prev.filter((d) => d.id !== id));
+      toast.success('Draft deleted');
+    } catch (e) {
+      toast.error('Failed to delete draft');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
-    return (
-      <div className="p-4">
-        <ul className="space-y-3">
-          {drafts.map((d) => (
-            <li key={d.id} className="flex items-start justify-between gap-4 rounded-lg border border-gray-100 p-3">
-              <div className="min-w-0">
-                <div className="text-sm font-medium text-gray-900">Saved {new Date(d.updated_at).toLocaleString()} {d._local_only ? <span className="ml-2 text-xs font-medium text-amber-600">(Saved locally)</span> : null}</div>
-                <div className="mt-1 text-xs text-gray-600 line-clamp-2">{d.content?.caption ? d.content.caption.split('\n')[0].slice(0,200) : '(no caption)'}</div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button onClick={() => void handleRestore(d.id, d)} className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100">Restore</button>
-                <button onClick={() => void handleDelete(d.id, d)} disabled={deletingId === d.id} className="rounded-md border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50">{deletingId===d.id ? 'Deleting…' : 'Delete'}</button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
+  if (loadingDrafts) return <div className="p-4 text-sm text-gray-500">Loading drafts…</div>;
+  if (drafts.length === 0) return <div className="p-4 text-sm text-gray-500">No drafts found.</div>;
+
+  return (
+    <div className="p-4">
+      <ul className="space-y-3">
+        {drafts.map((d) => (
+          <li key={d.id} className="flex items-start justify-between gap-4 rounded-lg border border-gray-100 p-3">
+            <div className="min-w-0">
+              <div className="text-sm font-medium text-gray-900">Saved {new Date(d.updated_at).toLocaleString()} {d._local_only ? <span className="ml-2 text-xs font-medium text-amber-600">(Saved locally)</span> : null}</div>
+              <div className="mt-1 text-xs text-gray-600 line-clamp-2">{d.content?.caption ? d.content.caption.split('\n')[0].slice(0, 200) : '(no caption)'}</div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={() => void handleRestore(d.id, d)} className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100">Restore</button>
+              <button onClick={() => void handleDelete(d.id, d)} disabled={deletingId === d.id} className="rounded-md border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50">{deletingId === d.id ? 'Deleting…' : 'Delete'}</button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export default function CampaignsPage() {
   const queryClient = useQueryClient();
@@ -171,15 +171,16 @@ export default function CampaignsPage() {
   const itemsPerPage = 20;
   const { data: campaignStats } = useCampaignStats();
   const { data: templatesData } = useTemplates();
-  
+
   // Determine API status filter based on active tab
-  // For scheduled tab, we need to fetch all posts and filter client-side
-  // because the API might return posts with different statuses
+  // Backend: ?status=scheduled returns posts with status "scheduled" OR "posting"
+  // Backend: ?status=posted returns posts with status "posted"
+  // Backend: ?status=draft returns drafts (scheduled_at IS NULL OR status = "draft")
   const apiStatusFilter = useMemo(() => {
     switch (activeTab) {
       case "scheduled":
-        // Fetch all posts - we'll filter client-side for "scheduled" and "posting"
-        return undefined;
+        // Backend handles returning both "scheduled" and "posting" statuses
+        return "scheduled";
       case "published":
         return "posted";
       case "drafts":
@@ -193,7 +194,7 @@ export default function CampaignsPage() {
   const { data: scheduledPostsData, isLoading, error, refetch } = useScheduledPosts(
     apiStatusFilter ? { status: apiStatusFilter } : undefined
   );
-  
+
   const scheduledPosts = useMemo(
     () => Array.isArray(scheduledPostsData) ? scheduledPostsData : [],
     [scheduledPostsData]
@@ -327,7 +328,7 @@ export default function CampaignsPage() {
           onCancel={() => { setShowCancelPostId(null); setShowCancelPostName(null); }}
         />
       )}
-      
+
       {/* Modern Hero Section */}
       <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-accent via-accent/95 to-accent/90 p-6 shadow-xl dark:border-gray-600 dark:from-accent dark:via-accent/90 dark:to-accent/80 sm:p-8 md:p-10">
         <div className="absolute inset-0 opacity-10 dark:opacity-20">
@@ -351,8 +352,8 @@ export default function CampaignsPage() {
                 Manage scheduled posts, published content, and drafts all in one place
               </p>
             </div>
-            <Link 
-              href="/app/posts/new" 
+            <Link
+              href="/app/posts/new"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-semibold text-accent shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 sm:px-5 sm:py-3 sm:text-sm md:px-6 md:py-3.5"
             >
               <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -367,49 +368,43 @@ export default function CampaignsPage() {
         <div className="flex items-center gap-2 overflow-x-auto">
           <button
             onClick={() => setActiveTab("scheduled")}
-            className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
-              activeTab === "scheduled"
+            className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${activeTab === "scheduled"
                 ? "bg-accent text-white shadow-md dark:bg-dark-accent-primary dark:text-white"
                 : "text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600"
-            }`}
+              }`}
           >
             <ClockIcon className="w-4 h-4" />
             Scheduled
-            <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-              activeTab === "scheduled" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-white"
-            }`}>
+            <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${activeTab === "scheduled" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-white"
+              }`}>
               {campaignStats?.scheduled ?? 0}
             </span>
           </button>
           <button
             onClick={() => setActiveTab("published")}
-            className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
-              activeTab === "published"
+            className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${activeTab === "published"
                 ? "bg-accent text-white shadow-md dark:bg-dark-accent-primary dark:text-white"
                 : "text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600"
-            }`}
+              }`}
           >
             <CheckCircleIcon className="w-4 h-4" />
             Published
-            <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-              activeTab === "published" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-white"
-            }`}>
+            <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${activeTab === "published" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-white"
+              }`}>
               {campaignStats?.published ?? 0}
             </span>
           </button>
           <button
             onClick={() => setActiveTab("drafts")}
-            className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
-              activeTab === "drafts"
+            className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${activeTab === "drafts"
                 ? "bg-accent text-white shadow-md dark:bg-dark-accent-primary dark:text-white"
                 : "text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600"
-            }`}
+              }`}
           >
             <DocumentTextIcon className="w-4 h-4" />
             Drafts
-            <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-              activeTab === "drafts" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-white"
-            }`}>
+            <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${activeTab === "drafts" ? "bg-white/20 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-white"
+              }`}>
               {campaignStats?.draft ?? 0}
             </span>
           </button>
@@ -586,11 +581,10 @@ export default function CampaignsPage() {
                                 return (
                                   <span
                                     key={platform}
-                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${
-                                      isTikTok
+                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${isTikTok
                                         ? 'bg-black text-white'
                                         : 'bg-gray-100 text-gray-700 dark:bg-gray-600 dark:text-white'
-                                    }`}
+                                      }`}
                                   >
                                     {isTikTok ? '🎵' : ''} {platform}
                                   </span>
@@ -601,19 +595,19 @@ export default function CampaignsPage() {
                               <ClockIcon className="h-3.5 w-3.5" />
                               {activeTab === "published" && post.posted_at
                                 ? new Date(post.posted_at || post.scheduled_at || post.created_at).toLocaleString([], {
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
                                 : new Date(post.scheduled_at || post.created_at).toLocaleString([], {
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
                             </span>
                           </div>
                           {post.last_error && (
@@ -695,7 +689,7 @@ export default function CampaignsPage() {
                 </div>
               );
             })}
-            
+
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-6">

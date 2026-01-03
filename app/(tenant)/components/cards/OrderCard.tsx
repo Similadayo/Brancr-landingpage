@@ -5,7 +5,7 @@ import { Card } from '../ui/Card';
 import { StatusBadge, Badge } from '../ui/Badge';
 
 type OrderCardProps = {
-  id: number;
+  id: string | number;
   order_number: string;
   status: 'pending' | 'confirmed' | 'processing' | 'completed' | 'cancelled';
   total_amount: number;
@@ -65,7 +65,7 @@ export function OrderCard({
               </StatusBadge>
             </span>
           </div>
-          
+
           <div className="space-y-1.5">
             {payment_reference && (
               <p className="text-sm text-gray-600 dark:text-gray-300">
@@ -88,7 +88,7 @@ export function OrderCard({
             </p>
           </div>
         </div>
-        
+
         <div className="flex-shrink-0 text-right">
           <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
             {currency} {total_amount.toLocaleString()}
