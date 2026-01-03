@@ -6,21 +6,21 @@ import { useSetTenantIndustry } from '../../hooks/useIndustry';
 import { toast } from 'react-hot-toast';
 
 type IndustryStepProps = {
-  onComplete: (data: { industry_id: number }) => void;
+  onComplete: (data: { industry_id: string }) => void;
   onBack?: () => void;
-  savedData?: { industry_id?: number };
+  savedData?: { industry_id?: string };
   isLoading?: boolean;
 };
 
 export function IndustryStep({ onComplete, onBack, savedData, isLoading }: IndustryStepProps) {
-  const [selectedIndustryId, setSelectedIndustryId] = useState<number | null>(savedData?.industry_id || null);
+  const [selectedIndustryId, setSelectedIndustryId] = useState<string | null>(savedData?.industry_id || null);
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [otherIndustryName, setOtherIndustryName] = useState("");
   const setIndustryMutation = useSetTenantIndustry();
 
   const handleContinue = async () => {
     // If user selected 'Other' and provided a name, save request locally and proceed (backend support required to persist custom industries)
-    if (selectedIndustryId === -1) {
+    if (selectedIndustryId === 'other') {
       if (!otherIndustryName.trim()) return;
       // For now: record the requested industry in localStorage and inform the team via toast
       try {
@@ -28,11 +28,11 @@ export function IndustryStep({ onComplete, onBack, savedData, isLoading }: Indus
         requests.push({ name: otherIndustryName.trim(), timestamp: new Date().toISOString() });
         localStorage.setItem('requested-industries', JSON.stringify(requests));
         toast.success('Thanks — we received your industry suggestion and will review it.');
-        onComplete({ industry_id: -1 });
+        onComplete({ industry_id: 'other' });
       } catch (e) {
         console.error('Failed to save requested industry', e);
         toast.success('Thanks — we received your suggestion.');
-        onComplete({ industry_id: -1 });
+        onComplete({ industry_id: 'other' });
       }
       return;
     }
@@ -67,8 +67,8 @@ export function IndustryStep({ onComplete, onBack, savedData, isLoading }: Indus
       <div className="mt-2">
         <button
           type="button"
-          onClick={() => { setSelectedIndustryId(-1); setShowOtherInput(true); }}
-          className={`rounded-lg border px-4 py-2 text-sm font-semibold ${selectedIndustryId === -1 ? 'border-primary bg-primary/5 text-primary dark:bg-primary/20' : 'border-gray-200 bg-white text-gray-700 dark:bg-dark-surface dark:border-dark-border dark:text-gray-200'} transition hover:scale-105`}
+          onClick={() => { setSelectedIndustryId('other'); setShowOtherInput(true); }}
+          className={`rounded-lg border px-4 py-2 text-sm font-semibold ${selectedIndustryId === 'other' ? 'border-primary bg-primary/5 text-primary dark:bg-primary/20' : 'border-gray-200 bg-white text-gray-700 dark:bg-dark-surface dark:border-dark-border dark:text-gray-200'} transition hover:scale-105`}
         >
           My industry isn&apos;t listed — enter it
         </button>
@@ -104,7 +104,7 @@ export function IndustryStep({ onComplete, onBack, savedData, isLoading }: Indus
         <button
           type="button"
           onClick={handleContinue}
-          disabled={(selectedIndustryId === null) || (selectedIndustryId === -1 && !otherIndustryName.trim()) || isLoading || setIndustryMutation.isPending}
+          disabled={(selectedIndustryId === null) || (selectedIndustryId === 'other' && !otherIndustryName.trim()) || isLoading || setIndustryMutation.isPending}
           className="group relative inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/90 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
         >
           {isLoading || setIndustryMutation.isPending ? (

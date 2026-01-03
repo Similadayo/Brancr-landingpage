@@ -6,7 +6,7 @@ import { PlusIcon, CheckCircleIcon } from "./icons";
 import { toast } from "react-hot-toast";
 
 type IndustrySelectorProps = {
-  onSelect?: (industryId: number) => void;
+  onSelect?: (industryId: string) => void;
   showDescription?: boolean;
   allowChange?: boolean;
 };
@@ -15,7 +15,7 @@ export function IndustrySelector({ onSelect, showDescription = true, allowChange
   const { data: industries = [], isLoading: industriesLoading, error: industriesError } = useIndustries();
   const { data: currentIndustry, isLoading: currentLoading } = useTenantIndustry();
   const setIndustryMutation = useSetTenantIndustry();
-  const [selectedId, setSelectedId] = useState<number | null>(currentIndustry?.industry_id || null);
+  const [selectedId, setSelectedId] = useState<string | null>(currentIndustry?.industry_id || null);
 
   // Debug logging
   useEffect(() => {
@@ -28,10 +28,10 @@ export function IndustrySelector({ onSelect, showDescription = true, allowChange
     });
   }, [industries, industriesLoading, industriesError, currentIndustry, selectedId]);
 
-  const handleSelect = async (industryId: number) => {
+  const handleSelect = async (industryId: string) => {
     // Always allow changing industry - no restrictions
     setSelectedId(industryId);
-    
+
     try {
       await setIndustryMutation.mutateAsync(industryId);
       onSelect?.(industryId);
@@ -113,11 +113,10 @@ export function IndustrySelector({ onSelect, showDescription = true, allowChange
               type="button"
               onClick={() => handleSelect(industry.id)}
               disabled={false}
-              className={`relative rounded-xl border-2 p-6 text-left transition-all ${
-                isSelected
+              className={`relative rounded-xl border-2 p-6 text-left transition-all ${isSelected
                   ? "border-primary bg-primary/5 shadow-md"
                   : "border-gray-200 bg-white hover:border-primary/50 hover:shadow-sm"
-              } cursor-pointer`}
+                } cursor-pointer`}
             >
               {isCurrent && (
                 <div className="absolute right-3 top-3">

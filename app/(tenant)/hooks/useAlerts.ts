@@ -114,7 +114,7 @@ export function useMarkAlertRead() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (alertId: string | number) => {
+    mutationFn: async (alertId: string) => {
       return tenantApi.markAlertRead(alertId);
     },
     onSuccess: (data, alertId) => {

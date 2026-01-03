@@ -5,7 +5,7 @@ import { ApiError, tenantApi } from "@/lib/api";
 import { toast } from "react-hot-toast";
 
 export type PaymentAccount = {
-  id: number;
+  id: string;
   account_type: "bank" | "mobile_money" | "cash";
   bank_name?: string;
   account_number?: string;
@@ -56,7 +56,7 @@ export function usePaymentAccounts() {
   });
 }
 
-export function usePaymentAccount(accountId: number) {
+export function usePaymentAccount(accountId: string) {
   return useQuery<PaymentAccount | null, Error>({
     queryKey: ["payment-accounts", accountId],
     queryFn: async () => {
@@ -94,7 +94,7 @@ export function useCreatePaymentAccount() {
 export function useUpdatePaymentAccount() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ accountId, payload }: { accountId: number; payload: UpdatePaymentAccountPayload }) => {
+    mutationFn: async ({ accountId, payload }: { accountId: string; payload: UpdatePaymentAccountPayload }) => {
       return tenantApi.updatePaymentAccount(accountId, payload);
     },
     onSuccess: () => {
@@ -114,7 +114,7 @@ export function useUpdatePaymentAccount() {
 export function useDeletePaymentAccount() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (accountId: number) => {
+    mutationFn: async (accountId: string) => {
       return tenantApi.deletePaymentAccount(accountId);
     },
     onSuccess: () => {
@@ -134,7 +134,7 @@ export function useDeletePaymentAccount() {
 export function useSetDefaultPaymentAccount() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (accountId: number) => {
+    mutationFn: async (accountId: string) => {
       return tenantApi.setDefaultPaymentAccount(accountId);
     },
     onSuccess: () => {

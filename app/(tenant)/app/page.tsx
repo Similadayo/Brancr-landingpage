@@ -54,7 +54,7 @@ export default function TenantOverviewPage() {
 
   const { data: scheduledPostsData } = useScheduledPosts();
   const { data: upcomingPostsData } = useScheduledPosts({ status: "scheduled", limit: 5 });
-  const { data: performanceSummary } = usePerformanceSummary("7d");
+  const { data: performanceSummary } = usePerformanceSummary("7d") as any;
   const { data: integrationsData } = useIntegrations();
   const { data: conversationsData } = useConversations({ limit: 100 });
   const { data: escalationsData } = useEscalations({ limit: 5 });
@@ -466,7 +466,7 @@ export default function TenantOverviewPage() {
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Performance Overview</h2>
               <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-300">Last 7 days insights</p>
             </div>
-            {!performanceSummary || performanceSummary.total_posts === 0 ? (
+            {!performanceSummary || (performanceSummary as any).total_posts === 0 ? (
               <div className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="rounded-xl border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm dark:border-gray-600 dark:from-gray-800/50 dark:to-gray-800">

@@ -19,22 +19,22 @@ export default function PaymentAccountsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<PaymentAccount | null>(null);
 
-  const { data: accounts = [], isLoading, error } = usePaymentAccounts();
+  const { data: accounts = [], isLoading, error } = usePaymentAccounts() as any;
   const createMutation = useCreatePaymentAccount();
   const updateMutation = useUpdatePaymentAccount();
   const deleteMutation = useDeletePaymentAccount();
   const setDefaultMutation = useSetDefaultPaymentAccount();
 
-  const [showDeleteAccountId, setShowDeleteAccountId] = useState<number | null>(null);
-  const handleDelete = (accountId: number) => {
+  const [showDeleteAccountId, setShowDeleteAccountId] = useState<string | null>(null);
+  const handleDelete = (accountId: string) => {
     setShowDeleteAccountId(accountId);
   };
-  const confirmDeleteAccount = (accountId: number) => {
+  const confirmDeleteAccount = (accountId: string) => {
     deleteMutation.mutate(accountId);
     setShowDeleteAccountId(null);
   };
 
-  const handleSetDefault = (accountId: number) => {
+  const handleSetDefault = (accountId: string) => {
     setDefaultMutation.mutate(accountId);
   };
 
@@ -107,14 +107,13 @@ export default function PaymentAccountsPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {accounts.map((account) => (
+          {accounts.map((account: PaymentAccount) => (
             <div
               key={account.id}
-              className={`rounded-xl border-2 p-4 transition ${
-                account.is_default
-                  ? "border-primary bg-primary/5"
-                  : "border-gray-200 bg-white hover:border-primary/50 hover:shadow-md"
-              }`}
+              className={`rounded-xl border-2 p-4 transition ${account.is_default
+                ? "border-primary bg-primary/5"
+                : "border-gray-200 bg-white hover:border-primary/50 hover:shadow-md"
+                }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">

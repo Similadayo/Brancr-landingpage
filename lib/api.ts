@@ -2107,9 +2107,9 @@ export const tenantApi = {
       }>;
     }>("/api/tenant/payment-accounts"),
 
-  paymentAccount: (accountId: number) =>
+  paymentAccount: (accountId: string) =>
     get<{
-      id: number;
+      id: string;
       account_type: "bank" | "mobile_money" | "cash";
       bank_name?: string;
       account_number?: string;
@@ -2136,7 +2136,7 @@ export const tenantApi = {
     post<typeof payload, {
       success: boolean;
       payment_account: {
-        id: number;
+        id: string;
         account_type: "bank" | "mobile_money" | "cash";
         bank_name?: string;
         account_number?: string;
@@ -2151,7 +2151,7 @@ export const tenantApi = {
       };
     }>("/api/tenant/payment-accounts", payload),
 
-  updatePaymentAccount: (accountId: number, payload: {
+  updatePaymentAccount: (accountId: string, payload: {
     bank_name?: string;
     account_number?: string;
     account_name?: string;
@@ -2164,7 +2164,7 @@ export const tenantApi = {
     put<typeof payload, {
       success: boolean;
       payment_account: {
-        id: number;
+        id: string;
         account_type: "bank" | "mobile_money" | "cash";
         bank_name?: string;
         account_number?: string;
@@ -2179,10 +2179,10 @@ export const tenantApi = {
       };
     }>(`/api/tenant/payment-accounts/${accountId}`, payload),
 
-  deletePaymentAccount: (accountId: number) =>
+  deletePaymentAccount: (accountId: string) =>
     del<{ success: boolean; message?: string }>(`/api/tenant/payment-accounts/${accountId}`),
 
-  setDefaultPaymentAccount: (accountId: number) =>
+  setDefaultPaymentAccount: (accountId: string) =>
     put<undefined, { success: boolean; message?: string }>(`/api/tenant/payment-accounts/${accountId}/set-default`),
 
   // Order Management endpoints
@@ -2476,8 +2476,8 @@ export const tenantApi = {
     const query = queryParams.toString();
 
     return get<Array<{
-      id: number;
-      tenant_id: number;
+      id: string;
+      tenant_id: string;
       type: string;
       severity: string;
       title: string;
@@ -2502,7 +2502,7 @@ export const tenantApi = {
       unread?: number;
     }>("/api/tenant/alerts/counts"),
 
-  markAlertRead: (alertId: number) =>
+  markAlertRead: (alertId: string) =>
     post<undefined, {
       success: boolean;
       alert?: {

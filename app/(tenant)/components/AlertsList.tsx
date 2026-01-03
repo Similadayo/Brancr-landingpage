@@ -61,7 +61,7 @@ export function AlertsList({ limit, showFilters = true, showMarkAllRead = true }
     severity: severityFilter,
     status: statusFilter === 'all' ? undefined : statusFilter,
     limit,
-  });
+  }) as any;
 
   const markRead = useMarkAlertRead();
   const markAllRead = useMarkAllAlertsRead();
@@ -149,7 +149,7 @@ export function AlertsList({ limit, showFilters = true, showMarkAllRead = true }
 
       {/* Alerts List */}
       <div className="space-y-3">
-        {filteredAlerts.map((alert) => (
+        {filteredAlerts.map((alert: Alert) => (
           <AlertCard
             key={alert.id}
             alert={alert}
@@ -177,9 +177,8 @@ function AlertCard({
 
   return (
     <div
-      className={`card group relative overflow-hidden p-5 transition-all hover:shadow-lg sm:p-6 ${
-        !isRead ? 'border-l-4 border-l-primary' : ''
-      }`}
+      className={`card group relative overflow-hidden p-5 transition-all hover:shadow-lg sm:p-6 ${!isRead ? 'border-l-4 border-l-primary' : ''
+        }`}
     >
       <div className="flex items-start gap-4">
         {/* Icon */}
