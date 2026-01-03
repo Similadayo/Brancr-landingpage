@@ -152,6 +152,8 @@ export default function MagicProfilePage() {
 
       // 2. Save Industry (map name to ID)
       let industriesList = industries;
+      let usingFallback = false;
+
       if (!industriesList || industriesList.length === 0) {
         try {
           const response = await tenantApi.getIndustries();
@@ -159,11 +161,13 @@ export default function MagicProfilePage() {
         } catch (err) {
           console.warn('Failed to fetch industries, using fallback:', err);
           industriesList = FALLBACK_INDUSTRIES;
+          usingFallback = true;
         }
       }
 
       if (!industriesList || industriesList.length === 0) {
         industriesList = FALLBACK_INDUSTRIES;
+        usingFallback = true;
       }
 
       const matchedIndustry = industriesList.find(
@@ -171,11 +175,14 @@ export default function MagicProfilePage() {
           ind.name.toLowerCase().includes(profileData.industry.toLowerCase())
       );
 
-      if (matchedIndustry) {
-        await tenantApi.onboardingIndustry({ industry_id: matchedIndustry.id });
-      } else {
-        if (FALLBACK_INDUSTRIES[0]) {
-          await tenantApi.onboardingIndustry({ industry_id: FALLBACK_INDUSTRIES[0].id });
+      // Only set industry ID if we found a match AND we are not using fallback data.
+      // Fallback data has integer IDs, but backend expects UUIDs (and we can't fetch real UUIDs if 403).
+      // We rely on 'onboardingBusinessProfile' (step 3) to save the industry name string instead.
+      if (matchedIndustry && !usingFallback) {
+        try {
+          await tenantApi.onboardingIndustry({ industry_id: matchedIndustry.id });
+        } catch (e) {
+          console.warn('Failed to set industry ID, continuing relying on name string:', e);
         }
       }
 
