@@ -788,61 +788,90 @@ export default function InboxPage() {
               </header>
 
               {/* Messages - Scrollable */}
-              <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0 scrollbar-thin">
-                {/* Date separator */}
-                {messages.length > 0 && (
-                  <div className="px-4 py-2 text-center">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(messages[0].created_at).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })}
-                    </span>
-                  </div>
-                )}
+              <div className="relative flex-1 overflow-y-auto min-h-0 scrollbar-thin">
+                {/* Wallpaper Background */}
+                <div
+                  className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
+                  style={{
+                    backgroundImage: "url('/chat-bg-pattern.png')",
+                    backgroundRepeat: "repeat",
+                    backgroundSize: "400px",
+                  }}
+                />
 
-                <div className="space-y-4 px-4 py-4 pb-4">
-                  {messages.map((message: Message) => {
+                <div className="relative z-1 space-y-4 px-4 py-4 pb-4">
+                  {messages.map((message: Message, index: number) => {
                     const isIncoming = message.direction === "incoming";
                     const isOutgoing = message.direction === "outgoing";
 
-                    return (
-                      <div
-                        key={message.id}
-                        className={`flex ${isIncoming ? "justify-start" : "justify-end"}`}
-                      >
-                        <div
-                          className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-sm ${isIncoming
-                            ? "bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600"
-                            : "bg-accent text-white dark:bg-white dark:text-gray-100"
-                            }`}
-                          role="article"
-                          aria-label={`${isIncoming ? 'Incoming' : 'Outgoing'} message`}
-                        >
-                          {/* Media Display - Render actual media when present */}
-                          {message.media && message.media.type ? (
-                            <div className="space-y-2">
-                              <MessageMedia media={message.media} />
-                              {/* Show content as additional text if it exists and is not just a placeholder description */}
-                              {message.content &&
-                                !message.content.match(/^\[(Voice note|Image|Video|Document|Sticker)\]:\s*/i) && (
-                                  <p className={`text-sm whitespace-pre-wrap break-words ${isOutgoing ? "text-white/90" : "text-gray-600 dark:text-gray-300"
-                                    }`}>
-                                    {message.content}
-                                  </p>
-                                )}
-                            </div>
-                          ) : (
-                            /* Text Content - Only show if no media */
-                            message.content && (
-                              <p className={`text-sm whitespace-pre-wrap break-words ${isOutgoing ? "text-white" : "text-gray-700 dark:text-gray-200"
-                                }`}>
-                                {message.content}
-                              </p>
-                            )
-                          )}
+                    // Date Separator Logic
+                    const messageDate = new Date(message.created_at);
+                    const prevMessage = index > 0 ? messages[index - 1] : null;
+                    const prevDate = prevMessage ? new Date(prevMessage.created_at) : null;
 
-                          {/* Timestamp */}
-                          <div className={`mt-2 text-xs ${isOutgoing ? "text-white/70" : "text-gray-500 dark:text-gray-300"
-                            }`}>
-                            {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
+                    const showDateSeparator = !prevDate ||
+                      messageDate.getDate() !== prevDate.getDate() ||
+                      messageDate.getMonth() !== prevDate.getMonth() ||
+                      messageDate.getFullYear() !== prevDate.getFullYear();
+
+                    const dateLabel = showDateSeparator ? (() => {
+                      const today = new Date();
+                      const yesterday = new Date(today);
+                      yesterday.setDate(yesterday.getDate() - 1);
+
+                      if (messageDate.toDateString() === today.toDateString()) return "Today";
+                      if (messageDate.toDateString() === yesterday.toDateString()) return "Yesterday";
+                      return messageDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+                    })() : null;
+
+                    return (
+                      <div key={message.id}>
+                        {showDateSeparator && (
+                          <div className="flex justify-center my-6">
+                            <span className="bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs font-medium px-3 py-1 rounded-full shadow-sm border border-gray-200 dark:border-gray-700/50">
+                              {dateLabel}
+                            </span>
+                          </div>
+                        )}
+                        <div
+                          className={`flex ${isIncoming ? "justify-start" : "justify-end"}`}
+                        >
+                          <div
+                            className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-sm ${isIncoming
+                              ? "bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600"
+                              : "bg-accent text-white dark:bg-white dark:text-gray-100"
+                              }`}
+                            role="article"
+                            aria-label={`${isIncoming ? 'Incoming' : 'Outgoing'} message`}
+                          >
+                            {/* Media Display - Render actual media when present */}
+                            {message.media && message.media.type ? (
+                              <div className="space-y-2">
+                                <MessageMedia media={message.media} />
+                                {/* Show content as additional text if it exists and is not just a placeholder description */}
+                                {message.content &&
+                                  !message.content.match(/^\[(Voice note|Image|Video|Document|Sticker)\]:\s*/i) && (
+                                    <p className={`text-sm whitespace-pre-wrap break-words ${isOutgoing ? "text-white/90" : "text-gray-600 dark:text-gray-300"
+                                      }`}>
+                                      {message.content}
+                                    </p>
+                                  )}
+                              </div>
+                            ) : (
+                              /* Text Content - Only show if no media */
+                              message.content && (
+                                <p className={`text-sm whitespace-pre-wrap break-words ${isOutgoing ? "text-white" : "text-gray-700 dark:text-gray-200"
+                                  }`}>
+                                  {message.content}
+                                </p>
+                              )
+                            )}
+
+                            {/* Timestamp */}
+                            <div className={`mt-2 text-xs ${isOutgoing ? "text-white/70" : "text-gray-500 dark:text-gray-300"
+                              }`}>
+                              {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
+                            </div>
                           </div>
                         </div>
                       </div>
