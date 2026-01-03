@@ -8,7 +8,7 @@ import { LinkIcon, XIcon, CheckCircleIcon } from './icons';
 import { toast } from 'react-hot-toast';
 
 type PortalLinkGeneratorProps = {
-  orderId: number;
+  orderId: string | number;
   onTokenGenerated?: (url: string) => void;
 };
 

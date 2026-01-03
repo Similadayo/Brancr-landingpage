@@ -2382,7 +2382,7 @@ export const tenantApi = {
     get<{ link: string }>(`/api/tenant/telegram-connect-link`),
 
   // Portal Token Management
-  generatePortalToken: (orderId: number) =>
+  generatePortalToken: (orderId: string | number) =>
     get<{
       portal_token: string;
       portal_url: string;
