@@ -26,6 +26,8 @@ import type { Message, ConversationDetail, ConversationSummary } from "@/app/(te
 import { MessageMedia } from "@/app/(tenant)/components/inbox/MessageMedia";
 import { PlatformAnalytics } from "../../components/inbox/PlatformAnalytics";
 import Select from "@/app/(tenant)/components/ui/Select";
+import { Modal, ModalTitle, ModalBody, ModalFooter } from "@/app/(tenant)/components/ui/Modal";
+import { Button } from "@/app/(tenant)/components/ui/Button";
 import {
   InboxIcon,
   MagnifyingGlassIcon,
@@ -70,6 +72,14 @@ export default function InboxPage() {
   // Delete mutations
   const { mutate: deleteConversation, isPending: isDeleting } = useDeleteConversation();
   const { mutate: bulkDeleteConversations, isPending: isBulkDeleting } = useBulkDeleteConversations();
+
+  // Delete modal state
+  const [deleteConfirmationState, setDeleteConfirmationState] = useState<{
+    isOpen: boolean;
+    type: 'single' | 'bulk';
+    id?: string;
+    count?: number;
+  }>({ isOpen: false, type: 'single' });
 
   useEffect(() => {
     const handle = setTimeout(() => {
@@ -146,35 +156,54 @@ export default function InboxPage() {
   // Handle single delete
   const handleDeleteConversation = useCallback((id: string) => {
     if (!id) return;
-    if (confirm('Delete this conversation? This cannot be undone.')) {
-      deleteConversation(id, {
-        onSuccess: () => {
-          // Clear selection if it was the active one
-          if (selectedConversationId === id) {
-            setSelectedConversationId(null);
-            setMobileView('list');
-          }
-        },
-      });
-    }
-  }, [deleteConversation, selectedConversationId]);
+    setDeleteConfirmationState({
+      isOpen: true,
+      type: 'single',
+      id
+    });
+  }, []);
+
+  const confirmDeleteConversation = () => {
+    const { id } = deleteConfirmationState;
+    if (!id) return;
+
+    deleteConversation(id, {
+      onSuccess: () => {
+        // Clear selection if it was the active one
+        if (selectedConversationId === id) {
+          setSelectedConversationId(null);
+          setMobileView('list');
+        }
+        setDeleteConfirmationState(prev => ({ ...prev, isOpen: false }));
+      },
+    });
+  };
 
   // Handle bulk delete
   const handleBulkDelete = useCallback(() => {
     if (selectedIds.size === 0) return;
-    if (confirm(`Delete ${selectedIds.size} conversation${selectedIds.size !== 1 ? 's' : ''}? This cannot be undone.`)) {
-      bulkDeleteConversations(Array.from(selectedIds), {
-        onSuccess: () => {
-          setSelectedIds(new Set());
-          setSelectMode(false);
-          if (selectedConversationId && selectedIds.has(selectedConversationId)) {
-            setSelectedConversationId(null);
-            setMobileView('list');
-          }
-        },
-      });
-    }
-  }, [bulkDeleteConversations, selectedIds, selectedConversationId]);
+    setDeleteConfirmationState({
+      isOpen: true,
+      type: 'bulk',
+      count: selectedIds.size
+    });
+  }, [selectedIds.size]);
+
+  const confirmBulkDelete = () => {
+    if (selectedIds.size === 0) return;
+
+    bulkDeleteConversations(Array.from(selectedIds), {
+      onSuccess: () => {
+        setSelectedIds(new Set());
+        setSelectMode(false);
+        if (selectedConversationId && selectedIds.has(selectedConversationId)) {
+          setSelectedConversationId(null);
+          setMobileView('list');
+        }
+        setDeleteConfirmationState(prev => ({ ...prev, isOpen: false }));
+      },
+    });
+  };
 
   // Toggle selection
   const toggleSelection = useCallback((id: string) => {
@@ -789,11 +818,20 @@ export default function InboxPage() {
 
               {/* Messages - Scrollable */}
               <div className="relative flex-1 overflow-y-auto min-h-0 scrollbar-thin">
-                {/* Wallpaper Background */}
+                {/* Wallpaper Background - Dark Mode */}
                 <div
-                  className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
+                  className="absolute inset-0 z-0 opacity-[0.06] dark:opacity-[0.1] pointer-events-none hidden dark:block"
                   style={{
                     backgroundImage: "url('/chat-bg-pattern.png')",
+                    backgroundRepeat: "repeat",
+                    backgroundSize: "400px",
+                  }}
+                />
+                {/* Wallpaper Background - Light Mode */}
+                <div
+                  className="absolute inset-0 z-0 opacity-[0.06] dark:opacity-[0.1] pointer-events-none block dark:hidden"
+                  style={{
+                    backgroundImage: "url('/chat-bg-pattern-light.png')",
                     backgroundRepeat: "repeat",
                     backgroundSize: "400px",
                   }}
@@ -827,9 +865,9 @@ export default function InboxPage() {
                     return (
                       <div key={message.id}>
                         {showDateSeparator && (
-                          <div className="flex justify-center my-6">
-                            <span className="bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs font-medium px-3 py-1 rounded-full shadow-sm border border-gray-200 dark:border-gray-700/50">
-                              {dateLabel}
+                          <div className="flex justify-center my-4 sticky top-2 z-10">
+                            <span className="bg-black/20 text-white dark:bg-black/30 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
+                              {getDateLabel(messageDate)}
                             </span>
                           </div>
                         )}
@@ -1129,6 +1167,58 @@ export default function InboxPage() {
           )}
         </aside>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        open={deleteConfirmationState.isOpen}
+        onClose={() => setDeleteConfirmationState(prev => ({ ...prev, isOpen: false }))}
+        size="sm"
+      >
+        <ModalTitle className="px-6 pt-6">
+          {deleteConfirmationState.type === 'single' ? 'Delete conversation?' : 'Delete conversations?'}
+        </ModalTitle>
+        <ModalBody>
+          <p className="text-gray-600 dark:text-gray-300">
+            {deleteConfirmationState.type === 'single'
+              ? 'Are you sure you want to delete this conversation? This action cannot be undone.'
+              : `Are you sure you want to delete ${deleteConfirmationState.count} conversations? This action cannot be undone.`}
+          </p>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            variant="ghost"
+            onClick={() => setDeleteConfirmationState(prev => ({ ...prev, isOpen: false }))}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={deleteConfirmationState.type === 'single' ? confirmDeleteConversation : confirmBulkDelete}
+            isLoading={isDeleting || isBulkDeleting}
+          >
+            Delete
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
+}
+
+// Helper to format date labels
+function getDateLabel(date: Date) {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (date.toDateString() === today.toDateString()) {
+    return "Today";
+  } else if (date.toDateString() === yesterday.toDateString()) {
+    return "Yesterday";
+  } else {
+    return date.toLocaleDateString(undefined, {
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+    });
+  }
 }
