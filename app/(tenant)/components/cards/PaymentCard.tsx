@@ -5,14 +5,14 @@ import { Card } from '../ui/Card';
 import { StatusBadge, Badge } from '../ui/Badge';
 
 type PaymentCardProps = {
-  id: number;
+  id: string | number;
   amount: number;
   currency: string;
   status: 'pending' | 'verified' | 'disputed' | 'failed' | 'confirmed';
   payment_method?: string;
   payment_reference?: string;
   created_at: string;
-  order_id?: number;
+  order_id?: string | number;
   order_number?: string;
   href?: string;
 };
@@ -65,7 +65,7 @@ export function PaymentCard({
                 Ref: <span className="font-mono font-medium">{payment_reference}</span>
               </p>
             )}
-            
+
             {order_number && (
               <p className="text-sm text-gray-600 dark:text-gray-300">
                 Order: <span className="font-medium">{order_number}</span>
@@ -83,7 +83,7 @@ export function PaymentCard({
             </p>
           </div>
         </div>
-        
+
         <div className="flex-shrink-0 text-right">
           <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
             {currency} {amount.toLocaleString()}

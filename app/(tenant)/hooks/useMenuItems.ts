@@ -5,7 +5,7 @@ import { ApiError, tenantApi } from "@/lib/api";
 import { toast } from "react-hot-toast";
 
 export type MenuItem = {
-  id: number;
+  id: string;
   name: string;
   description?: string;
   price: number;
@@ -94,7 +94,7 @@ export function useCreateMenuItem() {
 export function useUpdateMenuItem() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ menuItemId, payload }: { menuItemId: number; payload: UpdateMenuItemPayload }) => {
+    mutationFn: async ({ menuItemId, payload }: { menuItemId: string | number; payload: UpdateMenuItemPayload }) => {
       return tenantApi.updateMenuItem(menuItemId, payload);
     },
     onSuccess: () => {
@@ -114,7 +114,7 @@ export function useUpdateMenuItem() {
 export function useDeleteMenuItem() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (menuItemId: number) => {
+    mutationFn: async (menuItemId: string | number) => {
       return tenantApi.deleteMenuItem(menuItemId);
     },
     onSuccess: () => {

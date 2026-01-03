@@ -5,9 +5,9 @@ import { toast } from "react-hot-toast";
 import { ApiError, tenantApi } from "@/lib/api";
 
 export type Escalation = {
-  id: number;
-  interactionId: number;
-  customerId: number;
+  id: string;
+  interactionId: string;
+  customerId: string;
   customerName: string;
   customerUsername?: string;
   platform: string;
@@ -17,26 +17,26 @@ export type Escalation = {
   confidence: number;
   suggestedReply: string;
   createdAt: string;
-  conversationId: number;
+  conversationId: string;
   priority: "low" | "normal" | "high" | "urgent" | "critical";
 };
 
 export type EscalationDetail = {
   escalation: Escalation;
   customer: {
-    id: number;
+    id: string;
     name: string;
     username?: string;
     platform: string;
   };
   conversationHistory: Array<{
-    id: number;
+    id: string;
     author: "tenant" | "customer";
     body: string;
     sentAt: string;
   }>;
   interactions: Array<{
-    id: number;
+    id: string;
     type: string;
     createdAt: string;
   }>;
@@ -86,7 +86,7 @@ export function useEscalations(params?: { priority?: "low" | "normal" | "high" |
   });
 }
 
-export function useEscalation(escalationId: number | null) {
+export function useEscalation(escalationId: string | number | null) {
   return useQuery<EscalationDetail, Error>({
     queryKey: ["escalation", escalationId],
     enabled: Boolean(escalationId),
@@ -136,7 +136,7 @@ export function useEscalation(escalationId: number | null) {
   });
 }
 
-export function useApproveEscalationReply(escalationId: number | null) {
+export function useApproveEscalationReply(escalationId: string | number | null) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -162,7 +162,7 @@ export function useApproveEscalationReply(escalationId: number | null) {
   });
 }
 
-export function useSendEscalationReply(escalationId: number | null) {
+export function useSendEscalationReply(escalationId: string | number | null) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -188,7 +188,7 @@ export function useSendEscalationReply(escalationId: number | null) {
   });
 }
 
-export function useIgnoreEscalation(escalationId: number | null) {
+export function useIgnoreEscalation(escalationId: string | number | null) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -214,7 +214,7 @@ export function useIgnoreEscalation(escalationId: number | null) {
   });
 }
 
-export function useResolveEscalation(escalationId: number | null) {
+export function useResolveEscalation(escalationId: string | number | null) {
   const queryClient = useQueryClient();
 
   return useMutation({

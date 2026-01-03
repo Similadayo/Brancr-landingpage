@@ -42,7 +42,7 @@ export default function MenuItemsPage() {
   const [spiceLevel, setSpiceLevel] = useState<SpiceLevelFilter>('all');
   const [sortBy, setSortBy] = useState<SortOption>('date');
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const itemsPerPage = 20;
 
   const { data: allItems = [], isLoading, error } = useMenuItems({
@@ -99,7 +99,7 @@ export default function MenuItemsPage() {
   }, [items, currentPage, itemsPerPage]);
 
   const deleteMutation = useDeleteMenuItem();
-  const [showDeleteItemId, setShowDeleteItemId] = useState<number | null>(null);
+  const [showDeleteItemId, setShowDeleteItemId] = useState<string | null>(null);
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
   const categories = useMemo(() => {
@@ -110,11 +110,11 @@ export default function MenuItemsPage() {
     return Array.from(cats).sort();
   }, [items]);
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     setShowDeleteItemId(id);
   };
 
-  const confirmDeleteItem = (id: number) => {
+  const confirmDeleteItem = (id: string) => {
     deleteMutation.mutate(id);
     setShowDeleteItemId(null);
   };
@@ -129,7 +129,7 @@ export default function MenuItemsPage() {
     setShowBulkDeleteConfirm(false);
   };
 
-  const toggleSelect = (id: number) => {
+  const toggleSelect = (id: string) => {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
@@ -178,29 +178,29 @@ export default function MenuItemsPage() {
                 Manage your restaurant menu
               </p>
             </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {selectedIds.length > 0 && (
-            <button
-              onClick={handleBulkDelete}
-              className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100"
-            >
-              <TrashIcon className="w-4 h-4" />
-              Delete Selected ({selectedIds.length})
-            </button>
-          )}
-          <Link
-            href="/app/menu-items/quick-add"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
-          >
-            <PlusIcon className="w-4 h-4" />
-            Quick Add / Import
-          </Link>
-          <Link
-            href="/app/menu-items/new"
-            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-          >
-            Add Menu Item
-          </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              {selectedIds.length > 0 && (
+                <button
+                  onClick={handleBulkDelete}
+                  className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-100"
+                >
+                  <TrashIcon className="w-4 h-4" />
+                  Delete Selected ({selectedIds.length})
+                </button>
+              )}
+              <Link
+                href="/app/menu-items/quick-add"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
+              >
+                <PlusIcon className="w-4 h-4" />
+                Quick Add / Import
+              </Link>
+              <Link
+                href="/app/menu-items/new"
+                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              >
+                Add Menu Item
+              </Link>
             </div>
           </div>
         </div>
@@ -208,32 +208,32 @@ export default function MenuItemsPage() {
 
       <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <MagnifyingGlassIcon
-            className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500"
-            aria-hidden="true"
-          />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search menu items..."
-            className="w-full h-10 rounded-lg border border-gray-300 bg-white pl-11 pr-4 text-sm text-gray-900 placeholder:text-gray-500 transition hover:border-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <FunnelIcon className="h-4 w-4 text-gray-400" />
-          <div className="min-w-[240px]">
-            <Select
-              value={(category || "") as any}
-              onChange={(value) => setCategory(value ? String(value) : undefined)}
-              options={[
-                { value: "", label: "All Categories" },
-                ...categories.map((cat) => ({ value: cat, label: cat })),
-              ]}
-              searchable
+          <div className="relative flex-1">
+            <MagnifyingGlassIcon
+              className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500"
+              aria-hidden="true"
+            />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search menu items..."
+              className="w-full h-10 rounded-lg border border-gray-300 bg-white pl-11 pr-4 text-sm text-gray-900 placeholder:text-gray-500 transition hover:border-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
+          <div className="flex items-center gap-2">
+            <FunnelIcon className="h-4 w-4 text-gray-400" />
+            <div className="min-w-[240px]">
+              <Select
+                value={(category || "") as any}
+                onChange={(value) => setCategory(value ? String(value) : undefined)}
+                options={[
+                  { value: "", label: "All Categories" },
+                  ...categories.map((cat) => ({ value: cat, label: cat })),
+                ]}
+                searchable
+              />
+            </div>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -335,83 +335,82 @@ export default function MenuItemsPage() {
         </div>
       ) : (
         <>
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {paginatedItems.map((item) => {
-            const isSelected = selectedIds.includes(item.id);
-            return (
-              <div
-                key={item.id}
-                className={`relative rounded-xl border-2 transition-all ${
-                  isSelected
-                    ? "border-primary bg-primary/5 ring-4 ring-primary/20"
-                    : "border-gray-200 bg-white hover:border-primary/50 hover:shadow-md"
-                }`}
-              >
-                <div className="absolute left-2 top-2 cursor-pointer" onClick={() => toggleSelect(item.id)}>
-                  {isSelected ? (
-                    <CheckCircleIcon className="h-6 w-6 text-primary" />
-                  ) : (
-                    <div className="h-6 w-6 rounded-full border-2 border-gray-300" />
-                  )}
-                </div>
-
-                <div className="p-4">
-                  <div className="mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">{item.name}</h3>
-                    {item.category && <p className="text-xs text-gray-500 uppercase tracking-wider">{item.category}</p>}
-                  </div>
-
-                  {item.description && <p className="mb-3 line-clamp-2 text-sm text-gray-600">{item.description}</p>}
-
-                  <div className="mb-3">
-                    <p className="text-lg font-bold text-gray-900">
-                      {item.currency} {item.price.toLocaleString()}
-                    </p>
-                    <p className="mt-0.5 text-xs text-gray-500">
-                      {formatNegotiationRule(item, negotiationSettings ?? undefined)}
-                    </p>
-                    {item.preparation_time && (
-                      <p className="text-xs text-gray-500">⏱️ {item.preparation_time} min</p>
-                    )}
-                    {item.spice_level && (
-                      <p className="text-xs text-gray-500">🌶️ {item.spice_level}</p>
+              const isSelected = selectedIds.includes(item.id);
+              return (
+                <div
+                  key={item.id}
+                  className={`relative rounded-xl border-2 transition-all ${isSelected
+                      ? "border-primary bg-primary/5 ring-4 ring-primary/20"
+                      : "border-gray-200 bg-white hover:border-primary/50 hover:shadow-md"
+                    }`}
+                >
+                  <div className="absolute left-2 top-2 cursor-pointer" onClick={() => toggleSelect(item.id)}>
+                    {isSelected ? (
+                      <CheckCircleIcon className="h-6 w-6 text-primary" />
+                    ) : (
+                      <div className="h-6 w-6 rounded-full border-2 border-gray-300" />
                     )}
                   </div>
 
-                  {item.dietary_info && item.dietary_info.length > 0 && (
-                    <div className="mb-3 flex flex-wrap gap-1">
-                      {item.dietary_info.slice(0, 3).map((info) => (
-                        <span
-                          key={info}
-                          className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-700"
-                        >
-                          {info}
-                        </span>
-                      ))}
+                  <div className="p-4">
+                    <div className="mb-2">
+                      <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">{item.name}</h3>
+                      {item.category && <p className="text-xs text-gray-500 uppercase tracking-wider">{item.category}</p>}
                     </div>
-                  )}
 
-                  <div className="flex items-center justify-between gap-2">
-                    <Link
-                      href={`/app/menu-items/${item.id}/edit`}
-                      className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition"
-                    >
-                      <PencilIcon className="h-3 w-3" />
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700 transition"
-                    >
-                      <TrashIcon className="h-3 w-3" />
-                      Delete
-                    </button>
+                    {item.description && <p className="mb-3 line-clamp-2 text-sm text-gray-600">{item.description}</p>}
+
+                    <div className="mb-3">
+                      <p className="text-lg font-bold text-gray-900">
+                        {item.currency} {item.price.toLocaleString()}
+                      </p>
+                      <p className="mt-0.5 text-xs text-gray-500">
+                        {formatNegotiationRule(item, negotiationSettings ?? undefined)}
+                      </p>
+                      {item.preparation_time && (
+                        <p className="text-xs text-gray-500">⏱️ {item.preparation_time} min</p>
+                      )}
+                      {item.spice_level && (
+                        <p className="text-xs text-gray-500">🌶️ {item.spice_level}</p>
+                      )}
+                    </div>
+
+                    {item.dietary_info && item.dietary_info.length > 0 && (
+                      <div className="mb-3 flex flex-wrap gap-1">
+                        {item.dietary_info.slice(0, 3).map((info) => (
+                          <span
+                            key={info}
+                            className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-700"
+                          >
+                            {info}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between gap-2">
+                      <Link
+                        href={`/app/menu-items/${item.id}/edit`}
+                        className="flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80 transition"
+                      >
+                        <PencilIcon className="h-3 w-3" />
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700 transition"
+                      >
+                        <TrashIcon className="h-3 w-3" />
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
 
           {/* Pagination */}
           {totalPages > 1 && (
@@ -423,7 +422,7 @@ export default function MenuItemsPage() {
                 itemsPerPage={itemsPerPage}
                 totalItems={items.length}
               />
-          </div>
+            </div>
           )}
         </>
       )}

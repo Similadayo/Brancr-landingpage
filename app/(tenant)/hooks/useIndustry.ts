@@ -5,7 +5,7 @@ import { ApiError, tenantApi } from "@/lib/api";
 import { toast } from "react-hot-toast";
 
 export type Industry = {
-  id: number;
+  id: string;
   name: string;
   category: string;
   description: string;
@@ -15,7 +15,7 @@ export type Industry = {
 };
 
 export type TenantIndustry = {
-  industry_id: number;
+  industry_id: string;
   industry_name: string;
   capabilities: {
     has_products: boolean;
@@ -26,7 +26,7 @@ export type TenantIndustry = {
 
 export const FALLBACK_INDUSTRIES: Industry[] = [
   {
-    id: 1,
+    id: "1",
     name: "Retail & E-commerce",
     category: "Retail",
     description: "Sell physical products online or in-store. Includes inventory management, variants, and stock tracking.",
@@ -35,7 +35,7 @@ export const FALLBACK_INDUSTRIES: Industry[] = [
     has_services: false
   },
   {
-    id: 2,
+    id: "2",
     name: "Restaurant & Food",
     category: "Food & Beverage",
     description: "For restaurants, cafes, and food delivery. Manage menus, modifiers, and preparation times.",
@@ -44,7 +44,7 @@ export const FALLBACK_INDUSTRIES: Industry[] = [
     has_services: false
   },
   {
-    id: 3,
+    id: "3",
     name: "Professional Services",
     category: "Services",
     description: "For agencies, consultants, and service providers. Manage service packages and hourly rates.",
@@ -53,7 +53,7 @@ export const FALLBACK_INDUSTRIES: Industry[] = [
     has_services: true
   },
   {
-    id: 4,
+    id: "4",
     name: "Beauty & Wellness",
     category: "Services",
     description: "Salons, spas, and wellness centers. Manage service lists and appointments.",
@@ -107,7 +107,7 @@ export function useTenantIndustry() {
 export function useSetTenantIndustry() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (industryId: number) => {
+    mutationFn: async (industryId: string) => {
       try {
         return await tenantApi.setTenantIndustry({ industry_id: industryId });
       } catch (error) {
@@ -146,6 +146,22 @@ export function useSetTenantIndustry() {
       } else {
         toast.error("Failed to update industry. Please try again.");
         console.error("Unknown error:", error);
+      }
+    },
+  });
+}
+
+export function useOnboardingIndustry() {
+  // const queryClient = useQueryClient(); // Unused
+  return useMutation({
+    mutationFn: async (industryId: string) => {
+      return await tenantApi.onboardingIndustry({ industry_id: industryId });
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to set industry");
       }
     },
   });

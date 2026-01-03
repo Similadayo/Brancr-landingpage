@@ -212,8 +212,8 @@ export const authApi = {
     // Normalize auth/me payloads — some servers return a nested `tenant` object with `id`,
     // while others include `tenant_id` at the top level. Make the client tolerant to both.
     const raw = await get<{
-      tenant_id?: number;
-      tenant?: { id?: number };
+      tenant_id?: string;
+      tenant?: { id?: string };
       name?: string;
       email?: string;
       email_verified?: boolean;
@@ -283,8 +283,8 @@ export const tenantApi = {
       : "";
     return get<{
       conversations: Array<{
-        id: number;
-        customer_id: number;
+        id: string;
+        customer_id: string;
         customer_name: string;
         customer_avatar?: string;
         customer_phone?: string;
@@ -315,8 +315,8 @@ export const tenantApi = {
 
   conversation: (conversationId: string) =>
     get<{
-      id: number;
-      customer_id: number;
+      id: string;
+      customer_id: string;
       customer_name: string;
       customer_avatar?: string;
       customer_phone?: string;
@@ -325,7 +325,7 @@ export const tenantApi = {
       platform: string;
       status: string;
       messages: Array<{
-        id: number;
+        id: string;
         direction: "incoming" | "outgoing";
         message_type: "text" | "image" | "video" | "comment" | "audio" | "document" | "sticker";
         content: string;
@@ -372,7 +372,7 @@ export const tenantApi = {
       success: boolean;
       message: string;
       interaction: {
-        id: number;
+        id: string;
         direction: "incoming" | "outgoing";
         message_type: "text" | "image" | "video" | "comment" | "audio" | "document" | "sticker";
         content: string;
@@ -530,7 +530,7 @@ export const tenantApi = {
       total_shares: number;
       total_posts: number;
       top_performing_post: {
-        id: number;
+        id: string;
         name: string;
         platform: string;
         impressions: number;
@@ -927,7 +927,7 @@ export const tenantApi = {
   createPost: (payload: {
     name?: string;
     caption?: string;
-    media_ids: number[]; // Array of media asset IDs
+    media_ids: (number | string)[]; // Array of media asset IDs
     platforms: string[]; // Required: At least one platform
     scheduled_at?: string | null; // "now", RFC3339 date, or null for immediate publishing
     enhance_caption?: boolean; // If true, AI enhances the caption; if false or omitted, uses caption as-is
@@ -937,7 +937,7 @@ export const tenantApi = {
     tiktok_disable_comment?: boolean;
     tiktok_schedule_time?: string; // RFC3339 format, TikTok-specific schedule
   }) => post<typeof payload, {
-    id: number;
+    id: string;
     status: "scheduled" | "posting" | "posted" | "failed";
     publishing_now?: boolean;
   }>(`/api/tenant/posts`, payload),
@@ -946,19 +946,19 @@ export const tenantApi = {
     post<undefined, {
       success: boolean;
       message?: string;
-      post_id: number;
+      post_id: string;
       status: string;
     }>(`/api/tenant/posts/${postId}/publish`),
 
   generateCaption: (payload: {
-    media_ids: number[]; // Array of media asset IDs
+    media_ids: (number | string)[]; // Array of media asset IDs
     tone?: string;
     include_hashtags?: boolean;
   }) => post<typeof payload, { caption: string }>(`/api/tenant/posts/generate-caption`, payload),
 
   // Caption generation and enhancement endpoints
   generateCaptionFromMedia: (payload: {
-    media_asset_id: number;
+    media_asset_id: number | string;
     platform: string;
     media_type: string;
     image_urls?: string[];
@@ -1440,9 +1440,9 @@ export const tenantApi = {
       : "";
     return get<{
       escalations: Array<{
-        id: number;
-        interaction_id: number;
-        customer_id: number;
+        id: string;
+        interaction_id: string;
+        customer_id: string;
         customer_name: string;
         customer_username?: string;
         platform: string;
@@ -1452,19 +1452,19 @@ export const tenantApi = {
         confidence: number;
         suggested_reply: string;
         created_at: string;
-        conversation_id: number;
+        conversation_id: string;
         priority: "low" | "normal" | "high" | "urgent" | "critical";
       }>;
       count: number;
     }>(`/api/tenant/escalations${query}`);
   },
 
-  escalation: (escalationId: number) =>
+  escalation: (escalationId: string | number) =>
     get<{
       escalation: {
-        id: number;
-        interaction_id: number;
-        customer_id: number;
+        id: string;
+        interaction_id: string;
+        customer_id: string;
         customer_name: string;
         customer_username?: string;
         platform: string;
@@ -1474,32 +1474,32 @@ export const tenantApi = {
         confidence: number;
         suggested_reply: string;
         created_at: string;
-        conversation_id: number;
+        conversation_id: string;
         priority: "low" | "normal" | "high" | "urgent" | "critical";
       };
       customer: {
-        id: number;
+        id: string;
         name: string;
         username?: string;
         platform: string;
       };
       conversation_history: Array<{
-        id: number;
+        id: string;
         author: "tenant" | "customer";
         body: string;
         sent_at: string;
       }>;
       interactions: Array<{
-        id: number;
+        id: string;
         type: string;
         created_at: string;
       }>;
     }>(`/api/tenant/escalations/${escalationId}`),
 
-  approveEscalationReply: (escalationId: number) =>
+  approveEscalationReply: (escalationId: string | number) =>
     post<undefined, { success: boolean; message?: string }>(`/api/tenant/escalations/${escalationId}/approve`),
 
-  sendEscalationReply: (escalationId: number, payload: { reply: string }, edit?: boolean) => {
+  sendEscalationReply: (escalationId: string | number, payload: { reply: string }, edit?: boolean) => {
     const query = edit ? "?edit=true" : "";
     return post<typeof payload, { success: boolean; message?: string }>(
       `/api/tenant/escalations/${escalationId}/reply${query}`,
@@ -1507,10 +1507,10 @@ export const tenantApi = {
     );
   },
 
-  ignoreEscalation: (escalationId: number) =>
+  ignoreEscalation: (escalationId: string | number) =>
     post<undefined, { success: boolean; message?: string }>(`/api/tenant/escalations/${escalationId}/ignore`),
 
-  resolveEscalation: (escalationId: number) =>
+  resolveEscalation: (escalationId: string | number) =>
     post<undefined, { success: boolean; message?: string }>(`/api/tenant/escalations/${escalationId}/resolve`),
 
   escalationStats: (params?: { start_date?: string; end_date?: string }) => {
@@ -1686,7 +1686,7 @@ export const tenantApi = {
   getIndustries: () =>
     get<{
       industries: Array<{
-        id: number;
+        id: string;
         name: string;
         category: string;
         description: string;
@@ -1698,7 +1698,7 @@ export const tenantApi = {
 
   getTenantIndustry: () =>
     get<{
-      industry_id: number;
+      industry_id: string;
       industry_name: string;
       capabilities: {
         has_products: boolean;
@@ -1707,11 +1707,11 @@ export const tenantApi = {
       };
     }>("/api/tenant/industry"),
 
-  setTenantIndustry: (payload: { industry_id: number }) =>
+  setTenantIndustry: (payload: { industry_id: string }) =>
     post<typeof payload, {
       success: boolean;
       industry: {
-        id: number;
+        id: string;
         name: string;
         category: string;
         description: string;
@@ -1730,7 +1730,7 @@ export const tenantApi = {
       : "";
     return get<{
       products: Array<{
-        id: number;
+        id: string;
         name: string;
         description?: string;
         price: number;
@@ -1762,7 +1762,7 @@ export const tenantApi = {
     post<typeof payload, {
       success: boolean;
       product: {
-        id: number;
+        id: string;
         name: string;
         description?: string;
         price: number;
@@ -1779,7 +1779,7 @@ export const tenantApi = {
       };
     }>("/api/tenant/products", payload),
 
-  updateProduct: (productId: number, payload: {
+  updateProduct: (productId: string | number, payload: {
     name?: string;
     description?: string;
     price?: number;
@@ -1795,7 +1795,7 @@ export const tenantApi = {
     put<typeof payload, {
       success: boolean;
       product: {
-        id: number;
+        id: string;
         name: string;
         description?: string;
         price: number;
@@ -1812,7 +1812,7 @@ export const tenantApi = {
       };
     }>(`/api/tenant/products/${productId}`, payload),
 
-  deleteProduct: (productId: number) =>
+  deleteProduct: (productId: string | number) =>
     del<{ success: boolean; message?: string }>(`/api/tenant/products/${productId}`),
 
   // Menu item management endpoints (Restaurants)
@@ -1824,7 +1824,7 @@ export const tenantApi = {
       : "";
     return get<{
       menu_items: Array<{
-        id: number;
+        id: string;
         name: string;
         description?: string;
         price: number;
@@ -1856,7 +1856,7 @@ export const tenantApi = {
     post<typeof payload, {
       success: boolean;
       menu_item: {
-        id: number;
+        id: string;
         name: string;
         description?: string;
         price: number;
@@ -1873,7 +1873,7 @@ export const tenantApi = {
       };
     }>("/api/tenant/menu-items", payload),
 
-  updateMenuItem: (menuItemId: number, payload: {
+  updateMenuItem: (menuItemId: string | number, payload: {
     name?: string;
     description?: string;
     price?: number;
@@ -1889,7 +1889,7 @@ export const tenantApi = {
     put<typeof payload, {
       success: boolean;
       menu_item: {
-        id: number;
+        id: string;
         name: string;
         description?: string;
         price: number;
@@ -1906,7 +1906,7 @@ export const tenantApi = {
       };
     }>(`/api/tenant/menu-items/${menuItemId}`, payload),
 
-  deleteMenuItem: (menuItemId: number) =>
+  deleteMenuItem: (menuItemId: string | number) =>
     del<{ success: boolean; message?: string }>(`/api/tenant/menu-items/${menuItemId}`),
 
   parseMenuText: (payload: { text: string; default_currency?: string }) =>
@@ -1952,7 +1952,7 @@ export const tenantApi = {
       : "";
     return get<{
       services: Array<{
-        id: number;
+        id: string;
         name: string;
         description?: string;
         pricing: {
@@ -1995,7 +1995,7 @@ export const tenantApi = {
     post<typeof payload, {
       success: boolean;
       service: {
-        id: number;
+        id: string;
         name: string;
         description?: string;
         pricing: {
@@ -2017,7 +2017,7 @@ export const tenantApi = {
       };
     }>("/api/tenant/services", payload),
 
-  updateService: (serviceId: number, payload: {
+  updateService: (serviceId: string | number, payload: {
     name?: string;
     description?: string;
     pricing?: {
@@ -2038,7 +2038,7 @@ export const tenantApi = {
     put<typeof payload, {
       success: boolean;
       service: {
-        id: number;
+        id: string;
         name: string;
         description?: string;
         pricing: {
@@ -2060,11 +2060,11 @@ export const tenantApi = {
       };
     }>(`/api/tenant/services/${serviceId}`, payload),
 
-  deleteService: (serviceId: number) =>
+  deleteService: (serviceId: string | number) =>
     del<{ success: boolean; message?: string }>(`/api/tenant/services/${serviceId}`),
 
   // Onboarding industry step
-  onboardingIndustry: (payload: { industry_id: number }) =>
+  onboardingIndustry: (payload: { industry_id: string }) =>
     post<typeof payload, { success: boolean; message: string; next_step: string }>(
       "/api/tenant/onboarding/industry",
       payload
@@ -2092,7 +2092,7 @@ export const tenantApi = {
   paymentAccounts: () =>
     get<{
       payment_accounts: Array<{
-        id: number;
+        id: string;
         account_type: "bank" | "mobile_money" | "cash";
         bank_name?: string;
         account_number?: string;

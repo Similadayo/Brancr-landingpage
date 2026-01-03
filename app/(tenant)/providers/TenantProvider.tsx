@@ -7,7 +7,7 @@ import { ApiError, authApi } from "@/lib/api";
 import { setUserContext, clearUserContext } from "@/lib/observability";
 
 type TenantProfile = {
-  tenant_id: number;
+  tenant_id: string;
   name: string;
   email: string;
   plan: string;

@@ -6,8 +6,8 @@ import { getUserFriendlyErrorMessage } from "@/lib/error-messages";
 import { toast } from "react-hot-toast";
 
 export type Alert = {
-  id: number;
-  tenant_id: number;
+  id: string;
+  tenant_id: string;
   type: string;
   severity: string;
   title: string;
@@ -54,9 +54,9 @@ export function useAlerts(params?: {
           limit: params?.limit,
           offset: params?.offset,
         });
-        
+
         const alerts = Array.isArray(alertsArray) ? alertsArray : [];
-        
+
         // Filter by type and severity on client side if needed
         let filteredAlerts = alerts;
         if (params?.type && params.type !== "all") {
@@ -65,7 +65,7 @@ export function useAlerts(params?: {
         if (params?.severity && params.severity !== "all") {
           filteredAlerts = filteredAlerts.filter((a) => a.severity === params.severity);
         }
-        
+
         const unread_count = filteredAlerts.filter((alert) => !alert.read_at).length;
 
         return {
@@ -114,7 +114,7 @@ export function useMarkAlertRead() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (alertId: number) => {
+    mutationFn: async (alertId: string | number) => {
       return tenantApi.markAlertRead(alertId);
     },
     onSuccess: (data, alertId) => {

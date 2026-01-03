@@ -5,7 +5,7 @@ import { useProducts } from "../../../../hooks/useProducts";
 import ProductForm from "../../../../components/products/ProductForm";
 
 export default function EditProductPage({ params }: { params: { id: string } }) {
-  const productId = parseInt(params.id, 10);
+  const productId = params.id;
 
   const { data: products = [], isLoading } = useProducts();
   const product = products.find((p) => p.id === productId);

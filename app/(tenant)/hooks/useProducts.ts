@@ -5,7 +5,7 @@ import { ApiError, tenantApi } from "@/lib/api";
 import { toast } from "react-hot-toast";
 
 export type Product = {
-  id: number;
+  id: string;
   name: string;
   description?: string;
   price: number;
@@ -94,7 +94,7 @@ export function useCreateProduct() {
 export function useUpdateProduct() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ productId, payload }: { productId: number; payload: UpdateProductPayload }) => {
+    mutationFn: async ({ productId, payload }: { productId: string | number; payload: UpdateProductPayload }) => {
       return tenantApi.updateProduct(productId, payload);
     },
     onSuccess: () => {
@@ -114,7 +114,7 @@ export function useUpdateProduct() {
 export function useDeleteProduct() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (productId: number) => {
+    mutationFn: async (productId: string | number) => {
       return tenantApi.deleteProduct(productId);
     },
     onSuccess: () => {

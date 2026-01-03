@@ -275,7 +275,7 @@ export default function TenantOverviewPage() {
             .filter((c) => (c.unread_count || 0) > 0)
             .slice(0, 3)
             .map((c) => ({
-              id: Number(c.id),
+              id: c.id.toString(),
               customer_name: c.customer_name || 'Unknown',
               platform: c.platform || 'unknown',
               unread_count: c.unread_count || 0,

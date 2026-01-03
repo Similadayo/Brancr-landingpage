@@ -8,14 +8,14 @@ interface NotificationsPanelProps {
   unreadMessages: number;
   pendingEscalations: number;
   recentConversations: Array<{
-    id: number;
+    id: string;
     customer_name: string;
     platform: string;
     unread_count: number;
     last_message_at: string;
   }>;
   recentEscalations: Array<{
-    id: number;
+    id: string;
     customerName: string;
     platform: string;
     message: string;

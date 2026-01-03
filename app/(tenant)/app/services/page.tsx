@@ -82,7 +82,7 @@ export default function ServicesPage() {
   }, [services, currentPage, itemsPerPage]);
 
   const deleteMutation = useDeleteService();
-  const [showDeleteServiceId, setShowDeleteServiceId] = useState<number | null>(null);
+  const [showDeleteServiceId, setShowDeleteServiceId] = useState<string | null>(null);
 
   const categories = useMemo(() => {
     const cats = new Set<string>();
@@ -92,11 +92,11 @@ export default function ServicesPage() {
     return Array.from(cats).sort();
   }, [services]);
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     setShowDeleteServiceId(id);
   };
 
-  const confirmDeleteService = (id: number) => {
+  const confirmDeleteService = (id: string) => {
     deleteMutation.mutate(id);
     setShowDeleteServiceId(null);
   };
@@ -136,23 +136,23 @@ export default function ServicesPage() {
                 Manage your service offerings
               </p>
             </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Link
-            href="/app/services/quick-add"
-            className="inline-flex items-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:border-white/50 hover:bg-white/20"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            Quick Add / Import
-          </Link>
-          <Link
-            href="/app/services/new"
-            className="inline-flex items-center gap-2 rounded-xl bg-white/20 backdrop-blur-sm px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-white/30"
-          >
-            <PlusIcon className="w-4 h-4" />
-            Add Service
-          </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href="/app/services/quick-add"
+                className="inline-flex items-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 backdrop-blur-sm px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:border-white/50 hover:bg-white/20"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Quick Add / Import
+              </Link>
+              <Link
+                href="/app/services/new"
+                className="inline-flex items-center gap-2 rounded-xl bg-white/20 backdrop-blur-sm px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-white/30"
+              >
+                <PlusIcon className="w-4 h-4" />
+                Add Service
+              </Link>
             </div>
           </div>
         </div>
@@ -289,8 +289,8 @@ export default function ServicesPage() {
                 service.pricing.type === "hourly" && typeof service.pricing.rate === "number"
                   ? `₦${service.pricing.rate.toLocaleString()}/hr`
                   : service.pricing.type === "fixed"
-                  ? "Fixed"
-                  : "Package";
+                    ? "Fixed"
+                    : "Package";
 
               const negotiationText = formatNegotiationBrief(service, negotiationSettings ?? undefined);
 
@@ -371,8 +371,8 @@ export default function ServicesPage() {
                   )}
 
                 </div>
-            );
-          })}
+              );
+            })}
           </div>
 
           {/* Pagination */}

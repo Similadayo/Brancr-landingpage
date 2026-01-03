@@ -5,8 +5,8 @@ import { useServices } from "../../../../hooks/useServices";
 import ServiceForm from "../../../../components/services/ServiceForm";
 
 export default function EditServicePage({ params }: { params: { id: string } }) {
-  const serviceId = parseInt(params.id, 10);
-  
+  const serviceId = params.id;
+
   const { data: services = [], isLoading } = useServices();
   const service = services.find((s) => s.id === serviceId);
 

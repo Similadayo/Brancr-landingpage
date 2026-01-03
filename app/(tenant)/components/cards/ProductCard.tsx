@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { PackageIcon } from '../icons';
 
 type ProductCardProps = {
-  id: number;
+  id: string | number;
   name: string;
   description?: string;
   price: number;

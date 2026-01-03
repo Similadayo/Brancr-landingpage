@@ -5,7 +5,7 @@ import { useMenuItems } from "../../../../hooks/useMenuItems";
 import MenuItemForm from "../../../../components/menu-items/MenuItemForm";
 
 export default function EditMenuItemPage({ params }: { params: { id: string } }) {
-  const menuItemId = parseInt(params.id, 10);
+  const menuItemId = params.id;
 
   const { data: items = [], isLoading } = useMenuItems();
   const item = items.find((i) => i.id === menuItemId);
