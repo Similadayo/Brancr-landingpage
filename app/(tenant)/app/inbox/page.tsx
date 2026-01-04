@@ -711,7 +711,12 @@ export default function InboxPage() {
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <span className={`text-sm ${unread ? "font-semibold" : "font-medium"} text-gray-900 dark:text-gray-100 truncate`}>{conversation.customer_name}</span>
+                            <span className={`text-sm ${unread ? "font-semibold" : "font-medium"} text-gray-900 dark:text-gray-100 truncate flex items-center gap-1.5`}>
+                              {conversation.is_escalated && (
+                                <span className="flex-shrink-0 h-2 w-2 rounded-full bg-warning-500" title="Needs attention" />
+                              )}
+                              {conversation.customer_name}
+                            </span>
                             <div className="flex items-center gap-2 flex-shrink-0 ml-2">
                               {unread && (
                                 <span className="badge badge-primary text-[11px]">
@@ -971,6 +976,14 @@ export default function InboxPage() {
 
               {/* Message Input - Fixed */}
               <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3 z-10">
+                {/* Faint suggestion - disappears when typing */}
+                {activeConversation.suggested_action && !replyText.trim() && (
+                  <div className="mb-2 px-1">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 italic">
+                      Suggested: {activeConversation.suggested_action.toLowerCase()}
+                    </p>
+                  </div>
+                )}
                 <div className="flex items-end gap-2">
                   <div className="relative">
                     <button
@@ -1124,12 +1137,11 @@ export default function InboxPage() {
                   </div>
                 )}
 
-                {/* Conversation Summary */}
+                {/* One-line AI Summary - The key intelligence */}
                 {activeConversation.summary && (
-                  <div>
-                    <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Summary</h4>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{activeConversation.summary}</p>
-                  </div>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50 rounded-lg px-3 py-2 border-l-2 border-purple-400 dark:border-purple-500">
+                    {activeConversation.summary}
+                  </p>
                 )}
 
                 {/* Detected Intent */}
