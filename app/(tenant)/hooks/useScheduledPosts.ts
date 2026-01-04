@@ -82,11 +82,14 @@ export function useScheduledPost(postId: string) {
     queryKey: ["scheduled-post", postId],
     queryFn: async () => {
       try {
-        const response = await tenantApi.scheduledPost(postId);
-        const post = response.post;
+        const response: any = await tenantApi.scheduledPost(postId);
+        // Check for 'post' key (legacy) or 'data' key (new standard) or if response itself is the post
+        const post = response.post || response.data || (response.id ? response : null);
+
         if (!post) {
-          return null;
+          throw new Error(`Invalid API response. Keys: ${Object.keys(response).join(', ')}`);
         }
+
         // Normalize array properties
         return {
           ...post,
