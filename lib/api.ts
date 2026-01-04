@@ -931,6 +931,7 @@ export const tenantApi = {
     platforms: string[]; // Required: At least one platform
     scheduled_at?: string | null; // "now", RFC3339 date, or null for immediate publishing
     enhance_caption?: boolean; // If true, AI enhances the caption; if false or omitted, uses caption as-is
+    status?: "scheduled" | "draft"; // Optional, defaults to "scheduled". Set to "draft" to save as draft.
     // TikTok-specific options
     tiktok_disable_duet?: boolean;
     tiktok_disable_stitch?: boolean;

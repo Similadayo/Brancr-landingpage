@@ -362,6 +362,61 @@ export default function NewPostPage() {
     }
   }, [currentStepIndex]);
 
+  const handleSaveDraft = useCallback(async () => {
+    try {
+      setIsSubmitting(true);
+
+      // Prepare payload for draft
+      const payload: {
+        media_ids: Array<number | string>;
+        platforms: string[];
+        scheduled_at?: string | null;
+        caption?: string;
+        name?: string;
+        status: "draft";
+        tiktok_disable_duet?: boolean;
+        tiktok_disable_stitch?: boolean;
+        tiktok_disable_comment?: boolean;
+        tiktok_schedule_time?: string;
+      } = {
+        media_ids: selectedMediaIds,
+        platforms: selectedPlatforms.length > 0 ? selectedPlatforms : ["instagram"], // Default to something if empty
+        status: "draft",
+        scheduled_at: "", // Explicitly empty for drafts as per guide
+      };
+
+      if (caption.trim()) {
+        payload.caption = caption.trim();
+        payload.name = caption.split("\n")[0]?.slice(0, 50) || "Draft Post";
+      } else {
+        payload.name = "Untitled Draft";
+      }
+
+      // Add TikTok options if present (optional for drafts)
+      if (selectedPlatforms.includes("tiktok")) {
+        if (tiktokDisableDuet) payload.tiktok_disable_duet = true;
+        if (tiktokDisableStitch) payload.tiktok_disable_stitch = true;
+        if (tiktokDisableComment) payload.tiktok_disable_comment = true;
+      }
+
+      await tenantApi.createPost(payload);
+
+      // Clear local draft
+      if (draft?.id) deleteDraft.mutate(draft.id);
+
+      // Invalidate queries
+      void queryClient.invalidateQueries({ queryKey: ["scheduled-posts"] });
+
+      toast.success("Draft saved to server");
+      router.push("/app/campaigns");
+    } catch (error: any) {
+      console.error("Failed to save draft:", error);
+      toast.error("Failed to save draft to server");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [caption, selectedMediaIds, selectedPlatforms, draft, deleteDraft, queryClient, router, tiktokDisableDuet, tiktokDisableStitch, tiktokDisableComment]);
+
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const handleCancel = useCallback(() => {
     setShowCancelConfirm(true);
@@ -408,17 +463,25 @@ export default function NewPostPage() {
             onClick={() => setShowDraftsModal(true)}
             className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-gray-300"
           >
-            Drafts
+            Local Drafts
           </button>
           <div aria-live="polite" aria-atomic="true">
             {isSaving ? (
               <span className="text-xs text-gray-500">Saving...</span>
             ) : (
-              <span className="text-xs text-gray-500">Draft saved</span>
+              <span className="text-xs text-gray-500">Draft saved locally</span>
             )}
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleSaveDraft}
+            disabled={isSubmitting}
+            className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-accent hover:text-accent disabled:opacity-50"
+          >
+            Save to Cloud
+          </button>
           <button
             type="button"
             onClick={handleCancel}
