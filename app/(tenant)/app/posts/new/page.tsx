@@ -142,9 +142,8 @@ export default function NewPostPage() {
   // Get first media asset for API calls
   const getFirstMediaAsset = useCallback(() => {
     if (selectedMediaIds.length === 0) return null;
-    const firstId = Number(selectedMediaIds[0]);
-    if (isNaN(firstId)) return null;
-    const media = uploadedMedia.find(m => m.id === selectedMediaIds[0]);
+    const firstId = selectedMediaIds[0];
+    const media = uploadedMedia.find(m => m.id === firstId);
     return {
       id: firstId,
       type: media?.type || "image",
@@ -161,10 +160,8 @@ export default function NewPostPage() {
 
     try {
       setIsAIGenerating(true);
-      // Convert media IDs from strings to numbers (may be empty)
-      const mediaIds = selectedMediaIds.map((id) => Number(id)).filter((id) => !isNaN(id));
       const res = await tenantApi.generateCaption({
-        media_ids: mediaIds,
+        media_ids: selectedMediaIds,
         include_hashtags: true,
       });
 
@@ -209,12 +206,9 @@ export default function NewPostPage() {
         }
       }
 
-      // Convert media IDs from strings to numbers
-      const mediaIds = selectedMediaIds.map((id) => Number(id)).filter((id) => !isNaN(id));
-
       // Prepare payload
       const payload: {
-        media_ids: number[];
+        media_ids: Array<number | string>;
         platforms: string[];
         scheduled_at?: string | null;
         caption?: string;
@@ -224,7 +218,7 @@ export default function NewPostPage() {
         tiktok_disable_comment?: boolean;
         tiktok_schedule_time?: string;
       } = {
-        media_ids: mediaIds,
+        media_ids: selectedMediaIds,
         platforms: selectedPlatforms,
       };
 
