@@ -190,6 +190,12 @@ export default function NewPostPage() {
       return;
     }
 
+    // Platform-specific validation
+    if (selectedPlatforms.includes("instagram") && selectedMediaIds.length === 0) {
+      toast.error("Instagram posts require at least one media item (image or video)");
+      return;
+    }
+
     try {
       setIsSubmitting(true);
 
