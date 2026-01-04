@@ -146,10 +146,13 @@ export function NotificationsPanel({
                   {pendingEscalations} escalation{pendingEscalations !== 1 ? 's' : ''} require{pendingEscalations === 1 ? 's' : ''} your attention
                 </p>
                 {recentEscalations.length > 0 && (
-                  <div className="mt-2 space-y-1">
+                  <div className="mt-2 space-y-2">
                     {recentEscalations.slice(0, 2).map((esc) => (
                       <div key={esc.id} className="flex items-center justify-between text-xs">
-                        <span className="text-gray-700 dark:text-white truncate">{esc.customerName}</span>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className={`inline-block h-2 w-2 rounded-full ${esc.priority === 'critical' ? 'bg-red-500' : esc.priority === 'urgent' ? 'bg-orange-500' : 'bg-blue-500'}`} />
+                          <span className="text-gray-700 dark:text-white truncate">{esc.customerName}</span>
+                        </div>
                         <span className="text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2">
                           {formatTime(esc.createdAt)}
                         </span>

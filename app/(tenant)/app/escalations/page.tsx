@@ -2,7 +2,9 @@
 
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEscalations, useEscalationStats, type Escalation } from "@/app/(tenant)/hooks/useEscalations";
+import { tenantApi } from "@/lib/api";
 import {
   AlertIcon,
   ClockIcon,
@@ -11,6 +13,7 @@ import {
   FunnelIcon,
   MagnifyingGlassIcon,
   ArrowRightIcon,
+  TagIcon,
 } from "../../components/icons";
 import Select from "@/app/(tenant)/components/ui/Select";
 import { Pagination } from "@/app/(tenant)/components/ui/Pagination";
@@ -72,11 +75,11 @@ export default function EscalationsPage() {
   // Filter by platform and search (client-side)
   const filteredEscalations = useMemo(() => {
     let filtered = [...escalations];
-    
+
     if (platformFilter !== "all") {
       filtered = filtered.filter((e) => e.platform.toLowerCase() === platformFilter.toLowerCase());
     }
-    
+
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
@@ -87,7 +90,7 @@ export default function EscalationsPage() {
           e.intent.toLowerCase().includes(query)
       );
     }
-    
+
     // Sort
     if (sortBy === "newest") {
       filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -291,7 +294,7 @@ export default function EscalationsPage() {
               <EscalationCard key={escalation.id} escalation={escalation} />
             ))}
           </div>
-          
+
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="mt-6">
@@ -311,98 +314,141 @@ export default function EscalationsPage() {
 }
 
 function EscalationCard({ escalation }: { escalation: Escalation }) {
-  const priorityColors: Record<string, string> = {
-    critical: 'border-l-4 border-red-500 bg-red-50/30 dark:bg-red-900/10',
-    urgent: 'border-l-4 border-orange-500 bg-orange-50/30 dark:bg-orange-900/10',
-    high: 'border-l-4 border-yellow-500 bg-yellow-50/30 dark:bg-yellow-900/10',
-    normal: 'border-l-4 border-blue-500 bg-blue-50/30 dark:bg-blue-900/10',
-    low: 'border-l-4 border-gray-300 bg-gray-50/30 dark:bg-gray-700/30',
+  const queryClient = useQueryClient();
+  const [isResolving, setIsResolving] = useState(false);
+
+  const resolveMutation = useMutation({
+    mutationFn: async () => {
+      await tenantApi.resolveEscalation(escalation.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["escalations"] });
+      queryClient.invalidateQueries({ queryKey: ["escalation-stats"] });
+    },
+    onError: (err) => {
+      console.error("Failed to resolve escalation", err);
+    }
+  });
+
+  const handleResolve = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // In a real app, use a custom confirmation dialog
+    if (confirm("Are you sure you want to mark this escalation as resolved?")) {
+      setIsResolving(true);
+      resolveMutation.mutate(undefined, {
+        onSettled: () => setIsResolving(false)
+      });
+    }
   };
 
-  const confidenceColor = escalation.confidence >= 0.9 
-    ? 'text-green-600 dark:text-green-400' 
-    : escalation.confidence >= 0.7 
-    ? 'text-yellow-600 dark:text-yellow-400' 
-    : 'text-orange-600 dark:text-orange-400';
+  const priorityColors: Record<string, string> = {
+    critical: 'bg-red-50 border-l-4 border-red-500 dark:bg-red-900/10',
+    urgent: 'bg-orange-50 border-l-4 border-orange-500 dark:bg-orange-900/10',
+    high: 'bg-yellow-50 border-l-4 border-yellow-500 dark:bg-yellow-900/10',
+    normal: 'bg-blue-50 border-l-4 border-blue-500 dark:bg-blue-900/10',
+    low: 'bg-gray-50 border-l-4 border-gray-300 dark:bg-gray-800/50',
+  };
+
+  const confidenceColor = escalation.confidence >= 0.9
+    ? 'text-green-600 dark:text-green-400'
+    : escalation.confidence >= 0.7
+      ? 'text-yellow-600 dark:text-yellow-400'
+      : 'text-orange-600 dark:text-orange-400';
+
+  // Derived Reason Tags
+  const tags = useMemo(() => {
+    const t = [];
+    if (escalation.priority === 'critical' || escalation.priority === 'urgent') t.push({ label: 'Urgent', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' });
+    if (escalation.tone.toLowerCase() === 'negative') t.push({ label: 'Unhappy Customer', color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' });
+    if (escalation.intent.toLowerCase().includes('refund') || escalation.message.toLowerCase().includes('refund')) t.push({ label: 'Refund Request', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' });
+    else if (escalation.intent.toLowerCase().includes('price') || escalation.intent.toLowerCase().includes('cost')) t.push({ label: 'Pricing Question', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' });
+    if (escalation.confidence < 0.6) t.push({ label: 'Low Confidence', color: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' });
+    return t;
+  }, [escalation]);
 
   return (
     <Link
       href={`/app/escalations/${escalation.id}`}
-      className={`card group relative overflow-hidden p-5 transition-all hover:shadow-lg hover:border-primary/20 sm:p-6 ${priorityColors[escalation.priority] ?? priorityColors.normal}`}
+      className={`group relative block rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-md hover:translate-y-[-2px] dark:border-gray-700 ${priorityColors[escalation.priority] ?? priorityColors.normal}`}
     >
-      <div className="flex items-start gap-4">
-            {/* Avatar */}
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent-500 to-accent-600 text-base font-bold text-white shadow-md ring-2 ring-white dark:ring-gray-800">
+      <div className="p-5 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+          {/* Avatar & Platform */}
+          <div className="flex shrink-0 items-center gap-3 sm:block">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-2 ring-gray-100 dark:bg-gray-800 dark:ring-gray-700 font-bold text-lg text-primary">
               {escalation.customerName.charAt(0).toUpperCase()}
             </div>
-            
-        {/* Main Content */}
-        <div className="flex-1 min-w-0 space-y-3">
-          {/* Header Row: Name, Priority, Time */}
-          <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
-                      {escalation.customerName}
-                    </h3>
-                    {escalation.customerUsername && (
-                  <span className="text-sm text-gray-500 dark:text-white shrink-0">
-                        @{escalation.customerUsername}
-                      </span>
-                    )}
-              </div>
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className={`badge ${PLATFORM_BADGES[escalation.platform.toLowerCase()] ?? "badge-gray"} text-xs font-medium`}>
-                  {escalation.platform}
-                </span>
-                <span className="text-sm text-gray-500 dark:text-white">
-                  {formatTimeAgo(escalation.createdAt)}
-                </span>
-              </div>
-            </div>
-            <div className="flex flex-col items-end gap-2 shrink-0">
-              <span className={`badge ${PRIORITY_BADGES[escalation.priority] ?? "badge-gray"} text-xs font-bold px-3 py-1`}>
-                {escalation.priority.toUpperCase()}
-              </span>
-              <span className={`text-xs font-semibold ${confidenceColor} whitespace-nowrap`}>
-                {Math.round(escalation.confidence * 100)}%
-                </span>
-            </div>
-              </div>
-
-          {/* Message Preview */}
-          <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
-            <p className="text-sm text-gray-800 dark:text-white leading-relaxed line-clamp-3">
-                  {escalation.message}
-                </p>
-              </div>
-
-          {/* Intent and Tone - Better Styled */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-500 dark:text-white uppercase tracking-wide">Intent:</span>
-              <span className="inline-flex items-center rounded-lg bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:text-white">
-                {escalation.intent}
-                </span>
-              </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-500 dark:text-white uppercase tracking-wide">Tone:</span>
-              <span className={`inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold ${
-                escalation.tone.toLowerCase() === 'negative' 
-                  ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-white'
-                  : escalation.tone.toLowerCase() === 'positive'
-                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-              }`}>
-                {escalation.tone}
+            <div className="sm:mt-2 sm:text-center">
+              <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize 
+                ${escalation.platform === 'whatsapp' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
+                  escalation.platform === 'instagram' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300' : 'bg-blue-100 text-blue-700'}`}>
+                {escalation.platform}
               </span>
             </div>
           </div>
-        </div>
-        
-        {/* Arrow indicator */}
-        <div className="flex shrink-0 items-center pt-1">
-          <ArrowRightIcon className="h-6 w-6 text-gray-400 transition-all group-hover:text-primary group-hover:translate-x-1 dark:text-gray-400" />
+
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white truncate">
+                  {escalation.customerName}
+                  {escalation.customerUsername && <span className="ml-2 text-sm font-normal text-gray-500">@{escalation.customerUsername}</span>}
+                </h3>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {tags.map((tag, i) => (
+                    <span key={i} className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium ${tag.color}`}>
+                      <TagIcon className="h-3 w-3" />
+                      {tag.label}
+                    </span>
+                  ))}
+                  <span className="text-xs text-gray-500 flex items-center gap-1 self-center ml-1">
+                    <ClockIcon className="h-3 w-3" />
+                    {formatTimeAgo(escalation.createdAt)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-right shrink-0">
+                <div className={`text-sm font-bold uppercase tracking-wider ${escalation.priority === 'critical' ? 'text-red-600' :
+                    escalation.priority === 'urgent' ? 'text-orange-600' : 'text-gray-500'
+                  }`}>
+                  {escalation.priority}
+                </div>
+                <div className={`text-xs font-medium ${confidenceColor}`}>
+                  {(escalation.confidence * 100).toFixed(0)}% AI Confidence
+                </div>
+              </div>
+            </div>
+
+            {/* Message Snippet */}
+            <div className="mt-3 relative rounded-lg bg-white/60 p-3 italic text-gray-700 ring-1 ring-gray-900/5 dark:bg-black/20 dark:text-gray-300 dark:ring-white/10">
+              <span className="absolute -left-1 -top-2 text-2xl text-gray-300">"</span>
+              <p className="line-clamp-2 pl-2 text-sm">
+                {escalation.message}
+              </p>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="mt-4 flex items-center justify-end gap-3 opacity-0 transition-opacity group-hover:opacity-100">
+              <button
+                onClick={handleResolve}
+                disabled={isResolving}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-gray-300 hover:bg-gray-50 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600 dark:hover:bg-gray-600"
+              >
+                {isResolving ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
+                ) : (
+                  <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                )}
+                Resolve Now
+              </button>
+              <span className="flex items-center text-sm font-medium text-primary hover:underline">
+                View Details <ArrowRightIcon className="ml-1 h-4 w-4" />
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </Link>
