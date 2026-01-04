@@ -412,7 +412,7 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
 
               <div className="text-right shrink-0">
                 <div className={`text-sm font-bold uppercase tracking-wider ${escalation.priority === 'critical' ? 'text-red-600' :
-                    escalation.priority === 'urgent' ? 'text-orange-600' : 'text-gray-500'
+                  escalation.priority === 'urgent' ? 'text-orange-600' : 'text-gray-500'
                   }`}>
                   {escalation.priority}
                 </div>
@@ -424,7 +424,7 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
 
             {/* Message Snippet */}
             <div className="mt-3 relative rounded-lg bg-white/60 p-3 italic text-gray-700 ring-1 ring-gray-900/5 dark:bg-black/20 dark:text-gray-300 dark:ring-white/10">
-              <span className="absolute -left-1 -top-2 text-2xl text-gray-300">"</span>
+              <span className="absolute -left-1 -top-2 text-2xl text-gray-300">&quot;</span>
               <p className="line-clamp-2 pl-2 text-sm">
                 {escalation.message}
               </p>

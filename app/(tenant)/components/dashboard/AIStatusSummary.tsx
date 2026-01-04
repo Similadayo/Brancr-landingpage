@@ -77,7 +77,7 @@ export default function AIStatusSummary() {
                         AI Performance Summary
                     </h2>
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        Overview of your AI agent's performance and impact.
+                        Overview of your AI agent&apos;s performance and impact.
                     </p>
                 </div>
                 <div className="flex rounded-lg bg-gray-100 p-1 dark:bg-gray-700">
