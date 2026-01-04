@@ -94,9 +94,9 @@ export function useScheduledPost(postId: string) {
           media_asset_ids: Array.isArray(post.media_asset_ids) ? post.media_asset_ids : [],
         };
       } catch (error) {
-        if (error instanceof ApiError && error.status === 404) {
-          return null;
-        }
+        // if (error instanceof ApiError && error.status === 404) {
+        //   return null;
+        // }
         throw error;
       }
     },
