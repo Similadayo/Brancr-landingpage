@@ -1528,7 +1528,36 @@ export const tenantApi = {
     }>(`/api/tenant/escalations/stats${query}`);
   },
 
-  // TikTok API endpoints
+  aiMetrics: (params?: { period?: "24h" | "7d" | "30d" }) => {
+    const query = params?.period ? `?period=${params.period}` : "";
+    return get<{
+      total_interactions: number;
+      ai_resolution_rate: number;
+      human_intervention_rate: number;
+      active_conversations: number;
+      avg_response_time: string;
+      orders_influenced: number;
+    }>(`/api/tenant/analytics/ai-metrics${query}`);
+  },
+
+  escalationReasons: (params?: { period?: "24h" | "7d" | "30d" }) => {
+    const query = params?.period ? `?period=${params.period}` : "";
+    return get<{
+      reasons: Array<{ reason: string; count: number; percentage: number }>;
+    }>(`/api/tenant/analytics/escalation-reasons${query}`);
+  },
+
+  conversationAttribution: (params?: { period?: "24h" | "7d" | "30d" }) => {
+    const query = params?.period ? `?period=${params.period}` : "";
+    return get<{
+      sources: Array<{
+        source: string;
+        count: number;
+        ai_handled: number;
+        human_handled: number;
+      }>;
+    }>(`/api/tenant/analytics/conversation-attribution${query}`);
+  },
   tiktokVideos: (params?: { max_count?: number; cursor?: string }) => {
     const query = params
       ? `?${new URLSearchParams(

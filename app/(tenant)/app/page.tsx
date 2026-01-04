@@ -37,6 +37,7 @@ import {
 import { OrderCard, PaymentCard } from "../components/cards";
 import { NotificationsPanel } from "../components/dashboard/NotificationsPanel";
 import { AdventureWidget } from "../components/onboarding/AdventureWidget";
+import AIStatusSummary from "../components/dashboard/AIStatusSummary";
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -214,6 +215,9 @@ export default function TenantOverviewPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* AI Status Summary */}
+      <AIStatusSummary />
+
       {/* Hero Section - Welcome & Quick Actions */}
       <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-600 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
         {/* Background Pattern */}
