@@ -77,6 +77,12 @@ export default function CampaignDetailPage({ params }: { params: { id: string } 
           <p className="mt-2 text-sm text-gray-600">
             The scheduled post you&apos;re looking for doesn&apos;t exist or has been removed.
           </p>
+          <div className="mt-4 rounded-lg bg-gray-100 p-3 text-left text-xs text-gray-500 font-mono overflow-auto max-w-md mx-auto">
+            <p>Debug ID: {id}</p>
+            {error && <p>Error: {error.message}</p>}
+            {/* @ts-ignore */}
+            {error?.status && <p>Status: {error.status}</p>}
+          </div>
           <Link
             href="/app/campaigns"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
