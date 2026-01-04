@@ -847,7 +847,7 @@ export const tenantApi = {
         created_at: string;
         posted_at?: string;
       };
-    }>(`/api/tenant/posts/${postId}`),
+    }>(`/api/tenant/scheduled-posts/${postId}`),
 
   updateScheduledPost: (
     postId: string,
