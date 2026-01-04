@@ -226,6 +226,17 @@ export function useResolveEscalation(escalationId: string | number | null) {
     },
     onSuccess: () => {
       toast.success("Escalation resolved");
+
+      // Optimistically update stats
+      queryClient.setQueryData<EscalationStats>(["escalation-stats", undefined], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pending: Math.max(0, old.pending - 1),
+          resolved: old.resolved + 1,
+        };
+      });
+
       void queryClient.invalidateQueries({ queryKey: ["escalation", escalationId] });
       void queryClient.invalidateQueries({ queryKey: ["escalations"] });
       void queryClient.invalidateQueries({ queryKey: ["escalation-stats"] });
