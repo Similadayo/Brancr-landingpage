@@ -12,7 +12,6 @@ import {
   useSendReply,
   useUpdateConversationStatus,
   useUpdateConversation,
-  useSuggestReplies,
   useMarkConversationRead,
   useDeleteConversation,
   useBulkDeleteConversations,
@@ -24,7 +23,6 @@ import { toast } from "react-hot-toast";
 import { useQuery } from '@tanstack/react-query';
 import type { Message, ConversationDetail, ConversationSummary } from "@/app/(tenant)/hooks/useConversations";
 import { MessageMedia } from "@/app/(tenant)/components/inbox/MessageMedia";
-import { PlatformAnalytics } from "../../components/inbox/PlatformAnalytics";
 import Select from "@/app/(tenant)/components/ui/Select";
 import { Modal, ModalTitle, ModalBody, ModalFooter } from "@/app/(tenant)/components/ui/Modal";
 import { Button } from "@/app/(tenant)/components/ui/Button";
@@ -127,22 +125,21 @@ export default function InboxPage() {
     return Array.from(platformSet).sort();
   }, [conversationsWithEffectiveUnread]);
 
-  // Sort conversations by most recent message time (newest first)
+  // Sort conversations: Escalated first, then unread, then by time (newest first)
   const sortedConversations = useMemo(() => {
     const sorted = [...conversationsWithEffectiveUnread];
     return sorted.sort((a, b) => {
-      // Get the most recent message time for each conversation
+      // 1. Escalated conversations float to top
+      if (a.is_escalated && !b.is_escalated) return -1;
+      if (!a.is_escalated && b.is_escalated) return 1;
+
+      // 2. Then prioritize unread
+      if (a.unread_count > 0 && b.unread_count === 0) return -1;
+      if (a.unread_count === 0 && b.unread_count > 0) return 1;
+
+      // 3. Finally sort by most recent message time (newest first)
       const timeA = new Date(a.last_message_at || a.updated_at || a.created_at).getTime();
       const timeB = new Date(b.last_message_at || b.updated_at || b.created_at).getTime();
-
-      // Sort by most recent message time (newest first)
-      // If times are equal, prioritize conversations with unread messages
-      if (timeB === timeA) {
-        if (a.unread_count > 0 && b.unread_count === 0) return -1;
-        if (a.unread_count === 0 && b.unread_count > 0) return 1;
-        return 0;
-      }
-
       return timeB - timeA;
     });
   }, [conversationsWithEffectiveUnread]);
@@ -658,7 +655,6 @@ export default function InboxPage() {
                       platform === "facebook" ? FacebookIcon :
                         platform === "telegram" ? TelegramIcon :
                           AllMessagesIcon;
-
                   return (
                     <button
                       key={conversation.id}
@@ -673,7 +669,9 @@ export default function InboxPage() {
                         ? "bg-accent/5 dark:bg-accent/10 border-l-4 border-accent shadow-sm"
                         : selectedIds.has(String(conversation.id))
                           ? "bg-rose-50 dark:bg-rose-900/10"
-                          : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                          : conversation.is_escalated
+                            ? "bg-rose-50/40 dark:bg-rose-900/5 hover:bg-rose-50/60 dark:hover:bg-rose-900/10"
+                            : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
                         }`}
                     >
                       <div className="flex items-start gap-3">
@@ -780,7 +778,34 @@ export default function InboxPage() {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">{activeConversation.customer_name}</h2>
+                    <div className="flex items-center gap-2">
+                      {/* Escalation warning icon */}
+                      {activeConversation.is_escalated && (
+                        <span className="flex-shrink-0 text-warning-500" title="Escalated conversation">
+                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </span>
+                      )}
+                      <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">{activeConversation.customer_name}</h2>
+                      {/* AI/Human mode pill */}
+                      <span className={`flex-shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${tenantAIMode === 'ai'
+                        ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+                        : 'bg-gray-100 text-gray-600 dark:bg-gray-600 dark:text-gray-300'
+                        }`}>
+                        {tenantAIMode === 'ai' ? (
+                          <>
+                            <svg className="h-2.5 w-2.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM10 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15zM10 7a3 3 0 100 6 3 3 0 000-6zM15.657 5.404a.75.75 0 10-1.06-1.06l-1.061 1.06a.75.75 0 001.06 1.061l1.06-1.06zM6.464 14.596a.75.75 0 10-1.06-1.06l-1.061 1.06a.75.75 0 001.06 1.061l1.06-1.06zM18 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0118 10zM5 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 015 10zM14.596 15.657a.75.75 0 001.06-1.06l-1.06-1.061a.75.75 0 10-1.061 1.06l1.06 1.06zM5.404 6.464a.75.75 0 001.06-1.06l-1.06-1.061a.75.75 0 10-1.061 1.06l1.06 1.06z" /></svg>
+                            AI
+                          </>
+                        ) : (
+                          <>
+                            <svg className="h-2.5 w-2.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" /></svg>
+                            Human
+                          </>
+                        )}
+                      </span>
+                    </div>
                     <div className="flex items-center gap-1 mt-0.5">
                       {(() => {
                         const platform = activeConversation.platform.toLowerCase();
@@ -1063,122 +1088,154 @@ export default function InboxPage() {
           }`}>
           {activeConversation ? (
             <>
-              {(() => {
-                const platform = activeConversation.platform?.toLowerCase() || '';
-                const showAnalytics = platform === 'instagram' || platform === 'facebook';
-                const showChatDetails = platform === 'whatsapp' || platform === 'telegram' || !showAnalytics;
+              {/* Header - Fixed */}
+              <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Context</h3>
+              </div>
+              {/* Content - Scrollable */}
+              <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0 scrollbar-thin space-y-5">
 
-                if (showAnalytics) {
-                  return (
-                    <>
-                      {/* Header - Fixed */}
-                      <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3">
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Platform Analytics</h3>
+                {/* Escalation Alert - Only when escalated */}
+                {activeConversation.is_escalated && (
+                  <div className="rounded-lg border border-warning-200 bg-warning-50 dark:border-warning-800 dark:bg-warning-900/20 p-3">
+                    <div className="flex items-start gap-2">
+                      <svg className="h-4 w-4 text-warning-600 dark:text-warning-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      <div>
+                        <p className="text-xs font-semibold text-warning-800 dark:text-warning-300">Escalated</p>
+                        {activeConversation.escalation_reason && (
+                          <p className="text-xs text-warning-700 dark:text-warning-400 mt-0.5">{activeConversation.escalation_reason}</p>
+                        )}
                       </div>
-                      {/* Analytics Content - Scrollable */}
-                      <div className="flex-1 overflow-y-auto min-h-0 scrollbar-thin">
-                        <PlatformAnalytics platform={platform} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Reply Window Warning - WhatsApp only */}
+                {activeConversation.reply_window_warning && activeConversation.platform?.toLowerCase() === 'whatsapp' && (
+                  <div className="rounded-lg border border-info-200 bg-info-50 dark:border-info-800 dark:bg-info-900/20 p-3">
+                    <div className="flex items-center gap-2">
+                      <svg className="h-4 w-4 text-info-600 dark:text-info-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                      </svg>
+                      <p className="text-xs text-info-700 dark:text-info-300">24h reply window closing soon</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Conversation Summary */}
+                {activeConversation.summary && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Summary</h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{activeConversation.summary}</p>
+                  </div>
+                )}
+
+                {/* Detected Intent */}
+                {activeConversation.detected_intent && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Intent</h4>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${activeConversation.detected_intent === 'order' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                      activeConversation.detected_intent === 'payment' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                        activeConversation.detected_intent === 'complaint' ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' :
+                          'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                      }`}>
+                      {activeConversation.detected_intent === 'order' && '🛒'}
+                      {activeConversation.detected_intent === 'payment' && '💳'}
+                      {activeConversation.detected_intent === 'complaint' && '⚠️'}
+                      {activeConversation.detected_intent === 'inquiry' && '❓'}
+                      {activeConversation.detected_intent === 'other' && '💬'}
+                      <span className="capitalize">{activeConversation.detected_intent}</span>
+                    </span>
+                  </div>
+                )}
+
+                {/* Suggested Action */}
+                {activeConversation.suggested_action && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Suggested Action</h4>
+                    <p className="text-sm text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 rounded-lg p-2.5 border border-gray-200 dark:border-gray-600">
+                      {activeConversation.suggested_action}
+                    </p>
+                  </div>
+                )}
+
+                {/* Payment Verification CTA */}
+                {activeConversation.payment_claim && (
+                  <div className="rounded-lg border-2 border-dashed border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/10 p-3">
+                    <p className="text-xs text-blue-700 dark:text-blue-300 mb-2">Payment claim detected</p>
+                    <button className="w-full rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 px-3 transition-colors">
+                      Verify Payment
+                    </button>
+                  </div>
+                )}
+
+                {/* Outcome Badge */}
+                {activeConversation.outcome && activeConversation.status === 'resolved' && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Outcome</h4>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${activeConversation.outcome === 'sale_completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                      activeConversation.outcome === 'payment_pending' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                        activeConversation.outcome === 'issue_resolved' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                          'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                      }`}>
+                      {activeConversation.outcome === 'sale_completed' && '✅ Sale Completed'}
+                      {activeConversation.outcome === 'payment_pending' && '⏳ Payment Pending'}
+                      {activeConversation.outcome === 'issue_resolved' && '✓ Issue Resolved'}
+                      {activeConversation.outcome === 'no_response' && '— No Response'}
+                    </span>
+                  </div>
+                )}
+
+                {/* Divider */}
+                <div className="border-t border-gray-200 dark:border-gray-600 pt-4">
+                  {/* Contact Profile */}
+                  <div className="flex items-center gap-3 mb-4">
+                    {activeConversation.customer_avatar ? (
+                      <Image
+                        src={activeConversation.customer_avatar}
+                        alt={activeConversation.customer_name}
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 rounded-full object-cover flex-shrink-0"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-sm font-medium text-gray-600 dark:text-gray-300 flex-shrink-0">
+                        {(activeConversation.customer_name || "?").charAt(0).toUpperCase()}
                       </div>
-                    </>
-                  );
-                }
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{activeConversation.customer_name}</p>
+                      {activeConversation.customer_phone && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {activeConversation.customer_country_code
+                            ? `+${activeConversation.customer_country_code} ${activeConversation.customer_phone}`
+                            : activeConversation.customer_phone}
+                        </p>
+                      )}
+                    </div>
+                  </div>
 
-                if (showChatDetails) {
-                  return (
-                    <>
-                      {/* Header - Fixed */}
-                      <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3">
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Chat Details</h3>
-                      </div>
-                      {/* Content - Scrollable */}
-                      <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0 scrollbar-thin">
-                        {/* Contact Profile */}
-                        <div className="mb-6">
-                          <div className="flex items-center gap-3 mb-4">
-                            {activeConversation.customer_avatar ? (
-                              <Image
-                                src={activeConversation.customer_avatar}
-                                alt={activeConversation.customer_name}
-                                width={48}
-                                height={48}
-                                className="h-12 w-12 rounded-full object-cover flex-shrink-0"
-                                unoptimized
-                              />
-                            ) : (
-                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-base font-medium text-gray-600 dark:text-gray-300 flex-shrink-0">
-                                {(activeConversation.customer_name || "?").charAt(0).toUpperCase()}
-                              </div>
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{activeConversation.customer_name}</p>
-                              {activeConversation.customer_phone ? (
-                                <p className="text-xs text-gray-500 dark:text-gray-300">
-                                  {activeConversation.customer_country_code
-                                    ? `+${activeConversation.customer_country_code} ${activeConversation.customer_dial_code || activeConversation.customer_phone}`
-                                    : activeConversation.customer_phone}
-                                </p>
-                              ) : (
-                                <p className="text-xs text-gray-400 dark:text-gray-400 italic">No phone number</p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex gap-2 mb-4">
-                            <button className="btn-primary text-xs flex-1">
-                              Call
-                            </button>
-                            <button className="flex-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
-                              Chat
-                            </button>
-                          </div>
-                        </div>
+                  {/* Quick Actions */}
+                  <div className="flex gap-2">
+                    {activeConversation.customer_phone && (
+                      <a
+                        href={`tel:${activeConversation.customer_country_code ? '+' + activeConversation.customer_country_code : ''}${activeConversation.customer_phone}`}
+                        className="flex-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors text-center"
+                      >
+                        📞 Call
+                      </a>
+                    )}
+                  </div>
 
-                        {/* AI Mode (tenant-wide only) */}
-                        <div className="mb-6">
-                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-3">AI Mode</h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-300">Tenant-wide setting: <span className="font-semibold">{tenantAIMode === 'ai' ? 'AI' : 'Human'}</span></p>
-                        </div>
-
-                        {/* Contact Information */}
-                        <div className="mb-6">
-                          <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-3">Contact Information</h4>
-                          <div className="space-y-2 text-xs">
-                            {activeConversation.customer_phone && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-500 dark:text-gray-300">Phone:</span>
-                                <span className="text-gray-900 dark:text-gray-100 font-medium">
-                                  {activeConversation.customer_country_code
-                                    ? `+${activeConversation.customer_country_code} ${activeConversation.customer_dial_code || activeConversation.customer_phone}`
-                                    : activeConversation.customer_phone}
-                                </span>
-                              </div>
-                            )}
-                            {activeConversation.customer_country_code && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-500 dark:text-gray-300">Country Code:</span>
-                                <span className="text-gray-900 dark:text-gray-100 font-medium">+{activeConversation.customer_country_code}</span>
-                              </div>
-                            )}
-                            {activeConversation.customer_dial_code && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-500 dark:text-gray-300">Dial Code:</span>
-                                <span className="text-gray-900 dark:text-gray-100 font-medium">{activeConversation.customer_dial_code}</span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex justify-between mt-3">
-                            <span className="text-gray-500 dark:text-gray-300">Start chat:</span>
-                            <span className="text-gray-900 dark:text-gray-100 font-medium">
-                              {new Date(activeConversation.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  );
-                }
-
-                return null;
-              })()}
+                  {/* Chat started */}
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">
+                    Started {new Date(activeConversation.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })} at {new Date(activeConversation.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              </div>
             </>
           ) : (
             <div className="flex flex-1 items-center justify-center">

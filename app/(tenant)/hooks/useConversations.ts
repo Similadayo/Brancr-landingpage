@@ -39,6 +39,7 @@ export type ConversationSummary = {
   updated_at: string;
   tags?: string[];
   assignee?: string | null;
+  is_escalated?: boolean;
 };
 
 export type Message = {
@@ -73,6 +74,15 @@ export type ConversationDetail = {
   updated_at: string;
   tags?: string[];
   assignee?: string | null;
+  // Intelligence fields
+  is_escalated?: boolean;
+  escalation_reason?: string;
+  detected_intent?: 'order' | 'payment' | 'complaint' | 'inquiry' | 'other';
+  summary?: string;
+  payment_claim?: boolean;
+  suggested_action?: string;
+  reply_window_warning?: boolean;
+  outcome?: 'sale_completed' | 'payment_pending' | 'issue_resolved' | 'no_response';
 };
 
 // Helper function to detect if a conversation name looks like an AI response
