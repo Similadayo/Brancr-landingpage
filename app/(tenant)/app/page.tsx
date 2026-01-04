@@ -103,11 +103,64 @@ export default function TenantOverviewPage() {
     };
   }, [scheduledPosts, conversations, escalations, integrations, escalationStatsData]);
 
-  // Activity feed items
-  const activityFeed = useMemo(() => {
-    const activities: Array<{
+  // Attention Items - Escalations and Unread Conversations (Priority)
+  const attentionItems = useMemo(() => {
+    const items: Array<{
       id: string;
-      type: "post" | "conversation" | "escalation" | "media";
+      type: "conversation" | "escalation";
+      title: string;
+      description: string;
+      timestamp: Date;
+      icon: React.ReactNode;
+      href: string;
+      color: string;
+      priority?: string;
+    }> = [];
+
+    // Unread conversations
+    conversations
+      .filter((c) => (c.unread_count || 0) > 0)
+      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+      .slice(0, 3)
+      .forEach((conv) => {
+        items.push({
+          id: `conv-${conv.id}`,
+          type: "conversation",
+          title: `${conv.unread_count} unread message${conv.unread_count > 1 ? 's' : ''}`,
+          description: `${conv.customer_name} on ${conv.platform}`,
+          timestamp: new Date(conv.updated_at),
+          icon: <InboxIcon className="w-4 h-4" />,
+          href: `/app/inbox?conversation=${conv.id}`,
+          color: "text-warning-600 bg-warning-50 dark:text-warning-400 dark:bg-warning-900/30",
+        });
+      });
+
+    // Pending escalations
+    escalations
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 3)
+      .forEach((esc) => {
+        items.push({
+          id: `esc-${esc.id}`,
+          type: "escalation",
+          title: "Escalation requires action",
+          description: `${esc.customerName} - ${esc.intent}`,
+          timestamp: new Date(esc.createdAt),
+          icon: <AlertIcon className="w-4 h-4" />,
+          href: `/app/escalations/${esc.id}`,
+          color: "text-error-600 bg-error-50 dark:text-error-400 dark:bg-error-900/30",
+          priority: esc.priority,
+        });
+      });
+
+    return items.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 5);
+  }, [conversations, escalations]);
+
+  // Activity Log Items - Posts and Resolved Items (Secondary)
+  const logItems = useMemo(() => {
+    const items: Array<{
+      id: string;
+      type: "post" | "media";
       title: string;
       description: string;
       timestamp: Date;
@@ -116,12 +169,13 @@ export default function TenantOverviewPage() {
       color: string;
     }> = [];
 
+    // Published posts
     scheduledPosts
       .filter((p) => p.status === "posted")
       .sort((a, b) => new Date(b.scheduled_at || b.created_at).getTime() - new Date(a.scheduled_at || a.created_at).getTime())
       .slice(0, 3)
       .forEach((post) => {
-        activities.push({
+        items.push({
           id: `post-${post.id}`,
           type: "post",
           title: "Post published",
@@ -133,43 +187,12 @@ export default function TenantOverviewPage() {
         });
       });
 
-    conversations
-      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-      .slice(0, 3)
-      .forEach((conv) => {
-        activities.push({
-          id: `conv-${conv.id}`,
-          type: "conversation",
-          title: "New conversation",
-          description: `${conv.customer_name} on ${conv.platform}`,
-          timestamp: new Date(conv.updated_at),
-          icon: <InboxIcon className="w-4 h-4" />,
-          href: `/app/inbox?conversation=${conv.id}`,
-          color: "text-success-600 bg-success-50 dark:text-success-400 dark:bg-success-900/30",
-        });
-      });
-
-    escalations
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 2)
-      .forEach((esc) => {
-        activities.push({
-          id: `esc-${esc.id}`,
-          type: "escalation",
-          title: "Escalation received",
-          description: `${esc.customerName} - ${esc.intent}`,
-          timestamp: new Date(esc.createdAt),
-          icon: <AlertIcon className="w-4 h-4" />,
-          href: `/app/escalations/${esc.id}`,
-          color: "text-warning-600 bg-warning-50 dark:text-warning-400 dark:bg-warning-900/30",
-        });
-      });
-
+    // Media uploads (demoted to log)
     mediaItems
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, 2)
       .forEach((media) => {
-        activities.push({
+        items.push({
           id: `media-${media.id}`,
           type: "media",
           title: "Media uploaded",
@@ -177,12 +200,12 @@ export default function TenantOverviewPage() {
           timestamp: new Date(media.created_at),
           icon: <ImageIcon className="w-4 h-4" />,
           href: `/app/media`,
-          color: "text-accent-600 bg-accent-50 dark:text-accent-400 dark:bg-accent-900/30",
+          color: "text-gray-500 bg-gray-50 dark:text-gray-400 dark:bg-gray-800",
         });
       });
 
-    return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 8);
-  }, [scheduledPosts, conversations, escalations, mediaItems]);
+    return items.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 5);
+  }, [scheduledPosts, mediaItems]);
 
   const upcomingPosts = useMemo(() => {
     const posts = Array.isArray(upcomingPostsData) ? upcomingPostsData : [];
@@ -218,50 +241,24 @@ export default function TenantOverviewPage() {
       {/* AI Status Summary */}
       <AIStatusSummary />
 
-      {/* Hero Section - Welcome & Quick Actions */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-600 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
-        {/* Background Pattern */}
+      {/* AI Command Center Header */}
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-5 shadow-lg dark:border-gray-600 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-6">
         <div className="absolute inset-0 opacity-10 dark:opacity-20">
           <div className="absolute inset-0 dark:hidden" style={{
             backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
             backgroundSize: '40px 40px'
           }} />
-          <div className="absolute inset-0 hidden dark:block" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.3) 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }} />
         </div>
-
-        <div className="relative z-10">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 mb-3">
-                <SparklesIcon className="h-5 w-5 text-white/90 sm:h-6 sm:w-6" />
-                <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">
-                  Welcome back{firstWord ? `, ${firstWord}` : ""}
-                </h1>
-              </div>
-              <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
-                Here&apos;s your complete overview of automation, conversations, and campaign performance
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <SparklesIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
+            <div>
+              <h1 className="text-xl font-bold text-white sm:text-2xl">
+                {firstWord ? `${firstWord}'s` : "Your"} AI Command Center
+              </h1>
+              <p className="text-sm text-white/80">
+                Here&apos;s how your business is performing today
               </p>
-            </div>
-
-            {/* Quick Action Buttons */}
-            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
-              <Link
-                href="/app/posts/new"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-primary shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 sm:px-6 sm:py-3.5"
-              >
-                <PlusIcon className="w-5 h-5" />
-                <span>Create Post</span>
-              </Link>
-              <Link
-                href="/app/integrations"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20 hover:border-white/50 active:scale-95 sm:px-6 sm:py-3.5"
-              >
-                <LinkIcon className="w-5 h-5" />
-                <span>Integrations</span>
-              </Link>
             </div>
           </div>
         </div>
@@ -307,11 +304,11 @@ export default function TenantOverviewPage() {
           <div className="relative z-10">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">Total Posts</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">Content</p>
                 <p className="mt-3 text-5xl font-extrabold text-gray-900 dark:text-gray-100">{stats.totalPosts}</p>
                 <p className="mt-2.5 flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300">
                   <CheckCircleIcon className="h-4 w-4 text-success-500" />
-                  {stats.publishedPosts} published
+                  {stats.publishedPosts} live posts
                 </p>
               </div>
               <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-info-500 via-info-600 to-info-700 text-white shadow-xl transition-all group-hover:scale-110 group-hover:shadow-2xl">
@@ -330,7 +327,7 @@ export default function TenantOverviewPage() {
           <div className="relative z-10">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">Conversations</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">Customer Chats</p>
                 <p className="mt-3 text-5xl font-extrabold text-gray-900 dark:text-gray-100">{stats.activeConversations}</p>
                 <p className="mt-2.5 flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300">
                   {stats.unreadMessages > 0 ? (
@@ -362,18 +359,18 @@ export default function TenantOverviewPage() {
           <div className="relative z-10">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">Escalations</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">Need Your Attention</p>
                 <p className="mt-3 text-5xl font-extrabold text-gray-900 dark:text-gray-100">{stats.pendingEscalations}</p>
                 <p className="mt-2.5 flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300">
                   {stats.pendingEscalations > 0 ? (
                     <>
                       <AlertIcon className="h-4 w-4 text-warning-500" />
-                      Requires attention
+                      Action required
                     </>
                   ) : (
                     <>
                       <CheckCircleIcon className="h-4 w-4 text-success-500" />
-                      All resolved
+                      You&apos;re all caught up
                     </>
                   )}
                 </p>
@@ -394,7 +391,7 @@ export default function TenantOverviewPage() {
           <div className="relative z-10">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">Platforms</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">Channels</p>
                 <p className="mt-3 text-5xl font-extrabold text-gray-900 dark:text-gray-100">
                   {stats.connectedPlatforms}
                   {stats.totalPlatforms > 0 && (
@@ -403,7 +400,7 @@ export default function TenantOverviewPage() {
                 </p>
                 <p className="mt-2.5 flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300">
                   <LinkIcon className="h-4 w-4 text-accent-500" />
-                  Connected & syncing
+                  AI is active
                 </p>
               </div>
               <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 via-accent-600 to-accent-700 text-white shadow-xl transition-all group-hover:scale-110 group-hover:shadow-2xl">
@@ -418,155 +415,202 @@ export default function TenantOverviewPage() {
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-12">
         {/* Left Column - Activity & Performance (8 cols on large) */}
         <div className="lg:col-span-8 space-y-4 sm:space-y-6">
-          {/* Activity Feed - Enhanced Modern Card */}
-          <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
+          {/* 🔴 Needs Attention - Priority Section */}
+          <div className="rounded-2xl border-2 border-error-200 bg-gradient-to-br from-error-50 to-white p-6 shadow-lg dark:border-error-800 dark:from-error-900/20 dark:to-gray-800/50 sm:p-8">
             <div className="mb-6 flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Recent Activity</h2>
-                <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-300">Latest posts, conversations, and updates</p>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-error-100 dark:bg-error-900/30">
+                  <AlertIcon className="h-5 w-5 text-error-600 dark:text-error-400" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">🔴 Needs Attention</h2>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-300">Escalations and unread messages</p>
+                </div>
               </div>
               <Link
-                href="/app/inbox"
-                className="hidden items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-accent hover:text-white dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-accent sm:inline-flex"
+                href="/app/escalations"
+                className="hidden items-center gap-2 rounded-lg bg-error-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-error-700 sm:inline-flex"
               >
-                View all
+                Review All
                 <ArrowRightIcon className="h-4 w-4" />
               </Link>
             </div>
             <div className="space-y-3">
-              {activityFeed.length === 0 ? (
-                <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-white p-12 text-center dark:border-gray-600 dark:from-gray-800/50 dark:to-gray-800">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                    <ClockIcon className="h-8 w-8 text-gray-400 dark:text-gray-300" />
+              {attentionItems.length === 0 ? (
+                <div className="rounded-xl border-2 border-dashed border-success-300 bg-gradient-to-br from-success-50 to-white p-8 text-center dark:border-success-800 dark:from-success-900/20 dark:to-gray-800">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success-100 dark:bg-success-900/30">
+                    <CheckCircleIcon className="h-6 w-6 text-success-600 dark:text-success-400" />
                   </div>
-                  <p className="mt-4 text-lg font-bold text-gray-900 dark:text-gray-100">No recent activity</p>
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-300">Activity will appear here as you use the platform</p>
+                  <p className="mt-4 text-base font-bold text-success-700 dark:text-success-300">All clear!</p>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">No pending escalations or unread messages</p>
                 </div>
               ) : (
-                activityFeed.map((activity) => (
+                attentionItems.map((item) => (
                   <Link
-                    key={activity.id}
-                    href={activity.href}
-                    className="group flex items-start gap-4 rounded-xl border-2 border-gray-200 bg-white p-4 transition-all duration-200 hover:border-accent/50 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:shadow-lg active:scale-[0.98] dark:border-gray-600 dark:bg-gray-700/50 dark:hover:bg-gray-800"
+                    key={item.id}
+                    href={item.href}
+                    className="group flex items-start gap-4 rounded-xl border-2 border-error-100 bg-white p-4 transition-all duration-200 hover:border-error-300 hover:shadow-lg active:scale-[0.98] dark:border-error-800/50 dark:bg-gray-800 dark:hover:border-error-600"
                   >
-                    <div className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform group-hover:scale-110", activity.color)}>
-                      {activity.icon}
+                    <div className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform group-hover:scale-110", item.color)}>
+                      {item.icon}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{activity.title}</p>
-                      <p className="mt-1 text-sm font-medium text-gray-600 dark:text-gray-300 line-clamp-1">{activity.description}</p>
-                      <p className="mt-1.5 text-xs font-medium text-gray-500 dark:text-gray-300">{formatRelativeTime(activity.timestamp)}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{item.title}</p>
+                        {item.priority && (item.priority === 'critical' || item.priority === 'urgent') && (
+                          <span className="rounded-full bg-error-100 px-2 py-0.5 text-xs font-bold text-error-700 dark:bg-error-900/30 dark:text-error-300">
+                            {item.priority.toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1 text-sm font-medium text-gray-600 dark:text-gray-300 line-clamp-1">{item.description}</p>
+                      <p className="mt-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">{formatRelativeTime(item.timestamp)}</p>
                     </div>
-                    <ArrowRightIcon className="h-5 w-5 shrink-0 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100" />
+                    <ArrowRightIcon className="h-5 w-5 shrink-0 text-error-400 transition-transform group-hover:translate-x-1" />
                   </Link>
                 ))
               )}
             </div>
           </div>
 
-          {/* Performance Summary - Enhanced */}
+          {/* 🟢 Activity Log - Secondary Section */}
           <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Performance Overview</h2>
-              <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-300">Last 7 days insights</p>
-            </div>
-            {!performanceSummary || (performanceSummary as any).total_posts === 0 ? (
-              <div className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-xl border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm dark:border-gray-600 dark:from-gray-800/50 dark:to-gray-800">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-success-100 to-success-200 text-success-600 shadow-md dark:from-success-900/30 dark:to-success-900/50 dark:text-success-400">
-                        <TrendingUpIcon className="h-7 w-7" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-300">Engagement Rate</p>
-                        <p className="mt-1 text-4xl font-extrabold text-gray-900 dark:text-gray-100">--</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="rounded-xl border-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6 shadow-sm dark:border-gray-600 dark:from-gray-800/50 dark:to-gray-800">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-warning-100 to-warning-200 text-warning-600 shadow-md dark:from-warning-900/30 dark:to-warning-900/50 dark:text-warning-400">
-                        <FireIcon className="h-7 w-7" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-300">Top Post</p>
-                        <p className="mt-1 text-xl font-extrabold text-gray-900 dark:text-gray-100">--</p>
-                      </div>
-                    </div>
-                  </div>
+            <div className="mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-success-100 dark:bg-success-900/30">
+                  <CheckCircleIcon className="h-5 w-5 text-success-600 dark:text-success-400" />
                 </div>
-                <div className="rounded-xl border-2 border-info-300 bg-gradient-to-br from-info-50 to-info-100 p-6 shadow-sm dark:border-info-800 dark:from-info-900/30 dark:to-info-900/50">
-                  <div className="flex items-start gap-3">
-                    <SparklesIcon className="h-6 w-6 shrink-0 text-info-600 dark:text-info-400" />
-                    <div>
-                      <p className="text-sm font-bold text-info-900 dark:text-info-300">💡 Getting Started</p>
-                      <p className="mt-2 text-sm font-medium text-info-700 dark:text-info-400">
-                        Connect platforms and publish content to see detailed performance metrics and insights.
-                      </p>
-                    </div>
-                  </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">🟢 Activity Log</h2>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-300">Recent posts and media</p>
                 </div>
               </div>
-            ) : (
-              <div className="space-y-6">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-xl border-2 border-success-200 bg-gradient-to-br from-success-50 to-white p-6 shadow-md dark:border-success-800 dark:from-success-900/20 dark:to-gray-800">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-success-100 to-success-200 text-success-600 shadow-md dark:from-success-900/30 dark:to-success-900/50 dark:text-success-400">
-                        <TrendingUpIcon className="h-7 w-7" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-300">Engagement Rate</p>
-                        <p className="mt-1 text-4xl font-extrabold text-gray-900 dark:text-gray-100">
-                          {performanceSummary.engagement_rate !== null
-                            ? `${performanceSummary.engagement_rate.toFixed(1)}%`
-                            : "--"}
-                        </p>
-                        <p className="mt-1.5 text-xs font-semibold text-gray-500 dark:text-gray-300">
-                          {performanceSummary.total_posts} posts
-                        </p>
-                      </div>
-                    </div>
+              <Link
+                href="/app/campaigns"
+                className="hidden items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-accent hover:text-white dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 sm:inline-flex"
+              >
+                View all
+                <ArrowRightIcon className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {logItems.length === 0 ? (
+                <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-white p-8 text-center dark:border-gray-600 dark:from-gray-800/50 dark:to-gray-800">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                    <ClockIcon className="h-6 w-6 text-gray-400 dark:text-gray-300" />
                   </div>
-                  <div className="rounded-xl border-2 border-warning-200 bg-gradient-to-br from-warning-50 to-white p-6 shadow-md dark:border-warning-800 dark:from-warning-900/20 dark:to-gray-800">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-warning-100 to-warning-200 text-warning-600 shadow-md dark:from-warning-900/30 dark:to-warning-900/50 dark:text-warning-400">
-                        <FireIcon className="h-7 w-7" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-300">Top Performing</p>
-                        {performanceSummary.top_performing_post ? (
-                          <>
-                            <p className="mt-1 text-xl font-extrabold text-gray-900 truncate dark:text-gray-100">
-                              {performanceSummary.top_performing_post.name}
-                            </p>
-                            <p className="mt-1.5 text-xs font-semibold text-gray-500 dark:text-gray-300">
-                              {performanceSummary.top_performing_post.engagement_rate.toFixed(1)}% engagement
-                            </p>
-                          </>
-                        ) : (
-                          <p className="mt-1 text-xl font-extrabold text-gray-900 dark:text-gray-100">--</p>
-                        )}
-                      </div>
+                  <p className="mt-4 text-base font-bold text-gray-700 dark:text-gray-200">No activity yet</p>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Publish your first post to see it here</p>
+                </div>
+              ) : (
+                logItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    className="group flex items-start gap-4 rounded-xl border-2 border-gray-100 bg-white p-4 transition-all duration-200 hover:border-gray-300 hover:shadow-md active:scale-[0.98] dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600"
+                  >
+                    <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg shadow-sm", item.color)}>
+                      {item.icon}
                     </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{item.title}</p>
+                      <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-300 line-clamp-1">{item.description}</p>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{formatRelativeTime(item.timestamp)}</p>
+                    </div>
+                    <ArrowRightIcon className="h-4 w-4 shrink-0 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100" />
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* AI Performance Summary */}
+          <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">AI Performance</h2>
+              <p className="mt-1.5 text-sm font-medium text-gray-500 dark:text-gray-300">How your AI is helping your business</p>
+            </div>
+
+            {/* AI Metrics - Always show, even if zero */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-xl border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white p-5 shadow-sm dark:border-purple-800 dark:from-purple-900/20 dark:to-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 shadow-sm dark:from-purple-900/30 dark:to-purple-900/50 dark:text-purple-400">
+                    <SparklesIcon className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase dark:text-gray-400">AI Handled</p>
+                    <p className="mt-1 text-2xl font-extrabold text-gray-900 dark:text-gray-100">
+                      {escalationStatsData ? `${(100 - (escalationStatsData.pending / Math.max(escalationStatsData.total, 1) * 100)).toFixed(0)}%` : "—"}
+                    </p>
                   </div>
                 </div>
-                {performanceSummary.total_impressions > 0 && (
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    {[
-                      { label: "Impressions", value: performanceSummary.total_impressions, color: "from-info-50 to-white" },
-                      { label: "Reach", value: performanceSummary.total_reach, color: "from-accent-50 to-white" },
-                      { label: "Likes", value: performanceSummary.total_likes, color: "from-success-50 to-white" },
-                      { label: "Comments", value: performanceSummary.total_comments, color: "from-warning-50 to-white" },
-                    ].map((metric) => (
-                      <div key={metric.label} className="rounded-xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-4 shadow-sm dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50">
-                        <p className="text-xs font-bold text-gray-500 dark:text-gray-300">{metric.label}</p>
-                        <p className="mt-2 text-2xl font-extrabold text-gray-900 dark:text-gray-100">{metric.value.toLocaleString()}</p>
-                      </div>
-                    ))}
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Conversations without escalation</p>
+              </div>
+
+              <div className="rounded-xl border-2 border-success-200 bg-gradient-to-br from-success-50 to-white p-5 shadow-sm dark:border-success-800 dark:from-success-900/20 dark:to-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-success-100 to-success-200 text-success-600 shadow-sm dark:from-success-900/30 dark:to-success-900/50 dark:text-success-400">
+                    <CheckCircleIcon className="h-6 w-6" />
                   </div>
-                )}
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Resolved</p>
+                    <p className="mt-1 text-2xl font-extrabold text-gray-900 dark:text-gray-100">
+                      {escalationStatsData?.resolved ?? "—"}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Escalations resolved this week</p>
+              </div>
+
+              <div className="rounded-xl border-2 border-info-200 bg-gradient-to-br from-info-50 to-white p-5 shadow-sm dark:border-info-800 dark:from-info-900/20 dark:to-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-info-100 to-info-200 text-info-600 shadow-sm dark:from-info-900/30 dark:to-info-900/50 dark:text-info-400">
+                    <ClockIcon className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Avg Response</p>
+                    <p className="mt-1 text-2xl font-extrabold text-gray-900 dark:text-gray-100">
+                      {escalationStatsData?.avgResponseTime ?? "—"}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Average AI response time</p>
+              </div>
+
+              <div className="rounded-xl border-2 border-warning-200 bg-gradient-to-br from-warning-50 to-white p-5 shadow-sm dark:border-warning-800 dark:from-warning-900/20 dark:to-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-warning-100 to-warning-200 text-warning-600 shadow-sm dark:from-warning-900/30 dark:to-warning-900/50 dark:text-warning-400">
+                    <InboxIcon className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase dark:text-gray-400">Conversations</p>
+                    <p className="mt-1 text-2xl font-extrabold text-gray-900 dark:text-gray-100">
+                      {stats.activeConversations}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Total active chats</p>
+              </div>
+            </div>
+
+            {/* Social Metrics - Secondary (Only show if data exists) */}
+            {performanceSummary && performanceSummary.total_impressions > 0 && (
+              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <p className="mb-4 text-sm font-semibold text-gray-500 dark:text-gray-400">Social Performance</p>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {[
+                    { label: "Impressions", value: performanceSummary.total_impressions },
+                    { label: "Reach", value: performanceSummary.total_reach },
+                    { label: "Likes", value: performanceSummary.total_likes },
+                    { label: "Comments", value: performanceSummary.total_comments },
+                  ].map((metric) => (
+                    <div key={metric.label} className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-800">
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">{metric.label}</p>
+                      <p className="mt-1 text-lg font-bold text-gray-900 dark:text-gray-100">{metric.value.toLocaleString()}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -647,46 +691,67 @@ export default function TenantOverviewPage() {
 
         {/* Right Column - Quick Actions & Upcoming (4 cols on large) */}
         <div className="lg:col-span-4 space-y-4 sm:space-y-6">
-          {/* Quick Actions - Enhanced */}
+          {/* Quick Actions - AI Focused */}
           <div className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-lg dark:border-gray-600 dark:from-gray-800 dark:to-gray-800/50 sm:p-8">
-            <h2 className="mb-6 text-xl font-bold text-gray-900 dark:text-gray-100">Quick Actions</h2>
+            <h2 className="mb-6 text-xl font-bold text-gray-900 dark:text-gray-100">What should I do now?</h2>
             <div className="space-y-3">
+              {/* Review Escalations - Top Priority */}
               <Link
-                href="/app/posts/new"
-                className="group flex w-full items-center gap-3 rounded-xl border-2 border-accent bg-gradient-to-r from-accent to-accent/90 px-4 py-3.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl active:scale-95"
+                href="/app/escalations"
+                className={cn(
+                  "group flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-bold transition-all hover:scale-[1.02] active:scale-95",
+                  stats.pendingEscalations > 0
+                    ? "border-2 border-error-500 bg-gradient-to-r from-error-500 to-error-600 text-white shadow-lg hover:shadow-xl"
+                    : "border-2 border-gray-200 bg-white text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                )}
               >
-                <PlusIcon className="w-5 h-5" />
-                <span>Create Post</span>
+                <AlertIcon className="w-5 h-5" />
+                <span>Review Escalations</span>
+                {stats.pendingEscalations > 0 && (
+                  <span className="ml-auto rounded-full bg-white/20 px-3 py-1 text-xs font-bold">
+                    {stats.pendingEscalations}
+                  </span>
+                )}
                 <ArrowRightIcon className="ml-auto h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
               </Link>
-              <Link
-                href="/app/calendar"
-                className="flex w-full items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:text-accent active:scale-95 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
-              >
-                <CalendarIcon className="w-5 h-5" />
-                <span>View Calendar</span>
-              </Link>
+
+              {/* Check Inbox */}
               <Link
                 href="/app/inbox"
-                className="flex w-full items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:text-accent active:scale-95 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-semibold transition-all hover:border-accent active:scale-95",
+                  stats.unreadMessages > 0
+                    ? "border-2 border-warning-400 bg-warning-50 text-warning-800 dark:bg-warning-900/30 dark:text-warning-200"
+                    : "border-2 border-gray-200 bg-white text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                )}
               >
                 <InboxIcon className="w-5 h-5" />
-                <span>Check Inbox</span>
+                <span>Respond to Messages</span>
                 {stats.unreadMessages > 0 && (
-                  <span className="ml-auto rounded-full bg-gradient-to-r from-warning-500 to-warning-600 px-3 py-1 text-xs font-bold text-white shadow-md">
+                  <span className="ml-auto rounded-full bg-warning-500 px-3 py-1 text-xs font-bold text-white shadow-md">
                     {stats.unreadMessages}
                   </span>
                 )}
               </Link>
-              {tenantIndustry?.capabilities.has_products && (
-                <Link
-                  href="/app/products"
-                  className="flex w-full items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm font-semibold text-gray-700 transition-all hover:border-accent hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:text-accent active:scale-95 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
-                >
-                  <PackageIcon className="w-5 h-5" />
-                  <span>Add Product</span>
-                </Link>
-              )}
+
+              {/* Create Post with AI */}
+              <Link
+                href="/app/posts/new"
+                className="group flex w-full items-center gap-3 rounded-xl border-2 border-accent bg-gradient-to-r from-accent to-accent/90 px-4 py-3.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl active:scale-95"
+              >
+                <SparklesIcon className="w-5 h-5" />
+                <span>Create Post with AI</span>
+                <ArrowRightIcon className="ml-auto h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
+              </Link>
+
+              {/* Train AI */}
+              <Link
+                href="/app/settings/ai"
+                className="flex w-full items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-4 py-3.5 text-sm font-semibold text-gray-700 transition-all hover:border-purple-400 hover:bg-purple-50 hover:text-purple-700 active:scale-95 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-purple-900/30"
+              >
+                <SparklesIcon className="w-5 h-5 text-purple-500" />
+                <span>Train AI from Chats</span>
+              </Link>
             </div>
           </div>
 
@@ -707,12 +772,19 @@ export default function TenantOverviewPage() {
             </div>
             <div className="space-y-3">
               {upcomingPosts.length === 0 ? (
-                <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-white p-8 text-center dark:border-gray-600 dark:from-gray-800/50 dark:to-gray-800">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                    <ClockIcon className="h-6 w-6 text-gray-400 dark:text-gray-300" />
+                <div className="rounded-xl border-2 border-dashed border-accent-200 bg-gradient-to-br from-accent-50 to-white p-6 text-center dark:border-accent-800 dark:from-accent-900/20 dark:to-gray-800">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent-100 dark:bg-accent-900/30">
+                    <SparklesIcon className="h-6 w-6 text-accent-600 dark:text-accent-400" />
                   </div>
-                  <p className="mt-4 text-base font-bold text-gray-900 dark:text-gray-100">No upcoming posts</p>
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-300">Schedule your first post</p>
+                  <p className="mt-4 text-base font-bold text-gray-900 dark:text-gray-100">No posts scheduled</p>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">AI can help you plan your content</p>
+                  <Link
+                    href="/app/posts/new"
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-accent/90 transition-all"
+                  >
+                    <PlusIcon className="h-4 w-4" />
+                    Schedule a Post
+                  </Link>
                 </div>
               ) : (
                 upcomingPosts.map((post) => (
