@@ -190,10 +190,8 @@ export default function CampaignsPage() {
     }
   }, [activeTab]);
 
-  // Fetch posts with API filtering
-  const { data: scheduledPostsData, isLoading, error, refetch } = useScheduledPosts(
-    apiStatusFilter ? { status: apiStatusFilter } : undefined
-  );
+  // Fetch posts without API status filtering to ensure we get everything
+  const { data: scheduledPostsData, isLoading, error, refetch } = useScheduledPosts();
 
   const scheduledPosts = useMemo(
     () => Array.isArray(scheduledPostsData) ? scheduledPostsData : [],
@@ -369,8 +367,8 @@ export default function CampaignsPage() {
           <button
             onClick={() => setActiveTab("scheduled")}
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${activeTab === "scheduled"
-                ? "bg-accent text-white shadow-md dark:bg-dark-accent-primary dark:text-white"
-                : "text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600"
+              ? "bg-accent text-white shadow-md dark:bg-dark-accent-primary dark:text-white"
+              : "text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600"
               }`}
           >
             <ClockIcon className="w-4 h-4" />
@@ -383,8 +381,8 @@ export default function CampaignsPage() {
           <button
             onClick={() => setActiveTab("published")}
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${activeTab === "published"
-                ? "bg-accent text-white shadow-md dark:bg-dark-accent-primary dark:text-white"
-                : "text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600"
+              ? "bg-accent text-white shadow-md dark:bg-dark-accent-primary dark:text-white"
+              : "text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600"
               }`}
           >
             <CheckCircleIcon className="w-4 h-4" />
@@ -397,8 +395,8 @@ export default function CampaignsPage() {
           <button
             onClick={() => setActiveTab("drafts")}
             className={`shrink-0 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${activeTab === "drafts"
-                ? "bg-accent text-white shadow-md dark:bg-dark-accent-primary dark:text-white"
-                : "text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600"
+              ? "bg-accent text-white shadow-md dark:bg-dark-accent-primary dark:text-white"
+              : "text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600"
               }`}
           >
             <DocumentTextIcon className="w-4 h-4" />
@@ -582,8 +580,8 @@ export default function CampaignsPage() {
                                   <span
                                     key={platform}
                                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${isTikTok
-                                        ? 'bg-black text-white'
-                                        : 'bg-gray-100 text-gray-700 dark:bg-gray-600 dark:text-white'
+                                      ? 'bg-black text-white'
+                                      : 'bg-gray-100 text-gray-700 dark:bg-gray-600 dark:text-white'
                                       }`}
                                   >
                                     {isTikTok ? '🎵' : ''} {platform}

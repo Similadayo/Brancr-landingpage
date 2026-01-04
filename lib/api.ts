@@ -847,7 +847,7 @@ export const tenantApi = {
         created_at: string;
         posted_at?: string;
       };
-    }>(`/api/tenant/scheduled-posts/${postId}`),
+    }>(`/api/tenant/posts/${postId}`),
 
   updateScheduledPost: (
     postId: string,
@@ -858,12 +858,12 @@ export const tenantApi = {
     }
   ) =>
     put<typeof payload, { success: boolean; post: Record<string, unknown> }>(
-      `/api/tenant/scheduled-posts/${postId}`,
+      `/api/tenant/posts/${postId}`,
       payload
     ),
 
   cancelScheduledPost: (postId: string) =>
-    del<{ success: boolean }>(`/api/tenant/scheduled-posts/${postId}`),
+    del<{ success: boolean }>(`/api/tenant/posts/${postId}`),
 
   // Calendar endpoints (Phase 2)
   calendar: (params?: { start_date?: string; end_date?: string; platform?: string }) => {
