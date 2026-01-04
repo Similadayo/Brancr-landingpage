@@ -26,8 +26,18 @@ export type CampaignStats = {
   draft: number;
 };
 
+export type ScheduledPostsResponse = {
+  posts: ScheduledPost[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    total_pages: number;
+  };
+};
+
 export function useScheduledPosts(params?: { status?: string; page?: number; limit?: number }) {
-  return useQuery<ScheduledPost[], Error>({
+  return useQuery<ScheduledPostsResponse, Error>({
     queryKey: ["scheduled-posts", params],
     queryFn: async () => {
       try {
@@ -35,9 +45,15 @@ export function useScheduledPosts(params?: { status?: string; page?: number; lim
 
         // Support both new paginated format (data) and old format (scheduled_posts) for backward compatibility
         const posts = response?.data || response?.scheduled_posts || [];
+        const pagination = response?.pagination || {
+          page: params?.page || 1,
+          limit: params?.limit || 20,
+          total: posts.length,
+          total_pages: 1
+        };
 
         if (!Array.isArray(posts)) {
-          return [];
+          return { posts: [], pagination };
         }
 
         // Normalize array properties
@@ -46,10 +62,14 @@ export function useScheduledPosts(params?: { status?: string; page?: number; lim
           platforms: Array.isArray(post.platforms) ? post.platforms : [],
           media_asset_ids: Array.isArray(post.media_asset_ids) ? post.media_asset_ids : [],
         }));
-        return normalized;
+
+        return { posts: normalized, pagination };
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {
-          return [];
+          return {
+            posts: [],
+            pagination: { page: 1, limit: 20, total: 0, total_pages: 0 }
+          };
         }
         throw error;
       }

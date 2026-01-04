@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
-import { useScheduledPosts, useCancelScheduledPost, useUpdateScheduledPost, useCampaignStats } from "@/app/(tenant)/hooks/useScheduledPosts";
+import { useScheduledPosts, useCancelScheduledPost, useUpdateScheduledPost, useCampaignStats, type ScheduledPost } from "@/app/(tenant)/hooks/useScheduledPosts";
 import { tenantApi } from "@/lib/api";
 import { toast } from "react-hot-toast";
 import { getUserFriendlyErrorMessage, ErrorMessages } from "@/lib/error-messages";
@@ -190,14 +190,27 @@ export default function CampaignsPage() {
     }
   }, [activeTab]);
 
-  // Fetch posts without API status filtering to ensure we get everything
-  const { data: scheduledPostsData, isLoading, error, refetch } = useScheduledPosts();
+  // Fetch posts with API status filtering
+  const { data: scheduledPostsData, isLoading, error, refetch } = useScheduledPosts({
+    status: apiStatusFilter,
+    page: currentPage,
+    limit: itemsPerPage
+  });
 
   const scheduledPosts = useMemo(
-    () => Array.isArray(scheduledPostsData) ? scheduledPostsData : [],
+    () => scheduledPostsData?.posts || [],
     [scheduledPostsData]
   );
+
+  const serverPagination = useMemo(
+    () => scheduledPostsData?.pagination,
+    [scheduledPostsData]
+  );
+
+  // templatesData is already declared above (line 173) but we need to ensure templates is defined
+  // const { data: templatesData } = useTemplates(); <-- REMOVED DUPLICATE
   const templates = Array.isArray(templatesData) ? templatesData : [];
+
   const cancelMutation = useCancelScheduledPost();
   const [cancellingPostId, setCancellingPostId] = useState<string | null>(null);
   const [publishingPostId, setPublishingPostId] = useState<string | null>(null);
@@ -209,67 +222,42 @@ export default function CampaignsPage() {
   const [editCaption, setEditCaption] = useState<string>("");
   const [editScheduledAt, setEditScheduledAt] = useState<string>("");
 
-  // Filter posts (client-side for status filter, platform filter, and search)
+  // Filter posts (client-side for platform filter and search ONLY on the current page)
   const currentPosts = useMemo(() => {
     let posts = [...scheduledPosts];
 
-    // For scheduled tab, filter to show only "scheduled" and "posting" status posts
-    if (activeTab === "scheduled") {
-      const beforeCount = posts.length;
-      posts = posts.filter((post) => {
-        const isScheduled = post.status === "scheduled" || post.status === "posting";
-        return isScheduled;
-      });
-      void beforeCount;
-    }
-
-    // Apply status filter (additional filtering beyond API)
-    if (statusFilter !== "All") {
-      const beforeCount = posts.length;
-      posts = posts.filter((post) => {
-        const matches = post.status === statusFilter.toLowerCase();
-        return matches;
-      });
-      void beforeCount;
-    }
-
     // Apply platform filter
     if (platformFilter !== "All") {
-      posts = posts.filter((post) =>
-        post.platforms.some((p) => p.toLowerCase() === platformFilter.toLowerCase())
+      posts = posts.filter((post: ScheduledPost) =>
+        post.platforms.some((p: string) => p.toLowerCase() === platformFilter.toLowerCase())
       );
     }
 
     // Apply search
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
+      const loweredQuery = query.toLowerCase();
       posts = posts.filter(
-        (post) =>
-          post.name.toLowerCase().includes(query) ||
-          post.caption?.toLowerCase().includes(query) ||
-          post.platforms.some((p) => p.toLowerCase().includes(query))
+        (post: ScheduledPost) =>
+          post.name.toLowerCase().includes(loweredQuery) ||
+          post.caption?.toLowerCase().includes(loweredQuery) ||
+          post.platforms.some((p: string) => p.toLowerCase().includes(loweredQuery))
       );
     }
 
-    // Sort by scheduled date (newest first for published, oldest first for scheduled)
-    return posts.sort((a, b) => {
-      if (activeTab === "published") {
-        const aTime = a.posted_at || a.scheduled_at || "";
-        const bTime = b.posted_at || b.scheduled_at || "";
-        return new Date(bTime).getTime() - new Date(aTime).getTime();
-      }
-      const aTime = a.scheduled_at || "";
-      const bTime = b.scheduled_at || "";
-      return new Date(aTime).getTime() - new Date(bTime).getTime();
+    // Sort by scheduled date (client-side sort for current page)
+    return posts.sort((a: ScheduledPost, b: ScheduledPost) => {
+      const aTime = a.posted_at || a.scheduled_at || a.created_at || "";
+      const bTime = b.posted_at || b.scheduled_at || b.created_at || "";
+      return new Date(bTime).getTime() - new Date(aTime).getTime();
     });
-  }, [scheduledPosts, activeTab, statusFilter, platformFilter, searchQuery]);
+  }, [scheduledPosts, platformFilter, searchQuery]);
 
-  // Pagination
-  const totalPages = Math.ceil(currentPosts.length / itemsPerPage);
-  const paginatedPosts = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return currentPosts.slice(start, start + itemsPerPage);
-  }, [currentPosts, currentPage, itemsPerPage]);
+  // Use server total pages if available, otherwise fallback to basic calc (though less accurate if filtering client side)
+  const totalPages = serverPagination?.total_pages || Math.ceil((currentPosts.length || 0) / itemsPerPage);
+
+  // Since we are fetching a page, the currentPosts IS the paginated list.
+  const paginatedPosts = currentPosts;
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -497,8 +485,6 @@ export default function CampaignsPage() {
               Refresh page
             </button>
           </div>
-        ) : activeTab === 'drafts' ? (
-          <DraftsList router={router} />
         ) : currentPosts.length === 0 ? (
           <div className="card p-12 text-center sm:p-16">
             {activeTab === "scheduled" && (
