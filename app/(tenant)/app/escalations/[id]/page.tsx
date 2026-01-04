@@ -32,7 +32,7 @@ const PLATFORM_COLORS: Record<string, string> = {
 export default function EscalationDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const escalationId = params?.id ? Number(params.id) : null;
+  const escalationId = params?.id ? String(params.id) : null;
 
   const { data: escalationDetail, isLoading, error } = useEscalation(escalationId);
   const approveMutation = useApproveEscalationReply(escalationId);
@@ -75,7 +75,7 @@ export default function EscalationDetailPage() {
   }
 
   const { escalation, customer, conversationHistory } = escalationDetail;
-  
+
   // Safety checks
   if (!escalation) {
     return (
@@ -84,7 +84,7 @@ export default function EscalationDetailPage() {
       </div>
     );
   }
-  
+
   const customerName = customer?.name || escalation.customerName || "Unknown Customer";
   const customerUsername = customer?.username || escalation.customerUsername;
   const customerPlatform = customer?.platform || escalation.platform;
@@ -172,16 +172,14 @@ export default function EscalationDetailPage() {
                 {customerUsername && <p className="text-sm text-gray-500">@{customerUsername}</p>}
                 <div className="mt-2 flex items-center gap-2">
                   <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
-                      PLATFORM_COLORS[customerPlatform.toLowerCase()] ?? "bg-gray-100 text-gray-600"
-                    }`}
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${PLATFORM_COLORS[customerPlatform.toLowerCase()] ?? "bg-gray-100 text-gray-600"
+                      }`}
                   >
                     {customerPlatform}
                   </span>
                   <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
-                      PRIORITY_COLORS[escalation.priority] ?? "bg-gray-100 text-gray-600"
-                    }`}
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${PRIORITY_COLORS[escalation.priority] ?? "bg-gray-100 text-gray-600"
+                      }`}
                   >
                     {escalation.priority}
                   </span>
@@ -267,9 +265,8 @@ export default function EscalationDetailPage() {
                 {conversationHistory.map((message) => (
                   <div
                     key={message.id}
-                    className={`rounded-xl border border-gray-200 p-4 ${
-                      message.author === "tenant" ? "ml-auto max-w-xl bg-primary/5" : "bg-gray-50"
-                    }`}
+                    className={`rounded-xl border border-gray-200 p-4 ${message.author === "tenant" ? "ml-auto max-w-xl bg-primary/5" : "bg-gray-50"
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-semibold text-gray-500">
@@ -313,9 +310,8 @@ export default function EscalationDetailPage() {
                 <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Priority</p>
                 <p className="mt-1">
                   <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
-                      PRIORITY_COLORS[escalation.priority] ?? "bg-gray-100 text-gray-600"
-                    }`}
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${PRIORITY_COLORS[escalation.priority] ?? "bg-gray-100 text-gray-600"
+                      }`}
                   >
                     {escalation.priority}
                   </span>
@@ -325,9 +321,8 @@ export default function EscalationDetailPage() {
                 <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Platform</p>
                 <p className="mt-1">
                   <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${
-                      PLATFORM_COLORS[escalation.platform.toLowerCase()] ?? "bg-gray-100 text-gray-600"
-                    }`}
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${PLATFORM_COLORS[escalation.platform.toLowerCase()] ?? "bg-gray-100 text-gray-600"
+                      }`}
                   >
                     {escalation.platform}
                   </span>
