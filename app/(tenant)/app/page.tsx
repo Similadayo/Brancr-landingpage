@@ -242,7 +242,7 @@ export default function TenantOverviewPage() {
 
   return (
     <div className="fixed inset-0 left-0 lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg">
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+      <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-6 sm:py-8">
         <div className="mx-auto max-w-7xl space-y-6">
           {/* AI Status Summary */}
           <AIStatusSummary />

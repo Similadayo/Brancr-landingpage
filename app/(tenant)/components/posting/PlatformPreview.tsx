@@ -52,14 +52,14 @@ export default function PlatformPreview({
                 </div>
 
                 {/* Media Content */}
-                <div className="relative aspect-[4/5] w-full bg-gray-100">
+                <div className="relative aspect-[4/5] w-full bg-black">
                     {mediaUrls.length > 0 ? (
                         mediaUrls.map((url, i) => (
-                            <div key={i} className={`absolute inset-0 ${i === 0 ? 'block' : 'hidden'}`}>
+                            <div key={i} className={`absolute inset-0 flex items-center justify-center ${i === 0 ? 'block' : 'hidden'}`}>
                                 {isVideo(url) ? (
-                                    <video src={url} className="h-full w-full object-cover" controls />
+                                    <video src={url} className="max-h-full max-w-full object-contain" controls />
                                 ) : (
-                                    <img src={url} alt={`Slide ${i + 1}`} className="h-full w-full object-cover" />
+                                    <img src={url} alt={`Slide ${i + 1}`} className="max-h-full max-w-full object-contain" />
                                 )}
                                 {mediaUrls.length > 1 && (
                                     <div className="absolute top-2 right-2 rounded-full bg-black/50 px-2 py-1 text-[10px] text-white">
