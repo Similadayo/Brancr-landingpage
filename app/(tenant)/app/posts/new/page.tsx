@@ -20,13 +20,12 @@ import DraftsModal from '@/app/(tenant)/components/posting/DraftsModal';
 import { useDraft, useAutoSaveDraft, useDeleteDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 import GoalSelector from "@/app/(tenant)/components/posting/GoalSelector";
 
-type Step = "goal" | "platforms" | "upload" | "media" | "caption" | "schedule" | "review";
+type Step = "goal" | "platforms" | "media" | "caption" | "schedule" | "review";
 
-const STEPS: Step[] = ["goal", "platforms", "upload", "media", "caption", "schedule", "review"];
+const STEPS: Step[] = ["goal", "platforms", "media", "caption", "schedule", "review"];
 const STEP_LABELS: Record<Step, string> = {
   goal: "Goal",
   platforms: "Platforms",
-  upload: "Upload",
   media: "Media",
   caption: "Caption",
   schedule: "Schedule",
@@ -53,6 +52,7 @@ export default function NewPostPage() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [goal, setGoal] = useState<string | null>(null);
   const [scheduledAt, setScheduledAt] = useState<string | null>(null);
+  const [mediaSubStep, setMediaSubStep] = useState<'landing' | 'upload' | 'library'>('landing');
 
   // TikTok-specific options
   const [tiktokDisableDuet, setTiktokDisableDuet] = useState(false);
@@ -117,8 +117,7 @@ export default function NewPostPage() {
         return !!goal;
       case "platforms":
         return selectedPlatforms.length > 0;
-      case "upload":
-        return true; // Can skip upload if selecting from library
+
       case "media":
         // Media is optional for some platforms (e.g. Facebook text-only), but visually we might want to encourage it.
         // For now, allow proceeding.
@@ -537,7 +536,10 @@ export default function NewPostPage() {
             if (content.enhanceCaption !== undefined) setEnhanceCaption(content.enhanceCaption);
             if (content.selectedPlatforms) setSelectedPlatforms(content.selectedPlatforms);
             if (content.scheduledAt) setScheduledAt(content.scheduledAt);
-            if (content.step) setStep(content.step);
+            if (content.step) {
+              if (content.step === 'upload') setStep('media');
+              else setStep(content.step);
+            }
             // tiktok
             if (content.tiktokDisableDuet !== undefined) setTiktokDisableDuet(content.tiktokDisableDuet);
             if (content.tiktokDisableStitch !== undefined) setTiktokDisableStitch(content.tiktokDisableStitch);
@@ -628,29 +630,97 @@ export default function NewPostPage() {
           />
         )}
 
-        {step === "upload" && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium">Upload Media</h3>
-              <button onClick={() => setStep("media")} className="text-sm text-primary hover:underline">Skip to Library</button>
-            </div>
-            <MediaUploader
-              onUploadComplete={(media) => {
-                handleUploadComplete(media);
-                // Auto-advance if single file uploaded? Maybe just let user click next.
-              }}
-              maxFiles={10}
-              maxFileSize={50}
-            />
-          </div>
-        )}
-
         {step === "media" && (
-          <MediaSelector
-            selectedMediaIds={selectedMediaIds}
-            onSelectionChange={setSelectedMediaIds}
-            uploadedMedia={uploadedMedia}
-          />
+          <div className="space-y-4">
+            {mediaSubStep === 'landing' && (
+              <>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">How would you like to add media?</h3>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <button
+                    onClick={() => setMediaSubStep('upload')}
+                    className="flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 transition-all hover:border-primary hover:bg-primary/5 hover:scale-[1.02]"
+                  >
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-3xl">
+                      📤
+                    </div>
+                    <div className="text-center">
+                      <span className="block text-lg font-semibold text-gray-900">Upload New</span>
+                      <span className="block text-sm text-gray-500">Drag & drop images or videos</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setMediaSubStep('library')}
+                    className="flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 transition-all hover:border-primary hover:bg-primary/5 hover:scale-[1.02]"
+                  >
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-3xl">
+                      🖼️
+                    </div>
+                    <div className="text-center">
+                      <span className="block text-lg font-semibold text-gray-900">Select from Library</span>
+                      <span className="block text-sm text-gray-500">Choose from previously uploaded files</span>
+                    </div>
+                  </button>
+                </div>
+                {/* Show recent files preview if any */}
+                {selectedMediaIds.length > 0 && (
+                  <div className="mt-6 border-t pt-4">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Selected Media ({selectedMediaIds.length})</p>
+                    <div className="flex -space-x-2 overflow-hidden">
+                      {selectedMediaIds.slice(0, 5).map(id => (
+                        <div key={id} className="inline-block h-10 w-10 rounded-full bg-gray-200 ring-2 ring-white" />
+                      ))}
+                    </div>
+                    <button onClick={() => setMediaSubStep('library')} className="text-xs text-primary hover:underline mt-1">
+                      View selected
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+
+            {mediaSubStep === 'upload' && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <button onClick={() => setMediaSubStep('landing')} className="text-sm text-gray-500 hover:text-gray-900 flex items-center gap-1">
+                    ← Back to options
+                  </button>
+                  <button onClick={() => setMediaSubStep('library')} className="text-sm text-primary hover:underline font-medium">
+                    View Library
+                  </button>
+                </div>
+                <MediaUploader
+                  onUploadComplete={(media) => {
+                    handleUploadComplete(media);
+                    setMediaSubStep('library'); // Auto-switch to library to see selected
+                  }}
+                  maxFiles={10}
+                  maxFileSize={50}
+                />
+              </div>
+            )}
+
+            {mediaSubStep === 'library' && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <button onClick={() => setMediaSubStep('landing')} className="text-sm text-gray-500 hover:text-gray-900 flex items-center gap-1">
+                    ← Back to options
+                  </button>
+                </div>
+                <MediaSelector
+                  selectedMediaIds={selectedMediaIds}
+                  onSelectionChange={setSelectedMediaIds}
+                  uploadedMedia={uploadedMedia}
+                  onUploadRequest={() => setMediaSubStep('upload')}
+                />
+              </div>
+            )}
+
+            {/* Unified Note */}
+            <p className="text-xs text-center text-gray-400 mt-4">
+              Media is optional for text-only posts on some platforms.
+            </p>
+          </div>
         )}
 
         {step === "caption" && (

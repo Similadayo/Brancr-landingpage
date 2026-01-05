@@ -7,12 +7,14 @@ type MediaSelectorProps = {
   selectedMediaIds: string[];
   onSelectionChange: (mediaIds: string[]) => void;
   uploadedMedia?: Array<{ id: string; url: string; thumbnail_url?: string }>;
+  onUploadRequest?: () => void;
 };
 
 export default function MediaSelector({
   selectedMediaIds,
   onSelectionChange,
   uploadedMedia = [],
+  onUploadRequest,
 }: MediaSelectorProps) {
   // Fetch all media types (images, videos, carousels) - no type filter
   const { data: assets = [], isLoading } = useMedia();
@@ -40,7 +42,7 @@ export default function MediaSelector({
       thumbnail_url: asset.thumbnail_url || asset.urls?.[0] || "",
     })),
   ];
-  
+
   // Debug: Log media types to help diagnose (only in development)
   if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
     const videoCount = allMedia.filter(m => m.type === 'video').length;
@@ -84,9 +86,19 @@ export default function MediaSelector({
           📷
         </div>
         <p className="text-sm font-semibold text-gray-900">No media available</p>
-        <p className="mt-2 text-xs text-gray-500">
-          Upload media in the previous step or use existing media from your library.
+        <p className="text-sm font-semibold text-gray-900">No media available</p>
+        <p className="mt-2 text-xs text-gray-500 mb-4">
+          Upload media to list it here or use existing media from your library.
         </p>
+        {onUploadRequest && (
+          <button
+            type="button"
+            onClick={onUploadRequest}
+            className="rounded-xl bg-white border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+          >
+            Upload Media
+          </button>
+        )}
       </div>
     );
   }
@@ -107,6 +119,15 @@ export default function MediaSelector({
           </p>
         </div>
         <div className="flex gap-2">
+          {onUploadRequest && (
+            <button
+              type="button"
+              onClick={onUploadRequest}
+              className="hidden sm:block rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-primary hover:text-primary transition"
+            >
+              Upload New
+            </button>
+          )}
           {selectedMediaIds.length > 0 && (
             <button
               type="button"
@@ -141,11 +162,10 @@ export default function MediaSelector({
                 <button
                   type="button"
                   onClick={() => toggleMedia(String(media.id))}
-                  className={`relative w-full overflow-hidden rounded-2xl border-2 transition-all ${
-                    isSelected
+                  className={`relative w-full overflow-hidden rounded-2xl border-2 transition-all ${isSelected
                       ? "border-primary ring-4 ring-primary/20 shadow-lg scale-[1.02]"
                       : "border-gray-200 hover:border-primary/50 hover:shadow-md"
-                  } bg-white`}
+                    } bg-white`}
                   aria-label={`${isSelected ? "Deselect" : "Select"} media ${index + 1}`}
                 >
                   {media.type === 'video' ? (
@@ -182,55 +202,55 @@ export default function MediaSelector({
                       }}
                     />
                   )}
-                {/* Selection Badge */}
-                {isSelected && (
-                  <>
-                    <div className="absolute inset-0 bg-primary/10" />
-                    <div className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-lg">
-                      {selectionIndex}
-                    </div>
-                    <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow-lg">
-                      ✓
-                    </div>
-                  </>
-                )}
-                {/* Type Badge */}
-                <div className="absolute right-2 bottom-2">
-                  <div className="rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase text-white backdrop-blur-sm">
-                    {media.type}
-                  </div>
-                </div>
-                {/* Preview Button */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // For videos, use the video URL; for images, use thumbnail or URL
-                    const previewUrl = media.type === 'video' 
-                      ? (media.url || "") 
-                      : (media.thumbnail_url || media.url || "");
-                    if (previewUrl) {
-                      setPreviewMedia({ id: String(media.id), url: previewUrl });
-                    }
-                  }}
-                  className="absolute left-2 bottom-2 rounded-full bg-black/70 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 backdrop-blur-sm"
-                  aria-label="Preview media"
-                >
-                  {media.type === 'video' ? (
-                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  ) : (
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
+                  {/* Selection Badge */}
+                  {isSelected && (
+                    <>
+                      <div className="absolute inset-0 bg-primary/10" />
+                      <div className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-lg">
+                        {selectionIndex}
+                      </div>
+                      <div className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow-lg">
+                        ✓
+                      </div>
+                    </>
                   )}
+                  {/* Type Badge */}
+                  <div className="absolute right-2 bottom-2">
+                    <div className="rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase text-white backdrop-blur-sm">
+                      {media.type}
+                    </div>
+                  </div>
+                  {/* Preview Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // For videos, use the video URL; for images, use thumbnail or URL
+                      const previewUrl = media.type === 'video'
+                        ? (media.url || "")
+                        : (media.thumbnail_url || media.url || "");
+                      if (previewUrl) {
+                        setPreviewMedia({ id: String(media.id), url: previewUrl });
+                      }
+                    }}
+                    className="absolute left-2 bottom-2 rounded-full bg-black/70 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 backdrop-blur-sm"
+                    aria-label="Preview media"
+                  >
+                    {media.type === 'video' ? (
+                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    ) : (
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
                 </button>
-              </button>
-            </div>
-          );
-        })}
+              </div>
+            );
+          })}
       </div>
 
       {/* Preview Modal */}
@@ -243,7 +263,7 @@ export default function MediaSelector({
             {(() => {
               const media = allMedia.find((m) => String(m.id) === previewMedia.id);
               const isVideo = media?.type === 'video';
-              
+
               return isVideo ? (
                 <video
                   src={previewMedia.url}
