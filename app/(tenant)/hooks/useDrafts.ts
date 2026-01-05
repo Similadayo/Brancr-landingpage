@@ -190,7 +190,7 @@ export function useAutoSaveDraft(key: string, content: any, enabled: boolean = t
     return () => { if (debouncedRef.current) clearTimeout(debouncedRef.current); };
   }, [content, enabled, key, draftId, enqueue]);
 
-  return { isSaving };
+  return { isSaving, draftId, setDraftId };
 }
 
 export function useDeleteDraft() {

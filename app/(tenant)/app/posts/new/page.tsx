@@ -64,26 +64,22 @@ export default function NewPostPage() {
   const deleteDraft = useDeleteDraft();
 
   // Restore draft
+  // Detach from previous session on mount to ensure fresh start
   useEffect(() => {
-    if (draft) {
-      const content = parseDraftContent<any>(draft);
-      if (content) {
-        if (content.uploadedMedia) setUploadedMedia(content.uploadedMedia);
-        if (content.selectedMediaIds) setSelectedMediaIds(content.selectedMediaIds);
-        if (content.caption) setCaption(content.caption);
-        if (content.enhanceCaption !== undefined) setEnhanceCaption(content.enhanceCaption);
-        if (content.selectedPlatforms) setSelectedPlatforms(content.selectedPlatforms);
-        if (content.scheduledAt) setScheduledAt(content.scheduledAt);
-        if (content.step) setStep(content.step);
-        if (content.tiktokDisableDuet !== undefined) setTiktokDisableDuet(content.tiktokDisableDuet);
-        if (content.tiktokDisableStitch !== undefined) setTiktokDisableStitch(content.tiktokDisableStitch);
-        if (content.tiktokDisableComment !== undefined) setTiktokDisableComment(content.tiktokDisableComment);
-        if (content.tiktokScheduleTime) setTiktokScheduleTime(content.tiktokScheduleTime);
+    try {
+      localStorage.removeItem(`drafts-local-${DRAFT_KEYS.POST_CREATE}`);
+    } catch (e) { /* ignore */ }
+  }, []);
 
-        toast.success("Draft restored");
-      }
+  // Notify if unsaved draft exists
+  useEffect(() => {
+    if (draft && !draftLoading) {
+      toast('You have an unsaved draft. Click "Local Drafts" to restore.', {
+        icon: '📝',
+        duration: 4000,
+      });
     }
-  }, [draft]);
+  }, [draft, draftLoading]);
 
   // Construct draft content
   const draftContent = useMemo(() => ({
@@ -104,7 +100,7 @@ export default function NewPostPage() {
   ]);
 
   // Auto-save
-  const { isSaving } = useAutoSaveDraft(DRAFT_KEYS.POST_CREATE, draftContent, !draftLoading);
+  const { isSaving, setDraftId } = useAutoSaveDraft(DRAFT_KEYS.POST_CREATE, draftContent, !draftLoading);
 
   const currentStepIndex = STEPS.indexOf(step);
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
@@ -524,7 +520,7 @@ export default function NewPostPage() {
         onClose={() => setShowDraftsModal(false)}
         keyName={DRAFT_KEYS.POST_CREATE}
         onRestore={(d) => {
-          const content = parseDraftContent<any>(draft);
+          const content = parseDraftContent<any>(d);
           if (content) {
             if (content.uploadedMedia) setUploadedMedia(content.uploadedMedia);
             if (content.selectedMediaIds) setSelectedMediaIds(content.selectedMediaIds);
@@ -538,6 +534,9 @@ export default function NewPostPage() {
             if (content.tiktokDisableStitch !== undefined) setTiktokDisableStitch(content.tiktokDisableStitch);
             if (content.tiktokDisableComment !== undefined) setTiktokDisableComment(content.tiktokDisableComment);
             if (content.tiktokScheduleTime) setTiktokScheduleTime(content.tiktokScheduleTime);
+
+            // Re-attach to the restored draft ID so autosave updates it
+            setDraftId(d.id);
 
             toast.success('Draft restored');
           }
