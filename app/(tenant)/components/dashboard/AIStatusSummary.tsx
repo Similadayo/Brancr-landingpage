@@ -17,7 +17,7 @@ export default function AIStatusSummary() {
     const stats = [
         {
             label: "AI Resolution Rate",
-            value: metrics ? `${metrics.ai_resolution_rate}%` : "-",
+            value: metrics?.ai_resolution_rate !== undefined ? `${metrics.ai_resolution_rate}%` : "0%",
             subtext: "conversations handled entirely by AI",
             icon: SparklesIcon,
             color: "text-purple-600 dark:text-purple-400",
@@ -27,7 +27,7 @@ export default function AIStatusSummary() {
         },
         {
             label: "Active Conversations",
-            value: metrics ? metrics.active_conversations : "-",
+            value: metrics?.active_conversations || 0,
             subtext: "currently ongoing",
             icon: InboxIcon,
             color: "text-blue-600 dark:text-blue-400",
@@ -35,7 +35,7 @@ export default function AIStatusSummary() {
         },
         {
             label: "Human Intervention",
-            value: metrics ? `${metrics.human_intervention_rate}%` : "-",
+            value: metrics?.human_intervention_rate !== undefined ? `${metrics.human_intervention_rate}%` : "0%",
             subtext: "escalated to support",
             icon: UserGroupIcon,
             color: "text-amber-600 dark:text-amber-400",
@@ -45,7 +45,7 @@ export default function AIStatusSummary() {
         },
         {
             label: "Orders Influenced",
-            value: metrics ? metrics.orders_influenced : "-",
+            value: metrics?.orders_influenced || 0,
             subtext: "attributed to AI chats",
             icon: PackageIcon,
             color: "text-emerald-600 dark:text-emerald-400",
