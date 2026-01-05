@@ -458,8 +458,8 @@ export default function NewPostPage() {
       </header>
 
       {/* Scrollable Content Area */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-6xl px-4 py-6 lg:px-6">
+      <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-dark-bg">
+        <div className="mx-auto max-w-6xl px-6 py-8 lg:px-8 mt-4">
           {/* Main Content Grid - Two columns on caption step */}
           {step === "caption" ? (
             <div className="grid gap-6 lg:grid-cols-2">
