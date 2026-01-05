@@ -52,6 +52,7 @@ const getCoreNavItems = (badges?: { inbox?: number; escalations?: number; alerts
   { label: "Inbox", href: "/app/inbox", icon: <InboxIcon className="w-5 h-5" />, badge: badges?.inbox },
   { label: "Escalations", href: "/app/escalations", icon: <AlertIcon className="w-5 h-5" />, badge: badges?.escalations },
   { label: "Campaigns", href: "/app/campaigns", icon: <RocketIcon className="w-5 h-5" /> },
+  { label: "Bulk Upload", href: "/app/bulk-uploads", icon: <ClipboardIcon className="w-5 h-5" /> },
   { label: "Payments", href: "/app/payments", icon: <CreditCardIcon className="w-5 h-5" /> },
   { label: "Orders", href: "/app/orders", icon: <PackageIcon className="w-5 h-5" /> },
   { label: "Calendar", href: "/app/calendar", icon: <CalendarIcon className="w-5 h-5" /> },
