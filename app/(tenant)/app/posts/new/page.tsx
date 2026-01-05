@@ -17,6 +17,14 @@ import PostReview from "@/app/(tenant)/components/posting/PostReview";
 import TikTokOptions from "@/app/(tenant)/components/posting/TikTokOptions";
 import ConfirmModal from '@/app/components/ConfirmModal';
 import DraftsModal from '@/app/(tenant)/components/posting/DraftsModal';
+import {
+  RocketIcon,
+  LinkIcon,
+  ImageIcon,
+  PencilIcon,
+  CalendarIcon,
+  EyeIcon,
+} from "@/app/(tenant)/components/icons";
 import { useDraft, useAutoSaveDraft, useDeleteDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 import GoalSelector from "@/app/(tenant)/components/posting/GoalSelector";
 
@@ -30,6 +38,15 @@ const STEP_LABELS: Record<Step, string> = {
   caption: "Caption",
   schedule: "Schedule",
   review: "Review",
+};
+
+const STEP_ICONS: Record<Step, React.ElementType> = {
+  goal: RocketIcon,
+  platforms: LinkIcon,
+  media: ImageIcon,
+  caption: PencilIcon,
+  schedule: CalendarIcon,
+  review: EyeIcon,
 };
 
 export default function NewPostPage() {
@@ -584,6 +601,7 @@ export default function NewPostPage() {
           const label = STEP_LABELS[stepKey];
           const isActive = step === stepKey;
           const isCompleted = idx < currentStepIndex;
+          const Icon = STEP_ICONS[stepKey];
           return (
             <button
               key={stepKey}
@@ -594,7 +612,7 @@ export default function NewPostPage() {
                   setStep(stepKey);
                 }
               }}
-              className={`rounded-xl border px-3 py-2 text-center text-xs font-semibold transition-all ${isActive
+              className={`flex flex-col items-center justify-center gap-1 rounded-xl border py-2 text-center transition-all ${isActive
                 ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
                 : isCompleted
                   ? "border-green-300 bg-green-50 text-green-700 hover:border-green-400"
@@ -603,8 +621,8 @@ export default function NewPostPage() {
               disabled={idx > currentStepIndex}
               aria-label={`Step ${idx + 1}: ${label}`}
             >
-              <span className="hidden sm:inline">{label}</span>
-              <span className="sm:hidden">{idx + 1}</span>
+              <Icon className="h-5 w-5" />
+              <span className="text-[10px] font-medium sm:text-xs">{label}</span>
             </button>
           );
         })}
