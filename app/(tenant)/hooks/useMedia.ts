@@ -27,23 +27,25 @@ export function useMedia(filters?: { type?: string; tag?: string; campaign?: str
   return useQuery<MediaAsset[], Error>({
     queryKey: ["media", filters],
     queryFn: async () => {
-      try {
-        const response = await tenantApi.mediaList(filters);
-        // API returns { items: [...], count: number }
-        const items = response?.items || [];
-        
-        // Transform to include computed properties for backward compatibility
-        return items.map((item) => ({
-          ...item,
-          // Use first URL as primary url and thumbnail_url for backward compatibility
-          url: item.urls && item.urls.length > 0 ? item.urls[0] : "",
-          thumbnail_url: item.urls && item.urls.length > 0 ? item.urls[0] : undefined,
-        }));
-      } catch (error) {
-        // Return empty array on error to prevent crashes
-        void error;
-        return [];
+      const response: any = await tenantApi.mediaList(filters);
+
+      // Handle different response formats (Array vs Object with items/assets)
+      let items: any[] = [];
+      if (Array.isArray(response)) {
+        items = response;
+      } else if (response?.items && Array.isArray(response.items)) {
+        items = response.items;
+      } else if (response?.assets && Array.isArray(response.assets)) {
+        items = response.assets;
       }
+
+      // Transform to include computed properties for backward compatibility
+      return items.map((item) => ({
+        ...item,
+        // Use first URL as primary url and thumbnail_url for backward compatibility
+        url: item.urls && item.urls.length > 0 ? item.urls[0] : (item.url || ""),
+        thumbnail_url: item.urls && item.urls.length > 0 ? item.urls[0] : (item.thumbnail_url || item.url || undefined),
+      }));
     },
   });
 }
@@ -64,11 +66,11 @@ export function useUploadMedia() {
         // Parse detailed JSON error response from API
         const errorMessage = error.body?.error || error.body?.message || error.message;
         let details = "";
-        
+
         if (error.body?.available_fields) {
           details = ` Available fields: ${Array.isArray(error.body.available_fields) ? error.body.available_fields.join(", ") : error.body.available_fields}`;
         }
-        
+
         // More specific error messages
         if (error.status === 400) {
           const message = errorMessage || "Invalid file format or size";
