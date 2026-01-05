@@ -19,10 +19,17 @@ export function useBulkUploads() {
     queryFn: async () => {
       try {
         const res = await tenantApi.bulkUploads();
-        return res.sessions as BulkSession[];
+        // Handle different response formats from backend
+        const sessions = (res as any).sessions || (res as any).items || (res as any).bulk_uploads || [];
+        return sessions as BulkSession[];
       } catch (error) {
-        if (error instanceof ApiError && error.status === 404) {
-          return [];
+        console.error("[useBulkUploads] Error fetching bulk uploads:", error);
+        if (error instanceof ApiError) {
+          // Return empty array for 404 (not found) or 501 (not implemented)
+          if (error.status === 404 || error.status === 501) {
+            return [];
+          }
+          console.error("[useBulkUploads] API Error:", error.status, error.message);
         }
         throw error;
       }
