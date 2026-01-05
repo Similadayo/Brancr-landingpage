@@ -4,8 +4,9 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthCard } from "../components/AuthCard";
 import { PhoneInput } from "../components/PhoneInput";
+import { PasswordStrengthIndicator } from "../components/PasswordStrengthIndicator";
 import { ApiError, authApi } from "@/lib/api";
-import { signupSchema, validateWithErrors } from "@/lib/validation";
+import { signupSchema, validateWithErrors, validatePassword } from "@/lib/validation";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -93,7 +94,12 @@ export default function SignupPage() {
         console.error("API Error Status:", err.status);
         console.error("API Error Body:", err.body);
 
-        setError(err.message || "An error occurred during signup.");
+        // Handle weak password error from backend
+        if (err.body?.error === 'weak_password' || err.body?.error === 'validation_error') {
+          setFieldErrors({ password: err.message || 'Password does not meet requirements' });
+        } else {
+          setError(err.message || "An error occurred during signup.");
+        }
       } else if (err instanceof Error) {
         console.error("Standard Error:", err.message);
         setError(err.message);
@@ -202,6 +208,7 @@ export default function SignupPage() {
               placeholder="Create a strong password"
               autoComplete="new-password"
             />
+            <PasswordStrengthIndicator password={formValues.password} />
             {fieldErrors['password'] && <p className="mt-2 text-xs text-rose-600 dark:text-rose-400">{fieldErrors['password']}</p>}
           </div>
         </div>

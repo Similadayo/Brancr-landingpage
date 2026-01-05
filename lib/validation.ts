@@ -14,9 +14,72 @@ export const passwordSchema = z
   .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
   .regex(/[0-9]/, 'Password must contain at least one number');
 
+// Common weak password patterns to reject
+export const WEAK_PASSWORD_PATTERNS = [
+  'password', '123456', '12345678', 'qwerty', 'admin', 'letmein',
+  'welcome', 'monkey', 'dragon', 'master', 'abc123', 'login',
+  'passw0rd', 'p@ssword', '1234567890'
+];
+
+// Password validation result for UI feedback
+export interface PasswordValidationResult {
+  isValid: boolean;
+  errors: string[];
+  checks: {
+    minLength: boolean;
+    hasUppercase: boolean;
+    hasLowercase: boolean;
+    hasNumber: boolean;
+    noWeakPatterns: boolean;
+  };
+}
+
+// Runtime password validation function for UI feedback
+export function validatePassword(password: string): PasswordValidationResult {
+  const errors: string[] = [];
+
+  const checks = {
+    minLength: password.length >= 8,
+    hasUppercase: /[A-Z]/.test(password),
+    hasLowercase: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    noWeakPatterns: true,
+  };
+
+  if (!checks.minLength) {
+    errors.push('Password must be at least 8 characters');
+  }
+  if (!checks.hasUppercase) {
+    errors.push('Password must include an uppercase letter');
+  }
+  if (!checks.hasLowercase) {
+    errors.push('Password must include a lowercase letter');
+  }
+  if (!checks.hasNumber) {
+    errors.push('Password must include a number');
+  }
+
+  // Check for common weak patterns
+  const lowerPassword = password.toLowerCase();
+  for (const pattern of WEAK_PASSWORD_PATTERNS) {
+    if (lowerPassword.includes(pattern)) {
+      checks.noWeakPatterns = false;
+      errors.push('Password contains a common weak pattern');
+      break;
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    checks,
+  };
+}
+
 export const phoneSchema = z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number');
 
 export const urlSchema = z.string().url('Invalid URL');
+
 
 // Sanitization helpers
 export function sanitizeString(input: string): string {

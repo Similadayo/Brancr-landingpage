@@ -3,7 +3,9 @@
 import { FormEvent, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AuthCard } from "../components/AuthCard";
+import { PasswordStrengthIndicator } from "../components/PasswordStrengthIndicator";
 import { authApi, ApiError } from "@/lib/api";
+import { validatePassword } from "@/lib/validation";
 import { toast } from "react-hot-toast";
 
 function ResetPasswordContent() {
@@ -48,8 +50,10 @@ function ResetPasswordContent() {
             return;
         }
 
-        if (passwords.password.length < 8) {
-            setError("Password must be at least 8 characters");
+        // Enhanced password validation
+        const validation = validatePassword(passwords.password);
+        if (!validation.isValid) {
+            setError(validation.errors[0]);
             return;
         }
 
@@ -64,7 +68,12 @@ function ResetPasswordContent() {
             router.push("/auth/login");
         } catch (err) {
             if (err instanceof ApiError) {
-                setError(err.message);
+                // Handle weak password errors from backend
+                if (err.body?.error === 'weak_password' || err.body?.error === 'validation_error') {
+                    setError(err.message || 'Password does not meet requirements');
+                } else {
+                    setError(err.message);
+                }
             } else {
                 setError("Failed to reset password. The link may have expired.");
             }
@@ -99,6 +108,7 @@ function ResetPasswordContent() {
                         placeholder="••••••••"
                         autoComplete="new-password"
                     />
+                    <PasswordStrengthIndicator password={passwords.password} />
                 </div>
 
                 <div>

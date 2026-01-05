@@ -12,6 +12,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLocked, setIsLocked] = useState(false);
 
   const nextUrl = searchParams.get("next") ?? "/app";
 
@@ -45,8 +46,16 @@ export default function LoginForm() {
       }, 100);
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(err.message);
+        // Handle account lockout (429 Too Many Requests)
+        if (err.status === 429 || err.body?.error === 'account_locked') {
+          setIsLocked(true);
+          setError(err.message || 'Too many failed attempts. Please try again later.');
+        } else {
+          setIsLocked(false);
+          setError(err.message);
+        }
       } else {
+        setIsLocked(false);
         setError("Unable to login. Please try again.");
       }
       setIsSubmitting(false);
@@ -59,8 +68,17 @@ export default function LoginForm() {
       description="Sign in to access your Brancr tenant dashboard, manage conversations and automation."
     >
       <form className="space-y-4" onSubmit={handleSubmit}>
-        {error ? (
-          <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+        {error && isLocked ? (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 dark:bg-amber-900/20 dark:border-amber-800">
+            <div className="flex items-center gap-2">
+              <svg className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span className="text-sm font-medium text-amber-800 dark:text-amber-200">{error}</span>
+            </div>
+          </div>
+        ) : error ? (
+          <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-rose-900/20 dark:border-rose-800 dark:text-rose-200">{error}</p>
         ) : null}
 
         <div>
