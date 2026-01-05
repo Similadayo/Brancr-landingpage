@@ -259,8 +259,14 @@ export default function NewPostPage() {
 
       const response = await tenantApi.createPost(payload);
 
-      // Clear draft on success
+      // Clear draft on success - both server and local storage
       if (draft?.id) deleteDraft.mutate(draft.id);
+      // Clear all local draft storage to ensure fresh start on next post creation
+      try {
+        localStorage.removeItem(`drafts-local-content-${DRAFT_KEYS.POST_CREATE}`);
+        localStorage.removeItem(`drafts-local-${DRAFT_KEYS.POST_CREATE}`);
+        localStorage.removeItem(`drafts-outbox-${DRAFT_KEYS.POST_CREATE}`);
+      } catch (e) { /* ignore storage errors */ }
 
       // Invalidate queries to refresh the campaigns page
       void queryClient.invalidateQueries({ queryKey: ["scheduled-posts"] });
