@@ -759,58 +759,62 @@ export default function SettingsPage() {
   ]);
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Modern Hero Section */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-600 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
-        <div className="absolute inset-0 opacity-10 dark:opacity-20">
-          <div className="absolute inset-0 dark:hidden" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }} />
-          <div className="absolute inset-0 hidden dark:block" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.3) 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }} />
-        </div>
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-3">
-            <SettingsIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
-            <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Workspace Settings</h1>
+    <div className="fixed bottom-0 left-0 right-0 top-[80px] lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg">
+      <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-6 sm:py-8">
+        <div className="mx-auto max-w-7xl space-y-6">
+          {/* Modern Hero Section */}
+          <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-600 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
+            <div className="absolute inset-0 opacity-10 dark:opacity-20">
+              <div className="absolute inset-0 dark:hidden" style={{
+                backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+                backgroundSize: '40px 40px'
+              }} />
+              <div className="absolute inset-0 hidden dark:block" style={{
+                backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.3) 1px, transparent 0)`,
+                backgroundSize: '40px 40px'
+              }} />
+            </div>
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-3">
+                <SettingsIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
+                <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Workspace Settings</h1>
+              </div>
+              <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+                Manage your profile, channels, billing, notifications, and team
+              </p>
+            </div>
           </div>
-          <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
-            Manage your profile, channels, billing, notifications, and team
-          </p>
+
+          {/* Quick Summary */}
+          <div className="mt-4 md:mt-6">
+            <PersonaSummary />
+          </div>
+
+          {/* Tabs */}
+          <div className="rounded-xl border border-gray-200 bg-white p-2 shadow-sm">
+            <div className="flex flex-wrap gap-2">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${activeTab === tab.key
+                    ? "border-primary bg-primary text-white shadow-md"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary"
+                    }`}
+                >
+                  {tab.icon}
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Tab Content */}
+          <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            {renderTabContent}
+          </section>
         </div>
       </div>
-
-      {/* Quick Summary */}
-      <div className="mt-4 md:mt-6">
-        <PersonaSummary />
-      </div>
-
-      {/* Tabs */}
-      <div className="rounded-xl border border-gray-200 bg-white p-2 shadow-sm">
-        <div className="flex flex-wrap gap-2">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${activeTab === tab.key
-                ? "border-primary bg-primary text-white shadow-md"
-                : "border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary"
-                }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Tab Content */}
-      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        {renderTabContent}
-      </section>
     </div>
   );
 }

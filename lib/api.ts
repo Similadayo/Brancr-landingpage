@@ -600,6 +600,7 @@ export const tenantApi = {
     }>(`/api/tenant/analytics/performance${query}`);
   },
 
+
   // Templates CRUD endpoints
   templates: () =>
     get<{

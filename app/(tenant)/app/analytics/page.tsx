@@ -126,351 +126,355 @@ export default function AnalyticsPage() {
   }, [analytics]);
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Modern Hero Section */}
-      <div className="relative rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-600 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
-        <div className="absolute inset-0 opacity-10 dark:opacity-20">
-          <div className="absolute inset-0 dark:hidden" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }} />
-          <div className="absolute inset-0 hidden dark:block" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.3) 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }} />
-        </div>
-        <div className="relative z-10">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <ChartBarIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
-                <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Analytics & Insights</h1>
-              </div>
-              <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
-                Monitor messaging efficiency and channel health
-              </p>
+    <div className="fixed bottom-0 left-0 right-0 top-[80px] lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg">
+      <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-6 sm:py-8">
+        <div className="mx-auto max-w-7xl space-y-6">
+          {/* Modern Hero Section */}
+          <div className="relative rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-600 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
+            <div className="absolute inset-0 opacity-10 dark:opacity-20">
+              <div className="absolute inset-0 dark:hidden" style={{
+                backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+                backgroundSize: '40px 40px'
+              }} />
+              <div className="absolute inset-0 hidden dark:block" style={{
+                backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.3) 1px, transparent 0)`,
+                backgroundSize: '40px 40px'
+              }} />
             </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="relative">
-                <div className="flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-3 py-2 shadow-sm transition-all hover:border-white/50 hover:bg-white/20 sm:px-4 sm:py-2.5">
-                  <CalendarIcon className="h-4 w-4 text-white/90 flex-shrink-0" />
-                  <div className="w-36 sm:w-44 min-w-[144px] sm:min-w-[176px]">
-                    <Select
-                      value={dateFilter}
-                      onChange={(value) => setDateFilter(value || dateFilter)}
-                      searchable={false}
-                      buttonClassName="border-0 bg-transparent shadow-none px-0 py-0 text-xs sm:text-sm font-semibold text-white hover:text-white focus:ring-0 w-full"
-                      options={DATE_FILTERS.map((filter) => ({ value: filter, label: filter }))}
-                    />
+            <div className="relative z-10">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <ChartBarIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
+                    <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Analytics & Insights</h1>
                   </div>
+                  <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+                    Monitor messaging efficiency and channel health
+                  </p>
                 </div>
-              </div>
-              <div className="relative">
-                <div className="flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-3 py-2 shadow-sm transition-all hover:border-white/50 hover:bg-white/20 sm:px-4 sm:py-2.5">
-                  <FunnelIcon className="h-4 w-4 text-white/90 flex-shrink-0" />
-                  <div className="w-36 sm:w-44 min-w-[144px] sm:min-w-[176px]">
-                    <Select
-                      value={channelFilter}
-                      onChange={(value) => setChannelFilter(value || channelFilter)}
-                      searchable={false}
-                      buttonClassName="border-0 bg-transparent shadow-none px-0 py-0 text-xs sm:text-sm font-semibold text-white hover:text-white focus:ring-0 w-full"
-                      options={CHANNEL_FILTERS.map((filter) => ({ value: filter, label: filter }))}
-                    />
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="relative">
+                    <div className="flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-3 py-2 shadow-sm transition-all hover:border-white/50 hover:bg-white/20 sm:px-4 sm:py-2.5">
+                      <CalendarIcon className="h-4 w-4 text-white/90 flex-shrink-0" />
+                      <div className="w-36 sm:w-44 min-w-[144px] sm:min-w-[176px]">
+                        <Select
+                          value={dateFilter}
+                          onChange={(value) => setDateFilter(value || dateFilter)}
+                          searchable={false}
+                          buttonClassName="border-0 bg-transparent shadow-none px-0 py-0 text-xs sm:text-sm font-semibold text-white hover:text-white focus:ring-0 w-full"
+                          options={DATE_FILTERS.map((filter) => ({ value: filter, label: filter }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <div className="flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm px-3 py-2 shadow-sm transition-all hover:border-white/50 hover:bg-white/20 sm:px-4 sm:py-2.5">
+                      <FunnelIcon className="h-4 w-4 text-white/90 flex-shrink-0" />
+                      <div className="w-36 sm:w-44 min-w-[144px] sm:min-w-[176px]">
+                        <Select
+                          value={channelFilter}
+                          onChange={(value) => setChannelFilter(value || channelFilter)}
+                          searchable={false}
+                          buttonClassName="border-0 bg-transparent shadow-none px-0 py-0 text-xs sm:text-sm font-semibold text-white hover:text-white focus:ring-0 w-full"
+                          options={CHANNEL_FILTERS.map((filter) => ({ value: filter, label: filter }))}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+            </div>
+          ) : error ? (
+            <div className="rounded-xl border border-rose-200 bg-rose-50 p-8 text-center">
+              <ChartBarIcon className="mx-auto h-12 w-12 text-rose-400" />
+              <p className="mt-3 text-sm font-semibold text-rose-900">
+                {getUserFriendlyErrorMessage(error, {
+                  action: 'loading analytics',
+                  resource: 'analytics',
+                }) || ErrorMessages.analytics.load}
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 text-xs text-rose-700 hover:text-rose-900 underline"
+              >
+                Refresh page
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* KPI Cards */}
+              <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {kpiCards.map((kpi, index) => (
+                  <div
+                    key={index}
+                    className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-wider text-gray-500">{kpi.label}</p>
+                        <p className="mt-2 text-3xl font-bold text-gray-900">
+                          {isEmpty ? (
+                            <span className="text-gray-300">—</span>
+                          ) : (
+                            kpi.value.toLocaleString()
+                          )}
+                        </p>
+                        <p className="mt-2 text-xs text-gray-500">{kpi.description}</p>
+                      </div>
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${kpi.color} transition group-hover:scale-110`}>
+                        {kpi.icon}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </section>
+
+              {/* Engagement Metrics Section */}
+              <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingUpIcon className="h-5 w-5 text-gray-400" />
+                  <h2 className="text-lg font-semibold text-gray-900">Engagement Metrics</h2>
+                </div>
+                <p className="mb-6 text-xs text-gray-500">
+                  Performance metrics across all published posts
+                </p>
+                {(() => {
+                  // Debug logging
+                  const hasEngagement = !!analytics?.engagement;
+                  const postsWithAnalytics = analytics?.engagement?.posts_with_analytics ?? 0;
+                  const shouldShow = hasEngagement && postsWithAnalytics > 0;
+
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log('[AnalyticsPage] Engagement Metrics:', {
+                      hasEngagement,
+                      postsWithAnalytics,
+                      shouldShow,
+                      engagement: analytics?.engagement,
+                    });
+                  }
+
+                  return shouldShow ? (
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                        <p className="text-xs font-medium text-gray-500 mb-1">Total Impressions</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {analytics.engagement.total_impressions.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {analytics.engagement.posts_with_analytics} posts
+                        </p>
+                      </div>
+                      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                        <p className="text-xs font-medium text-gray-500 mb-1">Total Reach</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {analytics.engagement.total_reach.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">Unique accounts</p>
+                      </div>
+                      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                        <p className="text-xs font-medium text-gray-500 mb-1">Avg Engagement Rate</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {analytics.engagement.avg_engagement_rate.toFixed(2)}%
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">Across all posts</p>
+                      </div>
+                      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                        <p className="text-xs font-medium text-gray-500 mb-1">Total Likes</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {analytics.engagement.total_likes.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                        <p className="text-xs font-medium text-gray-500 mb-1">Total Comments</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {analytics.engagement.total_comments.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                        <p className="text-xs font-medium text-gray-500 mb-1">Total Shares</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {analytics.engagement.total_shares.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <EmptyState
+                      message="No engagement data available yet"
+                      hint="Engagement metrics will appear after your posts receive views, likes, and comments"
+                    />
+                  );
+                })()}
+              </section>
+
+              {/* Charts Section */}
+              <section className="grid gap-6 lg:grid-cols-2">
+                {/* Volume by Channel */}
+                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-center gap-2 mb-4">
+                    <TrendingUpIcon className="h-5 w-5 text-gray-400" />
+                    <h2 className="text-lg font-semibold text-gray-900">Volume by Channel</h2>
+                  </div>
+                  <p className="mb-6 text-xs text-gray-500">
+                    Percentage distribution of connected channels
+                  </p>
+                  {analytics?.volume_by_channel?.has_data && activeChannels.length > 0 ? (
+                    <div className="space-y-4">
+                      {activeChannels.map((channel) => (
+                        <div key={channel.platform} className="space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-semibold text-gray-900 capitalize">{channel.platform}</span>
+                            <span className="text-gray-500">{channel.count} conversations</span>
+                          </div>
+                          <div className="h-2.5 rounded-full bg-gray-100">
+                            <div
+                              className="h-2.5 rounded-full bg-primary transition-all"
+                              style={{ width: `${channel.percentage}%` }}
+                              aria-hidden
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState
+                      message="No channel data available"
+                      hint="Connect channels and start conversations to see data"
+                    />
+                  )}
+                </div>
+
+                {/* Response Distribution */}
+                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-center gap-2 mb-4">
+                    <ChartBarIcon className="h-5 w-5 text-gray-400" />
+                    <h2 className="text-lg font-semibold text-gray-900">Response Distribution</h2>
+                  </div>
+                  <p className="mb-6 text-xs text-gray-500">Breakdown of response types across conversations</p>
+                  {responseDistribution.length > 0 ? (
+                    <div className="flex items-center gap-6">
+                      <div className="relative h-40 w-40 shrink-0">
+                        {(() => {
+                          const total = responseDistribution.reduce((sum, r) => sum + r.value, 0);
+                          let acc = 0;
+                          const slices = responseDistribution.map((r) => {
+                            const start = acc / (total || 1);
+                            acc += r.value;
+                            const end = acc / (total || 1);
+                            return `${r.color} ${start * 360}deg ${end * 360}deg`;
+                          });
+                          const bg = `conic-gradient(${slices.join(", ") || "#e5e7eb 0deg 360deg"})`;
+                          return <div className="h-full w-full rounded-full" style={{ background: bg }} />;
+                        })()}
+                        <div className="absolute inset-6 rounded-full bg-white" />
+                      </div>
+                      <div className="flex-1 space-y-2 text-xs text-gray-600">
+                        {responseDistribution.map((r) => (
+                          <div key={r.label} className="flex items-center justify-between">
+                            <span className="flex items-center gap-2">
+                              <span
+                                className="inline-block h-2.5 w-2.5 rounded-full"
+                                style={{ background: r.color }}
+                              />
+                              {r.label}
+                            </span>
+                            <span className="font-semibold text-gray-900">{r.value.toFixed(1)}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <EmptyState
+                      message="No response data available"
+                      hint="Response distribution will appear after conversations are handled"
+                    />
+                  )}
+                </div>
+              </section>
+
+              {/* Response Time Distribution & Platform Comparison */}
+              <section className="grid gap-6 lg:grid-cols-2">
+                {/* Response Time Distribution */}
+                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-center gap-2 mb-4">
+                    <ClockIcon className="h-5 w-5 text-gray-400" />
+                    <h2 className="text-lg font-semibold text-gray-900">Response Time Distribution</h2>
+                  </div>
+                  <p className="mb-6 text-xs text-gray-500">
+                    Time between inbound messages and first reply (Real data from actual conversations)
+                  </p>
+                  {analytics?.response_time_distribution?.has_data && responseTimeSegments.length > 0 ? (
+                    <div className="grid gap-3">
+                      {responseTimeSegments.map((segment) => (
+                        <div
+                          key={segment.key}
+                          className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="h-3 w-3 rounded-full"
+                              style={{ backgroundColor: segment.color }}
+                            />
+                            <span className="text-sm text-gray-700">{segment.label}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-gray-900">{segment.percentage.toFixed(1)}%</span>
+                            <span className="text-xs text-gray-500">({segment.count})</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState
+                      message="No response time data available yet"
+                      hint="Response times will appear after you start replying to messages"
+                    />
+                  )}
+                </div>
+
+                {/* Platform Comparison */}
+                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-center gap-2 mb-4">
+                    <TrendingUpIcon className="h-5 w-5 text-gray-400" />
+                    <h2 className="text-lg font-semibold text-gray-900">Platform Comparison</h2>
+                  </div>
+                  <p className="mb-6 text-xs text-gray-500">Conversation volume by platform</p>
+                  {activePlatforms.length > 0 ? (
+                    <div className="space-y-3">
+                      {activePlatforms.map((platform) => (
+                        <div key={platform.platform} className="space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-semibold text-gray-900 capitalize">{platform.platform}</span>
+                            <span className="text-gray-500">
+                              {platform.conversations} conversations
+                              {platform.posts > 0 && ` • ${platform.posts} posts`}
+                            </span>
+                          </div>
+                          {platform.engagement_rate > 0 && (
+                            <div className="text-xs text-gray-600">
+                              Engagement Rate: {platform.engagement_rate.toFixed(2)}%
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState
+                      message="No platform data"
+                      hint="Start conversations or post content to see platform metrics"
+                    />
+                  )}
+                </div>
+              </section>
+            </>
+          )}
         </div>
       </div>
-
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
-        </div>
-      ) : error ? (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-8 text-center">
-          <ChartBarIcon className="mx-auto h-12 w-12 text-rose-400" />
-          <p className="mt-3 text-sm font-semibold text-rose-900">
-            {getUserFriendlyErrorMessage(error, {
-              action: 'loading analytics',
-              resource: 'analytics',
-            }) || ErrorMessages.analytics.load}
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 text-xs text-rose-700 hover:text-rose-900 underline"
-          >
-            Refresh page
-          </button>
-        </div>
-      ) : (
-        <>
-          {/* KPI Cards */}
-          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {kpiCards.map((kpi, index) => (
-              <div
-                key={index}
-                className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wider text-gray-500">{kpi.label}</p>
-                    <p className="mt-2 text-3xl font-bold text-gray-900">
-                      {isEmpty ? (
-                        <span className="text-gray-300">—</span>
-                      ) : (
-                        kpi.value.toLocaleString()
-                      )}
-                    </p>
-                    <p className="mt-2 text-xs text-gray-500">{kpi.description}</p>
-                  </div>
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${kpi.color} transition group-hover:scale-110`}>
-                    {kpi.icon}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </section>
-
-          {/* Engagement Metrics Section */}
-          <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingUpIcon className="h-5 w-5 text-gray-400" />
-              <h2 className="text-lg font-semibold text-gray-900">Engagement Metrics</h2>
-            </div>
-            <p className="mb-6 text-xs text-gray-500">
-              Performance metrics across all published posts
-            </p>
-            {(() => {
-              // Debug logging
-              const hasEngagement = !!analytics?.engagement;
-              const postsWithAnalytics = analytics?.engagement?.posts_with_analytics ?? 0;
-              const shouldShow = hasEngagement && postsWithAnalytics > 0;
-
-              if (process.env.NODE_ENV === 'development') {
-                console.log('[AnalyticsPage] Engagement Metrics:', {
-                  hasEngagement,
-                  postsWithAnalytics,
-                  shouldShow,
-                  engagement: analytics?.engagement,
-                });
-              }
-
-              return shouldShow ? (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                    <p className="text-xs font-medium text-gray-500 mb-1">Total Impressions</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {analytics.engagement.total_impressions.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {analytics.engagement.posts_with_analytics} posts
-                    </p>
-                  </div>
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                    <p className="text-xs font-medium text-gray-500 mb-1">Total Reach</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {analytics.engagement.total_reach.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">Unique accounts</p>
-                  </div>
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                    <p className="text-xs font-medium text-gray-500 mb-1">Avg Engagement Rate</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {analytics.engagement.avg_engagement_rate.toFixed(2)}%
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">Across all posts</p>
-                  </div>
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                    <p className="text-xs font-medium text-gray-500 mb-1">Total Likes</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {analytics.engagement.total_likes.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                    <p className="text-xs font-medium text-gray-500 mb-1">Total Comments</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {analytics.engagement.total_comments.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                    <p className="text-xs font-medium text-gray-500 mb-1">Total Shares</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {analytics.engagement.total_shares.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <EmptyState
-                  message="No engagement data available yet"
-                  hint="Engagement metrics will appear after your posts receive views, likes, and comments"
-                />
-              );
-            })()}
-          </section>
-
-          {/* Charts Section */}
-          <section className="grid gap-6 lg:grid-cols-2">
-            {/* Volume by Channel */}
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <TrendingUpIcon className="h-5 w-5 text-gray-400" />
-                <h2 className="text-lg font-semibold text-gray-900">Volume by Channel</h2>
-              </div>
-              <p className="mb-6 text-xs text-gray-500">
-                Percentage distribution of connected channels
-              </p>
-              {analytics?.volume_by_channel?.has_data && activeChannels.length > 0 ? (
-                <div className="space-y-4">
-                  {activeChannels.map((channel) => (
-                    <div key={channel.platform} className="space-y-2">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-gray-900 capitalize">{channel.platform}</span>
-                        <span className="text-gray-500">{channel.count} conversations</span>
-                      </div>
-                      <div className="h-2.5 rounded-full bg-gray-100">
-                        <div
-                          className="h-2.5 rounded-full bg-primary transition-all"
-                          style={{ width: `${channel.percentage}%` }}
-                          aria-hidden
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <EmptyState
-                  message="No channel data available"
-                  hint="Connect channels and start conversations to see data"
-                />
-              )}
-            </div>
-
-            {/* Response Distribution */}
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <ChartBarIcon className="h-5 w-5 text-gray-400" />
-                <h2 className="text-lg font-semibold text-gray-900">Response Distribution</h2>
-              </div>
-              <p className="mb-6 text-xs text-gray-500">Breakdown of response types across conversations</p>
-              {responseDistribution.length > 0 ? (
-                <div className="flex items-center gap-6">
-                  <div className="relative h-40 w-40 shrink-0">
-                    {(() => {
-                      const total = responseDistribution.reduce((sum, r) => sum + r.value, 0);
-                      let acc = 0;
-                      const slices = responseDistribution.map((r) => {
-                        const start = acc / (total || 1);
-                        acc += r.value;
-                        const end = acc / (total || 1);
-                        return `${r.color} ${start * 360}deg ${end * 360}deg`;
-                      });
-                      const bg = `conic-gradient(${slices.join(", ") || "#e5e7eb 0deg 360deg"})`;
-                      return <div className="h-full w-full rounded-full" style={{ background: bg }} />;
-                    })()}
-                    <div className="absolute inset-6 rounded-full bg-white" />
-                  </div>
-                  <div className="flex-1 space-y-2 text-xs text-gray-600">
-                    {responseDistribution.map((r) => (
-                      <div key={r.label} className="flex items-center justify-between">
-                        <span className="flex items-center gap-2">
-                          <span
-                            className="inline-block h-2.5 w-2.5 rounded-full"
-                            style={{ background: r.color }}
-                          />
-                          {r.label}
-                        </span>
-                        <span className="font-semibold text-gray-900">{r.value.toFixed(1)}%</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <EmptyState
-                  message="No response data available"
-                  hint="Response distribution will appear after conversations are handled"
-                />
-              )}
-            </div>
-          </section>
-
-          {/* Response Time Distribution & Platform Comparison */}
-          <section className="grid gap-6 lg:grid-cols-2">
-            {/* Response Time Distribution */}
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <ClockIcon className="h-5 w-5 text-gray-400" />
-                <h2 className="text-lg font-semibold text-gray-900">Response Time Distribution</h2>
-              </div>
-              <p className="mb-6 text-xs text-gray-500">
-                Time between inbound messages and first reply (Real data from actual conversations)
-              </p>
-              {analytics?.response_time_distribution?.has_data && responseTimeSegments.length > 0 ? (
-                <div className="grid gap-3">
-                  {responseTimeSegments.map((segment) => (
-                    <div
-                      key={segment.key}
-                      className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="h-3 w-3 rounded-full"
-                          style={{ backgroundColor: segment.color }}
-                        />
-                        <span className="text-sm text-gray-700">{segment.label}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-gray-900">{segment.percentage.toFixed(1)}%</span>
-                        <span className="text-xs text-gray-500">({segment.count})</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <EmptyState
-                  message="No response time data available yet"
-                  hint="Response times will appear after you start replying to messages"
-                />
-              )}
-            </div>
-
-            {/* Platform Comparison */}
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <TrendingUpIcon className="h-5 w-5 text-gray-400" />
-                <h2 className="text-lg font-semibold text-gray-900">Platform Comparison</h2>
-              </div>
-              <p className="mb-6 text-xs text-gray-500">Conversation volume by platform</p>
-              {activePlatforms.length > 0 ? (
-                <div className="space-y-3">
-                  {activePlatforms.map((platform) => (
-                    <div key={platform.platform} className="space-y-2">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-gray-900 capitalize">{platform.platform}</span>
-                        <span className="text-gray-500">
-                          {platform.conversations} conversations
-                          {platform.posts > 0 && ` • ${platform.posts} posts`}
-                        </span>
-                      </div>
-                      {platform.engagement_rate > 0 && (
-                        <div className="text-xs text-gray-600">
-                          Engagement Rate: {platform.engagement_rate.toFixed(2)}%
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <EmptyState
-                  message="No platform data"
-                  hint="Start conversations or post content to see platform metrics"
-                />
-              )}
-            </div>
-          </section>
-        </>
-      )}
     </div>
   );
 }

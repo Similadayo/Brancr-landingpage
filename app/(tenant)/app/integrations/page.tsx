@@ -302,447 +302,451 @@ export default function IntegrationsPage() {
   const selectedPlatformData = selectedPlatform ? platformsWithData.find(p => p.platform === selectedPlatform) : null;
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Header */}
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-3 sm:gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 text-white shadow-md sm:h-12 sm:w-12">
-            <LinkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Social & Messaging Connections</h1>
-            <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-300 sm:text-sm">
-              Link Meta, TikTok, and Telegram accounts to automate content, messaging, and analytics in Brancr.
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <Link
-            href="/app/integrations/history"
-            className="btn-secondary w-full sm:w-auto justify-center"
-          >
-            View audit log
-          </Link>
-          <TelegramConnectButton
-            variant="solid"
-            tenantId={tenantId}
-            className="w-full sm:w-auto justify-center"
-          >
-            Launch Telegram assistant
-          </TelegramConnectButton>
-        </div>
-      </header>
-
-      {/* Important WhatsApp notice */}
-      <div className="rounded-xl border border-warning-200 bg-warning-50 p-4 dark:border-warning-800 dark:bg-warning-900/20">
-        <div className="flex items-start gap-3">
-          <AlertIcon className="h-5 w-5 shrink-0 text-warning-600 dark:text-warning-400 mt-0.5" />
-          <div className="min-w-0 flex-1">
-            <p className="flex items-center gap-2 text-sm font-semibold text-warning-900 dark:text-warning-100">
-              <AlertIcon className="h-4 w-4" />
-              Important: WhatsApp number usage
-            </p>
-            <p className="mt-1.5 text-xs text-warning-700 dark:text-warning-300 sm:text-sm">
-              Once connected, this number cannot be used on the WhatsApp mobile app — messages will appear exclusively inside the Brancr Dashboard. If the number is currently registered on your phone, delete the account, wait 3 minutes, then connect. Or use a new number not previously associated with WhatsApp.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* DEV: Show session debug for troubleshooting transient auth issues */}
-      <SessionDebug userData={userData} />
-
-      {/* Connection Stepper Modal */}
-      {showStepper && selectedPlatform && selectedPlatformData && (
-        <div className="modal-overlay" onClick={() => {
-          setShowStepper(false);
-          setSelectedPlatform(null);
-          setConnectionStep('select');
-        }}>
-          <div className="modal-content animate-scale-in w-full max-w-2xl mx-4 sm:mx-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Connect {selectedPlatformData.name}</h2>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">Follow these steps to connect your account</p>
+    <div className="fixed bottom-0 left-0 right-0 top-[80px] lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg">
+      <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-6 sm:py-8">
+        <div className="mx-auto max-w-7xl space-y-6">
+          {/* Header */}
+          <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-500 to-accent-600 text-white shadow-md sm:h-12 sm:w-12">
+                <LinkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowStepper(false);
-                  setSelectedPlatform(null);
-                  setConnectionStep('select');
-                }}
-                className="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-                aria-label="Close modal"
-              >
-                <XIcon className="h-5 w-5" />
-              </button>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Social & Messaging Connections</h1>
+                <p className="mt-1.5 text-xs text-gray-600 dark:text-gray-300 sm:text-sm">
+                  Link Meta, TikTok, and Telegram accounts to automate content, messaging, and analytics in Brancr.
+                </p>
+              </div>
             </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Link
+                href="/app/integrations/history"
+                className="btn-secondary w-full sm:w-auto justify-center"
+              >
+                View audit log
+              </Link>
+              <TelegramConnectButton
+                variant="solid"
+                tenantId={tenantId}
+                className="w-full sm:w-auto justify-center"
+              >
+                Launch Telegram assistant
+              </TelegramConnectButton>
+            </div>
+          </header>
 
-            {/* Stepper Progress */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between">
-                {[
-                  { key: 'requirements', label: 'Requirements' },
-                  { key: 'connect', label: 'Connect' },
-                  { key: 'verify', label: 'Verify' },
-                ].map((step, index) => {
-                  const stepKey = step.key as ConnectionStep;
-                  const isActive = connectionStep === stepKey;
-                  // Define step order for comparison
-                  const stepOrder: ConnectionStep[] = ['requirements', 'connect', 'verify'];
-                  const currentStepIndex = stepOrder.indexOf(connectionStep);
-                  const isCompleted = currentStepIndex > index;
-                  const isAccessible = index === 0 || currentStepIndex >= index;
+          {/* Important WhatsApp notice */}
+          <div className="rounded-xl border border-warning-200 bg-warning-50 p-4 dark:border-warning-800 dark:bg-warning-900/20">
+            <div className="flex items-start gap-3">
+              <AlertIcon className="h-5 w-5 shrink-0 text-warning-600 dark:text-warning-400 mt-0.5" />
+              <div className="min-w-0 flex-1">
+                <p className="flex items-center gap-2 text-sm font-semibold text-warning-900 dark:text-warning-100">
+                  <AlertIcon className="h-4 w-4" />
+                  Important: WhatsApp number usage
+                </p>
+                <p className="mt-1.5 text-xs text-warning-700 dark:text-warning-300 sm:text-sm">
+                  Once connected, this number cannot be used on the WhatsApp mobile app — messages will appear exclusively inside the Brancr Dashboard. If the number is currently registered on your phone, delete the account, wait 3 minutes, then connect. Or use a new number not previously associated with WhatsApp.
+                </p>
+              </div>
+            </div>
+          </div>
 
-                  return (
-                    <div key={step.key} className="flex flex-1 items-center">
-                      <div className="flex flex-col items-center">
-                        <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition ${isCompleted
-                            ? 'border-success-500 bg-success-500 text-white'
-                            : isActive
-                              ? 'border-accent-500 bg-accent-500 text-white dark:bg-white dark:text-gray-100 dark:border-white'
-                              : isAccessible
-                                ? 'border-gray-300 bg-white text-gray-400 dark:border-gray-600 dark:bg-gray-700'
-                                : 'border-gray-200 bg-gray-50 text-gray-300 dark:border-gray-600 dark:bg-gray-700/50'
-                            }`}
-                        >
-                          {isCompleted ? (
-                            <CheckCircleIcon className="h-5 w-5" />
-                          ) : (
-                            <span className="text-sm font-semibold">{index + 1}</span>
+          {/* DEV: Show session debug for troubleshooting transient auth issues */}
+          <SessionDebug userData={userData} />
+
+          {/* Connection Stepper Modal */}
+          {showStepper && selectedPlatform && selectedPlatformData && (
+            <div className="modal-overlay" onClick={() => {
+              setShowStepper(false);
+              setSelectedPlatform(null);
+              setConnectionStep('select');
+            }}>
+              <div className="modal-content animate-scale-in w-full max-w-2xl mx-4 sm:mx-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="mb-6 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Connect {selectedPlatformData.name}</h2>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">Follow these steps to connect your account</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowStepper(false);
+                      setSelectedPlatform(null);
+                      setConnectionStep('select');
+                    }}
+                    className="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                    aria-label="Close modal"
+                  >
+                    <XIcon className="h-5 w-5" />
+                  </button>
+                </div>
+
+                {/* Stepper Progress */}
+                <div className="mb-8">
+                  <div className="flex items-center justify-between">
+                    {[
+                      { key: 'requirements', label: 'Requirements' },
+                      { key: 'connect', label: 'Connect' },
+                      { key: 'verify', label: 'Verify' },
+                    ].map((step, index) => {
+                      const stepKey = step.key as ConnectionStep;
+                      const isActive = connectionStep === stepKey;
+                      // Define step order for comparison
+                      const stepOrder: ConnectionStep[] = ['requirements', 'connect', 'verify'];
+                      const currentStepIndex = stepOrder.indexOf(connectionStep);
+                      const isCompleted = currentStepIndex > index;
+                      const isAccessible = index === 0 || currentStepIndex >= index;
+
+                      return (
+                        <div key={step.key} className="flex flex-1 items-center">
+                          <div className="flex flex-col items-center">
+                            <div
+                              className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition ${isCompleted
+                                ? 'border-success-500 bg-success-500 text-white'
+                                : isActive
+                                  ? 'border-accent-500 bg-accent-500 text-white dark:bg-white dark:text-gray-100 dark:border-white'
+                                  : isAccessible
+                                    ? 'border-gray-300 bg-white text-gray-400 dark:border-gray-600 dark:bg-gray-700'
+                                    : 'border-gray-200 bg-gray-50 text-gray-300 dark:border-gray-600 dark:bg-gray-700/50'
+                                }`}
+                            >
+                              {isCompleted ? (
+                                <CheckCircleIcon className="h-5 w-5" />
+                              ) : (
+                                <span className="text-sm font-semibold">{index + 1}</span>
+                              )}
+                            </div>
+                            <p className={`mt-2 text-xs font-medium ${isActive ? 'text-accent-600 dark:text-accent-400' : 'text-gray-500 dark:text-gray-300'}`}>
+                              {step.label}
+                            </p>
+                          </div>
+                          {index < 2 && (
+                            <div className={`mx-2 h-0.5 flex-1 ${isCompleted ? 'bg-success-500' : 'bg-gray-200 dark:bg-gray-700'}`} />
                           )}
                         </div>
-                        <p className={`mt-2 text-xs font-medium ${isActive ? 'text-accent-600 dark:text-accent-400' : 'text-gray-500 dark:text-gray-300'}`}>
-                          {step.label}
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Step Content */}
+                <div className="min-h-[300px]">
+                  {connectionStep === 'requirements' && (
+                    <div className="space-y-6">
+                      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-600 dark:bg-gray-700/50">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Requirements</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                          {PLATFORM_REQUIREMENTS[selectedPlatform]}
+                        </p>
+                        {GUIDE_LINKS[selectedPlatform] && (
+                          <Link
+                            href={GUIDE_LINKS[selectedPlatform].href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:text-accent/80 transition-colors"
+                          >
+                            {GUIDE_LINKS[selectedPlatform].label}
+                            <ChevronRightIcon className="h-4 w-4" />
+                          </Link>
+                        )}
+                      </div>
+                      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                        <button
+                          onClick={() => {
+                            setShowStepper(false);
+                            setSelectedPlatform(null);
+                            setConnectionStep('select');
+                          }}
+                          className="btn-secondary"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (selectedPlatform === 'telegram') {
+                              window.open('https://t.me/brancrbot', '_blank');
+                              setShowStepper(false);
+                              setSelectedPlatform(null);
+                              setConnectionStep('select');
+                            } else if (selectedPlatform === 'instagram') {
+                              handleConnect(selectedPlatform, undefined, true);
+                            } else {
+                              handleConnect(selectedPlatform);
+                            }
+                          }}
+                          disabled={isConnecting === selectedPlatform || !tenantId}
+                          className="btn-primary"
+                        >
+                          {isConnecting === selectedPlatform ? 'Connecting...' : 'Continue to Connect'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {connectionStep === 'connect' && (
+                    <div className="space-y-6">
+                      <div className="rounded-xl border border-info-200 bg-info-50 p-5 dark:border-info-800 dark:bg-info-900/20">
+                        <p className="text-sm font-semibold text-info-900 dark:text-info-100">Redirecting...</p>
+                        <p className="mt-2 text-sm text-info-700 dark:text-info-300">
+                          You&apos;ll be redirected to {selectedPlatformData.name} to authorize the connection. Once complete, you&apos;ll be brought back here.
                         </p>
                       </div>
-                      {index < 2 && (
-                        <div className={`mx-2 h-0.5 flex-1 ${isCompleted ? 'bg-success-500' : 'bg-gray-200 dark:bg-gray-700'}`} />
-                      )}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Step Content */}
-            <div className="min-h-[300px]">
-              {connectionStep === 'requirements' && (
-                <div className="space-y-6">
-                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-600 dark:bg-gray-700/50">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Requirements</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                      {PLATFORM_REQUIREMENTS[selectedPlatform]}
-                    </p>
-                    {GUIDE_LINKS[selectedPlatform] && (
-                      <Link
-                        href={GUIDE_LINKS[selectedPlatform].href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:text-accent/80 transition-colors"
-                      >
-                        {GUIDE_LINKS[selectedPlatform].label}
-                        <ChevronRightIcon className="h-4 w-4" />
-                      </Link>
-                    )}
-                  </div>
-                  <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                    <button
-                      onClick={() => {
-                        setShowStepper(false);
-                        setSelectedPlatform(null);
-                        setConnectionStep('select');
-                      }}
-                      className="btn-secondary"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (selectedPlatform === 'telegram') {
-                          window.open('https://t.me/brancrbot', '_blank');
-                          setShowStepper(false);
-                          setSelectedPlatform(null);
-                          setConnectionStep('select');
-                        } else if (selectedPlatform === 'instagram') {
-                          handleConnect(selectedPlatform, undefined, true);
-                        } else {
-                          handleConnect(selectedPlatform);
-                        }
-                      }}
-                      disabled={isConnecting === selectedPlatform || !tenantId}
-                      className="btn-primary"
-                    >
-                      {isConnecting === selectedPlatform ? 'Connecting...' : 'Continue to Connect'}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {connectionStep === 'connect' && (
-                <div className="space-y-6">
-                  <div className="rounded-xl border border-info-200 bg-info-50 p-5 dark:border-info-800 dark:bg-info-900/20">
-                    <p className="text-sm font-semibold text-info-900 dark:text-info-100">Redirecting...</p>
-                    <p className="mt-2 text-sm text-info-700 dark:text-info-300">
-                      You&apos;ll be redirected to {selectedPlatformData.name} to authorize the connection. Once complete, you&apos;ll be brought back here.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Platforms Grid */}
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-accent/20 border-t-accent" />
-        </div>
-      ) : error ? (
-        <div className="card p-8 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-error-100 dark:bg-error-900/30">
-            <XIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
-          </div>
-          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load integrations</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{error.message}</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {platformsWithData.map(({ platform, name, connected, updatedAt, integration }) => {
-            const statusKey = connected ? "connected" : "not_connected";
-            const status = STATUS_MAP[statusKey];
-            const isDisconnecting = disconnectingPlatform === platform;
-            const isWhatsApp = platform === "whatsapp";
-            const guide = GUIDE_LINKS[platform];
-
-            return (
-              <div key={platform} className="card p-5 sm:p-6">
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-base font-bold text-gray-900 dark:text-white sm:text-lg">
-                      {isWhatsApp ? "WhatsApp Business" : name}
-                    </h3>
-                    {isWhatsApp && connected && (
-                      <span className="mt-1.5 inline-block badge badge-primary text-[10px]">Brancr-Managed</span>
-                    )}
-                    {platform === "instagram" && connected && integration?.login_method === 'instagram_login' && (
-                      <span className="mt-1.5 inline-block badge badge-info text-[10px]">Instagram Login</span>
-                    )}
-                  </div>
-                  <span className={`badge ${status.badge} shrink-0 text-[10px]`}>
-                    {isWhatsApp && connected
-                      ? (whatsappCurrent?.phone_number || whatsappStatus?.phone_number || integration?.external_id || "Connected")
-                      : isWhatsApp && !connected
-                        ? "No Number Assigned"
-                        : status.label}
-                  </span>
-                </div>
-
-                {/* Platform Details */}
-                {platform === "facebook" && connected && integration?.page_name ? (
-                  <p className="mb-3 text-xs text-gray-500 dark:text-white">{integration.page_name}</p>
-                ) : platform === "instagram" && connected ? (
-                  <div className="mb-3 space-y-1">
-                    {integration?.instagram_handle ? (
-                      <p className="text-xs text-gray-500 dark:text-white">@{integration.instagram_handle}</p>
-                    ) : integration?.username ? (
-                      <p className="text-xs text-gray-500 dark:text-white">@{integration.username}</p>
-                    ) : null}
-                  </div>
-                ) : connected && integration?.username && !isWhatsApp ? (
-                  <p className="mb-3 text-xs text-gray-500 dark:text-white">@{integration.username}</p>
-                ) : null}
-
-                {/* Status Description */}
-                {!isWhatsApp && (
-                  <p className="mb-4 text-sm text-gray-600 dark:text-white">{status.description}</p>
-                )}
-
-                {/* Webhook Status */}
-                {connected && integration && "webhook_status" in integration && (
-                  <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700/50">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-300">Webhook</p>
-                    <div className="flex items-center gap-2">
-                      <span className={`h-2 w-2 rounded-full ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "bg-success-500" : "bg-warning-500"}`} aria-hidden />
-                      <p className={`text-sm font-semibold ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "text-success-700 dark:text-success-400" : "text-warning-700 dark:text-warning-400"}`}>
-                        {(integration as any).webhook_status ?? "unknown"}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* WhatsApp number selector */}
-                {isWhatsApp && (
-                  <div className="mb-4">
-                    <WhatsAppNumberSelector />
-                  </div>
-                )}
-
-
-                {/* Actions */}
-                <div className="flex flex-wrap gap-2">
-                  {isWhatsApp ? (
-                    <>
-                      {connected && (
-                        <button
-                          type="button"
-                          onClick={() => setShowDisconnectConfirmFor('whatsapp')}
-                          disabled={whatsappDisconnectMutation.isPending}
-                          className="btn-danger text-xs"
-                        >
-                          {whatsappDisconnectMutation.isPending ? "Disconnecting..." : "Disconnect"}
-                        </button>
-                      )}
-                      {guide && (
-                        <Link
-                          href={guide.href}
-                          className="btn-secondary text-xs"
-                        >
-                          {guide.label}
-                        </Link>
-                      )}
-                    </>
-                  ) : connected ? (
-                    <>
-                      <button
-                        onClick={() => handleVerify(platform)}
-                        disabled={verifyMutation.isPending}
-                        className="btn-secondary text-xs"
-                      >
-                        {verifyMutation.isPending ? "Verifying..." : "Verify"}
-                      </button>
-                      <button
-                        onClick={() => handleDisconnect(platform)}
-                        disabled={isDisconnecting || disconnectMutation.isPending}
-                        className="btn-danger text-xs"
-                      >
-                        {isDisconnecting ? "Disconnecting..." : "Disconnect"}
-                      </button>
-                      {guide && (
-                        <Link
-                          href={guide.href}
-                          className="btn-secondary text-xs"
-                        >
-                          {guide.label}
-                        </Link>
-                      )}
-                    </>
-                  ) : platform === "telegram" ? (
-                    <>
-                      <TelegramConnectButton
-                        variant="solid"
-                        tenantId={tenantId}
-                        className="text-xs px-3 py-1.5 h-auto"
-                      >
-                        Open bot deep link
-                      </TelegramConnectButton>
-                      {guide && (
-                        <Link
-                          href={guide.href}
-                          className="btn-secondary text-xs"
-                        >
-                          {guide.label}
-                        </Link>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => startConnection(platform)}
-                        disabled={isConnecting === platform}
-                        title={!tenantId ? 'Sign in to connect channels' : undefined}
-                        className="btn-primary text-xs"
-                      >
-                        {isConnecting === platform ? "Connecting..." : "Connect"}
-                      </button>
-                      {guide && (
-                        <Link
-                          href={guide.href}
-                          className="btn-secondary text-xs"
-                        >
-                          {guide.label}
-                        </Link>
-                      )}
-                    </>
                   )}
                 </div>
-
-                {/* Helper text */}
-                {!isWhatsApp && (
-                  <p className="mt-3 text-xs text-gray-500 dark:text-white">{status.helper}</p>
-                )}
               </div>
-            );
-          })}
-        </div>
-      )}
+            </div>
+          )}
 
-      {/* Info Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
-        <div className="card p-5 sm:p-6">
-          <h3 className="text-base font-bold text-gray-900 dark:text-white sm:text-lg">Provider-Owned WhatsApp</h3>
-          <p className="mt-3 text-sm text-gray-600 dark:text-white">
-            Brancr manages your WhatsApp Business Account. Select a number from our pool or add your own number for verification.
-          </p>
-          <div className="mt-4 space-y-3 text-sm text-gray-600 dark:text-white">
-            <div className="flex items-start gap-3">
-              <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-success-500" aria-hidden />
-              <span>Brancr handles WhatsApp Business Account setup and billing</span>
+          {/* Platforms Grid */}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-accent/20 border-t-accent" />
             </div>
-            <div className="flex items-start gap-3">
-              <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-success-500" aria-hidden />
-              <span>Select from available numbers or verify your own number</span>
+          ) : error ? (
+            <div className="card p-8 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-error-100 dark:bg-error-900/30">
+                <XIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
+              </div>
+              <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Failed to load integrations</p>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{error.message}</p>
             </div>
-            <div className="flex items-start gap-3">
-              <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-success-500" aria-hidden />
-              <span>All WhatsApp usage charges appear on your Brancr invoice</span>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {platformsWithData.map(({ platform, name, connected, updatedAt, integration }) => {
+                const statusKey = connected ? "connected" : "not_connected";
+                const status = STATUS_MAP[statusKey];
+                const isDisconnecting = disconnectingPlatform === platform;
+                const isWhatsApp = platform === "whatsapp";
+                const guide = GUIDE_LINKS[platform];
+
+                return (
+                  <div key={platform} className="card p-5 sm:p-6">
+                    <div className="flex items-start justify-between gap-3 mb-4">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-base font-bold text-gray-900 dark:text-white sm:text-lg">
+                          {isWhatsApp ? "WhatsApp Business" : name}
+                        </h3>
+                        {isWhatsApp && connected && (
+                          <span className="mt-1.5 inline-block badge badge-primary text-[10px]">Brancr-Managed</span>
+                        )}
+                        {platform === "instagram" && connected && integration?.login_method === 'instagram_login' && (
+                          <span className="mt-1.5 inline-block badge badge-info text-[10px]">Instagram Login</span>
+                        )}
+                      </div>
+                      <span className={`badge ${status.badge} shrink-0 text-[10px]`}>
+                        {isWhatsApp && connected
+                          ? (whatsappCurrent?.phone_number || whatsappStatus?.phone_number || integration?.external_id || "Connected")
+                          : isWhatsApp && !connected
+                            ? "No Number Assigned"
+                            : status.label}
+                      </span>
+                    </div>
+
+                    {/* Platform Details */}
+                    {platform === "facebook" && connected && integration?.page_name ? (
+                      <p className="mb-3 text-xs text-gray-500 dark:text-white">{integration.page_name}</p>
+                    ) : platform === "instagram" && connected ? (
+                      <div className="mb-3 space-y-1">
+                        {integration?.instagram_handle ? (
+                          <p className="text-xs text-gray-500 dark:text-white">@{integration.instagram_handle}</p>
+                        ) : integration?.username ? (
+                          <p className="text-xs text-gray-500 dark:text-white">@{integration.username}</p>
+                        ) : null}
+                      </div>
+                    ) : connected && integration?.username && !isWhatsApp ? (
+                      <p className="mb-3 text-xs text-gray-500 dark:text-white">@{integration.username}</p>
+                    ) : null}
+
+                    {/* Status Description */}
+                    {!isWhatsApp && (
+                      <p className="mb-4 text-sm text-gray-600 dark:text-white">{status.description}</p>
+                    )}
+
+                    {/* Webhook Status */}
+                    {connected && integration && "webhook_status" in integration && (
+                      <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700/50">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-300">Webhook</p>
+                        <div className="flex items-center gap-2">
+                          <span className={`h-2 w-2 rounded-full ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "bg-success-500" : "bg-warning-500"}`} aria-hidden />
+                          <p className={`text-sm font-semibold ${((integration as any).webhook_status ?? "").toLowerCase() === "active" ? "text-success-700 dark:text-success-400" : "text-warning-700 dark:text-warning-400"}`}>
+                            {(integration as any).webhook_status ?? "unknown"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* WhatsApp number selector */}
+                    {isWhatsApp && (
+                      <div className="mb-4">
+                        <WhatsAppNumberSelector />
+                      </div>
+                    )}
+
+
+                    {/* Actions */}
+                    <div className="flex flex-wrap gap-2">
+                      {isWhatsApp ? (
+                        <>
+                          {connected && (
+                            <button
+                              type="button"
+                              onClick={() => setShowDisconnectConfirmFor('whatsapp')}
+                              disabled={whatsappDisconnectMutation.isPending}
+                              className="btn-danger text-xs"
+                            >
+                              {whatsappDisconnectMutation.isPending ? "Disconnecting..." : "Disconnect"}
+                            </button>
+                          )}
+                          {guide && (
+                            <Link
+                              href={guide.href}
+                              className="btn-secondary text-xs"
+                            >
+                              {guide.label}
+                            </Link>
+                          )}
+                        </>
+                      ) : connected ? (
+                        <>
+                          <button
+                            onClick={() => handleVerify(platform)}
+                            disabled={verifyMutation.isPending}
+                            className="btn-secondary text-xs"
+                          >
+                            {verifyMutation.isPending ? "Verifying..." : "Verify"}
+                          </button>
+                          <button
+                            onClick={() => handleDisconnect(platform)}
+                            disabled={isDisconnecting || disconnectMutation.isPending}
+                            className="btn-danger text-xs"
+                          >
+                            {isDisconnecting ? "Disconnecting..." : "Disconnect"}
+                          </button>
+                          {guide && (
+                            <Link
+                              href={guide.href}
+                              className="btn-secondary text-xs"
+                            >
+                              {guide.label}
+                            </Link>
+                          )}
+                        </>
+                      ) : platform === "telegram" ? (
+                        <>
+                          <TelegramConnectButton
+                            variant="solid"
+                            tenantId={tenantId}
+                            className="text-xs px-3 py-1.5 h-auto"
+                          >
+                            Open bot deep link
+                          </TelegramConnectButton>
+                          {guide && (
+                            <Link
+                              href={guide.href}
+                              className="btn-secondary text-xs"
+                            >
+                              {guide.label}
+                            </Link>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => startConnection(platform)}
+                            disabled={isConnecting === platform}
+                            title={!tenantId ? 'Sign in to connect channels' : undefined}
+                            className="btn-primary text-xs"
+                          >
+                            {isConnecting === platform ? "Connecting..." : "Connect"}
+                          </button>
+                          {guide && (
+                            <Link
+                              href={guide.href}
+                              className="btn-secondary text-xs"
+                            >
+                              {guide.label}
+                            </Link>
+                          )}
+                        </>
+                      )}
+                    </div>
+
+                    {/* Helper text */}
+                    {!isWhatsApp && (
+                      <p className="mt-3 text-xs text-gray-500 dark:text-white">{status.helper}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Info Cards */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
+            <div className="card p-5 sm:p-6">
+              <h3 className="text-base font-bold text-gray-900 dark:text-white sm:text-lg">Provider-Owned WhatsApp</h3>
+              <p className="mt-3 text-sm text-gray-600 dark:text-white">
+                Brancr manages your WhatsApp Business Account. Select a number from our pool or add your own number for verification.
+              </p>
+              <div className="mt-4 space-y-3 text-sm text-gray-600 dark:text-white">
+                <div className="flex items-start gap-3">
+                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-success-500" aria-hidden />
+                  <span>Brancr handles WhatsApp Business Account setup and billing</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-success-500" aria-hidden />
+                  <span>Select from available numbers or verify your own number</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-success-500" aria-hidden />
+                  <span>All WhatsApp usage charges appear on your Brancr invoice</span>
+                </div>
+              </div>
+            </div>
+            <div className="card p-5 sm:p-6">
+              <h3 className="text-base font-bold text-gray-900 dark:text-white sm:text-lg">Connection History</h3>
+              <p className="mt-3 text-sm text-gray-600 dark:text-white">
+                Brancr logs key integration events to help you audit onboarding.
+              </p>
+              <div className="mt-4 space-y-3">
+                {connectionHistory.slice(0, 2).map((entry) => (
+                  <div key={entry.id} className="rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700/50">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{entry.action}</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-white">{entry.at}</p>
+                  </div>
+                ))}
+                <Link
+                  href="/app/integrations/history"
+                  className="block rounded-xl border border-dashed border-gray-200 bg-gray-50 p-3 text-center text-xs text-gray-500 transition hover:border-accent hover:text-accent dark:border-gray-600 dark:bg-gray-700/50 dark:text-white dark:hover:border-accent"
+                >
+                  View full history →
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="card p-5 sm:p-6">
-          <h3 className="text-base font-bold text-gray-900 dark:text-white sm:text-lg">Connection History</h3>
-          <p className="mt-3 text-sm text-gray-600 dark:text-white">
-            Brancr logs key integration events to help you audit onboarding.
-          </p>
-          <div className="mt-4 space-y-3">
-            {connectionHistory.slice(0, 2).map((entry) => (
-              <div key={entry.id} className="rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700/50">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">{entry.action}</p>
-                <p className="mt-1 text-xs text-gray-500 dark:text-white">{entry.at}</p>
-              </div>
-            ))}
-            <Link
-              href="/app/integrations/history"
-              className="block rounded-xl border border-dashed border-gray-200 bg-gray-50 p-3 text-center text-xs text-gray-500 transition hover:border-accent hover:text-accent dark:border-gray-600 dark:bg-gray-700/50 dark:text-white dark:hover:border-accent"
-            >
-              View full history →
-            </Link>
-          </div>
+
+          {/* Disconnect Confirmation Modal */}
+          {showDisconnectConfirmFor && (
+            <ConfirmModal
+              open={true}
+              title={`Disconnect ${PLATFORM_NAMES[showDisconnectConfirmFor as string] || showDisconnectConfirmFor}`}
+              description={`Are you sure you want to disconnect ${PLATFORM_NAMES[showDisconnectConfirmFor as string] || showDisconnectConfirmFor}? This action cannot be undone.`}
+              confirmText="Disconnect"
+              onConfirm={() => {
+                const p = showDisconnectConfirmFor as string;
+                setShowDisconnectConfirmFor(null);
+                if (p === 'whatsapp') {
+                  whatsappDisconnectMutation.mutate();
+                } else {
+                  confirmDisconnect(p);
+                }
+              }}
+              onCancel={() => setShowDisconnectConfirmFor(null)}
+            />
+          )}
         </div>
       </div>
-
-      {/* Disconnect Confirmation Modal */}
-      {showDisconnectConfirmFor && (
-        <ConfirmModal
-          open={true}
-          title={`Disconnect ${PLATFORM_NAMES[showDisconnectConfirmFor as string] || showDisconnectConfirmFor}`}
-          description={`Are you sure you want to disconnect ${PLATFORM_NAMES[showDisconnectConfirmFor as string] || showDisconnectConfirmFor}? This action cannot be undone.`}
-          confirmText="Disconnect"
-          onConfirm={() => {
-            const p = showDisconnectConfirmFor as string;
-            setShowDisconnectConfirmFor(null);
-            if (p === 'whatsapp') {
-              whatsappDisconnectMutation.mutate();
-            } else {
-              confirmDisconnect(p);
-            }
-          }}
-          onCancel={() => setShowDisconnectConfirmFor(null)}
-        />
-      )}
     </div>
   );
 }

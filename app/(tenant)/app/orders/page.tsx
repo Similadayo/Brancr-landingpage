@@ -199,273 +199,277 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Modern Hero Section */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-600 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
-        <div className="absolute inset-0 opacity-10 dark:opacity-20">
-          <div className="absolute inset-0 dark:hidden" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }} />
-          <div className="absolute inset-0 hidden dark:block" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.3) 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }} />
-        </div>
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-3">
-            <PackageIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
-            <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Orders</h1>
-          </div>
-          <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
-            Manage customer orders from sales conversations
-          </p>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      {stats && (
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          <div className="stat-card group">
-            <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-info-400/20 to-info-500/20 blur-2xl transition-transform group-hover:scale-150" />
-            <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total Orders</p>
-              <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">{stats.total_orders}</p>
+    <div className="fixed bottom-0 left-0 right-0 top-[80px] lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg">
+      <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-6 sm:py-8">
+        <div className="mx-auto max-w-7xl space-y-6">
+          {/* Modern Hero Section */}
+          <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-primary via-primary/95 to-primary/90 p-6 shadow-xl dark:border-gray-600 dark:from-primary dark:via-primary/90 dark:to-primary/80 sm:p-8 md:p-10">
+            <div className="absolute inset-0 opacity-10 dark:opacity-20">
+              <div className="absolute inset-0 dark:hidden" style={{
+                backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+                backgroundSize: '40px 40px'
+              }} />
+              <div className="absolute inset-0 hidden dark:block" style={{
+                backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.3) 1px, transparent 0)`,
+                backgroundSize: '40px 40px'
+              }} />
             </div>
-          </div>
-          <div className="stat-card group">
-            <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-warning-400/20 to-warning-500/20 blur-2xl transition-transform group-hover:scale-150" />
-            <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Pending</p>
-              <p className="mt-2 text-2xl font-bold text-warning-600 dark:text-warning-400 sm:text-3xl">{stats.pending_orders}</p>
-            </div>
-          </div>
-          <div className="stat-card group">
-            <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-success-400/20 to-success-500/20 blur-2xl transition-transform group-hover:scale-150" />
-            <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Completed</p>
-              <p className="mt-2 text-2xl font-bold text-success-600 dark:text-success-400 sm:text-3xl">{stats.completed_orders}</p>
-            </div>
-          </div>
-          <div className="stat-card group col-span-2 lg:col-span-1">
-            <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-accent-400/20 to-accent-500/20 blur-2xl transition-transform group-hover:scale-150" />
-            <div className="relative">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total Revenue</p>
-              <p className="mt-2 text-xl font-bold text-gray-900 dark:text-gray-100 sm:text-2xl lg:text-3xl">
-                {stats.currency} {(stats.total_revenue ?? 0).toLocaleString()}
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-3">
+                <PackageIcon className="h-6 w-6 text-white/90 sm:h-7 sm:w-7" />
+                <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Orders</h1>
+              </div>
+              <p className="text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
+                Manage customer orders from sales conversations
               </p>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Unified Search and Filter Section */}
-      <div className="card p-4 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          {/* Search */}
-          <div className="search-bar flex-1 sm:max-w-md lg:max-w-lg">
-            <MagnifyingGlassIcon className="input-icon" aria-hidden="true" />
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by order number, customer name, or payment reference..."
-              className="search-input"
-            />
-          </div>
-
-          {/* Filters */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-3">
-              <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-400" />
-              <div className="flex-1 sm:flex-none sm:min-w-[180px]">
-                <Select
-                  value={activeFilter}
-                  onChange={(value) => handleFilterChange(value as string)}
-                  options={filterOptions.map(opt => ({ value: opt.value, label: opt.label }))}
-                  searchable={false}
-                />
+          {/* Stats Cards */}
+          {stats && (
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+              <div className="stat-card group">
+                <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-info-400/20 to-info-500/20 blur-2xl transition-transform group-hover:scale-150" />
+                <div className="relative">
+                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total Orders</p>
+                  <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">{stats.total_orders}</p>
+                </div>
               </div>
-              <div className="flex-1 sm:flex-none sm:min-w-[180px]">
-                <Select
-                  value={(platformFilter || "") as any}
-                  onChange={(value) => setPlatformFilter(value ? String(value) : undefined)}
-                  options={[
-                    { value: "", label: "All Platforms" },
-                    { value: "whatsapp", label: "WhatsApp" },
-                    { value: "instagram", label: "Instagram" },
-                    { value: "telegram", label: "Telegram" },
-                    { value: "facebook", label: "Facebook" },
-                  ]}
-                  searchable={false}
-                />
+              <div className="stat-card group">
+                <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-warning-400/20 to-warning-500/20 blur-2xl transition-transform group-hover:scale-150" />
+                <div className="relative">
+                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Pending</p>
+                  <p className="mt-2 text-2xl font-bold text-warning-600 dark:text-warning-400 sm:text-3xl">{stats.pending_orders}</p>
+                </div>
+              </div>
+              <div className="stat-card group">
+                <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-success-400/20 to-success-500/20 blur-2xl transition-transform group-hover:scale-150" />
+                <div className="relative">
+                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Completed</p>
+                  <p className="mt-2 text-2xl font-bold text-success-600 dark:text-success-400 sm:text-3xl">{stats.completed_orders}</p>
+                </div>
+              </div>
+              <div className="stat-card group col-span-2 lg:col-span-1">
+                <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-accent-400/20 to-accent-500/20 blur-2xl transition-transform group-hover:scale-150" />
+                <div className="relative">
+                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total Revenue</p>
+                  <p className="mt-2 text-xl font-bold text-gray-900 dark:text-gray-100 sm:text-2xl lg:text-3xl">
+                    {stats.currency} {(stats.total_revenue ?? 0).toLocaleString()}
+                  </p>
+                </div>
               </div>
             </div>
-            {(query || statusFilter || platformFilter) && (
-              <button
-                onClick={() => {
-                  setStatusFilter(undefined);
-                  setPlatformFilter(undefined);
-                  setQuery("");
-                }}
-                className="btn-ghost text-xs sm:text-sm w-full sm:w-auto"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+          )}
 
-      {/* Orders List */}
-      {isLoading ? (
-        <div className="space-y-4">
-          <div className="h-6 w-48 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-600" />
-          <div className="space-y-3">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-24 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-600" />
-            ))}
-          </div>
-        </div>
-      ) : error ? (
-        <div className="card p-12 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-error-100 dark:bg-error-900/30">
-            <XIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
-          </div>
-          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Failed to load orders</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-white">Please try refreshing the page</p>
-        </div>
-      ) : filteredOrders.length === 0 ? (
-        <div className="card p-12 text-center sm:p-16">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-600">
-            <PackageIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
-          </div>
-          <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">No orders found</p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-white">
-            {query || statusFilter || platformFilter
-              ? "Try adjusting your search or filters"
-              : "Orders will appear here when customers commit to purchase"}
-          </p>
-        </div>
-      ) : (
-        <div className="card overflow-hidden p-0">
-          <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-600 dark:bg-gray-700/50 sm:px-6 sm:py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <p className="text-xs font-semibold text-gray-900 dark:text-white sm:text-sm">Order List</p>
-                <span className="badge badge-gray text-[10px] sm:text-xs">{filteredOrders.length}</span>
+          {/* Unified Search and Filter Section */}
+          <div className="card p-4 sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              {/* Search */}
+              <div className="search-bar flex-1 sm:max-w-md lg:max-w-lg">
+                <MagnifyingGlassIcon className="input-icon" aria-hidden="true" />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search by order number, customer name, or payment reference..."
+                  className="search-input"
+                />
+              </div>
+
+              {/* Filters */}
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div className="flex items-center gap-3">
+                  <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-400" />
+                  <div className="flex-1 sm:flex-none sm:min-w-[180px]">
+                    <Select
+                      value={activeFilter}
+                      onChange={(value) => handleFilterChange(value as string)}
+                      options={filterOptions.map(opt => ({ value: opt.value, label: opt.label }))}
+                      searchable={false}
+                    />
+                  </div>
+                  <div className="flex-1 sm:flex-none sm:min-w-[180px]">
+                    <Select
+                      value={(platformFilter || "") as any}
+                      onChange={(value) => setPlatformFilter(value ? String(value) : undefined)}
+                      options={[
+                        { value: "", label: "All Platforms" },
+                        { value: "whatsapp", label: "WhatsApp" },
+                        { value: "instagram", label: "Instagram" },
+                        { value: "telegram", label: "Telegram" },
+                        { value: "facebook", label: "Facebook" },
+                      ]}
+                      searchable={false}
+                    />
+                  </div>
+                </div>
+                {(query || statusFilter || platformFilter) && (
+                  <button
+                    onClick={() => {
+                      setStatusFilter(undefined);
+                      setPlatformFilter(undefined);
+                      setQuery("");
+                    }}
+                    className="btn-ghost text-xs sm:text-sm w-full sm:w-auto"
+                  >
+                    Clear
+                  </button>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Desktop Table Header */}
-          <div className="hidden grid-cols-12 gap-3 border-b border-gray-200 bg-gray-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-300 md:grid lg:px-6">
-            <div className="col-span-3">Order</div>
-            <div className="col-span-3">Customer</div>
-            <div className="col-span-3">Payment Reference</div>
-            <div className="col-span-2 text-right">Amount</div>
-            <div className="col-span-1 text-right">Status</div>
-          </div>
-
-          <div className="divide-y divide-gray-100 dark:divide-gray-700">
-            {paginatedOrders.map((order) => {
-              const isNew = isNewOrder(order);
-              const autoCreated = isAutoCreated(order);
-              const itemCount = order.items?.length ?? 0;
-
-              return (
-                <Link
-                  key={order.id}
-                  href={`/app/orders/${order.id}`}
-                  className={`block px-4 py-4 transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/30 sm:px-6 ${isNew ? "bg-success-50/50 dark:bg-success-900/10" : ""}`}
-                >
-                  {/* Mobile View */}
-                  <div className="space-y-3 sm:hidden">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-base font-semibold text-gray-900 dark:text-white">{order.order_number}</p>
-                      {autoCreated && <span className="badge badge-info text-[10px]">Auto</span>}
-                      {isNew && <span className="badge badge-success text-[10px]">New</span>}
-                      <span className={`badge ${getStatusBadge(order.status)} text-[10px]`}>{order.status}</span>
-                      <span className="badge badge-gray text-[10px] capitalize">{order.platform}</span>
-                    </div>
-                    <div className="space-y-1.5">
-                      <p className="text-sm text-gray-600 dark:text-white">
-                        Customer: <span className="font-medium text-gray-900 dark:text-white">{order.customer_name}</span>
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-white">
-                        Items: <span className="font-medium text-gray-900 dark:text-white">{itemCount}</span>
-                      </p>
-                      <div onClick={(e) => e.preventDefault()}>
-                        <CopyToClipboard text={order.payment_reference} showLabel={false} className="text-xs" />
-                      </div>
-                    </div>
-                    <div className="flex items-end justify-between">
-                      <p className="text-lg font-bold text-gray-900 dark:text-white">
-                        {order.currency} {(order.total_amount ?? 0).toLocaleString()}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-white">
-                        {new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                      </p>
-                    </div>
+          {/* Orders List */}
+          {isLoading ? (
+            <div className="space-y-4">
+              <div className="h-6 w-48 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-600" />
+              <div className="space-y-3">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="h-24 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-600" />
+                ))}
+              </div>
+            </div>
+          ) : error ? (
+            <div className="card p-12 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-error-100 dark:bg-error-900/30">
+                <XIcon className="h-8 w-8 text-error-600 dark:text-error-400" />
+              </div>
+              <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Failed to load orders</p>
+              <p className="mt-2 text-sm text-gray-600 dark:text-white">Please try refreshing the page</p>
+            </div>
+          ) : filteredOrders.length === 0 ? (
+            <div className="card p-12 text-center sm:p-16">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-600">
+                <PackageIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
+              </div>
+              <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">No orders found</p>
+              <p className="mt-2 text-sm text-gray-600 dark:text-white">
+                {query || statusFilter || platformFilter
+                  ? "Try adjusting your search or filters"
+                  : "Orders will appear here when customers commit to purchase"}
+              </p>
+            </div>
+          ) : (
+            <div className="card overflow-hidden p-0">
+              <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-600 dark:bg-gray-700/50 sm:px-6 sm:py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <p className="text-xs font-semibold text-gray-900 dark:text-white sm:text-sm">Order List</p>
+                    <span className="badge badge-gray text-[10px] sm:text-xs">{filteredOrders.length}</span>
                   </div>
+                </div>
+              </div>
 
-                  {/* Desktop View */}
-                  <div className="hidden grid-cols-12 items-center gap-3 md:grid lg:gap-4">
-                    <div className="col-span-3 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">{order.order_number}</p>
-                        {autoCreated && <span className="badge badge-info text-[10px]">Auto</span>}
-                        {isNew && <span className="badge badge-success text-[10px]">New</span>}
+              {/* Desktop Table Header */}
+              <div className="hidden grid-cols-12 gap-3 border-b border-gray-200 bg-gray-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-300 md:grid lg:px-6">
+                <div className="col-span-3">Order</div>
+                <div className="col-span-3">Customer</div>
+                <div className="col-span-3">Payment Reference</div>
+                <div className="col-span-2 text-right">Amount</div>
+                <div className="col-span-1 text-right">Status</div>
+              </div>
+
+              <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                {paginatedOrders.map((order) => {
+                  const isNew = isNewOrder(order);
+                  const autoCreated = isAutoCreated(order);
+                  const itemCount = order.items?.length ?? 0;
+
+                  return (
+                    <Link
+                      key={order.id}
+                      href={`/app/orders/${order.id}`}
+                      className={`block px-4 py-4 transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/30 sm:px-6 ${isNew ? "bg-success-50/50 dark:bg-success-900/10" : ""}`}
+                    >
+                      {/* Mobile View */}
+                      <div className="space-y-3 sm:hidden">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-base font-semibold text-gray-900 dark:text-white">{order.order_number}</p>
+                          {autoCreated && <span className="badge badge-info text-[10px]">Auto</span>}
+                          {isNew && <span className="badge badge-success text-[10px]">New</span>}
+                          <span className={`badge ${getStatusBadge(order.status)} text-[10px]`}>{order.status}</span>
+                          <span className="badge badge-gray text-[10px] capitalize">{order.platform}</span>
+                        </div>
+                        <div className="space-y-1.5">
+                          <p className="text-sm text-gray-600 dark:text-white">
+                            Customer: <span className="font-medium text-gray-900 dark:text-white">{order.customer_name}</span>
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-white">
+                            Items: <span className="font-medium text-gray-900 dark:text-white">{itemCount}</span>
+                          </p>
+                          <div onClick={(e) => e.preventDefault()}>
+                            <CopyToClipboard text={order.payment_reference} showLabel={false} className="text-xs" />
+                          </div>
+                        </div>
+                        <div className="flex items-end justify-between">
+                          <p className="text-lg font-bold text-gray-900 dark:text-white">
+                            {order.currency} {(order.total_amount ?? 0).toLocaleString()}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-white">
+                            {new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                          </p>
+                        </div>
                       </div>
-                      <p className="mt-0.5 text-xs text-gray-500 dark:text-white">
-                        {new Date(order.created_at).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </p>
-                    </div>
 
-                    <div className="col-span-3 min-w-0">
-                      <p className="truncate text-sm font-medium text-gray-900 dark:text-white">{order.customer_name}</p>
-                      <p className="mt-0.5 text-xs text-gray-500 dark:text-white capitalize">
-                        {order.platform} • {itemCount} item(s)
-                      </p>
-                    </div>
+                      {/* Desktop View */}
+                      <div className="hidden grid-cols-12 items-center gap-3 md:grid lg:gap-4">
+                        <div className="col-span-3 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">{order.order_number}</p>
+                            {autoCreated && <span className="badge badge-info text-[10px]">Auto</span>}
+                            {isNew && <span className="badge badge-success text-[10px]">New</span>}
+                          </div>
+                          <p className="mt-0.5 text-xs text-gray-500 dark:text-white">
+                            {new Date(order.created_at).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                          </p>
+                        </div>
 
-                    <div className="col-span-3 min-w-0" onClick={(e) => e.preventDefault()}>
-                      <CopyToClipboard text={order.payment_reference} showLabel={false} className="text-xs" />
-                    </div>
+                        <div className="col-span-3 min-w-0">
+                          <p className="truncate text-sm font-medium text-gray-900 dark:text-white">{order.customer_name}</p>
+                          <p className="mt-0.5 text-xs text-gray-500 dark:text-white capitalize">
+                            {order.platform} • {itemCount} item(s)
+                          </p>
+                        </div>
 
-                    <div className="col-span-2 text-right">
-                      <p className="text-base font-bold text-gray-900 dark:text-white">
-                        {order.currency} {(order.total_amount ?? 0).toLocaleString()}
-                      </p>
-                    </div>
+                        <div className="col-span-3 min-w-0" onClick={(e) => e.preventDefault()}>
+                          <CopyToClipboard text={order.payment_reference} showLabel={false} className="text-xs" />
+                        </div>
 
-                    <div className="col-span-1 flex justify-end">
-                      <span className={`badge ${getStatusBadge(order.status)} text-[10px]`}>{order.status}</span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+                        <div className="col-span-2 text-right">
+                          <p className="text-base font-bold text-gray-900 dark:text-white">
+                            {order.currency} {(order.total_amount ?? 0).toLocaleString()}
+                          </p>
+                        </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="mt-6">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-                itemsPerPage={itemsPerPage}
-                totalItems={filteredOrders.length}
-              />
+                        <div className="col-span-1 flex justify-end">
+                          <span className={`badge ${getStatusBadge(order.status)} text-[10px]`}>{order.status}</span>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-6">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    itemsPerPage={itemsPerPage}
+                    totalItems={filteredOrders.length}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

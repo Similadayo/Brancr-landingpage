@@ -458,7 +458,7 @@ export default function InboxPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-120px)] -mx-4 -mt-2 -mb-8 overflow-hidden bg-white dark:bg-gray-700 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] md:-mx-6">
+    <div className="fixed bottom-0 left-0 right-0 top-[80px] lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg z-30">
       {/* Main Content - Three Panel Layout */}
       <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
         {/* Left Panel - Conversation List */}

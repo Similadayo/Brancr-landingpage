@@ -22,8 +22,12 @@ export default function OnboardingSummaryPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+      <div className="fixed bottom-0 left-0 right-0 top-[80px] lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg">
+        <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-6 sm:py-8">
+          <div className="mx-auto max-w-7xl space-y-6 flex min-h-[50vh] items-center justify-center">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -47,136 +51,140 @@ export default function OnboardingSummaryPage() {
   const details = data?.business_details ?? {};
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <header className="flex flex-col gap-3 sm:gap-4">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary sm:h-10 sm:w-10">
-            <DocumentTextIcon className="w-4 h-4 sm:w-5 sm:h-6" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl md:text-3xl lg:text-4xl">Onboarding Summary</h1>
-            <p className="mt-1 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
-              Review what you set up during onboarding. You can edit each section below.
-            </p>
+    <div className="fixed bottom-0 left-0 right-0 top-[80px] lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg">
+      <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-6 sm:py-8">
+        <div className="mx-auto max-w-7xl space-y-6">
+          <header className="flex flex-col gap-3 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary sm:h-10 sm:w-10">
+                <DocumentTextIcon className="w-4 h-4 sm:w-5 sm:h-6" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl md:text-3xl lg:text-4xl">Onboarding Summary</h1>
+                <p className="mt-1 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
+                  Review what you set up during onboarding. You can edit each section below.
+                </p>
+              </div>
+            </div>
+          </header>
+
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+            {/* Business Profile Card */}
+            <section className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary/30 hover:shadow-md dark:border-dark-border dark:bg-dark-surface sm:p-6">
+              <div className="absolute right-0 top-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-primary/5 transition-transform group-hover:scale-150 dark:bg-primary/10 sm:h-24 sm:w-24 sm:-translate-y-8 sm:translate-x-8" />
+              <div className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 sm:h-12 sm:w-12">
+                    <BuildingOfficeIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">Business Profile</h2>
+                    <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Company information</p>
+                  </div>
+                </div>
+                <Link
+                  href="/app/settings/business"
+                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-dark-border dark:bg-dark-elevated dark:text-gray-300 dark:hover:bg-dark-elevated/80 sm:w-auto sm:justify-start"
+                >
+                  <PencilIcon className="h-3.5 w-3.5" />
+                  Edit
+                </Link>
+              </div>
+              <dl className="relative mt-4 space-y-3 sm:mt-6 sm:space-y-3.5">
+                <Row label="Name" value={(profile as any).name} />
+                <Row label="Industry" value={(profile as any).industry} />
+                <Row label="Description" value={(profile as any).description} />
+                <Row label="Location" value={(profile as any).location} />
+                <Row label="Website" value={(profile as any).website} />
+                <Row label="Operating Hours" value={(profile as any).operating_hours} />
+              </dl>
+            </section>
+
+            {/* AI Persona Card */}
+            <section className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary/30 hover:shadow-md dark:border-dark-border dark:bg-dark-surface sm:p-6">
+              <div className="absolute right-0 top-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-primary/5 transition-transform group-hover:scale-150 dark:bg-primary/10 sm:h-24 sm:w-24 sm:-translate-y-8 sm:translate-x-8" />
+              <div className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 sm:h-12 sm:w-12">
+                    <SparklesIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">AI Persona</h2>
+                    <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Bot personality & tone</p>
+                  </div>
+                </div>
+                <Link
+                  href="/app/settings/persona"
+                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-dark-border dark:bg-dark-elevated dark:text-gray-300 dark:hover:bg-dark-elevated/80 sm:w-auto sm:justify-start"
+                >
+                  <PencilIcon className="h-3.5 w-3.5" />
+                  Edit
+                </Link>
+              </div>
+              <dl className="relative mt-4 space-y-3 sm:mt-6 sm:space-y-3.5">
+                <Row label="Bot Name" value={(persona as any).bot_name} />
+                <Row label="Tone" value={(persona as any).tone} />
+                <Row label="Language" value={(persona as any).language} />
+                <Row
+                  label="Include Humor"
+                  value={(persona as any).humor ? (
+                    <span className="inline-flex items-center gap-1 text-green-600">
+                      <CheckCircleIcon className="h-4 w-4" />
+                      Yes
+                    </span>
+                  ) : (
+                    <span className="text-gray-400">No</span>
+                  )}
+                />
+                <Row label="Style Notes" value={(persona as any).style_notes} />
+              </dl>
+            </section>
+
+            {/* Business Details Card */}
+            <section className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary/30 hover:shadow-md dark:border-dark-border dark:bg-dark-surface sm:p-6 md:col-span-2">
+              <div className="absolute right-0 top-0 h-24 w-24 -translate-y-8 translate-x-8 rounded-full bg-primary/5 transition-transform group-hover:scale-150 dark:bg-primary/10 sm:h-32 sm:w-32 sm:-translate-y-12 sm:translate-x-12" />
+              <div className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 sm:h-12 sm:w-12">
+                    <DocumentTextIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">Business Details</h2>
+                    <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Menu items, FAQs, and knowledge base</p>
+                  </div>
+                </div>
+                <Link
+                  href="/app/settings/business-details"
+                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-dark-border dark:bg-dark-elevated dark:text-gray-300 dark:hover:bg-dark-elevated/80 sm:w-auto sm:justify-start"
+                >
+                  <PencilIcon className="h-3.5 w-3.5" />
+                  Edit
+                </Link>
+              </div>
+              <div className="relative mt-4 grid gap-4 sm:mt-6 sm:gap-6 md:grid-cols-2">
+
+                <DetailSection
+                  title="FAQs"
+                  items={Array.isArray((details as any).faqs) && (details as any).faqs.length > 0
+                    ? (details as any).faqs.map((f: any) =>
+                      f?.question ? `${f.question}${f.answer ? ` – ${f.answer}` : ""}` : null
+                    ).filter(Boolean)
+                    : null}
+                />
+                <div className="space-y-4">
+                  <DetailSection
+                    title="Keywords"
+                    value={(details as any).keywords}
+                  />
+                  <DetailSection
+                    title="Knowledge Base"
+                    value={(details as any).knowledge_base}
+                  />
+                </div>
+              </div>
+            </section>
           </div>
         </div>
-      </header>
-
-      <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
-        {/* Business Profile Card */}
-        <section className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary/30 hover:shadow-md dark:border-dark-border dark:bg-dark-surface sm:p-6">
-          <div className="absolute right-0 top-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-primary/5 transition-transform group-hover:scale-150 dark:bg-primary/10 sm:h-24 sm:w-24 sm:-translate-y-8 sm:translate-x-8" />
-          <div className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 sm:h-12 sm:w-12">
-                <BuildingOfficeIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h2 className="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">Business Profile</h2>
-                <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Company information</p>
-              </div>
-            </div>
-            <Link
-              href="/app/settings/business"
-              className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-dark-border dark:bg-dark-elevated dark:text-gray-300 dark:hover:bg-dark-elevated/80 sm:w-auto sm:justify-start"
-            >
-              <PencilIcon className="h-3.5 w-3.5" />
-              Edit
-            </Link>
-          </div>
-          <dl className="relative mt-4 space-y-3 sm:mt-6 sm:space-y-3.5">
-            <Row label="Name" value={(profile as any).name} />
-            <Row label="Industry" value={(profile as any).industry} />
-            <Row label="Description" value={(profile as any).description} />
-            <Row label="Location" value={(profile as any).location} />
-            <Row label="Website" value={(profile as any).website} />
-            <Row label="Operating Hours" value={(profile as any).operating_hours} />
-          </dl>
-        </section>
-
-        {/* AI Persona Card */}
-        <section className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary/30 hover:shadow-md dark:border-dark-border dark:bg-dark-surface sm:p-6">
-          <div className="absolute right-0 top-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-primary/5 transition-transform group-hover:scale-150 dark:bg-primary/10 sm:h-24 sm:w-24 sm:-translate-y-8 sm:translate-x-8" />
-          <div className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 sm:h-12 sm:w-12">
-                <SparklesIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h2 className="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">AI Persona</h2>
-                <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Bot personality & tone</p>
-              </div>
-            </div>
-            <Link
-              href="/app/settings/persona"
-              className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-dark-border dark:bg-dark-elevated dark:text-gray-300 dark:hover:bg-dark-elevated/80 sm:w-auto sm:justify-start"
-            >
-              <PencilIcon className="h-3.5 w-3.5" />
-              Edit
-            </Link>
-          </div>
-          <dl className="relative mt-4 space-y-3 sm:mt-6 sm:space-y-3.5">
-            <Row label="Bot Name" value={(persona as any).bot_name} />
-            <Row label="Tone" value={(persona as any).tone} />
-            <Row label="Language" value={(persona as any).language} />
-            <Row
-              label="Include Humor"
-              value={(persona as any).humor ? (
-                <span className="inline-flex items-center gap-1 text-green-600">
-                  <CheckCircleIcon className="h-4 w-4" />
-                  Yes
-                </span>
-              ) : (
-                <span className="text-gray-400">No</span>
-              )}
-            />
-            <Row label="Style Notes" value={(persona as any).style_notes} />
-          </dl>
-        </section>
-
-        {/* Business Details Card */}
-        <section className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary/30 hover:shadow-md dark:border-dark-border dark:bg-dark-surface sm:p-6 md:col-span-2">
-          <div className="absolute right-0 top-0 h-24 w-24 -translate-y-8 translate-x-8 rounded-full bg-primary/5 transition-transform group-hover:scale-150 dark:bg-primary/10 sm:h-32 sm:w-32 sm:-translate-y-12 sm:translate-x-12" />
-          <div className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 sm:h-12 sm:w-12">
-                <DocumentTextIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h2 className="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">Business Details</h2>
-                <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Menu items, FAQs, and knowledge base</p>
-              </div>
-            </div>
-            <Link
-              href="/app/settings/business-details"
-              className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-dark-border dark:bg-dark-elevated dark:text-gray-300 dark:hover:bg-dark-elevated/80 sm:w-auto sm:justify-start"
-            >
-              <PencilIcon className="h-3.5 w-3.5" />
-              Edit
-            </Link>
-          </div>
-          <div className="relative mt-4 grid gap-4 sm:mt-6 sm:gap-6 md:grid-cols-2">
-
-            <DetailSection
-              title="FAQs"
-              items={Array.isArray((details as any).faqs) && (details as any).faqs.length > 0
-                ? (details as any).faqs.map((f: any) =>
-                  f?.question ? `${f.question}${f.answer ? ` – ${f.answer}` : ""}` : null
-                ).filter(Boolean)
-                : null}
-            />
-            <div className="space-y-4">
-              <DetailSection
-                title="Keywords"
-                value={(details as any).keywords}
-              />
-              <DetailSection
-                title="Knowledge Base"
-                value={(details as any).knowledge_base}
-              />
-            </div>
-          </div>
-        </section>
       </div>
     </div>
   );

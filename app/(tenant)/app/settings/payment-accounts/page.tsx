@@ -45,177 +45,181 @@ export default function PaymentAccountsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {showDeleteAccountId && (
-        <ConfirmModal
-          open={true}
-          title="Delete payment account"
-          description="Are you sure you want to delete this payment account? This cannot be undone."
-          confirmText="Delete"
-          onConfirm={() => { if (showDeleteAccountId) confirmDeleteAccount(showDeleteAccountId); }}
-          onCancel={() => setShowDeleteAccountId(null)}
-        />
-      )}
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <CreditCardIcon className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Payment Accounts</h1>
-            <p className="mt-1 text-sm text-gray-600">Manage your payment account details for order payments</p>
-          </div>
-        </div>
-        <button
-          onClick={() => {
-            setEditingAccount(null);
-            setIsCreateModalOpen(true);
-          }}
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
-        >
-          <PlusIcon className="w-4 h-4" />
-          Add Payment Account
-        </button>
-      </header>
-
-      {isLoading ? (
-        <div className="space-y-4">
-          <div className="h-6 w-48 animate-pulse rounded bg-gray-200" />
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-24 animate-pulse rounded-xl bg-gray-200" />
-            ))}
-          </div>
-        </div>
-      ) : error ? (
-        <div className="rounded-xl border-2 border-rose-200 bg-rose-50 p-8 text-center">
-          <XIcon className="mx-auto h-12 w-12 text-rose-400" />
-          <p className="mt-3 text-sm font-semibold text-rose-900">Failed to load payment accounts</p>
-        </div>
-      ) : accounts.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-16 text-center">
-          <CreditCardIcon className="mx-auto h-16 w-16 text-gray-400" />
-          <p className="mt-4 text-lg font-semibold text-gray-900">No payment accounts</p>
-          <p className="mt-2 text-sm text-gray-600">Add your first payment account to receive payments from orders.</p>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
-          >
-            <PlusIcon className="w-4 h-4" />
-            Add Payment Account
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {accounts.map((account: PaymentAccount) => (
-            <div
-              key={account.id}
-              className={`rounded-xl border-2 p-4 transition ${account.is_default
-                ? "border-primary bg-primary/5"
-                : "border-gray-200 bg-white hover:border-primary/50 hover:shadow-md"
-                }`}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-semibold text-gray-900">{account.account_name}</h3>
-                    {account.is_default && (
-                      <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-white">
-                        Default
-                      </span>
-                    )}
-                    {!account.is_active && (
-                      <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-semibold text-gray-600">
-                        Inactive
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-2 space-y-1">
-                    <p className="text-sm text-gray-600 capitalize">
-                      Type: <span className="font-medium">{account.account_type.replace("_", " ")}</span>
-                    </p>
-                    {account.account_type === "bank" && (
-                      <>
-                        {account.bank_name && (
-                          <p className="text-sm text-gray-600">
-                            Bank: <span className="font-medium">{account.bank_name}</span>
-                          </p>
-                        )}
-                        {account.account_number && (
-                          <p className="text-sm text-gray-600">
-                            Account: <span className="font-medium">{maskAccountNumber(account.account_number)}</span>
-                          </p>
-                        )}
-                      </>
-                    )}
-                    {account.account_type === "mobile_money" && (
-                      <>
-                        {account.provider && (
-                          <p className="text-sm text-gray-600">
-                            Provider: <span className="font-medium">{account.provider}</span>
-                          </p>
-                        )}
-                        {account.phone_number && (
-                          <p className="text-sm text-gray-600">
-                            Phone: <span className="font-medium">{account.phone_number}</span>
-                          </p>
-                        )}
-                      </>
-                    )}
-                    {account.account_type === "cash" && account.description && (
-                      <p className="text-sm text-gray-600">{account.description}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {!account.is_default && (
-                    <button
-                      onClick={() => handleSetDefault(account.id)}
-                      className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
-                    >
-                      Set Default
-                    </button>
-                  )}
-                  <button
-                    onClick={() => {
-                      setEditingAccount(account);
-                      setIsCreateModalOpen(true);
-                    }}
-                    className="rounded-lg border border-gray-200 bg-white p-1.5 text-gray-600 transition hover:border-primary hover:text-primary"
-                    aria-label="Edit payment account"
-                    title="Edit"
-                  >
-                    <PencilIcon className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(account.id)}
-                    className="rounded-lg border border-red-200 bg-red-50 p-1.5 text-red-600 transition hover:bg-red-100"
-                    aria-label="Delete payment account"
-                    title="Delete"
-                  >
-                    <TrashIcon className="h-4 w-4" />
-                  </button>
-                </div>
+    <div className="fixed bottom-0 left-0 right-0 top-[80px] lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg">
+      <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-6 sm:py-8">
+        <div className="mx-auto max-w-7xl space-y-6">
+          {showDeleteAccountId && (
+            <ConfirmModal
+              open={true}
+              title="Delete payment account"
+              description="Are you sure you want to delete this payment account? This cannot be undone."
+              confirmText="Delete"
+              onConfirm={() => { if (showDeleteAccountId) confirmDeleteAccount(showDeleteAccountId); }}
+              onCancel={() => setShowDeleteAccountId(null)}
+            />
+          )}
+          <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <CreditCardIcon className="w-6 h-6" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Payment Accounts</h1>
+                <p className="mt-1 text-sm text-gray-600">Manage your payment account details for order payments</p>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+            <button
+              onClick={() => {
+                setEditingAccount(null);
+                setIsCreateModalOpen(true);
+              }}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
+            >
+              <PlusIcon className="w-4 h-4" />
+              Add Payment Account
+            </button>
+          </header>
 
-      {(isCreateModalOpen || editingAccount) && (
-        <PaymentAccountFormModal
-          account={editingAccount}
-          onClose={() => {
-            setIsCreateModalOpen(false);
-            setEditingAccount(null);
-          }}
-          onCreate={createMutation.mutateAsync}
-          onUpdate={(payload) => {
-            if (!editingAccount) return Promise.reject(new Error('No account selected'));
-            return updateMutation.mutateAsync({ accountId: editingAccount.id, payload });
-          }}
-        />
-      )}
+          {isLoading ? (
+            <div className="space-y-4">
+              <div className="h-6 w-48 animate-pulse rounded bg-gray-200" />
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-24 animate-pulse rounded-xl bg-gray-200" />
+                ))}
+              </div>
+            </div>
+          ) : error ? (
+            <div className="rounded-xl border-2 border-rose-200 bg-rose-50 p-8 text-center">
+              <XIcon className="mx-auto h-12 w-12 text-rose-400" />
+              <p className="mt-3 text-sm font-semibold text-rose-900">Failed to load payment accounts</p>
+            </div>
+          ) : accounts.length === 0 ? (
+            <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-16 text-center">
+              <CreditCardIcon className="mx-auto h-16 w-16 text-gray-400" />
+              <p className="mt-4 text-lg font-semibold text-gray-900">No payment accounts</p>
+              <p className="mt-2 text-sm text-gray-600">Add your first payment account to receive payments from orders.</p>
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
+              >
+                <PlusIcon className="w-4 h-4" />
+                Add Payment Account
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {accounts.map((account: PaymentAccount) => (
+                <div
+                  key={account.id}
+                  className={`rounded-xl border-2 p-4 transition ${account.is_default
+                    ? "border-primary bg-primary/5"
+                    : "border-gray-200 bg-white hover:border-primary/50 hover:shadow-md"
+                    }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-gray-900">{account.account_name}</h3>
+                        {account.is_default && (
+                          <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-white">
+                            Default
+                          </span>
+                        )}
+                        {!account.is_active && (
+                          <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-semibold text-gray-600">
+                            Inactive
+                          </span>
+                        )}
+                      </div>
+                      <div className="mt-2 space-y-1">
+                        <p className="text-sm text-gray-600 capitalize">
+                          Type: <span className="font-medium">{account.account_type.replace("_", " ")}</span>
+                        </p>
+                        {account.account_type === "bank" && (
+                          <>
+                            {account.bank_name && (
+                              <p className="text-sm text-gray-600">
+                                Bank: <span className="font-medium">{account.bank_name}</span>
+                              </p>
+                            )}
+                            {account.account_number && (
+                              <p className="text-sm text-gray-600">
+                                Account: <span className="font-medium">{maskAccountNumber(account.account_number)}</span>
+                              </p>
+                            )}
+                          </>
+                        )}
+                        {account.account_type === "mobile_money" && (
+                          <>
+                            {account.provider && (
+                              <p className="text-sm text-gray-600">
+                                Provider: <span className="font-medium">{account.provider}</span>
+                              </p>
+                            )}
+                            {account.phone_number && (
+                              <p className="text-sm text-gray-600">
+                                Phone: <span className="font-medium">{account.phone_number}</span>
+                              </p>
+                            )}
+                          </>
+                        )}
+                        {account.account_type === "cash" && account.description && (
+                          <p className="text-sm text-gray-600">{account.description}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {!account.is_default && (
+                        <button
+                          onClick={() => handleSetDefault(account.id)}
+                          className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                        >
+                          Set Default
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          setEditingAccount(account);
+                          setIsCreateModalOpen(true);
+                        }}
+                        className="rounded-lg border border-gray-200 bg-white p-1.5 text-gray-600 transition hover:border-primary hover:text-primary"
+                        aria-label="Edit payment account"
+                        title="Edit"
+                      >
+                        <PencilIcon className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(account.id)}
+                        className="rounded-lg border border-red-200 bg-red-50 p-1.5 text-red-600 transition hover:bg-red-100"
+                        aria-label="Delete payment account"
+                        title="Delete"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(isCreateModalOpen || editingAccount) && (
+            <PaymentAccountFormModal
+              account={editingAccount}
+              onClose={() => {
+                setIsCreateModalOpen(false);
+                setEditingAccount(null);
+              }}
+              onCreate={createMutation.mutateAsync}
+              onUpdate={(payload) => {
+                if (!editingAccount) return Promise.reject(new Error('No account selected'));
+                return updateMutation.mutateAsync({ accountId: editingAccount.id, payload });
+              }}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
