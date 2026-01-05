@@ -24,6 +24,8 @@ import {
   PencilIcon,
   CalendarIcon,
   EyeIcon,
+  CloudArrowUpIcon,
+  PhotoIcon,
 } from "@/app/(tenant)/components/icons";
 import { useDraft, useAutoSaveDraft, useDeleteDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 import GoalSelector from "@/app/(tenant)/components/posting/GoalSelector";
@@ -658,8 +660,8 @@ export default function NewPostPage() {
                     onClick={() => setMediaSubStep('upload')}
                     className="flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 transition-all hover:border-primary hover:bg-primary/5 hover:scale-[1.02]"
                   >
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-3xl">
-                      📤
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <CloudArrowUpIcon className="h-8 w-8" />
                     </div>
                     <div className="text-center">
                       <span className="block text-lg font-semibold text-gray-900">Upload New</span>
@@ -671,8 +673,8 @@ export default function NewPostPage() {
                     onClick={() => setMediaSubStep('library')}
                     className="flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 transition-all hover:border-primary hover:bg-primary/5 hover:scale-[1.02]"
                   >
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-3xl">
-                      🖼️
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                      <PhotoIcon className="h-8 w-8" />
                     </div>
                     <div className="text-center">
                       <span className="block text-lg font-semibold text-gray-900">Select from Library</span>

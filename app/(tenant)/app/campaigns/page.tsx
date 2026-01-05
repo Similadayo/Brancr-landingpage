@@ -595,7 +595,7 @@ export default function CampaignsPage() {
                             </span>
                             {post.status === 'posted' && (
                               <span className="hidden sm:flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400">
-                                <span className="text-xs">🚀</span>
+                                <RocketIcon className="h-3 w-3" />
                                 Waiting for engagement
                               </span>
                             )}

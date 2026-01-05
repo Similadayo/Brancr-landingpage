@@ -1,6 +1,13 @@
 'use client';
 
 import React from 'react';
+import {
+    ShoppingBagIcon,
+    MegaphoneIcon,
+    BookOpenIcon,
+    ChatBubbleLeftRightIcon,
+    SparklesIcon,
+} from "../icons";
 
 type Goal = 'promote' | 'announce' | 'educate' | 'engage' | 'custom';
 
@@ -14,31 +21,31 @@ export default function GoalSelector({ selectedGoal, onSelect }: GoalSelectorPro
         {
             id: 'promote',
             title: 'Promote a Product/Service',
-            icon: '🛍️',
+            icon: ShoppingBagIcon,
             description: 'Highlight features and drive sales.',
         },
         {
             id: 'announce',
             title: 'Make an Announcement',
-            icon: '📢',
+            icon: MegaphoneIcon,
             description: 'Share news, updates, or events.',
         },
         {
             id: 'educate',
             title: 'Educate Audience',
-            icon: '📚',
+            icon: BookOpenIcon,
             description: 'Share tips, value, or industry insights.',
         },
         {
             id: 'engage',
             title: 'Drive Engagement',
-            icon: '💬',
+            icon: ChatBubbleLeftRightIcon,
             description: 'Ask questions or start conversations.',
         },
         {
             id: 'custom',
             title: 'Start from Scratch',
-            icon: '✨',
+            icon: SparklesIcon,
             description: 'Create a post without a specific template.',
         },
     ];
@@ -52,11 +59,13 @@ export default function GoalSelector({ selectedGoal, onSelect }: GoalSelectorPro
                         key={goal.id}
                         onClick={() => onSelect(goal.id)}
                         className={`group relative flex flex-col items-start rounded-xl border p-5 text-left transition-all hover:shadow-md ${isSelected
-                                ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                                : 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600'
+                            ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                            : 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600'
                             }`}
                     >
-                        <div className="mb-3 text-3xl">{goal.icon}</div>
+                        <div className={`mb-3 flex h-12 w-12 items-center justify-center rounded-lg ${isSelected ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}>
+                            <goal.icon className="h-6 w-6" />
+                        </div>
                         <h3 className={`font-semibold ${isSelected ? 'text-primary' : 'text-gray-900 dark:text-white'}`}>
                             {goal.title}
                         </h3>
