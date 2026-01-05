@@ -45,6 +45,55 @@ export type TenantNotification = {
   metadata?: Record<string, unknown>;
 };
 
+// ==========================================
+// BULK UPLOAD TYPES
+// ==========================================
+export interface BulkUploadPost {
+  media_ids: string[];
+  caption: string;
+  platforms: string[];
+  scheduled_at?: string; // RFC3339
+  name?: string;
+}
+
+export interface BulkUploadRequest {
+  posts: BulkUploadPost[];
+  schedule_mode: 'custom' | 'spread' | 'optimal';
+  spread_options?: {
+    start_date: string;      // YYYY-MM-DD
+    posts_per_day: number;
+    times: string[];         // ["10:00", "14:00"]
+    skip_weekends: boolean;
+  };
+}
+
+export interface BulkUploadResponse {
+  bulk_upload_id: string;
+  session_id: string;
+  total_posts: number;
+  scheduled_posts: Array<{
+    id: string;
+    scheduled_at: string;
+    status: string;
+  }>;
+}
+
+// ==========================================
+// RECURRING TEMPLATE TYPES
+// ==========================================
+export interface RecurringTemplate {
+  id: string;
+  name: string;
+  frequency: 'daily' | 'weekly' | 'monthly';
+  schedule: string; // JSON: { days: number[], time: string, timezone: string }
+  caption_template: string;
+  platforms: string[];
+  active: boolean;
+  next_run?: string;
+  last_run?: string;
+  created_at: string;
+}
+
 type ApiRequestOptions = RequestInit & {
   parseJson?: boolean;
 };
@@ -567,6 +616,9 @@ export const tenantApi = {
       }>;
     }>("/api/tenant/templates"),
 
+  getRecurringTemplates: () =>
+    get<RecurringTemplate[]>('/api/tenant/templates'),
+
   template: (templateId: string) =>
     get<{
       template: {
@@ -602,6 +654,15 @@ export const tenantApi = {
       };
     }>("/api/tenant/templates", payload),
 
+  createRecurringTemplate: (data: {
+    name: string;
+    frequency: string;
+    schedule: { days: number[]; time: string; timezone: string };
+    caption_template: string;
+    platforms: string[];
+  }) =>
+    post<typeof data, RecurringTemplate>('/api/tenant/templates', data),
+
   updateTemplate: (templateId: string, payload: {
     name?: string;
     category?: string;
@@ -623,6 +684,9 @@ export const tenantApi = {
 
   deleteTemplate: (templateId: string) =>
     del<{ success: boolean }>(`/api/tenant/templates/${templateId}`),
+
+  deleteRecurringTemplate: (id: string) =>
+    del<void>(`/api/tenant/templates/${id}`),
 
 
 
@@ -987,12 +1051,23 @@ export const tenantApi = {
     image_urls?: string[];
   }) => post<typeof payload, { caption: string }>(`/api/tenant/captions/fine-tune`, payload),
 
+  suggestHashtags: (caption: string, platforms?: string[], count?: number) =>
+    post<{ caption: string; platforms?: string[]; count: number }, { hashtags: string[]; count: number }>(
+      '/api/tenant/captions/suggest-hashtags',
+      { caption, platforms, count: count || 10 }
+    ),
+
   optimalTimes: (params: { platforms: string[]; date: string }) =>
     get<{ times: Array<{ at: string; score: number }> }>(
       `/api/tenant/posts/optimal-times?${new URLSearchParams({
         date: params.date,
         platforms: params.platforms.join(","),
       }).toString()}`
+    ),
+
+  getOptimalTimes: () =>
+    get<{ times: Array<{ day: string; time: string; score: number }> }>(
+      '/api/tenant/posts/optimal-times'
     ),
 
   // Bulk Uploads (Phase 3)
@@ -1007,6 +1082,9 @@ export const tenantApi = {
         created_at: string;
       }>;
     }>(`/api/tenant/bulk-uploads`),
+
+  getBulkUploads: () =>
+    get<{ items: any[] }>('/api/tenant/bulk-uploads'),
 
   bulkUpload: (id: string) =>
     get<{
@@ -1026,13 +1104,20 @@ export const tenantApi = {
       }>;
     }>(`/api/tenant/bulk-uploads/${id}`),
 
-  createBulkUpload: (form: FormData) =>
+  getBulkUpload: (id: string) =>
+    get<any>(`/api/tenant/bulk-uploads/${id}`),
+
+  createBulkUpload: (data: BulkUploadRequest) =>
+    post<BulkUploadRequest, BulkUploadResponse>('/api/tenant/bulk-uploads', data),
+
+  uploadMediaBulk: (form: FormData) =>
     apiFetch<{ session_id: string }>(`/api/tenant/bulk-uploads`, { method: "POST", body: form }),
 
   updateBulkUpload: (id: string, payload: { split_strategy?: string; schedule_strategy?: string }) =>
     put<typeof payload, { success: boolean }>(`/api/tenant/bulk-uploads/${id}`, payload),
 
-  cancelBulkUpload: (id: string) => del<{ success: boolean }>(`/api/tenant/bulk-uploads/${id}`),
+  cancelBulkUpload: (id: string) =>
+    post<undefined, { message: string; deleted_posts: number }>(`/api/tenant/bulk-uploads/${id}/cancel`),
 
   // WhatsApp phone number endpoints
   whatsappNumbers: () =>

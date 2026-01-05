@@ -46,7 +46,7 @@ export function useBulkUpload(id: string | null) {
 export function useCreateBulkUpload() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (form: FormData) => tenantApi.createBulkUpload(form),
+    mutationFn: (data: import("@/lib/api").BulkUploadRequest) => tenantApi.createBulkUpload(data),
     onSuccess: () => {
       toast.success("Bulk upload created");
       void queryClient.invalidateQueries({ queryKey: ["bulk-uploads"] });

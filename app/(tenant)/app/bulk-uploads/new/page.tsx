@@ -214,7 +214,7 @@ export default function NewBulkUploadPage() {
       formData.append("media_ids", JSON.stringify(mediaIds));
       formData.append("total_items", String(uploadedMedia.length));
 
-      const sessionResponse = await tenantApi.createBulkUpload(formData);
+      const sessionResponse = await tenantApi.uploadMediaBulk(formData);
       const sessionId = sessionResponse.session_id || bulkSessionId;
 
       if (!sessionId) {
@@ -301,7 +301,7 @@ export default function NewBulkUploadPage() {
           <p className="mt-2 max-w-2xl text-sm font-medium text-gray-700">
             Step {currentStepIndex + 1} of {STEPS.length}: {currentStepLabel}
           </p>
-          </div>
+        </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -310,12 +310,12 @@ export default function NewBulkUploadPage() {
           >
             Cancel
           </button>
-        <Link
-          href="/app/bulk-uploads"
-          className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-primary hover:text-primary"
-        >
-          ← Back to Bulk Uploads
-        </Link>
+          <Link
+            href="/app/bulk-uploads"
+            className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-primary hover:text-primary"
+          >
+            ← Back to Bulk Uploads
+          </Link>
         </div>
         {showCancelConfirm && (
           <ConfirmModal
@@ -358,13 +358,12 @@ export default function NewBulkUploadPage() {
                   setStep(stepKey);
                 }
               }}
-              className={`rounded-xl border px-3 py-2 text-center text-xs font-semibold transition-all ${
-                isActive
+              className={`rounded-xl border px-3 py-2 text-center text-xs font-semibold transition-all ${isActive
                   ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
                   : isCompleted
-                  ? "border-green-300 bg-green-50 text-green-700 hover:border-green-400"
-                  : "border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
-              } ${idx <= currentStepIndex ? "cursor-pointer hover:scale-105" : ""}`}
+                    ? "border-green-300 bg-green-50 text-green-700 hover:border-green-400"
+                    : "border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
+                } ${idx <= currentStepIndex ? "cursor-pointer hover:scale-105" : ""}`}
               disabled={idx > currentStepIndex}
               aria-label={`Step ${idx + 1}: ${label}`}
             >
@@ -413,11 +412,10 @@ export default function NewBulkUploadPage() {
               <button
                 type="button"
                 onClick={() => setSplitStrategy("carousels")}
-                className={`rounded-2xl border-2 p-6 text-left transition-all ${
-                  splitStrategy === "carousels"
+                className={`rounded-2xl border-2 p-6 text-left transition-all ${splitStrategy === "carousels"
                     ? "border-primary bg-primary/10 ring-4 ring-primary/20"
                     : "border-gray-200 bg-white hover:border-primary/50"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-2xl">
@@ -433,11 +431,10 @@ export default function NewBulkUploadPage() {
               <button
                 type="button"
                 onClick={() => setSplitStrategy("individual")}
-                className={`rounded-2xl border-2 p-6 text-left transition-all ${
-                  splitStrategy === "individual"
+                className={`rounded-2xl border-2 p-6 text-left transition-all ${splitStrategy === "individual"
                     ? "border-primary bg-primary/10 ring-4 ring-primary/20"
                     : "border-gray-200 bg-white hover:border-primary/50"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-2xl">
@@ -453,11 +450,10 @@ export default function NewBulkUploadPage() {
               <button
                 type="button"
                 onClick={() => setSplitStrategy("ai_organized")}
-                className={`rounded-2xl border-2 p-6 text-left transition-all ${
-                  splitStrategy === "ai_organized"
+                className={`rounded-2xl border-2 p-6 text-left transition-all ${splitStrategy === "ai_organized"
                     ? "border-primary bg-primary/10 ring-4 ring-primary/20"
                     : "border-gray-200 bg-white hover:border-primary/50"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-2xl">
@@ -473,11 +469,10 @@ export default function NewBulkUploadPage() {
               <button
                 type="button"
                 onClick={() => setSplitStrategy("custom")}
-                className={`rounded-2xl border-2 p-6 text-left transition-all ${
-                  splitStrategy === "custom"
+                className={`rounded-2xl border-2 p-6 text-left transition-all ${splitStrategy === "custom"
                     ? "border-primary bg-primary/10 ring-4 ring-primary/20"
                     : "border-gray-200 bg-white hover:border-primary/50"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-2xl">
@@ -530,7 +525,7 @@ export default function NewBulkUploadPage() {
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Caption Configuration</h2>
               <p className="mt-1 text-sm text-gray-600">Set captions for your posts</p>
-        </div>
+            </div>
 
             <div className="space-y-4">
               <div>
@@ -546,7 +541,7 @@ export default function NewBulkUploadPage() {
                   ]}
                   searchable={false}
                 />
-          </div>
+              </div>
 
               {captionStrategy === "same" && (
                 <div>
@@ -623,11 +618,10 @@ export default function NewBulkUploadPage() {
               <button
                 type="button"
                 onClick={() => setScheduleStrategy("spread")}
-                className={`rounded-2xl border-2 p-4 text-left transition-all ${
-                  scheduleStrategy === "spread"
+                className={`rounded-2xl border-2 p-4 text-left transition-all ${scheduleStrategy === "spread"
                     ? "border-primary bg-primary/10 ring-4 ring-primary/20"
                     : "border-gray-200 bg-white hover:border-primary/50"
-                }`}
+                  }`}
               >
                 <h3 className="font-semibold text-gray-900">Spread Over Time</h3>
                 <p className="mt-1 text-xs text-gray-600">Evenly distribute posts</p>
@@ -636,11 +630,10 @@ export default function NewBulkUploadPage() {
               <button
                 type="button"
                 onClick={() => setScheduleStrategy("optimal")}
-                className={`rounded-2xl border-2 p-4 text-left transition-all ${
-                  scheduleStrategy === "optimal"
+                className={`rounded-2xl border-2 p-4 text-left transition-all ${scheduleStrategy === "optimal"
                     ? "border-primary bg-primary/10 ring-4 ring-primary/20"
                     : "border-gray-200 bg-white hover:border-primary/50"
-                }`}
+                  }`}
               >
                 <h3 className="font-semibold text-gray-900">Optimal Times</h3>
                 <p className="mt-1 text-xs text-gray-600">AI-suggested best times</p>
@@ -649,11 +642,10 @@ export default function NewBulkUploadPage() {
               <button
                 type="button"
                 onClick={() => setScheduleStrategy("custom")}
-                className={`rounded-2xl border-2 p-4 text-left transition-all ${
-                  scheduleStrategy === "custom"
+                className={`rounded-2xl border-2 p-4 text-left transition-all ${scheduleStrategy === "custom"
                     ? "border-primary bg-primary/10 ring-4 ring-primary/20"
                     : "border-gray-200 bg-white hover:border-primary/50"
-                }`}
+                  }`}
               >
                 <h3 className="font-semibold text-gray-900">Custom Dates</h3>
                 <p className="mt-1 text-xs text-gray-600">Choose specific dates</p>
@@ -699,8 +691,8 @@ export default function NewBulkUploadPage() {
                     ]}
                     searchable={false}
                   />
-          </div>
-        </div>
+                </div>
+              </div>
             )}
 
             {scheduleStrategy === "optimal" && (
@@ -791,15 +783,15 @@ export default function NewBulkUploadPage() {
           >
             ← Back
           </button>
-        <button
+          <button
             type="button"
             onClick={handleCreateBulkUpload}
             disabled={!canNext || isSubmitting}
             className="min-h-[44px] flex-1 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
           >
             {isSubmitting ? "Creating..." : "Create Bulk Upload"}
-        </button>
-      </div>
+          </button>
+        </div>
       )}
     </div>
   );

@@ -6,6 +6,7 @@ import { ClockIcon } from "@/app/(tenant)/components/icons";
 import { toast } from "react-hot-toast";
 import Calendar from "@/app/(tenant)/components/ui/Calendar";
 import { format, addDays, setHours, setMinutes, startOfHour, addHours, isSameDay } from "date-fns";
+import QuickTimePresets from './QuickTimePresets';
 
 type SchedulePickerProps = {
   value: string | null; // ISO datetime string or null for "publish now"
@@ -160,10 +161,22 @@ export default function SchedulePicker({
             </div>
 
             {/* Right Column: Time & Presets */}
-            <div className="space-y-6">
+            <div className="space-y-4">
+              {/* Quick Presets */}
               <div>
-                <label className="mb-4 block text-sm font-semibold text-gray-700">Select Time</label>
-                <div className="flex items-center gap-3">
+                <label className="mb-2 block text-sm font-medium text-gray-700">Quick Select</label>
+                <QuickTimePresets onSelect={(val) => {
+                  if (val === 'now') {
+                    onChange(null); // null means "now" in some contexts, or handle logic
+                  } else {
+                    onChange(val.toISOString());
+                  }
+                }} />
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Time</label>
                   <div className="relative flex-1">
                     <input
                       type="time"

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import HashtagSuggestions from './HashtagSuggestions';
 
 type CaptionEditorProps = {
   value: string;
@@ -207,6 +208,8 @@ export default function CaptionEditor({
             </button>
           </div>
 
+
+
           <button
             type="button"
             onClick={() => handleChange("")}
@@ -218,27 +221,37 @@ export default function CaptionEditor({
         </div>
       </div>
 
+      {/* AI Hashtag Suggestions */}
+      <HashtagSuggestions
+        caption={value}
+        platforms={selectedPlatforms}
+        onInsert={(tag) => handleChange(value ? value + ' ' + tag : tag)}
+      />
+
+
       {/* Enhance with AI Checkbox */}
-      {value.trim() && (
-        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={enhanceCaption}
-              onChange={(e) => onEnhanceCaptionChange(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-            />
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-gray-900">✨ Enhance with AI</span>
+      {
+        value.trim() && (
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={enhanceCaption}
+                onChange={(e) => onEnhanceCaptionChange(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-gray-900">✨ Enhance with AI</span>
+                </div>
+                <p className="mt-1 text-xs text-gray-600">
+                  Your caption will be optimized for each platform using AI based on your brand persona and best practices.
+                </p>
               </div>
-              <p className="mt-1 text-xs text-gray-600">
-                Your caption will be optimized for each platform using AI based on your brand persona and best practices.
-              </p>
-            </div>
-          </label>
-        </div>
-      )}
+            </label>
+          </div>
+        )
+      }
 
       {/* Status indicators */}
       <div className="flex flex-wrap items-center gap-3">
@@ -270,27 +283,29 @@ export default function CaptionEditor({
       </div>
 
       {/* Preview */}
-      {showPreview && (
-        <div className="rounded-xl border-2 border-gray-200 bg-white p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">
-              Preview
-            </p>
-            <button
-              type="button"
-              onClick={() => setShowPreview(false)}
-              className="text-xs text-gray-500 hover:text-gray-700"
-            >
-              Close
-            </button>
+      {
+        showPreview && (
+          <div className="rounded-xl border-2 border-gray-200 bg-white p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">
+                Preview
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowPreview(false)}
+                className="text-xs text-gray-500 hover:text-gray-700"
+              >
+                Close
+              </button>
+            </div>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <p className="whitespace-pre-line text-sm text-gray-700 leading-relaxed">
+                {value || <span className="text-gray-400 italic">Your caption will appear here...</span>}
+              </p>
+            </div>
           </div>
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <p className="whitespace-pre-line text-sm text-gray-700 leading-relaxed">
-              {value || <span className="text-gray-400 italic">Your caption will appear here...</span>}
-            </p>
-          </div>
-        </div>
-      )}
+        )
+      }
     </div>
   );
 }

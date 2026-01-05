@@ -15,41 +15,22 @@ import PlatformSelector from "@/app/(tenant)/components/posting/PlatformSelector
 import SchedulePicker from "@/app/(tenant)/components/posting/SchedulePicker";
 import PostReview from "@/app/(tenant)/components/posting/PostReview";
 import TikTokOptions from "@/app/(tenant)/components/posting/TikTokOptions";
+import PlatformPreview from "@/app/(tenant)/components/posting/PlatformPreview"; // New Component
 import ConfirmModal from '@/app/components/ConfirmModal';
 import DraftsModal from '@/app/(tenant)/components/posting/DraftsModal';
-import {
-  RocketIcon,
-  LinkIcon,
-  ImageIcon,
-  PencilIcon,
-  CalendarIcon,
-  EyeIcon,
-  CloudArrowUpIcon,
-  PhotoIcon,
-} from "@/app/(tenant)/components/icons";
 import { useDraft, useAutoSaveDraft, useDeleteDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 import GoalSelector from "@/app/(tenant)/components/posting/GoalSelector";
 
 type Step = "goal" | "platforms" | "media" | "caption" | "schedule" | "review";
 
-const STEPS: Step[] = ["goal", "platforms", "media", "caption", "schedule", "review"];
-const STEP_LABELS: Record<Step, string> = {
-  goal: "Goal",
-  platforms: "Platforms",
-  media: "Media",
-  caption: "Caption",
-  schedule: "Schedule",
-  review: "Review",
-};
-
-const STEP_ICONS: Record<Step, React.ElementType> = {
-  goal: RocketIcon,
-  platforms: LinkIcon,
-  media: ImageIcon,
-  caption: PencilIcon,
-  schedule: CalendarIcon,
-  review: EyeIcon,
-};
+const STEPS: { id: Step; label: string }[] = [
+  { id: "goal", label: "Goal" },
+  { id: "platforms", label: "Platforms" },
+  { id: "media", label: "Media" },
+  { id: "caption", label: "Caption" },
+  { id: "schedule", label: "Schedule" },
+  { id: "review", label: "Review" },
+];
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -85,8 +66,7 @@ export default function NewPostPage() {
   const { data: draft, isLoading: draftLoading } = useDraft(DRAFT_KEYS.POST_CREATE);
   const deleteDraft = useDeleteDraft();
 
-  // Restore draft
-  // Detach from previous session on mount to ensure fresh start
+  // Restore draft - Detach from previous session on mount
   useEffect(() => {
     try {
       localStorage.removeItem(`drafts-local-${DRAFT_KEYS.POST_CREATE}`);
@@ -125,9 +105,7 @@ export default function NewPostPage() {
   // Auto-save
   const { isSaving, setDraftId } = useAutoSaveDraft(DRAFT_KEYS.POST_CREATE, draftContent, !draftLoading);
 
-  const currentStepIndex = STEPS.indexOf(step);
-  const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
-  const currentStepLabel = STEP_LABELS[step];
+  const currentStepIndex = STEPS.findIndex(s => s.id === step);
 
   // Validation
   const canNext = useMemo(() => {
@@ -136,11 +114,8 @@ export default function NewPostPage() {
         return !!goal;
       case "platforms":
         return selectedPlatforms.length > 0;
-
       case "media":
-        // Media is optional for some platforms (e.g. Facebook text-only), but visually we might want to encourage it.
-        // For now, allow proceeding.
-        return true;
+        return true; // Optional for some
       case "caption":
         return true;
       case "schedule":
@@ -155,26 +130,11 @@ export default function NewPostPage() {
   // Handlers
   const handleUploadComplete = useCallback((media: UploadedMedia[]) => {
     setUploadedMedia((prev) => [...prev, ...media]);
-    // Auto-select newly uploaded media
     const newIds = media.map((m) => m.id);
     setSelectedMediaIds((prev) => [...prev, ...newIds]);
   }, []);
 
-  // Get first media asset for API calls
-  const getFirstMediaAsset = useCallback(() => {
-    if (selectedMediaIds.length === 0) return null;
-    const firstId = selectedMediaIds[0];
-    const media = uploadedMedia.find(m => m.id === firstId);
-    return {
-      id: firstId,
-      type: media?.type || "image",
-      url: media?.url || "",
-    };
-  }, [selectedMediaIds, uploadedMedia]);
-
   const handleGenerateCaption = useCallback(async (options?: { tone?: string; include_hashtags?: boolean }) => {
-    // Allow caption generation even when no media is selected. If there is no media
-    // and no platform selected, default to Facebook (supports text-only posts).
     if (selectedMediaIds.length === 0 && selectedPlatforms.length === 0) {
       setSelectedPlatforms(['facebook']);
     }
@@ -186,12 +146,7 @@ export default function NewPostPage() {
         include_hashtags: options?.include_hashtags ?? true,
         tone: options?.tone,
       });
-
-      // API returns { caption: string } - empty string is a valid successful response
       const generatedCaption = res.caption || "";
-
-      // Always set the caption and show success if API call completed without error
-      // An empty caption is a valid response, not an error condition
       setCaption(generatedCaption);
       toast.success("Caption generated successfully");
     } catch (error: any) {
@@ -208,67 +163,37 @@ export default function NewPostPage() {
       toast.error("Please complete all required fields");
       return;
     }
-
-    // Platform-specific validation
     if (selectedPlatforms.includes("instagram") && selectedMediaIds.length === 0) {
-      toast.error("Instagram posts require at least one media item (image or video)");
+      toast.error("Instagram posts require at least one media item");
       return;
     }
 
     try {
       setIsSubmitting(true);
-
-      // Validate schedule
       if (scheduledAt) {
-        const scheduleDate = new Date(scheduledAt);
-        if (scheduleDate < new Date()) {
+        if (new Date(scheduledAt) < new Date()) {
           toast.error("Cannot schedule posts in the past");
           setIsSubmitting(false);
           return;
         }
       }
 
-      // Prepare payload
-      const payload: {
-        media_ids: Array<number | string>;
-        platforms: string[];
-        scheduled_at?: string | null;
-        caption?: string;
-        name?: string;
-        tiktok_disable_duet?: boolean;
-        tiktok_disable_stitch?: boolean;
-        tiktok_disable_comment?: boolean;
-        tiktok_schedule_time?: string;
-        draft_id?: string;
-      } = {
+      const payload: any = {
         media_ids: selectedMediaIds,
         platforms: selectedPlatforms,
         draft_id: draft?.id,
       };
 
-      // Add optional fields
-      // If caption is empty and mode is ai_generate, backend will generate it
-      if (caption.trim()) {
-        payload.caption = caption.trim();
-      }
-      // Note: Backend handles empty captions by generating them based on tenant preferences
-
-      // Handle scheduling
+      if (caption.trim()) payload.caption = caption.trim();
       if (scheduledAt) {
-        // Convert local datetime to ISO string (RFC3339)
         const local = new Date(scheduledAt);
         payload.scheduled_at = new Date(local.getTime() - local.getTimezoneOffset() * 60000).toISOString();
       } else {
-        // Publish immediately
         payload.scheduled_at = "now";
       }
 
-      // Add optional name
-      if (caption.trim()) {
-        payload.name = caption.split("\n")[0]?.slice(0, 50) || "Post";
-      }
+      if (caption.trim()) payload.name = caption.split("\n")[0]?.slice(0, 50) || "Post";
 
-      // Add TikTok-specific options if TikTok is selected
       if (selectedPlatforms.includes("tiktok")) {
         if (tiktokDisableDuet) payload.tiktok_disable_duet = true;
         if (tiktokDisableStitch) payload.tiktok_disable_stitch = true;
@@ -280,20 +205,14 @@ export default function NewPostPage() {
       }
 
       setPublishingStatus({ status: "publishing" });
-
       const response = await tenantApi.createPost(payload);
 
-      // Clear draft on success - both server and local storage
-      // Note: Backend handles server-side deletion if draft_id is passed, but we clear local state here
-      // if (draft?.id) deleteDraft.mutate(draft.id);
-      // Clear all local draft storage to ensure fresh start on next post creation
       try {
         localStorage.removeItem(`drafts-local-content-${DRAFT_KEYS.POST_CREATE}`);
         localStorage.removeItem(`drafts-local-${DRAFT_KEYS.POST_CREATE}`);
         localStorage.removeItem(`drafts-outbox-${DRAFT_KEYS.POST_CREATE}`);
-      } catch (e) { /* ignore storage errors */ }
+      } catch (e) { /* ignore */ }
 
-      // Invalidate queries to refresh the campaigns page
       void queryClient.invalidateQueries({ queryKey: ["scheduled-posts"] });
 
       if (response.publishing_now || !scheduledAt) {
@@ -302,19 +221,13 @@ export default function NewPostPage() {
           platformResults: selectedPlatforms.reduce((acc, p) => ({ ...acc, [p]: "success" as const }), {}),
         });
         toast.success("✅ Post published successfully!", { duration: 5000 });
-        // Redirect after a short delay to show success state
-        setTimeout(() => {
-          router.push("/app/campaigns");
-        }, 2000);
+        setTimeout(() => router.push("/app/campaigns"), 2000);
       } else {
         setPublishingStatus({ status: "success" });
         toast.success("Post scheduled successfully!", { duration: 5000 });
-        setTimeout(() => {
-          router.push("/app/campaigns");
-        }, 2000);
+        setTimeout(() => router.push("/app/campaigns"), 2000);
       }
     } catch (error: any) {
-      // Enhanced error handling with platform-specific detection
       const errorBody = error?.body || {};
       const alertType = errorBody.alert_type || errorBody.error || '';
       const errorMessage = getUserFriendlyErrorMessage(error, {
@@ -326,20 +239,6 @@ export default function NewPostPage() {
         feature: errorBody.feature,
       });
 
-      // Log critical platform errors to monitoring
-      if (alertType === 'whatsapp_template_failure' || alertType === 'instagram_rate_limit' || alertType === 'tiktok_upload_failure') {
-        captureException(new Error(`Platform error: ${alertType}`), {
-          alert_type: alertType,
-          platform: selectedPlatforms.join(','),
-          error_message: errorMessage,
-          post_data: {
-            platforms: selectedPlatforms,
-            has_media: selectedMediaIds.length > 0,
-            has_caption: !!caption,
-          },
-        });
-      }
-
       setPublishingStatus({
         status: "error",
         error: errorMessage,
@@ -349,17 +248,11 @@ export default function NewPostPage() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [canNext, caption, enhanceCaption, selectedMediaIds, selectedPlatforms, scheduledAt, router, queryClient, tiktokDisableDuet, tiktokDisableStitch, tiktokDisableComment, tiktokScheduleTime]);
+  }, [canNext, caption, selectedMediaIds, selectedPlatforms, scheduledAt, router, queryClient, tiktokDisableDuet, tiktokDisableStitch, tiktokDisableComment, tiktokScheduleTime, draft]);
 
-  // Keyboard shortcuts (must be after canNext and handlePublish are defined)
+  // Keyboard shortcut for saving draft
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd/Ctrl + Enter: Publish immediately
-      if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && step === "review" && canNext) {
-        e.preventDefault();
-        void handlePublish();
-      }
-      // Cmd/Ctrl + S: Save draft (already auto-saving)
       if ((e.metaKey || e.ctrlKey) && e.key === "s") {
         e.preventDefault();
         toast.success("Draft saved automatically", { duration: 2000 });
@@ -367,11 +260,6 @@ export default function NewPostPage() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, canNext]);
-
-  const handleEdit = useCallback((editStep: "media" | "caption" | "platforms" | "schedule") => {
-    setStep(editStep);
   }, []);
 
   const handleNext = useCallback(() => {
@@ -379,41 +267,23 @@ export default function NewPostPage() {
       toast.error("Please complete this step before continuing");
       return;
     }
-
     const nextIndex = currentStepIndex + 1;
-    if (nextIndex < STEPS.length) {
-      setStep(STEPS[nextIndex]);
-    }
+    if (nextIndex < STEPS.length) setStep(STEPS[nextIndex].id);
   }, [canNext, currentStepIndex]);
 
   const handleBack = useCallback(() => {
     const prevIndex = currentStepIndex - 1;
-    if (prevIndex >= 0) {
-      setStep(STEPS[prevIndex]);
-    }
+    if (prevIndex >= 0) setStep(STEPS[prevIndex].id);
   }, [currentStepIndex]);
 
   const handleSaveDraft = useCallback(async () => {
     try {
       setIsSubmitting(true);
-
-      // Prepare payload for draft
-      const payload: {
-        media_ids: Array<number | string>;
-        platforms: string[];
-        scheduled_at?: string | null;
-        caption?: string;
-        name?: string;
-        status: "draft";
-        tiktok_disable_duet?: boolean;
-        tiktok_disable_stitch?: boolean;
-        tiktok_disable_comment?: boolean;
-        tiktok_schedule_time?: string;
-      } = {
+      const payload: any = {
         media_ids: selectedMediaIds,
-        platforms: selectedPlatforms.length > 0 ? selectedPlatforms : ["instagram"], // Default to something if empty
+        platforms: selectedPlatforms.length > 0 ? selectedPlatforms : ["instagram"],
         status: "draft",
-        scheduled_at: "", // Explicitly empty for drafts as per guide
+        scheduled_at: "",
       };
 
       if (caption.trim()) {
@@ -423,7 +293,6 @@ export default function NewPostPage() {
         payload.name = "Untitled Draft";
       }
 
-      // Add TikTok options if present (optional for drafts)
       if (selectedPlatforms.includes("tiktok")) {
         if (tiktokDisableDuet) payload.tiktok_disable_duet = true;
         if (tiktokDisableStitch) payload.tiktok_disable_stitch = true;
@@ -431,340 +300,189 @@ export default function NewPostPage() {
       }
 
       await tenantApi.createPost(payload);
-
-      // Clear local draft
       if (draft?.id) deleteDraft.mutate(draft.id);
-
-      // Invalidate queries
       void queryClient.invalidateQueries({ queryKey: ["scheduled-posts"] });
-
       toast.success("Draft saved to server");
       router.push("/app/campaigns");
-    } catch (error: any) {
-      console.error("Failed to save draft:", error);
-      toast.error("Failed to save draft to server");
+    } catch (error) {
+      toast.error("Failed to save draft");
     } finally {
       setIsSubmitting(false);
     }
   }, [caption, selectedMediaIds, selectedPlatforms, draft, deleteDraft, queryClient, router, tiktokDisableDuet, tiktokDisableStitch, tiktokDisableComment]);
 
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-  const handleCancel = useCallback(() => {
-    setShowCancelConfirm(true);
-  }, []);
+  const handleCancel = useCallback(() => setShowCancelConfirm(true), []);
   const confirmCancel = useCallback(() => {
     setShowCancelConfirm(false);
     router.push("/app/campaigns");
   }, [router]);
 
+  // Selected media URLs for preview
+  const selectedMediaUrls = useMemo(() => {
+    return selectedMediaIds
+      .map(id => uploadedMedia.find(m => m.id === id)?.url)
+      .filter(Boolean) as string[];
+  }, [selectedMediaIds, uploadedMedia]);
+
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Modern Hero Section */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-accent via-accent/95 to-accent/90 p-6 shadow-xl dark:border-gray-600 dark:from-accent dark:via-accent/90 dark:to-accent/80 sm:p-8 md:p-10">
-        <div className="absolute inset-0 opacity-10 dark:opacity-20">
-          <div className="absolute inset-0 dark:hidden" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }} />
-          <div className="absolute inset-0 hidden dark:block" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.3) 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }} />
+    <div className="w-full max-w-6xl mx-auto p-4 md:p-8">
+      {/* Header & Nav */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Create Post</h1>
+          <p className="text-gray-500 text-sm">Design, schedule, and publish your content</p>
         </div>
-        <div className="relative z-10">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="min-w-0 flex-1">
-              <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Create Post</h1>
-              <p className="mt-2 text-sm text-white/90 sm:text-base md:text-lg max-w-2xl">
-                Step {currentStepIndex + 1} of {STEPS.length}: {currentStepLabel}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Drafts / Restore button - moved outside hero */}
-
-
-      {/* Drafts button and status */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setShowDraftsModal(true)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-gray-300"
-          >
-            Local Drafts
-          </button>
-          <div aria-live="polite" aria-atomic="true">
-            {isSaving ? (
-              <span className="text-xs text-gray-500">Saving...</span>
-            ) : (
-              <span className="text-xs text-gray-500">Draft saved locally</span>
-            )}
-          </div>
-        </div>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleSaveDraft}
-            disabled={isSubmitting}
-            className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-accent hover:text-accent disabled:opacity-50"
-          >
-            Save to Cloud
-          </button>
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300"
-          >
-            Cancel
-          </button>
-          <Link
-            href="/app/campaigns"
-            className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-primary hover:text-primary"
-          >
-            ← Back to Campaigns
-          </Link>
+          <button onClick={() => setShowDraftsModal(true)} className="px-3 py-1.5 text-xs font-semibold border rounded-lg hover:bg-gray-50">Drafts</button>
+          <button onClick={handleSaveDraft} disabled={isSubmitting} className="px-3 py-1.5 text-xs font-semibold border rounded-lg hover:bg-gray-50 text-gray-700">Save & Exit</button>
+          <button onClick={handleCancel} className="px-3 py-1.5 text-xs font-semibold border rounded-lg hover:bg-gray-50 text-red-600 border-red-100">Cancel</button>
         </div>
       </div>
 
-      {showCancelConfirm && (
-        <ConfirmModal
-          open={true}
-          title="Cancel post creation"
-          description="Are you sure you want to cancel? Your progress will be lost."
-          confirmText="Yes, cancel"
-          onConfirm={confirmCancel}
-          onCancel={() => setShowCancelConfirm(false)}
-        />
-      )}
-
-      {/* Drafts modal */}
-      <DraftsModal
-        open={showDraftsModal}
-        onClose={() => setShowDraftsModal(false)}
-        keyName={DRAFT_KEYS.POST_CREATE}
-        onRestore={(d) => {
-          const content = parseDraftContent<any>(d);
-          if (content) {
-            if (content.goal) setGoal(content.goal);
-            if (content.uploadedMedia) setUploadedMedia(content.uploadedMedia);
-            if (content.selectedMediaIds) setSelectedMediaIds(content.selectedMediaIds);
-            if (content.caption) setCaption(content.caption);
-            if (content.enhanceCaption !== undefined) setEnhanceCaption(content.enhanceCaption);
-            if (content.selectedPlatforms) setSelectedPlatforms(content.selectedPlatforms);
-            if (content.scheduledAt) setScheduledAt(content.scheduledAt);
-            if (content.step) {
-              if (content.step === 'upload') setStep('media');
-              else setStep(content.step);
-            }
-            // tiktok
-            if (content.tiktokDisableDuet !== undefined) setTiktokDisableDuet(content.tiktokDisableDuet);
-            if (content.tiktokDisableStitch !== undefined) setTiktokDisableStitch(content.tiktokDisableStitch);
-            if (content.tiktokDisableComment !== undefined) setTiktokDisableComment(content.tiktokDisableComment);
-            if (content.tiktokScheduleTime) setTiktokScheduleTime(content.tiktokScheduleTime);
-
-            // Re-attach to the restored draft ID so autosave updates it
-            setDraftId(d.id);
-
-            toast.success('Draft restored');
-          }
-        }}
-        onDiscard={async (id) => {
-          try {
-            await deleteDraft.mutate(id);
-          } catch (e) {
-            // ignore
-          }
-        }}
-      />
-
-      {/* Remote conflict dialog (if remote draft appears different) */}
-
-
-      {/* Progress Bar */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <span>Progress</span>
-          <span>{Math.round(progress)}%</span>
-        </div>
-        <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
-          <div
-            className="h-full bg-primary transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
+      {/* Stepper */}
+      <div className="mb-8 overflow-x-auto pb-4">
+        <div className="flex items-center justify-between min-w-[600px]">
+          {STEPS.map((s, idx) => {
+            const isActive = s.id === step;
+            const isCompleted = idx < currentStepIndex;
+            return (
+              <div key={s.id} className="flex items-center flex-1 last:flex-none relative group cursor-pointer" onClick={() => idx <= currentStepIndex && setStep(s.id)}>
+                <div className={`flex items-center gap-2 ${isActive ? 'text-primary font-bold' : isCompleted ? 'text-green-600 font-medium' : 'text-gray-400'}`}>
+                  <div className={`h-8 w-8 rounded-full flex items-center justify-center border-2 transition-colors ${isActive ? 'border-primary bg-primary text-white' : isCompleted ? 'border-green-600 bg-green-600 text-white' : 'border-gray-200 bg-white text-gray-400 group-hover:border-gray-300'}`}>
+                    {isCompleted ? '✓' : idx + 1}
+                  </div>
+                  <span className="whitespace-nowrap text-sm">{s.label}</span>
+                </div>
+                {idx < STEPS.length - 1 && (
+                  <div className={`h-0.5 w-full mx-4 transition-colors ${isCompleted ? 'bg-green-600' : 'bg-gray-200'}`} />
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Step Indicator - Mobile responsive */}
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-        {STEPS.map((stepKey, idx) => {
-          const label = STEP_LABELS[stepKey];
-          const isActive = step === stepKey;
-          const isCompleted = idx < currentStepIndex;
-          const Icon = STEP_ICONS[stepKey];
-          return (
-            <button
-              key={stepKey}
-              type="button"
-              onClick={() => {
-                // Allow going back to completed steps
-                if (idx <= currentStepIndex) {
-                  setStep(stepKey);
-                }
-              }}
-              className={`flex flex-col items-center justify-center gap-1 rounded-xl border py-2 text-center transition-all ${isActive
-                ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
-                : isCompleted
-                  ? "border-green-300 bg-green-50 text-green-700 hover:border-green-400"
-                  : "border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
-                } ${idx <= currentStepIndex ? "cursor-pointer hover:scale-105" : ""}`}
-              disabled={idx > currentStepIndex}
-              aria-label={`Step ${idx + 1}: ${label}`}
-            >
-              <Icon className="h-5 w-5" />
-              <span className="text-[10px] font-medium sm:text-xs">{label}</span>
-            </button>
-          );
-        })}
-      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 min-h-[500px]">
 
-      {/* Step Content */}
-      <div className="min-h-[400px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         {step === "goal" && (
-          <GoalSelector
-            selectedGoal={goal}
-            onSelect={(g) => {
-              setGoal(g);
-              // Auto-advance
-              setTimeout(() => setStep("platforms"), 150);
-            }}
-          />
+          <div className="max-w-3xl mx-auto">
+            <GoalSelector
+              selectedGoal={goal}
+              onSelect={(g) => { setGoal(g); setTimeout(() => setStep("platforms"), 150); }}
+            />
+          </div>
         )}
 
         {step === "platforms" && (
-          <PlatformSelector
-            selectedPlatforms={selectedPlatforms}
-            onSelectionChange={setSelectedPlatforms}
-          />
+          <div className="max-w-3xl mx-auto">
+            <PlatformSelector selectedPlatforms={selectedPlatforms} onSelectionChange={setSelectedPlatforms} />
+          </div>
         )}
 
         {step === "media" && (
-          <div className="space-y-4">
-            {mediaSubStep === 'landing' && (
-              <>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">How would you like to add media?</h3>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <button
-                    onClick={() => setMediaSubStep('upload')}
-                    className="flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 transition-all hover:border-primary hover:bg-primary/5 hover:scale-[1.02]"
-                  >
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <CloudArrowUpIcon className="h-8 w-8" />
-                    </div>
-                    <div className="text-center">
-                      <span className="block text-lg font-semibold text-gray-900">Upload New</span>
-                      <span className="block text-sm text-gray-500">Drag & drop images or videos</span>
-                    </div>
-                  </button>
+          <div className="max-w-4xl mx-auto space-y-6">
+            {/* Simplified Media Step using conditional sub-steps similar to original but cleaned up */}
+            <div className="flex gap-4 border-b border-gray-100 pb-4 mb-4">
+              <button
+                onClick={() => setMediaSubStep('landing')}
+                className={`text-sm font-medium ${mediaSubStep === 'landing' ? 'text-primary' : 'text-gray-500'}`}
+              >
+                Options
+              </button>
+              <button
+                onClick={() => setMediaSubStep('upload')}
+                className={`text-sm font-medium ${mediaSubStep === 'upload' ? 'text-primary' : 'text-gray-500'}`}
+              >
+                Upload
+              </button>
+              <button
+                onClick={() => setMediaSubStep('library')}
+                className={`text-sm font-medium ${mediaSubStep === 'library' ? 'text-primary' : 'text-gray-500'}`}
+              >
+                Library ({selectedMediaIds.length})
+              </button>
+            </div>
 
-                  <button
-                    onClick={() => setMediaSubStep('library')}
-                    className="flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 transition-all hover:border-primary hover:bg-primary/5 hover:scale-[1.02]"
-                  >
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                      <PhotoIcon className="h-8 w-8" />
-                    </div>
-                    <div className="text-center">
-                      <span className="block text-lg font-semibold text-gray-900">Select from Library</span>
-                      <span className="block text-sm text-gray-500">Choose from previously uploaded files</span>
-                    </div>
-                  </button>
-                </div>
-                {/* Show recent files preview if any */}
-                {selectedMediaIds.length > 0 && (
-                  <div className="mt-6 border-t pt-4">
-                    <p className="text-sm font-medium text-gray-700 mb-2">Selected Media ({selectedMediaIds.length})</p>
-                    <div className="flex -space-x-2 overflow-hidden">
-                      {selectedMediaIds.slice(0, 5).map(id => (
-                        <div key={id} className="inline-block h-10 w-10 rounded-full bg-gray-200 ring-2 ring-white" />
-                      ))}
-                    </div>
-                    <button onClick={() => setMediaSubStep('library')} className="text-xs text-primary hover:underline mt-1">
-                      View selected
-                    </button>
-                  </div>
-                )}
-              </>
+            {mediaSubStep === 'landing' && (
+              <div className="grid gap-6 sm:grid-cols-2">
+                <button onClick={() => setMediaSubStep('upload')} className="flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-10 hover:border-primary hover:bg-primary/5 transition-all">
+                  <span className="text-4xl">☁️</span>
+                  <span className="font-semibold text-gray-900">Upload New</span>
+                </button>
+                <button onClick={() => setMediaSubStep('library')} className="flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-10 hover:border-primary hover:bg-primary/5 transition-all">
+                  <span className="text-4xl">🖼️</span>
+                  <span className="font-semibold text-gray-900">Choose from Library</span>
+                </button>
+              </div>
             )}
 
             {mediaSubStep === 'upload' && (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <button onClick={() => setMediaSubStep('landing')} className="text-sm text-gray-500 hover:text-gray-900 flex items-center gap-1">
-                    ← Back to options
-                  </button>
-                  <button onClick={() => setMediaSubStep('library')} className="text-sm text-primary hover:underline font-medium">
-                    View Library
-                  </button>
-                </div>
-                <MediaUploader
-                  onUploadComplete={(media) => {
-                    handleUploadComplete(media);
-                    setMediaSubStep('library'); // Auto-switch to library to see selected
-                  }}
-                  maxFiles={10}
-                  maxFileSize={50}
-                />
-              </div>
+              <MediaUploader
+                onUploadComplete={(media) => { handleUploadComplete(media); setMediaSubStep('library'); }}
+                maxFiles={10}
+                maxFileSize={100}
+              />
             )}
 
             {mediaSubStep === 'library' && (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <button onClick={() => setMediaSubStep('landing')} className="text-sm text-gray-500 hover:text-gray-900 flex items-center gap-1">
-                    ← Back to options
-                  </button>
-                </div>
-                <MediaSelector
-                  selectedMediaIds={selectedMediaIds}
-                  onSelectionChange={setSelectedMediaIds}
-                  uploadedMedia={uploadedMedia}
-                  onUploadRequest={() => setMediaSubStep('upload')}
-                />
-              </div>
+              <MediaSelector
+                selectedMediaIds={selectedMediaIds}
+                onSelectionChange={setSelectedMediaIds}
+                uploadedMedia={uploadedMedia}
+                onUploadRequest={() => setMediaSubStep('upload')}
+              />
             )}
-
-            {/* Unified Note */}
-            <p className="text-xs text-center text-gray-400 mt-4">
-              Media is optional for text-only posts on some platforms.
-            </p>
           </div>
         )}
 
         {step === "caption" && (
-          <CaptionEditor
-            value={caption}
-            onChange={setCaption}
-            enhanceCaption={enhanceCaption}
-            onEnhanceCaptionChange={setEnhanceCaption}
-            onAIGenerate={handleGenerateCaption}
-            isAIGenerating={isAIGenerating}
-            selectedMediaIds={selectedMediaIds}
-            selectedPlatforms={selectedPlatforms}
-          />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <CaptionEditor
+                value={caption}
+                onChange={setCaption}
+                enhanceCaption={enhanceCaption}
+                onEnhanceCaptionChange={setEnhanceCaption}
+                onAIGenerate={handleGenerateCaption}
+                isAIGenerating={isAIGenerating}
+                selectedMediaIds={selectedMediaIds}
+                selectedPlatforms={selectedPlatforms}
+              />
+            </div>
+            <div className="hidden lg:block sticky top-6 self-start">
+              <h3 className="text-sm font-semibold text-gray-500 mb-4 uppercase tracking-wider">Preview</h3>
+              <PlatformPreview
+                platform={(selectedPlatforms[0] as any) || 'instagram'}
+                caption={caption}
+                mediaUrls={selectedMediaUrls}
+              />
+              <p className="text-xs text-center text-gray-400 mt-2">
+                Previewing for {selectedPlatforms[0] || 'Instagram'}
+              </p>
+              {selectedPlatforms.length > 1 && (
+                <div className="flex justify-center gap-2 mt-4">
+                  {selectedPlatforms.map(p => (
+                    <button
+                      key={p}
+                      className="h-2 w-2 rounded-full bg-gray-300 hover:bg-gray-600"
+                      title={`Preview ${p}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
         {step === "schedule" && (
-          <div className="space-y-6">
+          <div className="max-w-3xl mx-auto space-y-8">
             <SchedulePicker
               value={scheduledAt}
               onChange={setScheduledAt}
               selectedPlatforms={selectedPlatforms}
             />
-
-            {/* TikTok-specific options */}
             {selectedPlatforms.includes("tiktok") && (
               <TikTokOptions
                 disableDuet={tiktokDisableDuet}
@@ -786,7 +504,7 @@ export default function NewPostPage() {
             caption={caption}
             selectedPlatforms={selectedPlatforms}
             scheduledAt={scheduledAt}
-            onEdit={handleEdit}
+            onEdit={(editStep) => setStep(editStep)}
             onPublish={handlePublish}
             isPublishing={isSubmitting}
             publishingStatus={publishingStatus}
@@ -795,28 +513,69 @@ export default function NewPostPage() {
         )}
       </div>
 
-      {/* Navigation - Mobile responsive */}
-      {step !== "review" && (
-        <div className="flex items-center justify-between gap-3">
+      {/* Navigation Footer for Steps */}
+      <div className="mt-8 flex justify-between">
+        <button
+          onClick={handleBack}
+          disabled={currentStepIndex === 0}
+          className="px-6 py-3 rounded-xl border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Back
+        </button>
+
+        {step !== 'review' && (
           <button
-            type="button"
-            onClick={handleBack}
-            disabled={currentStepIndex === 0}
-            className="min-h-[44px] flex-1 rounded-xl border-2 border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-            aria-label="Go to previous step"
-          >
-            ← Back
-          </button>
-          <button
-            type="button"
             onClick={handleNext}
             disabled={!canNext}
-            className="min-h-[44px] flex-1 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 focus:outline-none focus:ring-4 focus:ring-primary/20 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
-            aria-label="Go to next step"
+            className="px-8 py-3 rounded-xl bg-primary text-white font-semibold shadow-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Next →
+            Next Step
           </button>
-        </div>
+        )}
+      </div>
+
+      {showDraftsModal && (
+        <DraftsModal
+          open={showDraftsModal}
+          onClose={() => setShowDraftsModal(false)}
+          keyName={DRAFT_KEYS.POST_CREATE}
+          onRestore={(d) => {
+            const content = parseDraftContent<any>(d);
+            if (content) {
+              if (content.goal) setGoal(content.goal);
+              if (content.uploadedMedia) setUploadedMedia(content.uploadedMedia);
+              if (content.selectedMediaIds) setSelectedMediaIds(content.selectedMediaIds);
+              if (content.caption) setCaption(content.caption);
+              if (content.enhanceCaption !== undefined) setEnhanceCaption(content.enhanceCaption);
+              if (content.selectedPlatforms) setSelectedPlatforms(content.selectedPlatforms);
+              if (content.scheduledAt) setScheduledAt(content.scheduledAt);
+              // navigate to step if valid
+              if (content.step) setStep(content.step);
+
+              if (content.tiktokDisableDuet !== undefined) setTiktokDisableDuet(content.tiktokDisableDuet);
+              if (content.tiktokDisableStitch !== undefined) setTiktokDisableStitch(content.tiktokDisableStitch);
+              if (content.tiktokDisableComment !== undefined) setTiktokDisableComment(content.tiktokDisableComment);
+              if (content.tiktokScheduleTime) setTiktokScheduleTime(content.tiktokScheduleTime);
+
+              setDraftId(d.id);
+              toast.success('Draft restored');
+            }
+          }}
+          onDiscard={async (id) => {
+            try { await deleteDraft.mutate(id); } catch (e) { }
+          }}
+        />
+      )}
+
+      {showCancelConfirm && (
+        <ConfirmModal
+          open={true}
+          title="Cancel post creation"
+          description="Are you sure you want to cancel? Your progress will be lost."
+          confirmText="Yes, cancel"
+          onConfirm={confirmCancel}
+          onCancel={() => setShowCancelConfirm(false)}
+        />
       )}
     </div>
   );
