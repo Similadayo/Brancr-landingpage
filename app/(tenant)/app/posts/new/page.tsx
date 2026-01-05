@@ -29,6 +29,7 @@ import {
   PhotoIcon,
 } from "@/app/(tenant)/components/icons";
 import { useDraft, useAutoSaveDraft, useDeleteDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
+import { useMedia } from "@/app/(tenant)/hooks/useMedia";
 import GoalSelector from "@/app/(tenant)/components/posting/GoalSelector";
 
 type Step = "goal" | "platforms" | "media" | "caption" | "schedule" | "review";
@@ -104,15 +105,25 @@ export default function NewPostPage() {
     }
   }, [draft, draftLoading]);
 
-  // Selected media URLs for preview
+  // Fetch library media for preview URLs
+  const { data: libraryMedia = [] } = useMedia();
+
+  // Selected media URLs for preview - check both uploaded and library
   const selectedMediaUrls = useMemo(() => {
     return selectedMediaIds
       .map(id => {
-        const media = uploadedMedia.find(m => m.id === id);
-        return media?.url || null;
+        // First check uploadedMedia (newly uploaded files)
+        const uploaded = uploadedMedia.find(m => m.id === id);
+        if (uploaded?.url) return uploaded.url;
+
+        // Then check library media
+        const library = libraryMedia.find(m => String(m.id) === id);
+        if (library) return library.url || library.urls?.[0] || library.thumbnail_url || null;
+
+        return null;
       })
       .filter((url): url is string => url !== null);
-  }, [selectedMediaIds, uploadedMedia]);
+  }, [selectedMediaIds, uploadedMedia, libraryMedia]);
 
   // Construct draft content
   const draftContent = useMemo(() => ({
