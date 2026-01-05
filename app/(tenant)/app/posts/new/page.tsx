@@ -217,9 +217,11 @@ export default function NewPostPage() {
         tiktok_disable_stitch?: boolean;
         tiktok_disable_comment?: boolean;
         tiktok_schedule_time?: string;
+        draft_id?: string;
       } = {
         media_ids: selectedMediaIds,
         platforms: selectedPlatforms,
+        draft_id: draft?.id,
       };
 
       // Add optional fields
@@ -260,7 +262,8 @@ export default function NewPostPage() {
       const response = await tenantApi.createPost(payload);
 
       // Clear draft on success - both server and local storage
-      if (draft?.id) deleteDraft.mutate(draft.id);
+      // Note: Backend handles server-side deletion if draft_id is passed, but we clear local state here
+      // if (draft?.id) deleteDraft.mutate(draft.id);
       // Clear all local draft storage to ensure fresh start on next post creation
       try {
         localStorage.removeItem(`drafts-local-content-${DRAFT_KEYS.POST_CREATE}`);

@@ -932,6 +932,7 @@ export const tenantApi = {
     scheduled_at?: string | null; // "now", RFC3339 date, or null for immediate publishing
     enhance_caption?: boolean; // If true, AI enhances the caption; if false or omitted, uses caption as-is
     status?: "scheduled" | "draft"; // Optional, defaults to "scheduled". Set to "draft" to save as draft.
+    draft_id?: string; // [NEW] Optional, ID of the draft being published (to delete it)
     // TikTok-specific options
     tiktok_disable_duet?: boolean;
     tiktok_disable_stitch?: boolean;
@@ -2780,5 +2781,18 @@ export const tenantApi = {
       period: string;
     }>(`/api/tenant/instagram/insights/media/${mediaId}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`);
   },
+
+  // Escalation Context
+  getEscalationContext: (id: string) => get<any>(`/api/tenant/escalations/${id}/context`),
+
+  // Type-specific actions
+  approvePayment: (id: string, sendReceipt: boolean = true) =>
+    post<any>(`/api/tenant/escalations/${id}/approve-payment`, { send_receipt: sendReceipt }),
+
+  resolveComplaint: (id: string, message?: string) =>
+    post<any>(`/api/tenant/escalations/${id}/resolve-complaint`, { message }),
+
+  confirmBooking: (id: string, time: string) =>
+    post<any>(`/api/tenant/escalations/${id}/confirm-booking`, { confirmed_time: time }),
 };
 
