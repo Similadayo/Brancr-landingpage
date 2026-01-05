@@ -7,7 +7,7 @@ type CaptionEditorProps = {
   onChange: (value: string) => void;
   enhanceCaption: boolean;
   onEnhanceCaptionChange: (enhance: boolean) => void;
-  onAIGenerate?: () => Promise<void>;
+  onAIGenerate?: (options?: { tone?: string; include_hashtags?: boolean }) => Promise<void>;
   isAIGenerating?: boolean;
   selectedMediaIds: string[];
   selectedPlatforms?: string[];
@@ -36,12 +36,12 @@ export default function CaptionEditor({
   const [showPreview, setShowPreview] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
 
-  const handleAIGenerate = async () => {
+  const handleAIGenerate = async (options?: { tone?: string; include_hashtags?: boolean }) => {
     // Allow AI generation even when no media is selected. The server will fall back to
     // tenant-level defaults when media is absent; the page may also auto-select a
     // platform (e.g., Facebook) when appropriate.
     if (onAIGenerate) {
-      await onAIGenerate();
+      await onAIGenerate(options);
     }
   };
 
@@ -55,18 +55,18 @@ export default function CaptionEditor({
   };
 
   // Calculate limits based on selected platforms, or use all if none selected
-  const relevantPlatforms = selectedPlatforms.length > 0 
-    ? selectedPlatforms 
+  const relevantPlatforms = selectedPlatforms.length > 0
+    ? selectedPlatforms
     : Object.keys(PLATFORM_LIMITS);
-  
+
   const relevantLimits = relevantPlatforms
     .map((p) => PLATFORM_LIMITS[p])
     .filter(Boolean);
-  
-  const minLimit = relevantLimits.length > 0 
+
+  const minLimit = relevantLimits.length > 0
     ? Math.min(...relevantLimits.map((l) => l.max))
     : 2200;
-  
+
   const charCount = value.length;
   const isNearLimit = charCount > minLimit * 0.9;
   const isOverLimit = charCount > minLimit;
@@ -84,6 +84,43 @@ export default function CaptionEditor({
         </button>
       </div>
 
+      {/* Platform Character Limits (Top) */}
+      {selectedPlatforms.length > 0 && (
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+          <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">
+            Target Platforms
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+            {selectedPlatforms.map((platform) => {
+              const limit = PLATFORM_LIMITS[platform];
+              if (!limit) return null;
+              const platformCount = value.length;
+              const isOver = platformCount > limit.max;
+              const isNear = platformCount > limit.max * 0.9;
+              return (
+                <div
+                  key={platform}
+                  className={`rounded-lg border px-3 py-2 transition-colors ${isOver
+                    ? "border-red-200 bg-red-50 text-red-900"
+                    : isNear
+                      ? "border-orange-200 bg-orange-50 text-orange-900"
+                      : "border-gray-200 bg-white"
+                    }`}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">{limit.icon}</span>
+                    <span className="text-xs font-semibold">{limit.name}</span>
+                  </div>
+                  <p className={`mt-1 text-xs font-medium ${isOver ? "text-red-600" : isNear ? "text-orange-600" : "text-gray-500"}`}>
+                    {platformCount} / {limit.max}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* AI Generation Button (for empty captions) */}
       {!value.trim() && (
         <div className="flex flex-wrap items-center gap-3">
@@ -91,7 +128,7 @@ export default function CaptionEditor({
             type="button"
             onClick={() => void handleAIGenerate()}
             disabled={isAIGenerating}
-            className="group flex items-center gap-2 rounded-xl border-2 border-primary/30 bg-primary/10 px-5 py-2.5 text-sm font-semibold text-primary transition-all hover:border-primary/50 hover:bg-primary/20 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 dark:border-white/30 dark:bg-white/10 dark:text-white dark:hover:border-white/50 dark:hover:bg-white/20"
+            className="group flex items-center gap-2 rounded-xl border-2 border-primary/30 bg-primary/10 px-5 py-2.5 text-sm font-semibold text-primary transition-all hover:border-primary/50 hover:bg-primary/20 hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
             aria-label="Generate caption with AI"
           >
             {isAIGenerating ? (
@@ -106,49 +143,70 @@ export default function CaptionEditor({
               </>
             )}
           </button>
-          {selectedMediaIds.length === 0 && (
-            <span className="text-xs text-gray-500">💡 No media selected — Facebook will be used for text-only posts</span>
-          )}
+          <div className="flex gap-2">
+            {[
+              { label: "Short", tone: "concise" },
+              { label: "Sales", tone: "sales" },
+              { label: "Fun", tone: "humorous" }
+            ].map(opt => (
+              <button
+                key={opt.label}
+                type="button"
+                onClick={() => void handleAIGenerate({ tone: opt.tone })}
+                disabled={isAIGenerating}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:border-primary hover:text-primary disabled:opacity-50"
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Caption Input */}
       <div className="space-y-2">
         <textarea
           value={value}
           onChange={(e) => handleChange(e.target.value)}
           rows={10}
           placeholder="Write your caption... Use @mentions, #hashtags, and emojis to engage your audience! 💬"
-          className={`w-full rounded-xl border-2 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 transition-all focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20 ${
-            isOverLimit
-              ? "border-red-300 bg-red-50/50"
-              : isNearLimit
+          className={`w-full rounded-xl border-2 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 transition-all focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20 ${isOverLimit
+            ? "border-red-300 bg-red-50/50"
+            : isNearLimit
               ? "border-orange-300 bg-orange-50/30"
               : "border-gray-200"
-          }`}
+            }`}
           aria-label="Caption input"
         />
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-3 text-xs">
-            <span className={`font-medium ${isOverLimit ? "text-red-600" : isNearLimit ? "text-orange-600" : "text-gray-500"}`}>
-              {charCount} / {minLimit} characters
-            </span>
-            {isOverLimit && (
-              <span className="rounded-full bg-red-100 px-2 py-0.5 font-semibold text-red-700">
-                Over limit
-              </span>
-            )}
-            {isNearLimit && !isOverLimit && (
-              <span className="rounded-full bg-orange-100 px-2 py-0.5 font-semibold text-orange-700">
-                ⚠️ Approaching limit
-              </span>
-            )}
-            {!isNearLimit && charCount > 0 && (
-              <span className="rounded-full bg-green-100 px-2 py-0.5 font-semibold text-green-700">
-                ✓ Looking good!
-              </span>
-            )}
+          {/* Quick AI Actions Row */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">AI Actions:</span>
+            <button
+              type="button"
+              onClick={() => void handleAIGenerate({ include_hashtags: true })}
+              className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+              disabled={isAIGenerating}
+            >
+              # Hashtags
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleAIGenerate({ tone: 'concise' })}
+              className="rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700 hover:bg-purple-100 transition-colors"
+              disabled={isAIGenerating}
+            >
+              Shorten
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleAIGenerate({ tone: 'sales' })}
+              className="rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 hover:bg-green-100 transition-colors"
+              disabled={isAIGenerating}
+            >
+              Sales-mode
+            </button>
           </div>
+
           <button
             type="button"
             onClick={() => handleChange("")}
@@ -187,7 +245,7 @@ export default function CaptionEditor({
         {draftSaved && (
           <span className="flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700">
             <span>✓</span>
-            <span>Draft saved</span>
+            <span>Draft saved & safe</span>
           </span>
         )}
         {enhanceCaption && value.trim() && (
@@ -198,43 +256,7 @@ export default function CaptionEditor({
         )}
       </div>
 
-      {/* Platform Character Limits */}
-      {selectedPlatforms.length > 0 && (
-        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">
-            Character Limits by Platform
-          </p>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-            {selectedPlatforms.map((platform) => {
-              const limit = PLATFORM_LIMITS[platform];
-              if (!limit) return null;
-              const platformCount = value.length;
-              const isOver = platformCount > limit.max;
-              const isNear = platformCount > limit.max * 0.9;
-              return (
-                <div
-                  key={platform}
-                  className={`rounded-lg border-2 px-3 py-2 ${
-                    isOver
-                      ? "border-red-200 bg-red-50"
-                      : isNear
-                      ? "border-orange-200 bg-orange-50"
-                      : "border-gray-200 bg-white"
-                  }`}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm">{limit.icon}</span>
-                    <span className="text-xs font-semibold text-gray-700">{limit.name}</span>
-                  </div>
-                  <p className={`mt-1 text-xs font-medium ${isOver ? "text-red-600" : isNear ? "text-orange-600" : "text-gray-600"}`}>
-                    {platformCount} / {limit.max}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+
 
       {/* Formatting Hints */}
       <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">

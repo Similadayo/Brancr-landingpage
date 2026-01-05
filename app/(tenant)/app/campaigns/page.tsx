@@ -593,6 +593,12 @@ export default function CampaignsPage() {
                                   minute: "2-digit",
                                 })}
                             </span>
+                            {post.status === 'posted' && (
+                              <span className="hidden sm:flex items-center gap-1 text-xs font-medium text-blue-600 dark:text-blue-400">
+                                <span className="text-xs">🚀</span>
+                                Waiting for engagement
+                              </span>
+                            )}
                           </div>
                           {post.last_error && (
                             <div className="mt-2 flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2">

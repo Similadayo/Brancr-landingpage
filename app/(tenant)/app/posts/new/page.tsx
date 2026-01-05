@@ -18,23 +18,25 @@ import TikTokOptions from "@/app/(tenant)/components/posting/TikTokOptions";
 import ConfirmModal from '@/app/components/ConfirmModal';
 import DraftsModal from '@/app/(tenant)/components/posting/DraftsModal';
 import { useDraft, useAutoSaveDraft, useDeleteDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
+import GoalSelector from "@/app/(tenant)/components/posting/GoalSelector";
 
-type Step = "upload" | "media" | "caption" | "platforms" | "schedule" | "review";
+type Step = "goal" | "platforms" | "upload" | "media" | "caption" | "schedule" | "review";
 
-const STEPS: Step[] = ["upload", "media", "caption", "platforms", "schedule", "review"];
+const STEPS: Step[] = ["goal", "platforms", "upload", "media", "caption", "schedule", "review"];
 const STEP_LABELS: Record<Step, string> = {
-  upload: "Upload Media",
-  media: "Select Media",
-  caption: "Write Caption",
-  platforms: "Choose Platforms",
+  goal: "Goal",
+  platforms: "Platforms",
+  upload: "Upload",
+  media: "Media",
+  caption: "Caption",
   schedule: "Schedule",
-  review: "Review & Publish",
+  review: "Review",
 };
 
 export default function NewPostPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [step, setStep] = useState<Step>("upload");
+  const [step, setStep] = useState<Step>("goal");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [publishingStatus, setPublishingStatus] = useState<{
     status: "idle" | "publishing" | "success" | "error";
@@ -49,6 +51,7 @@ export default function NewPostPage() {
   const [enhanceCaption, setEnhanceCaption] = useState(false);
   const [isAIGenerating, setIsAIGenerating] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [goal, setGoal] = useState<string | null>(null);
   const [scheduledAt, setScheduledAt] = useState<string | null>(null);
 
   // TikTok-specific options
@@ -83,6 +86,7 @@ export default function NewPostPage() {
 
   // Construct draft content
   const draftContent = useMemo(() => ({
+    goal,
     uploadedMedia,
     selectedMediaIds,
     caption,
@@ -95,7 +99,7 @@ export default function NewPostPage() {
     tiktokDisableComment,
     tiktokScheduleTime,
   }), [
-    uploadedMedia, selectedMediaIds, caption, enhanceCaption, selectedPlatforms, scheduledAt, step,
+    goal, uploadedMedia, selectedMediaIds, caption, enhanceCaption, selectedPlatforms, scheduledAt, step,
     tiktokDisableDuet, tiktokDisableStitch, tiktokDisableComment, tiktokScheduleTime
   ]);
 
@@ -109,23 +113,26 @@ export default function NewPostPage() {
   // Validation
   const canNext = useMemo(() => {
     switch (step) {
-      case "upload":
-        return true; // Can proceed even without uploading
-      case "media":
-        return true; // Media is optional (Facebook supports text-only)
-      case "caption":
-        return true; // Caption is optional (can be empty)
+      case "goal":
+        return !!goal;
       case "platforms":
         return selectedPlatforms.length > 0;
+      case "upload":
+        return true; // Can skip upload if selecting from library
+      case "media":
+        // Media is optional for some platforms (e.g. Facebook text-only), but visually we might want to encourage it.
+        // For now, allow proceeding.
+        return true;
+      case "caption":
+        return true;
       case "schedule":
-        return true; // Can publish now (scheduledAt can be null)
+        return true;
       case "review":
-        // Client: require at least one selected platform. Backend will validate platform-specific media requirements.
         return selectedPlatforms.length > 0;
       default:
         return false;
     }
-  }, [step, selectedMediaIds, selectedPlatforms]);
+  }, [step, goal, selectedPlatforms]);
 
   // Handlers
   const handleUploadComplete = useCallback((media: UploadedMedia[]) => {
@@ -147,7 +154,7 @@ export default function NewPostPage() {
     };
   }, [selectedMediaIds, uploadedMedia]);
 
-  const handleGenerateCaption = useCallback(async () => {
+  const handleGenerateCaption = useCallback(async (options?: { tone?: string; include_hashtags?: boolean }) => {
     // Allow caption generation even when no media is selected. If there is no media
     // and no platform selected, default to Facebook (supports text-only posts).
     if (selectedMediaIds.length === 0 && selectedPlatforms.length === 0) {
@@ -158,7 +165,8 @@ export default function NewPostPage() {
       setIsAIGenerating(true);
       const res = await tenantApi.generateCaption({
         media_ids: selectedMediaIds,
-        include_hashtags: true,
+        include_hashtags: options?.include_hashtags ?? true,
+        tone: options?.tone,
       });
 
       // API returns { caption: string } - empty string is a valid successful response
@@ -522,6 +530,7 @@ export default function NewPostPage() {
         onRestore={(d) => {
           const content = parseDraftContent<any>(d);
           if (content) {
+            if (content.goal) setGoal(content.goal);
             if (content.uploadedMedia) setUploadedMedia(content.uploadedMedia);
             if (content.selectedMediaIds) setSelectedMediaIds(content.selectedMediaIds);
             if (content.caption) setCaption(content.caption);
@@ -601,12 +610,39 @@ export default function NewPostPage() {
 
       {/* Step Content */}
       <div className="min-h-[400px] rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        {step === "upload" && (
-          <MediaUploader
-            onUploadComplete={handleUploadComplete}
-            maxFiles={10}
-            maxFileSize={50}
+        {step === "goal" && (
+          <GoalSelector
+            selectedGoal={goal}
+            onSelect={(g) => {
+              setGoal(g);
+              // Auto-advance
+              setTimeout(() => setStep("platforms"), 150);
+            }}
           />
+        )}
+
+        {step === "platforms" && (
+          <PlatformSelector
+            selectedPlatforms={selectedPlatforms}
+            onSelectionChange={setSelectedPlatforms}
+          />
+        )}
+
+        {step === "upload" && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-medium">Upload Media</h3>
+              <button onClick={() => setStep("media")} className="text-sm text-primary hover:underline">Skip to Library</button>
+            </div>
+            <MediaUploader
+              onUploadComplete={(media) => {
+                handleUploadComplete(media);
+                // Auto-advance if single file uploaded? Maybe just let user click next.
+              }}
+              maxFiles={10}
+              maxFileSize={50}
+            />
+          </div>
         )}
 
         {step === "media" && (
@@ -627,13 +663,6 @@ export default function NewPostPage() {
             isAIGenerating={isAIGenerating}
             selectedMediaIds={selectedMediaIds}
             selectedPlatforms={selectedPlatforms}
-          />
-        )}
-
-        {step === "platforms" && (
-          <PlatformSelector
-            selectedPlatforms={selectedPlatforms}
-            onSelectionChange={setSelectedPlatforms}
           />
         )}
 
