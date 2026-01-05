@@ -241,7 +241,7 @@ export default function TenantOverviewPage() {
   const firstWord = displayName.split(/\s+/).filter(Boolean)[0];
 
   return (
-    <div className="fixed inset-0 left-0 lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg">
+    <div className="fixed bottom-0 left-0 right-0 top-[80px] lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg">
       <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-6 sm:py-8">
         <div className="mx-auto max-w-7xl space-y-6">
           {/* AI Status Summary */}
