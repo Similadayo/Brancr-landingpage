@@ -64,7 +64,7 @@ export function IndustrySelector({ onSelect, showDescription = true, allowChange
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to load industries</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Failed to load industries</h3>
         <p className="text-sm text-gray-600 mb-4 text-center max-w-md">
           Unable to load the list of industries. Please check your connection and try again.
         </p>
@@ -95,7 +95,7 @@ export function IndustrySelector({ onSelect, showDescription = true, allowChange
           <div className="flex items-center gap-2">
             <CheckCircleIcon className="h-5 w-5 text-primary" />
             <div>
-              <p className="text-sm font-semibold text-gray-900">Current Industry</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">Current Industry</p>
               <p className="text-sm text-gray-600">{currentIndustry.industry_name}</p>
             </div>
           </div>
@@ -114,8 +114,8 @@ export function IndustrySelector({ onSelect, showDescription = true, allowChange
               onClick={() => handleSelect(industry.id)}
               disabled={false}
               className={`relative rounded-xl border-2 p-6 text-left transition-all ${isSelected
-                  ? "border-primary bg-primary/5 shadow-md"
-                  : "border-gray-200 bg-white hover:border-primary/50 hover:shadow-sm"
+                ? "border-primary bg-primary/5 shadow-md"
+                : "border-gray-200 bg-white hover:border-primary/50 hover:shadow-sm"
                 } cursor-pointer`}
             >
               {isCurrent && (
@@ -125,7 +125,7 @@ export function IndustrySelector({ onSelect, showDescription = true, allowChange
               )}
 
               <div className="mb-3">
-                <h3 className="text-lg font-semibold text-gray-900">{industry.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{industry.name}</h3>
                 <p className="text-xs text-gray-500 uppercase tracking-wider">{industry.category}</p>
               </div>
 

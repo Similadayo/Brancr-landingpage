@@ -145,7 +145,7 @@ export default function SettingsPage() {
 
         return (
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Connected Platforms</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Connected Platforms</h3>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {telegram && telegram.connected ? (
                 <div className="flex items-center justify-between p-4 rounded-xl border border-green-200 bg-green-50 dark:bg-green-900/10 dark:border-green-800 shadow-sm">
@@ -186,7 +186,7 @@ export default function SettingsPage() {
             ) : (
               <>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="business-name">
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2" htmlFor="business-name">
                     Business Name
                   </label>
                   <input
@@ -195,13 +195,13 @@ export default function SettingsPage() {
                     value={profileForm.name}
                     onChange={(e) => setProfileForm((prev) => ({ ...prev, name: e.target.value }))}
                     placeholder="Your company name"
-                    className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="industry">
+                    <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2" htmlFor="industry">
                       Industry
                     </label>
                     <input
@@ -210,11 +210,11 @@ export default function SettingsPage() {
                       value={profileForm.industry}
                       onChange={(e) => setProfileForm((prev) => ({ ...prev, industry: e.target.value }))}
                       placeholder="Retail, Restaurant, Services..."
-                      className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="location">
+                    <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2" htmlFor="location">
                       Location
                     </label>
                     <input
@@ -223,13 +223,13 @@ export default function SettingsPage() {
                       value={profileForm.location}
                       onChange={(e) => setProfileForm((prev) => ({ ...prev, location: e.target.value }))}
                       placeholder="City, Country"
-                      className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="website">
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2" htmlFor="website">
                     Website
                   </label>
                   <input
@@ -238,12 +238,12 @@ export default function SettingsPage() {
                     value={profileForm.website}
                     onChange={(e) => setProfileForm((prev) => ({ ...prev, website: e.target.value }))}
                     placeholder="https://example.com"
-                    className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="operating-hours">
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2" htmlFor="operating-hours">
                     Operating Hours
                   </label>
                   <input
@@ -252,12 +252,12 @@ export default function SettingsPage() {
                     value={profileForm.operating_hours}
                     onChange={(e) => setProfileForm((prev) => ({ ...prev, operating_hours: e.target.value }))}
                     placeholder="Mon-Fri 9am-5pm, Sat 10am-2pm"
-                    className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2" htmlFor="description">
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2" htmlFor="description">
                     Description
                   </label>
                   <textarea
@@ -266,7 +266,7 @@ export default function SettingsPage() {
                     onChange={(e) => setProfileForm((prev) => ({ ...prev, description: e.target.value }))}
                     rows={5}
                     placeholder="Tell us about your business..."
-                    className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
@@ -297,12 +297,12 @@ export default function SettingsPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Current Industry</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Current Industry</h3>
               {tenantIndustry ? (
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 mb-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-base font-semibold text-gray-900">{tenantIndustry.industry_name}</p>
+                      <p className="text-base font-semibold text-gray-900 dark:text-white">{tenantIndustry.industry_name}</p>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {tenantIndustry.capabilities.has_products && (
                           <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
@@ -332,7 +332,7 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Industry</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Change Industry</h3>
               <p className="text-sm text-gray-600 mb-6">
                 Select a different industry to change your workspace capabilities. This will update which sections (Products, Menu Items, Services) are available in your navigation.
               </p>
@@ -359,7 +359,7 @@ export default function SettingsPage() {
             <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
                 <SparklesIcon className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold text-gray-900">Escalation Settings</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Escalation Settings</h3>
               </div>
               <p className="text-sm text-gray-600 mb-6">
                 Control when the AI should escalate conversations to a human agent.
@@ -371,7 +371,7 @@ export default function SettingsPage() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 p-4">
                     <div>
-                      <p className="font-semibold text-gray-900">
+                      <p className="font-semibold text-gray-900 dark:text-white">
                         {escalationSettingsQuery.data.escalation_behavior === "advanced"
                           ? "Smart Escalation (Pro)"
                           : "Automatic Escalation"}
@@ -430,7 +430,7 @@ export default function SettingsPage() {
             <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
                 <BellIcon className="h-5 w-5 text-gray-400" />
-                <h3 className="text-base font-semibold text-gray-900">Channel Alerts</h3>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">Channel Alerts</h3>
               </div>
               <div className="space-y-3">
                 <label className="flex items-center gap-3 cursor-pointer">
@@ -451,7 +451,7 @@ export default function SettingsPage() {
             <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
                 <SparklesIcon className="h-5 w-5 text-gray-400" />
-                <h3 className="text-base font-semibold text-gray-900">Escalation Channels</h3>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">Escalation Channels</h3>
               </div>
               <div className="space-y-3">
                 <label className="flex items-center gap-3 cursor-pointer">
@@ -509,7 +509,7 @@ export default function SettingsPage() {
                   <tbody className="divide-y divide-gray-200 bg-white">
                     {teamQuery.data.map((member) => (
                       <tr key={member.id} className="transition hover:bg-gray-50">
-                        <td className="px-4 py-4 text-sm font-semibold text-gray-900">{member.name}</td>
+                        <td className="px-4 py-4 text-sm font-semibold text-gray-900 dark:text-white">{member.name}</td>
                         <td className="px-4 py-4 text-sm text-gray-600">{member.email}</td>
                         <td className="px-4 py-4">
                           <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-gray-700">
@@ -529,7 +529,7 @@ export default function SettingsPage() {
               ) : (
                 <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-12 text-center">
                   <UsersIcon className="mx-auto h-12 w-12 text-gray-400" />
-                  <p className="mt-3 text-sm font-semibold text-gray-900">No teammates yet</p>
+                  <p className="mt-3 text-sm font-semibold text-gray-900 dark:text-white">No teammates yet</p>
                   <p className="mt-1 text-xs text-gray-500">Invite your first collaborator to get started</p>
                   <button className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90">
                     <PlusIcon className="h-4 w-4" />
@@ -546,7 +546,7 @@ export default function SettingsPage() {
             <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
                 <CreditCardIcon className="h-5 w-5 text-gray-400" />
-                <h3 className="text-base font-semibold text-gray-900">Current Plan</h3>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">Current Plan</h3>
               </div>
               {billingQuery.isLoading ? (
                 <div className="mt-2 h-20 animate-pulse rounded-lg bg-gray-50" />
@@ -564,7 +564,7 @@ export default function SettingsPage() {
                   </div>
 
                   <div className="mt-4 flex items-baseline gap-1">
-                    <p className="text-4xl font-bold text-gray-900">
+                    <p className="text-4xl font-bold text-gray-900 dark:text-white">
                       {billingQuery.data.plan.currency} {billingQuery.data.plan.price}
                     </p>
                     <p className="text-xs text-gray-500">
@@ -593,14 +593,14 @@ export default function SettingsPage() {
             <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
                 <ChartBarIcon className="h-5 w-5 text-gray-400" />
-                <h3 className="text-base font-semibold text-gray-900">Usage</h3>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">Usage</h3>
               </div>
               <p className="mb-6 text-xs text-gray-500">Monitor limits for conversations, templates, and seats.</p>
 
               <div className="space-y-5">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-gray-900">Conversations</span>
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">Conversations</span>
                     <span className="text-sm text-gray-600">
                       {usageQuery.data?.conversations.used ?? "--"} / {usageQuery.data?.conversations.limit ?? "--"}
                     </span>
@@ -623,7 +623,7 @@ export default function SettingsPage() {
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-gray-900">Active Seats</span>
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">Active Seats</span>
                     <span className="text-sm text-gray-600">
                       {usageQuery.data?.active_seats.used ?? "--"} / {usageQuery.data?.active_seats.limit ?? "--"}
                     </span>
@@ -648,7 +648,7 @@ export default function SettingsPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">WhatsApp Business Profile</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">WhatsApp Business Profile</h3>
               <p className="text-sm text-gray-600 mb-6">
                 Manage your WhatsApp Business profile settings, including profile picture, business details, and about text.
               </p>
