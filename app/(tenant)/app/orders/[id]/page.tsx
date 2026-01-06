@@ -248,7 +248,7 @@ export default function OrderDetailPage() {
                 <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Order Items</h2>
                 <div className="space-y-3">
                   {orderItems && orderItems.length > 0 ? (
-                    orderItems.map((item, idx) => (
+                    orderItems.map((item: any, idx: number) => (
                       <div key={idx} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0 dark:border-gray-700">
                         <div>
                           <p className="text-sm font-medium text-gray-900 dark:text-gray-200">{item.name ?? 'N/A'}</p>
