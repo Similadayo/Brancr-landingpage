@@ -33,16 +33,16 @@ export default function OrderDetailPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-700";
+        return "badge badge-warning";
       case "processing":
-        return "bg-purple-100 text-purple-700";
+        return "badge badge-info";
       case "confirmed":
       case "completed":
-        return "bg-green-100 text-green-700";
+        return "badge badge-success";
       case "cancelled":
-        return "bg-red-100 text-red-700";
+        return "badge badge-error";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "badge badge-gray";
     }
   };
 
