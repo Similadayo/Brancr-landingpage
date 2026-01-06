@@ -57,7 +57,16 @@ export default function OrderDetailPage() {
     return createdAt > tenMinutesAgo;
   }, [order]);
 
-  const orderItems = order?.items ?? [];
+  // Flexible item retrieval to handle potential backend variations
+  const orderItems = useMemo(() => {
+    if (!order) return [];
+    if (order.items && Array.isArray(order.items)) return order.items;
+    // @ts-ignore - Fallback for other common naming conventions
+    if (order.order_items && Array.isArray(order.order_items)) return order.order_items;
+    // @ts-ignore
+    if (order.line_items && Array.isArray(order.line_items)) return order.line_items;
+    return [];
+  }, [order]);
 
   useEffect(() => {
     if (order && !paymentRef) {
@@ -153,10 +162,10 @@ export default function OrderDetailPage() {
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Payment Reference - Prominent Display */}
-              <div className="rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-primary/5 to-primary/10 p-6 shadow-sm">
+              <div className="rounded-xl border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-primary/5 to-primary/10 p-6 shadow-sm dark:border-primary/10 dark:from-primary/10 dark:via-primary/10 dark:to-primary/5">
                 <div className="mb-3">
-                  <h2 className="text-lg font-semibold text-gray-900">Payment Reference</h2>
-                  <p className="mt-1 text-sm text-gray-600">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Payment Reference</h2>
+                  <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
                     Share this reference with the customer for payment verification
                   </p>
                 </div>
@@ -169,18 +178,18 @@ export default function OrderDetailPage() {
 
               {/* Auto-created Indicator */}
               {isAutoCreated && (
-                <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
                   <div className="flex items-start gap-3">
                     <span className="text-2xl">🤖</span>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-blue-900">Auto-created Order</p>
-                      <p className="mt-1 text-sm text-blue-700">
+                      <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">Auto-created Order</p>
+                      <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
                         This order was created automatically when the customer committed to purchase.
                       </p>
                       {order.conversation_id && (
                         <Link
                           href={`/app/inbox?conversation=${order.conversation_id}`}
-                          className="mt-2 inline-block text-sm font-medium text-blue-600 underline hover:text-blue-700"
+                          className="mt-2 inline-block text-sm font-medium text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                         >
                           View Conversation →
                         </Link>
@@ -191,74 +200,74 @@ export default function OrderDetailPage() {
               )}
 
               {/* Order Info */}
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 className="mb-4 text-lg font-semibold text-gray-900">Order Information</h2>
+              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Order Information</h2>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Status</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Status</span>
                     <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(order.status)}`}>
                       {order.status ?? 'N/A'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Platform</span>
-                    <span className="text-sm font-medium text-gray-900 capitalize">{order.platform ?? 'N/A'}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Platform</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-200 capitalize">{order.platform ?? 'N/A'}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Created</span>
-                    <span className="text-sm font-medium text-gray-900">{formatDate(order.created_at)}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Created</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-200">{formatDate(order.created_at)}</span>
                   </div>
                 </div>
               </div>
 
               {/* Customer Info */}
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 className="mb-4 text-lg font-semibold text-gray-900">Customer Information</h2>
+              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Customer Information</h2>
                 <div className="space-y-3">
                   <div>
-                    <span className="text-sm text-gray-600">Name</span>
-                    <p className="text-sm font-medium text-gray-900">{order.customer_name ?? 'N/A'}</p>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Name</span>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-200">{order.customer_name ?? 'N/A'}</p>
                   </div>
                   {order.customer_phone && (
                     <div>
-                      <span className="text-sm text-gray-600">Phone</span>
-                      <p className="text-sm font-medium text-gray-900">{order.customer_phone}</p>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Phone</span>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-200">{order.customer_phone}</p>
                     </div>
                   )}
                   {order.customer_email && (
                     <div>
-                      <span className="text-sm text-gray-600">Email</span>
-                      <p className="text-sm font-medium text-gray-900">{order.customer_email}</p>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Email</span>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-200">{order.customer_email}</p>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Items */}
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 className="mb-4 text-lg font-semibold text-gray-900">Order Items</h2>
+              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Order Items</h2>
                 <div className="space-y-3">
                   {orderItems && orderItems.length > 0 ? (
                     orderItems.map((item, idx) => (
-                      <div key={idx} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0">
+                      <div key={idx} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0 dark:border-gray-700">
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{item.name ?? 'N/A'}</p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-200">{item.name ?? 'N/A'}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             Qty: {item.quantity ?? 0} × {order.currency ?? ''} {((item.unit_price ?? item.price ?? 0).toLocaleString())}
                           </p>
                         </div>
-                        <p className="text-sm font-semibold text-gray-900">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-200">
                           {order.currency ?? ''} {((item.total_price ?? ((item.unit_price ?? item.price ?? 0) * (item.quantity ?? 1))).toLocaleString())}
                         </p>
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-gray-500">No items found.</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No items found.</p>
                   )}
                 </div>
-                <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4">
-                  <span className="text-lg font-semibold text-gray-900">Total</span>
-                  <span className="text-xl font-bold text-gray-900">
+                <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700">
+                  <span className="text-lg font-semibold text-gray-900 dark:text-white">Total</span>
+                  <span className="text-xl font-bold text-gray-900 dark:text-white">
                     {order.currency} {(order.total_amount ?? 0).toLocaleString()}
                   </span>
                 </div>
@@ -266,19 +275,19 @@ export default function OrderDetailPage() {
 
               {/* Payment Instructions */}
               {order.payment_instructions && (
-                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                  <h2 className="mb-4 text-lg font-semibold text-gray-900">Payment Instructions</h2>
-                  <div className="rounded-lg bg-gray-50 p-4">
-                    <p className="whitespace-pre-wrap text-sm text-gray-700">{order.payment_instructions}</p>
+                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                  <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Payment Instructions</h2>
+                  <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-900">
+                    <p className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">{order.payment_instructions}</p>
                   </div>
                 </div>
               )}
 
               {/* Notes */}
               {order.notes && (
-                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                  <h2 className="mb-4 text-lg font-semibold text-gray-900">Notes</h2>
-                  <p className="text-sm text-gray-700">{order.notes}</p>
+                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                  <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Notes</h2>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">{order.notes}</p>
                 </div>
               )}
             </div>
@@ -286,8 +295,8 @@ export default function OrderDetailPage() {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Actions */}
-              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 className="mb-4 text-lg font-semibold text-gray-900">Actions</h2>
+              <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Actions</h2>
                 <div className="space-y-3">
                   {order.status === "pending" && (
                     <button
@@ -298,7 +307,7 @@ export default function OrderDetailPage() {
                     </button>
                   )}
                   <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700">Update Status</label>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">Update Status</label>
                     <Select
                       value={order.status}
                       onChange={(value) =>
@@ -326,14 +335,14 @@ export default function OrderDetailPage() {
 
           {/* Confirm Payment Modal */}
           {showConfirmModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-              <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-xl">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+              <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:bg-gray-800 dark:border-gray-700">
                 <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900">Confirm Payment</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Confirm Payment</h2>
                   <button
                     type="button"
                     onClick={() => setShowConfirmModal(false)}
-                    className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                    className="rounded-lg p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200"
                     aria-label="Close modal"
                   >
                     <XIcon className="h-5 w-5" />
@@ -341,7 +350,7 @@ export default function OrderDetailPage() {
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700">Payment Reference *</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Payment Reference *</label>
                     <div className="mt-1">
                       <CopyToClipboard
                         text={order.payment_reference}
@@ -355,35 +364,35 @@ export default function OrderDetailPage() {
                       value={paymentRef}
                       onChange={(e) => setPaymentRef(e.target.value)}
                       placeholder={order.payment_reference}
-                      className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-600 dark:text-white"
                     />
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                       Verify the payment reference matches the one sent to the customer
                     </p>
                   </div>
                   <div>
-                    <label htmlFor="payment-notes" className="block text-sm font-semibold text-gray-700">Notes (Optional)</label>
+                    <label htmlFor="payment-notes" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Notes (Optional)</label>
                     <textarea
                       id="payment-notes"
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       rows={3}
                       placeholder="Additional notes about the payment..."
-                      className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-600 dark:text-white"
                     />
                   </div>
                   <div className="flex items-center justify-end gap-3">
                     <button
                       type="button"
                       onClick={() => setShowConfirmModal(false)}
-                      className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                      className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:text-white"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleConfirmPayment}
                       disabled={confirmPaymentMutation.isPending || !paymentRef.trim()}
-                      className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
+                      className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50"
                     >
                       {confirmPaymentMutation.isPending ? "Confirming..." : "Confirm Payment"}
                     </button>
