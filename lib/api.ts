@@ -128,6 +128,44 @@ export interface RephraseCaptionResponse {
 
 // ... (previous interfaces)
 
+export interface Checkpoint {
+  id: string;
+  event_type: string;
+  question: string;
+  options: string[];
+  created_at: string;
+}
+
+export interface CheckpointResponse {
+  selected_reason: string;
+  trust_score?: number;
+  free_text?: string;
+}
+
+
+
+export interface ServiceKnowledge {
+  id: string;
+  category: 'services' | 'processes' | 'faqs' | 'policies';
+  title: string;
+  content: string; // HTML/Markdown
+  keywords: string[];
+  isActive: boolean;
+}
+
+export interface Appointment {
+  id: string;
+  customerName: string;
+  serviceType: string;
+  status: 'scheduled' | 'confirmed' | 'completed' | 'cancelled';
+  scheduledAt: string; // ISO Date
+  duration: number; // minutes
+  meetingType: 'online' | 'in_person' | 'phone';
+  meetingLink?: string;
+  location?: string;
+  customerNotes?: string;
+}
+
 export interface GenerateCaptionOptions {
   imageUrls?: string[];
   mediaIds?: string[];
@@ -2954,5 +2992,50 @@ export const tenantApi = {
 
   confirmBooking: (id: string, time: string) =>
     post<any>(`/api/tenant/escalations/${id}/confirm-booking`, { confirmed_time: time }),
+
+  // Checkpoints
+  getCheckpoints: () => get<{ checkpoints: Checkpoint[] }>('/api/tenant/checkpoints'),
+
+  submitCheckpointResponse: (id: string, payload: CheckpointResponse) =>
+    post<CheckpointResponse, void>(`/api/tenant/checkpoints/${id}/response`, payload),
+
+  dismissCheckpoint: (id: string) =>
+    post<undefined, void>(`/api/tenant/checkpoints/${id}/dismiss`),
+
+  // Knowledge Base
+  getKnowledge: (params?: { category?: string }) => {
+    const query = params ? `?${new URLSearchParams(params as any).toString()}` : '';
+    return get<ServiceKnowledge[]>(`/api/tenant/knowledge${query}`);
+  },
+
+  createKnowledge: (data: Omit<ServiceKnowledge, 'id'>) =>
+    post<typeof data, ServiceKnowledge>('/api/tenant/knowledge', data),
+
+  updateKnowledge: (id: string, data: Partial<ServiceKnowledge>) =>
+    put<typeof data, ServiceKnowledge>(`/api/tenant/knowledge/${id}`, data),
+
+  deleteKnowledge: (id: string) =>
+    del<void>(`/api/tenant/knowledge/${id}`),
+
+  // Appointments
+  getAppointments: (params?: { start?: string; end?: string }) => {
+    const query = params ? `?${new URLSearchParams(params as any).toString()}` : '';
+    return get<Appointment[]>(`/api/tenant/appointments${query}`);
+  },
+
+  createAppointment: (data: Omit<Appointment, 'id'>) =>
+    post<typeof data, Appointment>('/api/tenant/appointments', data),
+
+  updateAppointment: (id: string, data: Partial<Appointment>) =>
+    put<typeof data, Appointment>(`/api/tenant/appointments/${id}`, data),
+
+  updateAppointmentStatus: (id: string, status: string) =>
+    patch<{ status: string }, Appointment>(`/api/tenant/appointments/${id}/status`, { status }),
+
+  rescheduleAppointment: (id: string, newTime: string) =>
+    patch<{ scheduledAt: string }, Appointment>(`/api/tenant/appointments/${id}/reschedule`, { scheduledAt: newTime }),
+
+  cancelAppointment: (id: string) =>
+    del<void>(`/api/tenant/appointments/${id}`),
 };
 

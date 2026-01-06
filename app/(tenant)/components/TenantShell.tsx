@@ -32,12 +32,15 @@ import {
   ExternalLinkIcon,
   CreditCardIcon,
   BellIcon,
+  BookOpenIcon,
 } from "./icons";
 import { CommandPalette } from "./CommandPalette";
 import { NotificationsBell } from "./NotificationsBell";
 import AIToggle from './AIToggle';
 import ThemeToggle from "@/app/components/ThemeToggle";
 import { useScheduledPosts } from "../hooks/useScheduledPosts";
+import { CheckpointModal } from "./dashboard/CheckpointModal";
+import { Checkpoint } from "@/lib/api";
 
 type NavItem = {
   label: string;
@@ -215,6 +218,51 @@ export function TenantShell({ children }: { children: ReactNode }) {
     },
   });
 
+  // Checkpoint Modal Logic
+  const [activeCheckpoint, setActiveCheckpoint] = useState<Checkpoint | null>(null);
+  const [showCheckpointModal, setShowCheckpointModal] = useState(false);
+
+  const submitCheckpointMutation = useMutation({
+    mutationFn: (data: { selected_reason: string; free_text?: string; trust_score?: number }) => {
+      if (!activeCheckpoint) throw new Error("No active checkpoint");
+      return tenantApi.submitCheckpointResponse(activeCheckpoint.id, data);
+    },
+    onSuccess: () => {
+      toast.success("Feedback submitted");
+      setShowCheckpointModal(false);
+      setActiveCheckpoint(null);
+    },
+    onError: () => {
+      toast.error("Failed to submit feedback");
+    }
+  });
+
+  const dismissCheckpointMutation = useMutation({
+    mutationFn: () => {
+      if (!activeCheckpoint) throw new Error("No active checkpoint");
+      return tenantApi.dismissCheckpoint(activeCheckpoint.id);
+    },
+    onSuccess: () => {
+      setShowCheckpointModal(false);
+      setActiveCheckpoint(null);
+    }
+  });
+
+  useEffect(() => {
+    if (tenant) {
+      tenantApi.getCheckpoints()
+        .then((data) => {
+          if (data.checkpoints && data.checkpoints.length > 0) {
+            setActiveCheckpoint(data.checkpoints[0]);
+            setShowCheckpointModal(true);
+          }
+        })
+        .catch(() => {
+          // Silent fail for checkpoints
+        });
+    }
+  }, [tenant]);
+
   const CORE_NAV_ITEMS = useMemo(() => getCoreNavItems(navBadges), [navBadges]);
 
   // Industry-based navigation items
@@ -229,6 +277,7 @@ export function TenantShell({ children }: { children: ReactNode }) {
     // Show Services when industry supports services
     if (tenantIndustry?.capabilities.has_services) {
       items.push({ label: "Services", href: "/app/services", icon: <PackageIcon className="w-5 h-5" /> });
+      items.push({ label: "Appointments", href: "/app/appointments", icon: <CalendarIcon className="w-5 h-5" /> });
     }
     return items;
   }, [tenantIndustry]);
@@ -236,6 +285,17 @@ export function TenantShell({ children }: { children: ReactNode }) {
   // Settings items including conditional Onboarding Summary
   const settingsNavItems = useMemo(() => {
     const items = [...SETTINGS_NAV_ITEMS_BASE];
+
+    // Add Knowledge Base for service-based businesses
+    if (tenantIndustry?.capabilities.has_services) {
+      // Insert before Settings or just append? appending to base usually puts it before "Onboarding Summary"
+      items.splice(items.length - 1, 0, {
+        label: "Knowledge Base",
+        href: "/app/settings/knowledge",
+        icon: <BookOpenIcon className="w-5 h-5" />
+      });
+    }
+
     // Add Onboarding Summary only if onboarding is complete
     if (onboardingStatus?.complete) {
       items.push(ONBOARDING_SUMMARY_ITEM);
@@ -682,6 +742,15 @@ export function TenantShell({ children }: { children: ReactNode }) {
         </div>
       </div>
       <CommandPalette />
+      {activeCheckpoint && (
+        <CheckpointModal
+          checkpoint={activeCheckpoint}
+          isOpen={showCheckpointModal}
+          onClose={() => dismissCheckpointMutation.mutate()}
+          onSubmit={(data) => submitCheckpointMutation.mutate(data)}
+          isSubmitting={submitCheckpointMutation.isPending}
+        />
+      )}
     </div>
   );
 }
