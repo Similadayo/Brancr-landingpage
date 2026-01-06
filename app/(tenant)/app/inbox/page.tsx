@@ -940,7 +940,7 @@ export default function InboxPage() {
                           <div
                             className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-sm ${isIncoming
                               ? "bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600"
-                              : "bg-accent text-white dark:bg-white dark:text-gray-100"
+                              : "bg-accent text-white dark:bg-white dark:text-gray-900"
                               }`}
                             role="article"
                             aria-label={`${isIncoming ? 'Incoming' : 'Outgoing'} message`}
@@ -952,7 +952,7 @@ export default function InboxPage() {
                                 {/* Show content as additional text if it exists and is not just a placeholder description */}
                                 {message.content &&
                                   !message.content.match(/^\[(Voice note|Image|Video|Document|Sticker)\]:\s*/i) && (
-                                    <p className={`text-sm whitespace-pre-wrap break-words ${isOutgoing ? "text-white/90" : "text-gray-600 dark:text-gray-300"
+                                    <p className={`text-sm whitespace-pre-wrap break-words ${isOutgoing ? "text-white/90 dark:text-gray-800" : "text-gray-600 dark:text-gray-300"
                                       }`}>
                                       {message.content}
                                     </p>
@@ -961,7 +961,7 @@ export default function InboxPage() {
                             ) : (
                               /* Text Content - Only show if no media */
                               message.content && (
-                                <p className={`text-sm whitespace-pre-wrap break-words ${isOutgoing ? "text-white" : "text-gray-700 dark:text-gray-200"
+                                <p className={`text-sm whitespace-pre-wrap break-words ${isOutgoing ? "text-white dark:text-gray-900" : "text-gray-700 dark:text-gray-200"
                                   }`}>
                                   {message.content}
                                 </p>
@@ -969,7 +969,7 @@ export default function InboxPage() {
                             )}
 
                             {/* Timestamp */}
-                            <div className={`mt-2 text-xs ${isOutgoing ? "text-white/70" : "text-gray-500 dark:text-gray-300"
+                            <div className={`mt-2 text-xs ${isOutgoing ? "text-white/70 dark:text-gray-500" : "text-gray-500 dark:text-gray-400"
                               }`}>
                               {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
                             </div>
