@@ -183,10 +183,18 @@ export default function NewBulkUploadPage() {
       setIsGeneratingCaptions(true);
       const mediaIds = uploadedMedia.map((m) => Number(m.id)).filter((id) => !isNaN(id));
       const res = await tenantApi.generateCaption({
-        media_ids: mediaIds,
-        include_hashtags: true,
+        mediaIds: mediaIds.map(String),
+        platform: selectedPlatforms[0] || 'instagram',
+        goal: 'scratch',
       });
-      setSharedCaption(res.caption || "");
+
+      const generatedCaption = res.caption || "";
+      if (res.hashtags && res.hashtags.length > 0) {
+        const tags = res.hashtags.map(h => h.startsWith('#') ? h : `#${h}`).join(' ');
+        setSharedCaption(`${generatedCaption}\n\n${tags}`);
+      } else {
+        setSharedCaption(generatedCaption);
+      }
       toast.success("Captions generated successfully");
     } catch (error: any) {
       const errorMessage = error?.body?.message || error?.message || "Failed to generate captions";
@@ -359,10 +367,10 @@ export default function NewBulkUploadPage() {
                 }
               }}
               className={`rounded-xl border px-3 py-2 text-center text-xs font-semibold transition-all ${isActive
-                  ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
-                  : isCompleted
-                    ? "border-green-300 bg-green-50 text-green-700 hover:border-green-400"
-                    : "border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
+                ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
+                : isCompleted
+                  ? "border-green-300 bg-green-50 text-green-700 hover:border-green-400"
+                  : "border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
                 } ${idx <= currentStepIndex ? "cursor-pointer hover:scale-105" : ""}`}
               disabled={idx > currentStepIndex}
               aria-label={`Step ${idx + 1}: ${label}`}
@@ -413,8 +421,8 @@ export default function NewBulkUploadPage() {
                 type="button"
                 onClick={() => setSplitStrategy("carousels")}
                 className={`rounded-2xl border-2 p-6 text-left transition-all ${splitStrategy === "carousels"
-                    ? "border-primary bg-primary/10 ring-4 ring-primary/20"
-                    : "border-gray-200 bg-white hover:border-primary/50"
+                  ? "border-primary bg-primary/10 ring-4 ring-primary/20"
+                  : "border-gray-200 bg-white hover:border-primary/50"
                   }`}
               >
                 <div className="flex items-center gap-3">
@@ -432,8 +440,8 @@ export default function NewBulkUploadPage() {
                 type="button"
                 onClick={() => setSplitStrategy("individual")}
                 className={`rounded-2xl border-2 p-6 text-left transition-all ${splitStrategy === "individual"
-                    ? "border-primary bg-primary/10 ring-4 ring-primary/20"
-                    : "border-gray-200 bg-white hover:border-primary/50"
+                  ? "border-primary bg-primary/10 ring-4 ring-primary/20"
+                  : "border-gray-200 bg-white hover:border-primary/50"
                   }`}
               >
                 <div className="flex items-center gap-3">
@@ -451,8 +459,8 @@ export default function NewBulkUploadPage() {
                 type="button"
                 onClick={() => setSplitStrategy("ai_organized")}
                 className={`rounded-2xl border-2 p-6 text-left transition-all ${splitStrategy === "ai_organized"
-                    ? "border-primary bg-primary/10 ring-4 ring-primary/20"
-                    : "border-gray-200 bg-white hover:border-primary/50"
+                  ? "border-primary bg-primary/10 ring-4 ring-primary/20"
+                  : "border-gray-200 bg-white hover:border-primary/50"
                   }`}
               >
                 <div className="flex items-center gap-3">
@@ -470,8 +478,8 @@ export default function NewBulkUploadPage() {
                 type="button"
                 onClick={() => setSplitStrategy("custom")}
                 className={`rounded-2xl border-2 p-6 text-left transition-all ${splitStrategy === "custom"
-                    ? "border-primary bg-primary/10 ring-4 ring-primary/20"
-                    : "border-gray-200 bg-white hover:border-primary/50"
+                  ? "border-primary bg-primary/10 ring-4 ring-primary/20"
+                  : "border-gray-200 bg-white hover:border-primary/50"
                   }`}
               >
                 <div className="flex items-center gap-3">
@@ -619,8 +627,8 @@ export default function NewBulkUploadPage() {
                 type="button"
                 onClick={() => setScheduleStrategy("spread")}
                 className={`rounded-2xl border-2 p-4 text-left transition-all ${scheduleStrategy === "spread"
-                    ? "border-primary bg-primary/10 ring-4 ring-primary/20"
-                    : "border-gray-200 bg-white hover:border-primary/50"
+                  ? "border-primary bg-primary/10 ring-4 ring-primary/20"
+                  : "border-gray-200 bg-white hover:border-primary/50"
                   }`}
               >
                 <h3 className="font-semibold text-gray-900">Spread Over Time</h3>
@@ -631,8 +639,8 @@ export default function NewBulkUploadPage() {
                 type="button"
                 onClick={() => setScheduleStrategy("optimal")}
                 className={`rounded-2xl border-2 p-4 text-left transition-all ${scheduleStrategy === "optimal"
-                    ? "border-primary bg-primary/10 ring-4 ring-primary/20"
-                    : "border-gray-200 bg-white hover:border-primary/50"
+                  ? "border-primary bg-primary/10 ring-4 ring-primary/20"
+                  : "border-gray-200 bg-white hover:border-primary/50"
                   }`}
               >
                 <h3 className="font-semibold text-gray-900">Optimal Times</h3>
@@ -643,8 +651,8 @@ export default function NewBulkUploadPage() {
                 type="button"
                 onClick={() => setScheduleStrategy("custom")}
                 className={`rounded-2xl border-2 p-4 text-left transition-all ${scheduleStrategy === "custom"
-                    ? "border-primary bg-primary/10 ring-4 ring-primary/20"
-                    : "border-gray-200 bg-white hover:border-primary/50"
+                  ? "border-primary bg-primary/10 ring-4 ring-primary/20"
+                  : "border-gray-200 bg-white hover:border-primary/50"
                   }`}
               >
                 <h3 className="font-semibold text-gray-900">Custom Dates</h3>

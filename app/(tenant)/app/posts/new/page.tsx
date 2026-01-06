@@ -196,13 +196,19 @@ export default function NewPostPage() {
     try {
       setIsAIGenerating(true);
       const res = await tenantApi.generateCaption({
-        media_ids: selectedMediaIds,
-        include_hashtags: options?.include_hashtags ?? true,
-        tone: options?.tone,
+        mediaIds: selectedMediaIds,
+        platform: selectedPlatforms[0] || 'instagram',
+        goal: goal || 'scratch',
+        context: options?.tone ? `Tone: ${options.tone}` : undefined,
       });
 
       const generatedCaption = res.caption || "";
-      setCaption(generatedCaption);
+      if (options?.include_hashtags !== false && res.hashtags && res.hashtags.length > 0) {
+        const tags = res.hashtags.map(h => h.startsWith('#') ? h : `#${h}`).join(' ');
+        setCaption(`${generatedCaption}\n\n${tags}`);
+      } else {
+        setCaption(generatedCaption);
+      }
       toast.success("Caption generated successfully");
     } catch (error: any) {
       console.error("Caption generation error:", error);

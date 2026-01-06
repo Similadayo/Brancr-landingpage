@@ -94,6 +94,49 @@ export interface RecurringTemplate {
   created_at: string;
 }
 
+// ==========================================
+// AI / PARSING TYPES
+// ==========================================
+export interface ParsedItem {
+  name: string;
+  price?: number;        // Single price (null if range)
+  min_price?: number;    // For ranges like "₦15,000 - ₦25,000"
+  max_price?: number;
+  currency?: string;     // "NGN", "USD", "GBP", etc.
+  type?: string;         // "product" | "service" | "subscription" | "menu_item"
+  category?: string;
+  description?: string;  // Item features/description
+  billing_period?: string; // "monthly" | "yearly" | "hourly" | "one-time"
+  flags?: { [key: string]: boolean }; // e.g., {"has_price_range": true}
+  confidence: number;    // 0.0 - 1.0
+}
+
+export interface GenerateCaptionResponse {
+  caption: string;
+  hashtags: string[];
+  platform: string;
+  media_type: string;
+}
+
+export interface GenerateFromKeywordsResponse {
+  caption: string;
+}
+
+export interface RephraseCaptionResponse {
+  rephrased_caption: string; // Assuming standard response structure, usually user just wants the string
+}
+
+// ... (previous interfaces)
+
+export interface GenerateCaptionOptions {
+  imageUrls?: string[];
+  mediaIds?: string[];
+  platform: string;
+  goal?: 'promote' | 'announce' | 'educate' | 'engage' | 'scratch' | string;
+  context?: string;
+  originalCaption?: string;
+}
+
 type ApiRequestOptions = RequestInit & {
   parseJson?: boolean;
 };
@@ -689,6 +732,57 @@ export const tenantApi = {
   deleteRecurringTemplate: (id: string) =>
     del<void>(`/api/tenant/templates/${id}`),
 
+  // ==========================================
+  // AI FUNCTIONS
+  // ==========================================
+
+  // Parse products/services/menu from text
+  parseProducts: (rawInput: string) =>
+    post<{ raw_input: string; source: string; }, ParsedItem[]>('/api/tenant/products/parse', { raw_input: rawInput, source: 'paste' }),
+
+  // Generate caption from images/context
+  generateCaption: (options: GenerateCaptionOptions) => post<{
+    image_urls?: string[];
+    media_ids?: string[];
+    platform: string;
+    goal?: string;
+    context?: string;
+    original_caption?: string;
+  }, GenerateCaptionResponse>('/api/tenant/posts/generate-caption', {
+    image_urls: options.imageUrls,
+    media_ids: options.mediaIds,
+    platform: options.platform,
+    goal: options.goal,
+    context: options.context,
+    original_caption: options.originalCaption
+  }),
+
+  // Generate caption from keywords
+  generateCaptionFromKeywords: (keywords: string, platform: string, mediaType: string, imageUrls?: string[]) =>
+    post<{
+      keywords: string;
+      platform: string;
+      media_type: string;
+      image_urls?: string[];
+    }, GenerateFromKeywordsResponse>('/api/tenant/captions/generate-from-keywords', {
+      keywords,
+      platform,
+      media_type: mediaType,
+      image_urls: imageUrls
+    }),
+
+  // Rephrase existing caption
+  rephraseCaption: (caption: string, platform: string, mediaType: string) =>
+    post<{
+      caption: string;
+      platform: string;
+      media_type: string;
+    }, { caption: string }>('/api/tenant/captions/rephrase', { // Correcting response type based on likelihood or standard
+      caption,
+      platform,
+      media_type: mediaType
+    }),
+
 
 
   // Team management endpoints (some return 501 Not Implemented)
@@ -1017,12 +1111,6 @@ export const tenantApi = {
       status: string;
     }>(`/api/tenant/posts/${postId}/publish`),
 
-  generateCaption: (payload: {
-    media_ids: (number | string)[]; // Array of media asset IDs
-    tone?: string;
-    include_hashtags?: boolean;
-  }) => post<typeof payload, { caption: string }>(`/api/tenant/posts/generate-caption`, payload),
-
   // Caption generation and enhancement endpoints
   generateCaptionFromMedia: (payload: {
     media_asset_id: number | string;
@@ -1030,20 +1118,6 @@ export const tenantApi = {
     media_type: string;
     image_urls?: string[];
   }) => post<typeof payload, { caption: string }>(`/api/tenant/posts/generate-caption`, payload),
-
-  generateCaptionFromKeywords: (payload: {
-    keywords: string;
-    platform: string;
-    media_type: string;
-    image_urls?: string[];
-  }) => post<typeof payload, { caption: string }>(`/api/tenant/captions/generate-from-keywords`, payload),
-
-  rephraseCaption: (payload: {
-    original_caption: string;
-    platform: string;
-    media_type: string;
-    image_urls?: string[];
-  }) => post<typeof payload, { caption: string }>(`/api/tenant/captions/rephrase`, payload),
 
   fineTuneCaption: (payload: {
     original_caption: string;
