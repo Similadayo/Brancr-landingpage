@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCreateService, useUpdateService, useDeleteService, type Service } from "../../hooks/useServices";
-import { XIcon, TrashIcon, ArrowLeftIcon } from "../icons";
+import { XIcon, TrashIcon, ArrowLeftIcon, SparklesIcon } from "../icons";
 import PackageBuilder from "../shared/PackageBuilder";
 import { toast } from "react-hot-toast";
 import { getUserFriendlyErrorMessage, parseApiFieldErrors } from '@/lib/error-messages';
@@ -11,6 +11,7 @@ import Link from "next/link";
 import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
 import { useDraft, useAutoSaveDraft, useDeleteDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
+import { useProductParser } from "@/app/(tenant)/hooks/useProductParser";
 
 type ServiceFormProps = {
   service?: Service | null;
@@ -21,6 +22,38 @@ export default function ServiceForm({ service }: ServiceFormProps) {
   const createMutation = useCreateService();
   const updateMutation = useUpdateService();
   const deleteMutation = useDeleteService();
+
+  // AI Parsing
+  const parser = useProductParser();
+  const [showParseModal, setShowParseModal] = useState(false);
+  const [parseInput, setParseInput] = useState("");
+
+  const handleParse = async () => {
+    if (!parseInput.trim()) return;
+    const items = await parser.parse(parseInput);
+    if (items && items.length > 0) {
+      const item = items[0];
+      setFormData(prev => ({
+        ...prev,
+        name: item.name || prev.name,
+        description: item.description || prev.description,
+        category: item.category || prev.category,
+        // Map billing period to pricing type if possible
+        pricing_type: item.billing_period === 'hourly' ? 'hourly' : item.billing_period === 'monthly' ? 'fixed' : 'fixed',
+        pricing_rate: item.billing_period === 'hourly' && item.price ? String(item.price) : prev.pricing_rate,
+        pricing_amount: item.billing_period !== 'hourly' && item.price ? String(item.price) : prev.pricing_amount,
+
+        negotiation_mode: (item.min_price !== undefined && item.max_price !== undefined) ? 'range' : 'default',
+        negotiation_min_price: item.min_price !== undefined ? String(item.min_price) : prev.negotiation_min_price,
+        negotiation_max_price: item.max_price !== undefined ? String(item.max_price) : prev.negotiation_max_price,
+      }));
+      setShowParseModal(false);
+      setParseInput("");
+      toast.success("Details extracted!");
+    } else {
+      toast.error("Could not extract service details.");
+    }
+  };
 
   const { data: draft, isLoading: draftLoading } = useDraft(DRAFT_KEYS.SERVICE_CREATE);
   const deleteDraft = useDeleteDraft();
@@ -225,25 +258,77 @@ export default function ServiceForm({ service }: ServiceFormProps) {
           }} />
         </div>
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-3">
-            <Link
-              href="/app/services"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/30 bg-white/10 backdrop-blur-sm text-white transition hover:border-white/50 hover:bg-white/20"
-              aria-label="Back to services"
-            >
-              <ArrowLeftIcon className="h-5 w-5" />
-            </Link>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">
-                {service ? "Edit Service" : "Add Service"}
-              </h1>
-              <p className="mt-1 text-sm text-white/90">
-                {service ? "Update service details" : "Create a new service offering"}
-              </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Link
+                href="/app/services"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/30 bg-white/10 backdrop-blur-sm text-white transition hover:border-white/50 hover:bg-white/20"
+                aria-label="Back to services"
+              >
+                <ArrowLeftIcon className="h-5 w-5" />
+              </Link>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">
+                  {service ? "Edit Service" : "Add Service"}
+                </h1>
+                <p className="mt-1 text-sm text-white/90">
+                  {service ? "Update service details" : "Create a new service offering"}
+                </p>
+              </div>
             </div>
+            {!service && (
+              <button
+                type="button"
+                onClick={() => setShowParseModal(true)}
+                className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20 border border-white/20"
+              >
+                <SparklesIcon className="h-4 w-4" />
+                Parse from Text
+              </button>
+            )}
           </div>
         </div>
       </div>
+
+      {showParseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <SparklesIcon className="h-5 w-5 text-primary" />
+                Parse Service Details
+              </h3>
+              <button onClick={() => setShowParseModal(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                <XIcon className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
+              Paste your service details (e.g. from WhatsApp or a document) and AI will extract the structured data for you.
+            </p>
+            <textarea
+              value={parseInput}
+              onChange={(e) => setParseInput(e.target.value)}
+              placeholder="e.g. Website Design - ₦150,000. Includes homepage, about, contact. 2 weeks delivery."
+              className="w-full h-32 rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm focus:border-primary focus:ring-primary dark:bg-gray-900 dark:border-gray-700 dark:text-white resize-none"
+            />
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setShowParseModal(false)}
+                className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleParse}
+                disabled={parser.loading || !parseInput.trim()}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2"
+              >
+                {parser.loading ? 'Parsing...' : 'Extract Data'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {service && (
         <>
           <div className="flex justify-end">

@@ -18,8 +18,9 @@ export type Order = {
   items: Array<{
     name: string;
     quantity: number;
-    unit_price: number;
-    total_price: number;
+    unit_price?: number;
+    price?: number; // Fallback for some backends
+    total_price?: number;
   }>;
   payment_instructions?: string;
   notes?: string;
