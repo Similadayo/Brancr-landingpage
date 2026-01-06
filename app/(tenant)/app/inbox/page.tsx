@@ -61,6 +61,7 @@ export default function InboxPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [attachments, setAttachments] = useState<File[]>([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showMobileDetails, setShowMobileDetails] = useState(false); // Mobile/Tablet details drawer
   const searchParams = useSearchParams();
 
   // Multi-select mode for bulk delete
@@ -460,7 +461,15 @@ export default function InboxPage() {
   return (
     <div className="fixed bottom-0 left-0 right-0 top-[80px] lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg z-30">
       {/* Main Content - Three Panel Layout */}
-      <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr_320px] w-full overflow-hidden">
+      <div className="grid h-full gap-0 grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[320px_1fr_320px] w-full overflow-hidden relative">
+        {/* Mobile/Tablet Details Drawer Backdrop */}
+        {showMobileDetails && (
+          <div
+            className="fixed inset-0 z-[55] bg-black/20 backdrop-blur-sm lg:hidden"
+            onClick={() => setShowMobileDetails(false)}
+          />
+        )}
+
         {/* Left Panel - Conversation List */}
         <section className={`flex flex-col h-full border-r border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 transition-transform duration-300 overflow-hidden ${mobileView === "chat" ? "hidden md:flex" : "flex"
           }`}>
@@ -782,7 +791,11 @@ export default function InboxPage() {
                       {(activeConversation.customer_name || "?").charAt(0).toUpperCase()}
                     </div>
                   )}
-                  <div className="flex-1 min-w-0">
+                  <div
+                    className="flex-1 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => setShowMobileDetails((prev) => !prev)}
+                    title="Toggle details"
+                  >
                     <div className="flex items-center gap-2">
                       {/* Escalation warning icon */}
                       {activeConversation.is_escalated && (
@@ -1097,13 +1110,27 @@ export default function InboxPage() {
         </section>
 
         {/* Right Panel - Analytics or Chat Details */}
-        <aside className={`hidden md:flex flex-col h-full border-l border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 transition-transform duration-300 overflow-hidden ${mobileView === "list" ? "hidden" : ""
-          }`}>
+        <aside className={`flex-col h-full bg-white dark:bg-gray-700 transition-all duration-300 overflow-hidden
+          ${/* Desktop: 3rd column */ ""}
+          lg:flex lg:static lg:w-auto lg:border-l lg:border-gray-200 lg:dark:border-gray-600 lg:shadow-none
+          ${/* Mobile/Tablet: Slide-over Drawer */ ""}
+          ${showMobileDetails
+            ? "fixed inset-y-0 right-0 z-[60] w-80 shadow-2xl flex border-l border-gray-200 dark:border-gray-600"
+            : "hidden lg:flex"
+          }
+        `}>
           {activeConversation ? (
             <>
               {/* Header - Fixed */}
-              <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3">
+              <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-3 flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Context</h3>
+                {/* Close button for mobile/tablet drawer */}
+                <button
+                  onClick={() => setShowMobileDetails(false)}
+                  className="lg:hidden p-1 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-600"
+                >
+                  <XIcon className="h-4 w-4" />
+                </button>
               </div>
               {/* Content - Scrollable */}
               <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0 scrollbar-thin space-y-5">
@@ -1289,7 +1316,7 @@ export default function InboxPage() {
           </Button>
         </ModalFooter>
       </Modal>
-    </div>
+    </div >
   );
 }
 
