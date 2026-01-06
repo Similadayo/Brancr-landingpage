@@ -65,15 +65,15 @@ export default function PersonaSettingsPage() {
       <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-6 sm:py-8">
         <div className="mx-auto max-w-7xl space-y-6">
 
-          <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">AI Assistant</h2>
-            <p className="text-sm text-gray-700">The AI assistant toggle has been moved to the workspace header for quick access. Use the header toggle to enable or disable AI features for this tenant.</p>
-            <p className="mt-3 text-sm text-gray-600">Current: <span className="font-medium text-gray-900">{aiMode === 'ai' ? 'AI (enabled)' : 'Human (disabled)'}</span></p>
+          <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2 dark:text-white">AI Assistant</h2>
+            <p className="text-sm text-gray-700 dark:text-gray-300">The AI assistant toggle has been moved to the workspace header for quick access. Use the header toggle to enable or disable AI features for this tenant.</p>
+            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">Current: <span className="font-medium text-gray-900 dark:text-white">{aiMode === 'ai' ? 'AI (enabled)' : 'Human (disabled)'}</span></p>
           </section>
           <header className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">AI Persona</h1>
-              <p className="mt-2 text-sm text-gray-600">Configure your assistant’s voice and style.</p>
+              <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl dark:text-white">AI Persona</h1>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Configure your assistant’s voice and style.</p>
             </div>
           </header>
 
@@ -82,19 +82,19 @@ export default function PersonaSettingsPage() {
               <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
             </div>
           ) : (
-            <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900">Bot name</label>
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-gray-200">Bot name</label>
                   <input
                     defaultValue={persona?.bot_name || ""}
                     onChange={(e) => setForm((p) => ({ ...p, bot_name: e.target.value }))}
                     placeholder="Luna, Alex, or your custom name"
-                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:placeholder-gray-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900">Tone</label>
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-gray-200">Tone</label>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {TONE_OPTIONS.map((opt) => {
                       const active = selectedTones.includes(opt);
@@ -109,22 +109,22 @@ export default function PersonaSettingsPage() {
                               return next;
                             });
                           }}
-                          className={`rounded-full px-3 py-1 text-sm font-medium transition ${active ? 'bg-primary text-white dark:bg-white dark:text-gray-100' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'}`}
+                          className={`rounded-full px-3 py-1 text-sm font-medium transition ${active ? 'bg-primary text-white dark:bg-white dark:text-gray-900' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'}`}
                         >
                           {opt}
                         </button>
                       );
                     })}
                   </div>
-                  <p className="mt-2 text-xs text-gray-500">Select at least two tones to guide the assistant.</p>
+                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Select at least two tones to guide the assistant.</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900">Language</label>
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-gray-200">Language</label>
                   <input
                     defaultValue={persona?.language || "English"}
                     onChange={(e) => setForm((p) => ({ ...p, language: e.target.value }))}
                     placeholder="English"
-                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:placeholder-gray-500"
                   />
                 </div>
                 <div className="flex items-center gap-3">
@@ -135,18 +135,18 @@ export default function PersonaSettingsPage() {
                     onChange={(e) => setForm((p) => ({ ...p, humor: e.target.checked }))}
                     className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/30"
                   />
-                  <label htmlFor="humor" className="text-sm font-semibold text-gray-900">
+                  <label htmlFor="humor" className="text-sm font-semibold text-gray-900 dark:text-gray-200">
                     Include humor
                   </label>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-900">Style notes</label>
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-gray-200">Style notes</label>
                   <textarea
                     defaultValue={persona?.style_notes || ""}
                     onChange={(e) => setForm((p) => ({ ...p, style_notes: e.target.value }))}
                     rows={5}
                     placeholder="Additional guidance for the assistant..."
-                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:placeholder-gray-500"
                   />
                 </div>
               </div>
@@ -154,7 +154,7 @@ export default function PersonaSettingsPage() {
                 <button
                   onClick={() => updateMutation.mutate()}
                   disabled={updateMutation.isPending || selectedTones.length < 2}
-                  className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow transition hover:bg-primary/90 disabled:opacity-50 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
+                  className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow transition hover:bg-primary/90 disabled:opacity-50 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
                 >
                   {updateMutation.isPending ? "Saving..." : (selectedTones.length < 2 ? 'Select at least 2 tones' : 'Save changes')}
                 </button>
@@ -162,9 +162,9 @@ export default function PersonaSettingsPage() {
             </section>
           )}
 
-          <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-gray-900">Test Persona</h2>
-            <p className="mt-2 text-xs text-gray-500">Coming soon: try sample prompts and see how your assistant responds.</p>
+          <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Test Persona</h2>
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Coming soon: try sample prompts and see how your assistant responds.</p>
           </section>
         </div>
       </div>
