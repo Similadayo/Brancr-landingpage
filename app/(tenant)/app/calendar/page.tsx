@@ -170,36 +170,36 @@ export default function CalendarPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => navigateMonth("prev")}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-primary hover:text-primary"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-primary hover:text-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
                   aria-label="Previous month"
                 >
                   <ChevronLeftIcon className="h-5 w-5" />
                 </button>
                 <button
                   onClick={goToToday}
-                  className="rounded-lg border border-gray-200 bg-white px-4 py-1.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                  className="rounded-lg border border-gray-200 bg-white px-4 py-1.5 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
                 >
                   Today
                 </button>
                 <button
                   onClick={() => navigateMonth("next")}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-primary hover:text-primary"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-primary hover:text-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-primary dark:hover:text-primary"
                   aria-label="Next month"
                 >
                   <ChevronRightIcon className="h-5 w-5" />
                 </button>
-                <h2 className="ml-4 text-lg font-semibold text-gray-900">{monthName}</h2>
+                <h2 className="ml-4 text-lg font-semibold text-gray-900 dark:text-gray-100">{monthName}</h2>
               </div>
 
               {/* View Mode Toggle */}
-              <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-1">
+              <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-1 dark:border-gray-600 dark:bg-gray-700">
                 {(["month", "week", "day"] as ViewMode[]).map((mode) => (
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
                     className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${viewMode === mode
-                      ? "bg-white text-primary shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
+                      ? "bg-white text-primary shadow-sm dark:bg-gray-800 dark:text-primary"
+                      : "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
                       }`}
                   >
                     {mode.charAt(0).toUpperCase() + mode.slice(1)}
@@ -212,16 +212,16 @@ export default function CalendarPage() {
           {/* Calendar Grid */}
           {viewMode === "month" && (
             <section className="card overflow-hidden p-0">
-              <div className="grid grid-cols-7 gap-px border-b border-gray-200 bg-gray-100 dark:border-gray-600 dark:bg-gray-700">
+              <div className="grid grid-cols-7 gap-px border-b border-gray-200 bg-gray-100 dark:border-gray-600 dark:bg-gray-800">
                 {/* Day Headers */}
                 {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                  <div key={d} className="bg-gray-50 p-2 text-center text-xs font-semibold text-gray-600 dark:bg-gray-600/50 dark:text-gray-400 sm:p-3">
+                  <div key={d} className="bg-gray-50 p-2 text-center text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400 sm:p-3">
                     <span className="hidden sm:inline">{d}</span>
                     <span className="sm:hidden">{d.slice(0, 1)}</span>
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-7 gap-px bg-gray-100 dark:bg-gray-700">
+              <div className="grid grid-cols-7 gap-px bg-gray-100 dark:bg-gray-800">
                 {/* Calendar Cells */}
                 {monthCells.map((d, idx) => {
                   const year = d.getFullYear();
@@ -241,22 +241,22 @@ export default function CalendarPage() {
                           setSelectedDate(d);
                         }
                       }}
-                      className={`min-h-[80px] cursor-pointer bg-white p-2 transition-colors dark:bg-gray-700 sm:min-h-[120px] ${isCurrentMonth
+                      className={`min-h-[80px] cursor-pointer p-2 transition-colors sm:min-h-[120px] ${isCurrentMonth
                         ? isTodayDate
-                          ? "bg-accent/5 ring-2 ring-accent"
-                          : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                        : "bg-gray-50/50 opacity-50 dark:bg-gray-700/30"
+                          ? "bg-accent/5 ring-2 ring-accent dark:bg-accent/10"
+                          : "bg-white hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700"
+                        : "bg-gray-50/50 opacity-50 dark:bg-gray-900/30"
                         }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <span
-                          className={`text-sm font-semibold ${isTodayDate ? "text-primary" : isCurrentMonth ? "text-gray-900" : "text-gray-400"
+                          className={`text-sm font-semibold ${isTodayDate ? "text-primary dark:text-primary" : isCurrentMonth ? "text-gray-900 dark:text-gray-100" : "text-gray-400 dark:text-gray-500"
                             }`}
                         >
                           {d.getDate()}
                         </span>
                         {items.length > 0 && (
-                          <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-white">
+                          <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-white dark:bg-accent dark:text-white">
                             {items.length}
                           </span>
                         )}
@@ -274,7 +274,7 @@ export default function CalendarPage() {
                                 e.dataTransfer.setData("text/scheduled-time", it.time || "09:00:00");
                               }}
                               onDragOver={(e) => e.preventDefault()}
-                              className="group truncate rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 transition hover:border-accent hover:bg-accent/5 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                              className="group truncate rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 transition hover:border-accent hover:bg-accent/5 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-accent dark:hover:bg-accent/10"
                               title={draggable ? "Drag to reschedule" : it.name}
                             >
                               <div className="flex items-center gap-1">
@@ -285,7 +285,7 @@ export default function CalendarPage() {
                           );
                         })}
                         {items.length > 3 && (
-                          <div className="text-xs font-medium text-gray-500">+{items.length - 3} more</div>
+                          <div className="text-xs font-medium text-gray-500 dark:text-gray-400">+{items.length - 3} more</div>
                         )}
                       </div>
                     </div>
@@ -297,19 +297,19 @@ export default function CalendarPage() {
 
           {/* Week View Placeholder */}
           {viewMode === "week" && (
-            <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
+            <div className="rounded-xl border border-gray-200 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-900">
               <CalendarIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <p className="mt-3 text-sm font-semibold text-gray-900">Week View</p>
-              <p className="mt-1 text-xs text-gray-500">Week view coming soon</p>
+              <p className="mt-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Week View</p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Week view coming soon</p>
             </div>
           )}
 
           {/* Day View Placeholder */}
           {viewMode === "day" && (
-            <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
+            <div className="rounded-xl border border-gray-200 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-900">
               <CalendarIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <p className="mt-3 text-sm font-semibold text-gray-900">Day View</p>
-              <p className="mt-1 text-xs text-gray-500">Day view coming soon</p>
+              <p className="mt-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Day View</p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Day view coming soon</p>
             </div>
           )}
 
@@ -320,12 +320,12 @@ export default function CalendarPage() {
               onClick={() => setSelectedDate(null)}
             >
               <div
-                className="modal-content animate-scale-in w-full max-w-2xl mx-4 sm:mx-auto"
+                className="modal-content animate-scale-in w-full max-w-2xl mx-4 sm:mx-auto dark:bg-gray-900"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                       {selectedDate.toLocaleDateString([], {
                         weekday: "long",
                         month: "long",
@@ -333,7 +333,7 @@ export default function CalendarPage() {
                         year: "numeric",
                       })}
                     </h2>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                       {selectedDatePosts.length} post{selectedDatePosts.length !== 1 ? "s" : ""} scheduled
                     </p>
                   </div>
@@ -349,13 +349,13 @@ export default function CalendarPage() {
 
                 <div className="space-y-3">
                   {selectedDatePosts.length === 0 ? (
-                    <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-8 text-center">
+                    <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-700 dark:bg-gray-800">
                       <RocketIcon className="mx-auto h-8 w-8 text-gray-400" />
-                      <p className="mt-2 text-sm font-medium text-gray-900">No posts scheduled</p>
-                      <p className="mt-1 text-xs text-gray-500">Schedule a post for this day</p>
+                      <p className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No posts scheduled</p>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Schedule a post for this day</p>
                       <Link
                         href="/app/posts/new"
-                        className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
+                        className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
                       >
                         <PlusIcon className="w-4 h-4" />
                         Create Post
@@ -365,21 +365,21 @@ export default function CalendarPage() {
                     selectedDatePosts.map((post, idx) => (
                       <div
                         key={idx}
-                        className="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-primary/50 hover:shadow-sm"
+                        className="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-primary/50 hover:shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:hover:border-primary/50"
                       >
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                           <ClockIcon className="w-5 h-5" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <h3 className="text-sm font-semibold text-gray-900">{post.name}</h3>
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{post.name}</h3>
                             {post.status && (
                               <span
                                 className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase ${post.status === "scheduled"
-                                  ? "border-blue-200 bg-blue-50 text-blue-700"
+                                  ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
                                   : post.status === "posted"
-                                    ? "border-green-200 bg-green-50 text-green-700"
-                                    : "border-gray-200 bg-gray-50 text-gray-600"
+                                    ? "border-green-200 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-900/20 dark:text-green-300"
+                                    : "border-gray-200 bg-gray-50 text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
                                   }`}
                               >
                                 {post.status}
@@ -387,7 +387,7 @@ export default function CalendarPage() {
                             )}
                           </div>
                           {post.time && (
-                            <p className="mt-1 text-xs text-gray-500">
+                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                               Scheduled for {post.time}
                             </p>
                           )}
@@ -396,7 +396,7 @@ export default function CalendarPage() {
                               {post.platforms.map((platform) => (
                                 <span
                                   key={platform}
-                                  className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 capitalize"
+                                  className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 capitalize dark:bg-gray-700 dark:text-gray-200"
                                 >
                                   {platform}
                                 </span>
@@ -407,7 +407,7 @@ export default function CalendarPage() {
                         {post.id && (
                           <Link
                             href={`/app/campaigns/${post.id}`}
-                            className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                            className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-primary dark:hover:text-primary"
                           >
                             View
                           </Link>
@@ -417,17 +417,17 @@ export default function CalendarPage() {
                   )}
                 </div>
 
-                <div className="mt-6 flex items-center justify-end gap-3 border-t border-gray-200 pt-4">
+                <div className="mt-6 flex items-center justify-end gap-3 border-t border-gray-200 pt-4 dark:border-gray-700">
                   <button
                     type="button"
                     onClick={() => setSelectedDate(null)}
-                    className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+                    className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-primary dark:hover:text-primary"
                   >
                     Close
                   </button>
                   <Link
                     href="/app/posts/new"
-                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-100 dark:hover:bg-gray-100"
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-primary/90 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
                   >
                     <PlusIcon className="w-4 h-4" />
                     Schedule Post

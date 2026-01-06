@@ -211,7 +211,7 @@ export function EscalationContextPanel({ escalationId, onActionComplete }: Escal
                                 type="datetime-local"
                                 value={bookingTime}
                                 onChange={(e) => setBookingTime(e.target.value)}
-                                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:bg-gray-800 dark:border-gray-700"
+                                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                             />
                             <button
                                 onClick={handleConfirmBooking}

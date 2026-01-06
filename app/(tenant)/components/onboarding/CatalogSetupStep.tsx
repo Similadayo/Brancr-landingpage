@@ -71,10 +71,10 @@ export function CatalogSetupStep({
         return (
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-gray-900">Review Items</h2>
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Review Items</h2>
                     <button
                         onClick={() => setParsed(null)}
-                        className="text-sm text-gray-500 hover:text-gray-900 underline"
+                        className="text-sm text-gray-500 hover:text-gray-900 underline dark:text-gray-400 dark:hover:text-white"
                     >
                         Start Over
                     </button>
@@ -94,10 +94,10 @@ export function CatalogSetupStep({
                 <div className="flex items-start gap-3">
                     <div className="text-2xl">📦</div>
                     <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-900">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">
                             Quick Add: Paste your offerings
                         </p>
-                        <p className="mt-1 text-xs text-gray-600">
+                        <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
                             Paste your list of products, menu items, or services. We&apos;ll automatically add them to your workspace.
                         </p>
                     </div>
@@ -105,7 +105,7 @@ export function CatalogSetupStep({
             </div>
 
             <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className="block text-sm font-semibold text-gray-900 mb-2 dark:text-white">
                     What are you adding?
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -115,8 +115,8 @@ export function CatalogSetupStep({
                             type="button"
                             onClick={() => setType(ind.value)}
                             className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${type === ind.value
-                                    ? 'bg-primary text-white shadow-md'
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-primary text-white shadow-md'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
                                 }`}
                         >
                             {ind.label}
@@ -126,7 +126,7 @@ export function CatalogSetupStep({
             </div>
 
             <div>
-                <label htmlFor="quick-add-text" className="block text-sm font-semibold text-gray-900 mb-2">
+                <label htmlFor="quick-add-text" className="block text-sm font-semibold text-gray-900 mb-2 dark:text-white">
                     Paste your text
                 </label>
                 <textarea
@@ -141,9 +141,9 @@ export function CatalogSetupStep({
                                 ? 'Website Design – ₦50,000\nSEO Consultation – ₦25,000'
                                 : 'T-shirt – 3500 NGN\nMug – 1500 NGN\nNotebook – 2500 NGN'
                     }
-                    className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all resize-none font-mono"
+                    className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all resize-none font-mono dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:bg-gray-800"
                 />
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                     Or upload a file (CSV, TXT, PDF) to extract items.
                 </p>
             </div>
@@ -168,7 +168,7 @@ export function CatalogSetupStep({
                         </>
                     )}
                 </button>
-                <label className="flex-none rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all">
+                <label className="flex-none rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">
                     <input type="file" accept=".csv,.txt,.docx,.pdf" className="hidden" onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (!file) return;
@@ -250,7 +250,7 @@ export function CatalogSetupStep({
                         <button
                             type="button"
                             onClick={onBack}
-                            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50"
+                            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                         >
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -264,7 +264,7 @@ export function CatalogSetupStep({
                         <button
                             type="button"
                             onClick={onSkip}
-                            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-6 py-3.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:bg-primary/5 hover:text-primary hover:shadow-md"
+                            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-6 py-3.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-primary hover:bg-primary/5 hover:text-primary hover:shadow-md dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
                         >
                             Skip for now
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
