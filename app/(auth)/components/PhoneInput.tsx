@@ -100,14 +100,16 @@ export function PhoneInput({ value, onChange, className, id, ...props }: PhoneIn
             // But simpler is to just append if empty, or keep as is if not matching
         }
 
-        // Trim leading spaces from the number part
-        cleanNumber = cleanNumber.trim();
+        // Remove any non-numeric characters (except +) from the remaining number
+        cleanNumber = cleanNumber.replace(/[^0-9]/g, '');
 
-        onChange(`${country.dialCode} ${cleanNumber}`);
+        onChange(`${country.dialCode}${cleanNumber}`);
     };
 
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        onChange(e.target.value);
+        // Allow only numbers and plus sign, strip everything else (including spaces)
+        const cleaned = e.target.value.replace(/[^0-9+]/g, '');
+        onChange(cleaned);
     };
 
     return (
@@ -136,7 +138,7 @@ export function PhoneInput({ value, onChange, className, id, ...props }: PhoneIn
                     value={value}
                     onChange={handlePhoneChange}
                     className={`block w-full flex-1 border-0 bg-transparent py-3 pl-2 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:ring-0 dark:text-white ${className}`}
-                    placeholder={selectedCountry.dialCode + " 801 234 5678"}
+                    placeholder={selectedCountry.dialCode + "8012345678"}
                 />
             </div>
 
@@ -169,8 +171,8 @@ export function PhoneInput({ value, onChange, className, id, ...props }: PhoneIn
                                         type="button"
                                         onClick={() => handleCountrySelect(country)}
                                         className={`flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors ${isSelected
-                                                ? "bg-primary/5 text-primary dark:bg-primary/20 dark:text-white"
-                                                : "text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-dark-elevated"
+                                            ? "bg-primary/5 text-primary dark:bg-primary/20 dark:text-white"
+                                            : "text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-dark-elevated"
                                             }`}
                                     >
                                         <span className="text-xl">{country.flag}</span>

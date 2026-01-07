@@ -42,19 +42,37 @@ export function PortalLinkGenerator({ orderId, onTokenGenerated }: PortalLinkGen
     }
   };
 
-  const portalUrl = tokenData?.portal_url;
+  // Transform backend API URL to frontend URL
+  const portalUrl = (() => {
+    if (!tokenData?.portal_url) return null;
+    try {
+      // Extract token from backend URL
+      const url = new URL(tokenData.portal_url);
+      const token = url.searchParams.get('token');
+      if (!token) return tokenData.portal_url;
+
+      // Construct frontend URL
+      // Use window.location.origin if available, otherwise just relative path or default
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      return `${origin}/portal/order?token=${token}`;
+    } catch {
+      return tokenData.portal_url;
+    }
+  })();
+
   const expiresAt = tokenData?.expires_at;
 
   const shareViaEmail = (email?: string) => {
     if (!portalUrl) return;
-    const subject = encodeURIComponent('Your Order Details');
-    const body = encodeURIComponent(`View your order details: ${portalUrl}`);
+    const subject = encodeURIComponent('Your Order Details and Receipt');
+    // Ensure we use the frontend URL here
+    const body = encodeURIComponent(`View your order details and receipt here: ${portalUrl}`);
     window.location.href = `mailto:${email || ''}?subject=${subject}&body=${body}`;
   };
 
   const shareViaWhatsApp = () => {
     if (!portalUrl) return;
-    const text = encodeURIComponent(`View your order details: ${portalUrl}`);
+    const text = encodeURIComponent(`View your order details and receipt here: ${portalUrl}`);
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 

@@ -129,7 +129,7 @@ export default function EscalationDetailPage() {
   return (
     <div className="fixed bottom-0 left-0 right-0 top-[80px] lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg z-30">
       <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-6 sm:py-8">
-        <div className="space-y-4 sm:space-y-6">
+        <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
           {/* Modern Hero Section */}
           <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-warning-600 via-warning-600/95 to-warning-700/90 p-6 shadow-xl dark:border-gray-600 dark:from-warning-600 dark:via-warning-600/90 dark:to-warning-700/80 sm:p-8 md:p-10">
             <div className="absolute inset-0 opacity-10 dark:opacity-20">
@@ -163,15 +163,15 @@ export default function EscalationDetailPage() {
             {/* Main Content */}
             <div className="space-y-6">
               {/* Customer Info Card */}
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-gray-400">Customer</h2>
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-dark-surface dark:border-dark-border">
+                <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Customer</h2>
                 <div className="mt-4 flex items-center gap-4">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-xl font-semibold text-primary">
                     {customerName.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">{customerName}</h3>
-                    {customerUsername && <p className="text-sm text-gray-500">@{customerUsername}</p>}
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{customerName}</h3>
+                    {customerUsername && <p className="text-sm text-gray-500 dark:text-gray-400">@{customerUsername}</p>}
                     <div className="mt-2 flex items-center gap-2">
                       <span
                         className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${PLATFORM_COLORS[customerPlatform.toLowerCase()] ?? "bg-gray-100 text-gray-600"
@@ -191,22 +191,22 @@ export default function EscalationDetailPage() {
               </div>
 
               {/* Original Message */}
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-gray-400">Original Message</h2>
-                <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
-                  <p className="whitespace-pre-line text-sm text-gray-700">{escalation.message}</p>
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-dark-surface dark:border-dark-border">
+                <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Original Message</h2>
+                <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:bg-dark-elevated dark:border-dark-border">
+                  <p className="whitespace-pre-line text-sm text-gray-700 dark:text-gray-300">{escalation.message}</p>
                 </div>
-                <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-gray-500">
-                  <span>Intent: <span className="font-semibold text-gray-700">{escalation.intent}</span></span>
-                  <span>Tone: <span className="font-semibold text-gray-700">{escalation.tone}</span></span>
-                  <span>Confidence: <span className="font-semibold text-gray-700">{Math.round(escalation.confidence * 100)}%</span></span>
+                <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                  <span>Intent: <span className="font-semibold text-gray-700 dark:text-gray-300">{escalation.intent}</span></span>
+                  <span>Tone: <span className="font-semibold text-gray-700 dark:text-gray-300">{escalation.tone}</span></span>
+                  <span>Confidence: <span className="font-semibold text-gray-700 dark:text-gray-300">{Math.round(escalation.confidence * 100)}%</span></span>
                 </div>
               </div>
 
               {/* AI Suggested Reply */}
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-dark-surface dark:border-dark-border">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-gray-400">AI Suggested Reply</h2>
+                  <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">AI Suggested Reply</h2>
                   <button
                     onClick={() => {
                       setIsEditing(!isEditing);
@@ -214,7 +214,7 @@ export default function EscalationDetailPage() {
                         setReplyText(escalation.suggestedReply);
                       }
                     }}
-                    className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-primary hover:text-primary"
+                    className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-primary hover:text-primary dark:bg-dark-elevated dark:border-dark-border dark:text-gray-300 dark:hover:text-primary"
                   >
                     {isEditing ? "Cancel Edit" : "Edit"}
                   </button>
@@ -224,7 +224,7 @@ export default function EscalationDetailPage() {
                   onChange={(e) => setReplyText(e.target.value)}
                   disabled={!isEditing && !replyText}
                   rows={6}
-                  className="mt-4 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:bg-gray-50"
+                  className="mt-4 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:bg-gray-50 dark:bg-dark-elevated dark:border-dark-border dark:text-white dark:disabled:bg-dark-surface/50 dark:placeholder-gray-500"
                   placeholder="AI suggested reply will appear here..."
                 />
                 <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -245,14 +245,14 @@ export default function EscalationDetailPage() {
                   <button
                     onClick={() => void handleIgnore()}
                     disabled={ignoreMutation.isPending}
-                    className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-gray-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-transparent dark:border-dark-border dark:text-gray-300 dark:hover:border-gray-600"
                   >
                     {ignoreMutation.isPending ? "Ignoring..." : "Ignore"}
                   </button>
                   <button
                     onClick={() => void handleResolve()}
                     disabled={resolveMutation.isPending}
-                    className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-gray-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-transparent dark:border-dark-border dark:text-gray-300 dark:hover:border-gray-600"
                   >
                     {resolveMutation.isPending ? "Resolving..." : "Resolve"}
                   </button>
@@ -261,13 +261,13 @@ export default function EscalationDetailPage() {
 
               {/* Conversation History */}
               {conversationHistory && conversationHistory.length > 0 && (
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                  <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-gray-400">Conversation History</h2>
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-dark-surface dark:border-dark-border">
+                  <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Conversation History</h2>
                   <div className="mt-4 space-y-4">
                     {conversationHistory.map((message) => (
                       <div
                         key={message.id}
-                        className={`rounded-xl border border-gray-200 p-4 ${message.author === "tenant" ? "ml-auto max-w-xl bg-primary/5" : "bg-gray-50"
+                        className={`rounded-xl border border-gray-200 p-4 dark:border-dark-border ${message.author === "tenant" ? "ml-auto max-w-xl bg-primary/5 dark:bg-primary/10" : "bg-gray-50 dark:bg-dark-elevated"
                           }`}
                       >
                         <div className="flex items-center justify-between">
@@ -293,12 +293,12 @@ export default function EscalationDetailPage() {
 
             {/* Sidebar */}
             <aside className="space-y-6">
-              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <h3 className="text-sm font-semibold text-gray-900">Escalation Info</h3>
+              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:bg-dark-surface dark:border-dark-border">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Escalation Info</h3>
                 <div className="mt-4 space-y-3 text-sm">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Created</p>
-                    <p className="mt-1 text-gray-700">
+                    <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Created</p>
+                    <p className="mt-1 text-gray-700 dark:text-gray-300">
                       {new Date(escalation.createdAt).toLocaleString([], {
                         month: "short",
                         day: "numeric",
@@ -309,10 +309,10 @@ export default function EscalationDetailPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Priority</p>
+                    <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Priority</p>
                     <p className="mt-1">
                       <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${PRIORITY_COLORS[escalation.priority] ?? "bg-gray-100 text-gray-600"
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${PRIORITY_COLORS[escalation.priority] ?? "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"
                           }`}
                       >
                         {escalation.priority}
@@ -320,7 +320,7 @@ export default function EscalationDetailPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Platform</p>
+                    <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Platform</p>
                     <p className="mt-1">
                       <span
                         className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${PLATFORM_COLORS[escalation.platform.toLowerCase()] ?? "bg-gray-100 text-gray-600"
@@ -331,7 +331,7 @@ export default function EscalationDetailPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-gray-400">Conversation ID</p>
+                    <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Conversation ID</p>
                     <Link
                       href={`/app/inbox?conversation=${escalation.conversationId}`}
                       className="mt-1 text-primary hover:underline"
