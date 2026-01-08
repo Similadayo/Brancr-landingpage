@@ -228,25 +228,38 @@ export default function OrdersPage() {
           {/* Stats Cards */}
           {stats && (
             <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-              <div className="stat-card group">
+              <div
+                onClick={() => {
+                  setStatusFilter(undefined);
+                  setPlatformFilter(undefined);
+                  setQuery("");
+                }}
+                className="stat-card group cursor-pointer transition-all hover:ring-2 hover:ring-primary/50"
+              >
                 <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-info-400/20 to-info-500/20 blur-2xl transition-transform group-hover:scale-150" />
                 <div className="relative">
                   <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Total Orders</p>
-                  <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">{stats.total_orders}</p>
+                  <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">{stats.total_orders ?? 0}</p>
                 </div>
               </div>
-              <div className="stat-card group">
+              <div
+                onClick={() => setStatusFilter("pending")}
+                className="stat-card group cursor-pointer transition-all hover:ring-2 hover:ring-warning/50"
+              >
                 <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-warning-400/20 to-warning-500/20 blur-2xl transition-transform group-hover:scale-150" />
                 <div className="relative">
                   <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Pending</p>
-                  <p className="mt-2 text-2xl font-bold text-warning-600 dark:text-warning-400 sm:text-3xl">{stats.pending_orders}</p>
+                  <p className="mt-2 text-2xl font-bold text-warning-600 dark:text-warning-400 sm:text-3xl">{stats.pending_orders ?? 0}</p>
                 </div>
               </div>
-              <div className="stat-card group">
+              <div
+                onClick={() => setStatusFilter("completed")}
+                className="stat-card group cursor-pointer transition-all hover:ring-2 hover:ring-success/50"
+              >
                 <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-success-400/20 to-success-500/20 blur-2xl transition-transform group-hover:scale-150" />
                 <div className="relative">
                   <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Completed</p>
-                  <p className="mt-2 text-2xl font-bold text-success-600 dark:text-success-400 sm:text-3xl">{stats.completed_orders}</p>
+                  <p className="mt-2 text-2xl font-bold text-success-600 dark:text-success-400 sm:text-3xl">{stats.completed_orders ?? 0}</p>
                 </div>
               </div>
               <div className="stat-card group col-span-2 lg:col-span-1">
