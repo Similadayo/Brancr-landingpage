@@ -171,17 +171,84 @@ export default function SchedulePicker({
               <div className="flex gap-4">
                 <div className="flex-1">
                   <label className="mb-1 block text-sm font-medium text-gray-700">Time</label>
-                  <div className="relative flex-1">
-                    <input
-                      type="time"
-                      value={format(scheduledDate, 'HH:mm')}
-                      onChange={handleTimeChange}
-                      className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-3 pl-10 text-base text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
-                    />
-                    <ClockIcon className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
-                  </div>
-                  <div className="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-3 rounded-xl border border-gray-200">
-                    {format(scheduledDate, 'a')}
+                  <div className="flex items-center gap-2">
+                    {/* Hour Input */}
+                    <div className="relative flex-1 min-w-[70px]">
+                      <input
+                        type="number"
+                        min="1"
+                        max="12"
+                        value={format(scheduledDate, 'h')}
+                        onChange={(e) => {
+                          let val = parseInt(e.target.value);
+                          if (isNaN(val)) return;
+
+                          // Handle 12-hour logic
+                          if (val < 1) val = 1;
+                          if (val > 12) val = 12;
+
+                          const currentHours = scheduledDate.getHours();
+                          const isPM = currentHours >= 12;
+
+                          let newHours = val;
+                          if (val === 12) {
+                            newHours = isPM ? 12 : 0;
+                          } else {
+                            newHours = isPM ? val + 12 : val;
+                          }
+
+                          const updated = new Date(scheduledDate);
+                          updated.setHours(newHours);
+                          onChange(updated.toISOString());
+                        }}
+                        className="w-full rounded-xl border border-gray-300 bg-gray-50 px-3 py-3 text-center text-base font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                      />
+                      <span className="absolute right-2 top-3.5 text-xs text-gray-400 pointer-events-none">Hr</span>
+                    </div>
+
+                    <span className="text-gray-400 font-bold">:</span>
+
+                    {/* Minute Input */}
+                    <div className="relative flex-1 min-w-[70px]">
+                      <input
+                        type="number"
+                        min="0"
+                        max="59"
+                        value={format(scheduledDate, 'mm')}
+                        onChange={(e) => {
+                          let val = parseInt(e.target.value);
+                          if (isNaN(val)) return;
+                          if (val < 0) val = 0;
+                          if (val > 59) val = 59;
+
+                          const updated = new Date(scheduledDate);
+                          updated.setMinutes(val);
+                          onChange(updated.toISOString());
+                        }}
+                        className="w-full rounded-xl border border-gray-300 bg-gray-50 px-3 py-3 text-center text-base font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                      />
+                      <span className="absolute right-2 top-3.5 text-xs text-gray-400 pointer-events-none">Min</span>
+                    </div>
+
+                    {/* AM/PM Toggle */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const currentHours = scheduledDate.getHours();
+                        const updated = new Date(scheduledDate);
+
+                        // Toggle logic
+                        if (currentHours >= 12) {
+                          updated.setHours(currentHours - 12); // PM -> AM
+                        } else {
+                          updated.setHours(currentHours + 12); // AM -> PM
+                        }
+                        onChange(updated.toISOString());
+                      }}
+                      className="flex-1 min-w-[70px] rounded-xl border border-gray-200 bg-gray-100 px-3 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-200 hover:border-gray-300 transition-colors"
+                    >
+                      {format(scheduledDate, 'a')}
+                    </button>
                   </div>
                 </div>
               </div>

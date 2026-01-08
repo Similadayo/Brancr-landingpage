@@ -13,6 +13,7 @@ import SchedulePicker from "@/app/(tenant)/components/posting/SchedulePicker";
 import CaptionEditor from "@/app/(tenant)/components/posting/CaptionEditor";
 import Select from "@/app/(tenant)/components/ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
+import DateTimePicker from "@/app/(tenant)/components/ui/DateTimePicker";
 
 type Step = "upload" | "strategy" | "captions" | "platforms" | "schedule" | "review";
 
@@ -214,7 +215,8 @@ export default function NewBulkUploadPage() {
       setIsSubmitting(true);
 
       // Step 1: Upload media and create bulk session
-      const mediaIds = uploadedMedia.map((m) => Number(m.id)).filter((id) => !isNaN(id));
+      // Step 1: Upload media and create bulk session
+      const mediaIds = uploadedMedia.map((m) => m.id);
 
       // Create bulk upload session
       const formData = new FormData();
@@ -663,14 +665,11 @@ export default function NewBulkUploadPage() {
             {scheduleStrategy === "spread" && (
               <div className="space-y-4 rounded-xl border border-blue-200 bg-blue-50 p-4">
                 <div>
-                  <label htmlFor="start-date" className="block text-sm font-semibold text-gray-900 mb-2">Start Date & Time</label>
-                  <input
-                    id="start-date"
-                    type="datetime-local"
+                  <DateTimePicker
+                    label="Start Date & Time"
                     value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    aria-label="Start date and time"
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700"
+                    onChange={setStartDate}
+                    minDate={new Date()}
                   />
                 </div>
                 <div>
