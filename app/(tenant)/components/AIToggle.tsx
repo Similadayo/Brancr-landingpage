@@ -18,14 +18,17 @@ export default function AIToggle({ value, onChange, disabled = false, showLabel 
   };
 
   return (
-    <div className="inline-flex items-center rounded-full bg-gray-200 dark:bg-gray-700 p-1" role="tablist" aria-label="AI mode">
+    <div className="inline-flex items-center rounded-full bg-gray-200 dark:bg-gray-800 p-1 shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]" role="tablist" aria-label="AI mode">
       <button
         type="button"
         role="tab"
         aria-selected={isAi}
         onClick={() => { if (!disabled && onChange) onChange('ai'); }}
         disabled={disabled}
-        className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${isAi ? 'bg-primary text-white shadow-sm dark:bg-dark-accent-primary' : 'text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600'}`}
+        className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 ${isAi
+            ? 'bg-gradient-to-r from-primary to-primary/90 text-white shadow-md transform scale-[1.02]'
+            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+          }`}
       >
         AI
       </button>
@@ -36,7 +39,10 @@ export default function AIToggle({ value, onChange, disabled = false, showLabel 
         aria-selected={!isAi}
         onClick={() => { if (!disabled && onChange) onChange('human'); }}
         disabled={disabled}
-        className={`ml-1 px-3 py-1.5 rounded-full text-sm font-medium transition ${!isAi ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm' : 'text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600'}`}
+        className={`ml-1 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 ${!isAi
+            ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-md transform scale-[1.02]'
+            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+          }`}
       >
         Human
       </button>

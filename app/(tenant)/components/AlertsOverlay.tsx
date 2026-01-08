@@ -1,6 +1,5 @@
-'use client';
-
-import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { useEffect, useState } from 'react';
 import { XIcon } from './icons';
 import { AlertsList } from './AlertsList';
 
@@ -10,6 +9,12 @@ interface AlertsOverlayProps {
 }
 
 export function AlertsOverlay({ isOpen, onClose }: AlertsOverlayProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Prevent body scroll when overlay is open
   useEffect(() => {
     if (isOpen) {
@@ -22,21 +27,21 @@ export function AlertsOverlay({ isOpen, onClose }: AlertsOverlayProps) {
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
-      
+
       {/* Overlay Panel */}
-      <div className="fixed inset-y-0 right-0 z-50 w-full sm:max-w-2xl bg-white shadow-2xl dark:bg-gray-700 overflow-hidden flex flex-col animate-in slide-in-from-right duration-300">
+      <div className="fixed inset-y-0 right-0 z-[101] w-full sm:max-w-2xl bg-white shadow-2xl dark:bg-gray-700 overflow-hidden flex flex-col animate-in slide-in-from-right duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-6 py-4 shrink-0">
           <div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Alerts</h2>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
@@ -57,7 +62,8 @@ export function AlertsOverlay({ isOpen, onClose }: AlertsOverlayProps) {
           <AlertsList showFilters={true} showMarkAllRead={true} />
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }
 

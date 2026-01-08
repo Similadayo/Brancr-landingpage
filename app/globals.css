@@ -443,10 +443,3 @@ html.dark .hover\:bg-primary\/90:hover {
     }
   }
 }
-
-/* Dashboard button sizing (exclude inbox via data attribute) */
-[data-tenant-shell]:not([data-tenant-page="inbox"]) button {
-  min-height: 46px;
-  padding-block: 12px;
-  padding-inline: 14px;
-}
