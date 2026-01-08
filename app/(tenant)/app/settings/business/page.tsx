@@ -49,8 +49,8 @@ export default function BusinessSettingsPage() {
         <div className="mx-auto max-w-7xl space-y-6">
           <header className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-semibold text-gray-900 lg:text-4xl">Business Settings</h1>
-              <p className="mt-2 text-sm text-gray-600">Manage your business information and profile.</p>
+              <h1 className="text-3xl font-semibold text-gray-900 dark:text-dark-text-primary lg:text-4xl">Business Settings</h1>
+              <p className="mt-2 text-sm text-gray-600 dark:text-dark-text-secondary">Manage your business information and profile.</p>
             </div>
           </header>
 
@@ -59,7 +59,7 @@ export default function BusinessSettingsPage() {
               <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
             </div>
           ) : (
-            <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+            <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-dark-border dark:bg-dark-surface">
               <div className="grid gap-5 md:grid-cols-2">
                 {[
                   { key: "name", label: "Business name", placeholder: profile?.name || "Your company name" },
@@ -68,32 +68,32 @@ export default function BusinessSettingsPage() {
                   { key: "website", label: "Website", placeholder: profile?.website || "https://example.com" },
                 ].map((f) => (
                   <div key={f.key}>
-                    <label className="block text-sm font-semibold text-gray-900">{f.label}</label>
+                    <label className="block text-sm font-semibold text-gray-900 dark:text-dark-text-primary">{f.label}</label>
                     <input
                       defaultValue={(profile as any)?.[f.key] || ""}
                       onChange={(e) => setForm((prev) => ({ ...prev, [f.key]: e.target.value }))}
                       placeholder={f.placeholder}
-                      className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary dark:placeholder-dark-text-secondary"
                     />
                   </div>
                 ))}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-900">Operating hours</label>
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-dark-text-primary">Operating hours</label>
                   <input
                     defaultValue={profile?.operating_hours || ""}
                     onChange={(e) => setForm((prev) => ({ ...prev, operating_hours: e.target.value }))}
                     placeholder="Mon-Fri 9am-5pm, Sat 10am-2pm"
-                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary dark:placeholder-dark-text-secondary"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-900">Description</label>
+                  <label className="block text-sm font-semibold text-gray-900 dark:text-dark-text-primary">Description</label>
                   <textarea
                     defaultValue={profile?.description || ""}
                     onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
                     rows={5}
                     placeholder="Tell us about your business..."
-                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary dark:placeholder-dark-text-secondary"
                   />
                 </div>
               </div>

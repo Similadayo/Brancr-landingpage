@@ -3,17 +3,14 @@
 import { useState } from "react";
 import { BellIcon } from "./icons";
 import { useAlertCounts } from "../hooks/useAlerts";
-import { useNotificationCounts } from "../hooks/useNotifications";
 import { AlertsOverlay } from "./AlertsOverlay";
 
 export function NotificationsBell() {
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
   const { data: alertCounts } = useAlertCounts();
-  const { data: notificationCounts } = useNotificationCounts();
-  
+
   const unreadAlerts = alertCounts?.unread ?? 0;
-  const unreadNotifications = notificationCounts?.unread ?? 0;
-  const totalUnread = unreadAlerts + unreadNotifications;
+  const totalUnread = unreadAlerts;
 
   return (
     <>
