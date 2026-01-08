@@ -81,4 +81,5 @@ function ThemeToggleButton({ theme, toggleTheme }: { theme: 'light' | 'dark'; to
 
 export default function ThemeToggle() {
   return <ThemeToggleInner />;
+}
 
