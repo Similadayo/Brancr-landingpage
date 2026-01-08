@@ -4,6 +4,7 @@ import { useState } from "react";
 import { tenantApi } from "@/lib/api";
 import { ClockIcon } from "@/app/(tenant)/components/icons";
 import { toast } from "react-hot-toast";
+import { Switch } from "../ui/Switch";
 import Calendar from "@/app/(tenant)/components/ui/Calendar";
 import { format, addDays, setHours, setMinutes, startOfHour, addHours, isSameDay } from "date-fns";
 import QuickTimePresets from './QuickTimePresets';
@@ -126,19 +127,12 @@ export default function SchedulePicker({
               Post will go live as soon as you click Publish
             </span>
           </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={publishNow}
-            onClick={handlePublishNowToggle}
-            className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${publishNow ? 'bg-primary' : 'bg-gray-200'
-              }`}
-          >
-            <span
-              className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${publishNow ? 'translate-x-5' : 'translate-x-0'
-                }`}
-            />
-          </button>
+          <Switch
+            checked={publishNow}
+            onChange={handlePublishNowToggle}
+            size="md"
+            activeColor="bg-primary"
+          />
         </div>
       </div>
 
@@ -215,13 +209,12 @@ export default function SchedulePicker({
                     <span className="text-sm font-semibold text-gray-900">Recurring Post</span>
                     <p className="text-xs text-gray-500">Repeat this post daily or weekly</p>
                   </div>
-                  <button
-                    type="button"
-                    disabled
-                    className="relative inline-flex h-6 w-11 shrink-0 cursor-not-allowed rounded-full border-2 border-transparent bg-gray-200 transition-colors focus:outline-none"
-                  >
-                    <span className="translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" />
-                  </button>
+                  <Switch
+                    checked={false}
+                    onChange={() => { }}
+                    disabled={true}
+                    size="sm"
+                  />
                 </div>
                 <p className="text-[10px] text-primary mt-1 font-medium">✨ Coming soon in Pro plan</p>
               </div>

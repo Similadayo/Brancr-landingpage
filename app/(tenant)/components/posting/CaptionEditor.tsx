@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import { Switch } from '../ui/Switch';
 import HashtagSuggestions from './HashtagSuggestions';
 
 type CaptionEditorProps = {
@@ -233,22 +234,31 @@ export default function CaptionEditor({
       {
         value.trim() && (
           <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={enhanceCaption}
-                onChange={(e) => onEnhanceCaptionChange(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-              />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-900">✨ Enhance with AI</span>
+            import {Switch} from '../ui/Switch';
+
+            // ... (existing imports, but since we are inserting the import at top, we might need a separate call or just rely on the snippet replacement if possible. 
+            // Wait, replace_file_content is for a block. I need to add import too. 
+            // I'll do two edits or ensure the block covers enough context? 
+            // No, I can't add import easily without reading top. 
+            // I will just use `multi_replace_file_content` to add import AND replace the usage.
+
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+              <div className="flex items-start gap-4">
+                <Switch
+                  checked={enhanceCaption}
+                  onChange={onEnhanceCaptionChange}
+                  activeColor="bg-primary"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-gray-900">✨ Enhance with AI</span>
+                  </div>
+                  <p className="mt-1 text-xs text-gray-600">
+                    Your caption will be optimized for each platform using AI based on your brand persona and best practices.
+                  </p>
                 </div>
-                <p className="mt-1 text-xs text-gray-600">
-                  Your caption will be optimized for each platform using AI based on your brand persona and best practices.
-                </p>
               </div>
-            </label>
+            </div>
           </div>
         )
       }
