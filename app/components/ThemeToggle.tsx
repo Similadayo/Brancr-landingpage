@@ -54,7 +54,7 @@ function StandaloneThemeToggle() {
   return <ThemeToggleButton theme={theme} toggleTheme={toggleTheme} />;
 }
 
-import { Switch } from './ui/Switch';
+import { Switch } from '../(tenant)/components/ui/Switch';
 
 function ThemeToggleButton({ theme, toggleTheme }: { theme: 'light' | 'dark'; toggleTheme: () => void }) {
   const isDark = theme === 'dark';
