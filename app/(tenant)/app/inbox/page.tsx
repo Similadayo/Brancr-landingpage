@@ -26,6 +26,8 @@ import { MessageMedia } from "@/app/(tenant)/components/inbox/MessageMedia";
 import Select from "@/app/(tenant)/components/ui/Select";
 import { Modal, ModalTitle, ModalBody, ModalFooter } from "@/app/(tenant)/components/ui/Modal";
 import { Button } from "@/app/(tenant)/components/ui/Button";
+import { PaymentCard } from "@/app/(tenant)/components/cards/PaymentCard";
+import { QuoteCard } from "@/app/(tenant)/components/cards/QuoteCard";
 import {
   InboxIcon,
   MagnifyingGlassIcon,
@@ -966,6 +968,32 @@ export default function InboxPage() {
                                   {message.content}
                                 </p>
                               )
+                            )}
+
+                            {/* Action Cards (Payment / Quote) */}
+                            {message.action_type === "SHOW_PAYMENT" && message.metadata && (
+                              <div className="mt-3">
+                                {message.metadata.is_quote ? (
+                                  <QuoteCard
+                                    orderId={(message.metadata.order_reference as string) || (message.metadata.order_id as string) || "Unknown"}
+                                    amount={message.metadata.amount as number}
+                                    currency={message.metadata.currency as string}
+                                    status={message.metadata.status as string}
+                                  />
+                                ) : (
+                                  <PaymentCard
+                                    id={(message.metadata.payment_id as string) || (message.metadata.id as string) || "unknown"}
+                                    amount={(message.metadata.amount as number) || 0}
+                                    currency={(message.metadata.currency as string) || "NGN"}
+                                    status={(message.metadata.status as any) || "pending"}
+                                    payment_method={message.metadata.payment_method as string}
+                                    payment_reference={message.metadata.payment_reference as string}
+                                    created_at={(message.metadata.created_at as string) || message.created_at}
+                                    order_id={message.metadata.order_id as string}
+                                    order_number={message.metadata.order_number as string}
+                                  />
+                                )}
+                              </div>
                             )}
 
                             {/* Timestamp */}

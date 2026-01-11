@@ -56,6 +56,7 @@ export type Message = {
   final_reply?: string;
   created_at: string;
   metadata?: Record<string, unknown>;
+  action_type?: string;
   media?: InteractionMedia | null;
 };
 
@@ -334,6 +335,7 @@ export function useConversation(conversationId: string | null) {
             final_reply: msg.final_reply,
             created_at: msg.created_at,
             metadata: msg.metadata,
+            action_type: (msg as any).action_type,
             media: msg.media || null,
           })) : [],
           created_at: response.created_at,
@@ -383,6 +385,7 @@ export function useSendReply(conversationId: string | null) {
               suggested_reply: response.interaction.suggested_reply,
               created_at: response.interaction.created_at,
               metadata: response.interaction.metadata,
+              action_type: (response.interaction as any).action_type,
               media: response.interaction.media || null,
             };
 

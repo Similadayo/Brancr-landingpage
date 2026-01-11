@@ -46,6 +46,32 @@ export type TenantNotification = {
 };
 
 // ==========================================
+// BUSINESS PROFILE TYPES
+// ==========================================
+export interface DeliveryArea {
+  name: string;
+  price: number;
+}
+
+export interface DeliveryConfig {
+  delivery_enabled: boolean;
+  pickup_enabled: boolean;
+  payment_methods: string[]; // e.g., ["bank_transfer", "pod", "card"]
+  delivery_areas: DeliveryArea[];
+}
+
+export interface BusinessProfile {
+  id?: number;
+  name: string;
+  industry: string;
+  description: string;
+  location: string;
+  website?: string;
+  operating_hours?: string;
+  delivery_config?: DeliveryConfig;
+}
+
+// ==========================================
 // BULK UPLOAD TYPES
 // ==========================================
 export interface BulkUploadPost {
@@ -468,6 +494,7 @@ export const tenantApi = {
         final_reply?: string;
         created_at: string;
         metadata?: Record<string, unknown>;
+        action_type?: string;
         media?: {
           url?: string;
           stored_url?: string;
@@ -1439,15 +1466,7 @@ export const tenantApi = {
       step: "industry" | "business_profile" | "persona" | "business_details" | "social_connect" | "complete";
       complete: boolean;
       tenant_name?: string;
-      business_profile?: {
-        id: number;
-        name: string;
-        industry: string;
-        description: string;
-        location: string;
-        website?: string;
-        operating_hours?: string;
-      };
+      business_profile?: BusinessProfile;
       persona?: {
         tenant_id: number;
         bot_name: string;
@@ -1524,6 +1543,7 @@ export const tenantApi = {
     location: string;
     website?: string;
     operating_hours?: string;
+    delivery_config?: DeliveryConfig;
   }) =>
     put<typeof payload, { success: boolean; message?: string }>(
       "/api/tenant/settings/business-profile",
