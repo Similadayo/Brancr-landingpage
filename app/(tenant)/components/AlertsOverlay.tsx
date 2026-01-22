@@ -61,7 +61,7 @@ export function AlertsOverlay({ isOpen, onClose }: AlertsOverlayProps) {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto scrollbar-thin">
-          <AlertsList showFilters={false} showMarkAllRead={false} />
+          <AlertsList showFilters={false} showMarkAllRead={false} limit={7} />
         </div>
       </div>
     </>,
