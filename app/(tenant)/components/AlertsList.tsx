@@ -155,30 +155,23 @@ function AlertCard({
   return (
     <div
       onClick={!isRead ? onMarkRead : undefined}
-      className={`group relative px-6 py-4 transition-colors cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600/50 border-b border-gray-100 dark:border-gray-600 ${!isRead ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''
-        }`}
+      className={`group relative px-6 py-4 transition-colors ${!isRead ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600/30' : ''
+        } border-b border-gray-100 dark:border-gray-600/50`}
     >
       <div className="flex items-start justify-between gap-4">
         {/* Left: Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start gap-3">
-            {/* Unread indicator dot */}
-            {!isRead && (
-              <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary dark:bg-white" />
-            )}
-            <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                {alert.title}
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                {alert.message}
-              </p>
-            </div>
-          </div>
+          <h3 className={`text-sm mb-1 ${!isRead ? 'font-semibold text-gray-900 dark:text-gray-100' : 'font-medium text-gray-700 dark:text-gray-300'
+            }`}>
+            {alert.title}
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+            {alert.message}
+          </p>
         </div>
 
         {/* Right: Timestamp */}
-        <div className="shrink-0 text-xs text-gray-500 dark:text-gray-400">
+        <div className="shrink-0 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
           {formatTimeAgo(alert.created_at)}
         </div>
       </div>
