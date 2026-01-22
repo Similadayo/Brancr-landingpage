@@ -39,7 +39,7 @@ export function AlertsOverlay({ isOpen, onClose }: AlertsOverlayProps) {
       />
 
       {/* Overlay Panel */}
-      <div className="fixed inset-y-0 right-0 z-[101] w-full sm:max-w-2xl bg-white shadow-2xl dark:bg-gray-700 overflow-hidden flex flex-col animate-in slide-in-from-right duration-300">
+      <div className="fixed inset-y-0 right-0 z-[101] w-full sm:max-w-md bg-white shadow-2xl dark:bg-gray-700 overflow-hidden flex flex-col animate-in slide-in-from-right duration-300">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-6 py-4 shrink-0">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Notifications</h2>

@@ -38,12 +38,6 @@ export default function PaymentAccountsPage() {
     setDefaultMutation.mutate(accountId);
   };
 
-  const maskAccountNumber = (accountNumber?: string) => {
-    if (!accountNumber) return "";
-    if (accountNumber.length <= 4) return accountNumber;
-    return "****" + accountNumber.slice(-4);
-  };
-
   return (
     <div className="fixed bottom-0 left-0 right-0 top-[80px] lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg">
       <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-6 sm:py-8">
@@ -262,7 +256,10 @@ function PaymentAccountFormModal({
 
       if (formData.account_type === "bank") {
         payload.bank_name = formData.bank_name;
-        payload.account_number = formData.account_number;
+        // Only include account_number if it's not masked or if creating new account
+        if (!account || (formData.account_number && !formData.account_number.includes('*'))) {
+          payload.account_number = formData.account_number;
+        }
       } else if (formData.account_type === "mobile_money") {
         payload.provider = formData.provider;
         payload.phone_number = formData.phone_number;
@@ -353,15 +350,21 @@ function PaymentAccountFormModal({
                 />
               </div>
               <div>
-                <label htmlFor="account_number" className="block text-sm font-semibold text-gray-700">Account Number *</label>
+                <label htmlFor="account_number" className="block text-sm font-semibold text-gray-700">
+                  Account Number {!account && '*'}
+                </label>
                 <input
                   id="account_number"
                   type="text"
-                  required
+                  required={!account}
                   value={formData.account_number}
                   onChange={(e) => setFormData({ ...formData, account_number: e.target.value })}
+                  placeholder={account ? "Enter new account number to update" : ""}
                   className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
+                {account && formData.account_number?.includes('*') && (
+                  <p className="mt-1 text-xs text-gray-500">Current account number is hidden for security. Enter the full number to update it.</p>
+                )}
               </div>
             </>
           )}
