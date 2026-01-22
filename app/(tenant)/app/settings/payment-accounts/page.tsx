@@ -145,7 +145,7 @@ export default function PaymentAccountsPage() {
                             )}
                             {account.account_number && (
                               <p className="text-sm text-gray-600">
-                                Account: <span className="font-medium">{maskAccountNumber(account.account_number)}</span>
+                                Account: <span className="font-medium">{account.account_number}</span>
                               </p>
                             )}
                           </>
