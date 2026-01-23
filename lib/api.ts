@@ -1494,6 +1494,20 @@ export const tenantApi = {
       has_telegram_bot?: boolean;
     }>("/api/tenant/onboarding/status"),
 
+  onboardingMagicKnowledge: (payload: {
+    url?: string;
+    description?: string;
+  }) =>
+    post<typeof payload, {
+      success: boolean;
+      data: {
+        faqs: Array<{ question: string; answer: string }>;
+        keywords: string[];
+        knowledge_base: Array<{ title: string; category: string; content: string }>;
+      };
+      message: string;
+    }>("/api/tenant/onboarding/magic-knowledge", payload),
+
   onboardingBusinessProfile: (payload: {
     name: string;
     industry: string;

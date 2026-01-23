@@ -3,8 +3,9 @@
 
 import React from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { tenantApi } from "@/lib/api";
+import { toast } from "react-hot-toast";
 import {
   BuildingOfficeIcon,
   SparklesIcon,
@@ -19,6 +20,29 @@ export default function OnboardingSummaryPage() {
     queryFn: tenantApi.onboardingStatus,
     refetchOnWindowFocus: false,
   });
+
+  const { mutate: magicFill, isPending: isMagicLoading } = useMutation({
+    mutationFn: tenantApi.onboardingMagicKnowledge,
+    onSuccess: (res) => {
+      toast.success(res.message || "Magic fill successful!");
+      refetch();
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to generate knowledge");
+    },
+  });
+
+  const handleMagicFill = () => {
+    toast.loading("AI is analyzing your business...", { id: "magic-fill" });
+    magicFill(
+      {}, // Backend will use existing profile if empty
+      {
+        onSettled: () => {
+          toast.dismiss("magic-fill");
+        },
+      }
+    );
+  };
 
   if (isLoading) {
     return (
@@ -153,13 +177,23 @@ export default function OnboardingSummaryPage() {
                     <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Menu items, FAQs, and knowledge base</p>
                   </div>
                 </div>
-                <Link
-                  href="/app/settings/business-details"
-                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-dark-border dark:bg-dark-elevated dark:text-gray-300 dark:hover:bg-dark-elevated/80 sm:w-auto sm:justify-start"
-                >
-                  <PencilIcon className="h-3.5 w-3.5" />
-                  Edit
-                </Link>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <button
+                    onClick={handleMagicFill}
+                    disabled={isMagicLoading}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/10 disabled:opacity-50"
+                  >
+                    <SparklesIcon className={`h-3.5 w-3.5 ${isMagicLoading ? "animate-pulse" : ""}`} />
+                    {isMagicLoading ? "Generating..." : "Magic Fill"}
+                  </button>
+                  <Link
+                    href="/app/settings/business-details"
+                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-dark-border dark:bg-dark-elevated dark:text-gray-300 dark:hover:bg-dark-elevated/80 sm:w-auto sm:justify-start"
+                  >
+                    <PencilIcon className="h-3.5 w-3.5" />
+                    Edit
+                  </Link>
+                </div>
               </div>
               <div className="relative mt-4 grid gap-4 sm:mt-6 sm:gap-6 md:grid-cols-2">
 
