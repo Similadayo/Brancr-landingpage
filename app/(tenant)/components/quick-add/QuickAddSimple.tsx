@@ -35,7 +35,7 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 				const res = await fetch(`/api/tenant/${industry}/parse`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ text, source: 'paste' }),
+					body: JSON.stringify({ raw_input: text, source: 'paste', industry }),
 				});
 				if (!res.ok) throw new Error('Parse failed');
 				const data = await res.json();
@@ -120,12 +120,12 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 									)}
 								</button>
 								<label className="flex-1 sm:flex-none inline-flex items-center gap-2 justify-center rounded-xl border-2 border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 cursor-pointer hover:border-primary hover:bg-primary/5 hover:text-primary transition-all dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:hover:border-primary dark:hover:bg-gray-600 dark:hover:text-primary">
-									<input type="file" accept={industry === 'menu' ? ".csv,.txt,.docx,.pdf,.jpg,.jpeg,.png,.webp,image/*" : ".csv,.txt,.docx,.pdf"} className="hidden" onChange={async (e) => {
+									<input type="file" accept=".csv,.txt,.docx,.pdf,.jpg,.jpeg,.png,.webp,image/*" className="hidden" onChange={async (e) => {
 										const file = e.target.files?.[0];
 										if (!file) return;
 										const form = new FormData();
 										form.append('file', file);
-										setParsing(true);
+										form.append('industry', industry); // Wire industry for file upload too!
 
 										try {
 											if (industry === 'menu') {
