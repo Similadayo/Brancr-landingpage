@@ -125,11 +125,11 @@ export interface RecurringTemplate {
 // ==========================================
 export interface ParsedItem {
   name: string;
-  price?: number;        // Single price (null if range)
+  price?: number | null;        // Single price (null if range)
   min_price?: number;    // For ranges like "₦15,000 - ₦25,000"
   max_price?: number;
-  currency?: string;     // "NGN", "USD", "GBP", etc.
-  type?: string;         // "product" | "service" | "subscription" | "menu_item"
+  currency?: string | null;     // "NGN", "USD", "GBP", etc.
+  type?: string | null;         // "product" | "service" | "subscription" | "menu_item"
   category?: string;
   description?: string;  // Item features/description
   deliverables?: string[]; // List of specific deliverables

@@ -1,13 +1,20 @@
 export type ParsedItem = {
   name: string;
   price?: number | null;
+  min_price?: number;
+  max_price?: number;
   currency?: string | null;
   type?: string | null;
+  category?: string;
+  description?: string;
+  deliverables?: string[];
+  duration?: string;
+  billing_period?: string;
   confidence?: number;
   raw?: string;
 };
 
-const currencySymbols: Record<string,string> = {
+const currencySymbols: Record<string, string> = {
   '₦': 'NGN',
   'NGN': 'NGN',
   '$': 'USD',

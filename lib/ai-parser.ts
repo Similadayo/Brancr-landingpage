@@ -9,8 +9,22 @@ export async function aiParseText(text: string): Promise<ParsedItem[]> {
 
   // Construct a concise prompt asking AI to extract JSON only
   const system = `You are a parser. Extract a JSON array of items from the user's unstructured text. Return ONLY valid JSON (no commentary).
-Each item should be an object with keys: name (string), price (number|null), currency (string|null), type (string|null), confidence (number 0-1).
-If price is missing, set price to null and confidence to 0.6. Do not invent prices.`;
+Group related lines into a single item. Do NOT split a single service or product into multiple lines if they belong together (e.g. Duration, Description, Deliverables).
+
+Each item should be an object with these keys:
+- name (string, required)
+- price (number|null)
+- min_price (number, optional, if range)
+- max_price (number, optional, if range)
+- currency (string|null, e.g. "NGN")
+- description (string, optional)
+- deliverables (array of strings, optional)
+- duration (string, optional, e.g. "1 month")
+- category (string, optional)
+- type (string, optional)
+- confidence (number 0-1)
+
+If price is missing, set price to null. Do not invent prices.`;
   const user = `Input:\n\n${text}`;
 
   try {
@@ -48,8 +62,15 @@ If price is missing, set price to null and confidence to 0.6. Do not invent pric
     const items: ParsedItem[] = parsed.map((p) => ({
       name: String(p.name || '').trim(),
       price: p.price == null ? null : Number(p.price),
+      min_price: p.min_price ? Number(p.min_price) : undefined,
+      max_price: p.max_price ? Number(p.max_price) : undefined,
       currency: p.currency ?? null,
       type: p.type ?? null,
+      category: p.category ?? undefined,
+      description: p.description ?? undefined,
+      deliverables: Array.isArray(p.deliverables) ? p.deliverables : undefined,
+      duration: p.duration ?? undefined,
+      billing_period: p.billing_period ?? undefined,
       confidence: typeof p.confidence === 'number' ? p.confidence : 0.8,
       raw: p.raw ?? undefined,
     }));
