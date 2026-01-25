@@ -1,18 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { tenantApi } from '@/lib/api';
+import { tenantApi, ParsedItem } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import ConfirmModal from '@/app/components/ConfirmModal';
-
-type ParsedItem = {
-  name: string;
-  price?: number | null;
-  currency?: string | null;
-  type?: string | null;
-  confidence?: number;
-  [key: string]: any;
-};
 
 export default function ParsedItemsReview({ items, industry = 'products', onSaved }: { items: ParsedItem[]; industry?: string; onSaved?: () => void }) {
   const [localItems, setLocalItems] = useState<ParsedItem[]>(items);
@@ -54,20 +45,43 @@ export default function ParsedItemsReview({ items, industry = 'products', onSave
     try {
       setSaving(true);
       for (const it of localItems) {
+        // Prepare extended payload
+        const commonFields = {
+          name: it.name,
+          price: it.price ?? 0,
+          currency: it.currency ?? 'NGN',
+          description: it.description,
+          category: it.category
+        };
+
         if (industry === 'products') {
-          await tenantApi.createProduct({ name: it.name, price: it.price ?? 0, currency: it.currency ?? 'NGN' });
+          await tenantApi.createProduct({ ...commonFields });
         } else if (industry === 'menu') {
-          await tenantApi.createMenuItem({ name: it.name, price: it.price ?? 0, currency: it.currency ?? 'NGN', description: it.description });
+          await tenantApi.createMenuItem({ ...commonFields, description: it.description ?? '' });
         } else if (industry === 'services') {
-          await tenantApi.createService({ name: it.name, description: it.description, pricing: { type: 'fixed', rate: it.price ?? 0 } });
+          // Services often need more details
+          await tenantApi.createService({
+            name: it.name,
+            description: it.description ?? '',
+            pricing: {
+              type: 'fixed',
+              rate: it.price ?? 0,
+              min_price: it.min_price,
+              max_price: it.max_price,
+              currency: it.currency ?? 'NGN'
+            },
+            duration: it.duration,
+            deliverables: it.deliverables
+          });
         } else {
-          // fallback to product
-          await tenantApi.createProduct({ name: it.name, price: it.price ?? 0, currency: it.currency ?? 'NGN' });
+          // Fallback
+          await tenantApi.createProduct(commonFields);
         }
       }
       toast.success('Items created');
       onSaved?.();
     } catch (e) {
+      console.error(e);
       toast.error('Failed to create items');
     } finally {
       setSaving(false);
@@ -123,79 +137,116 @@ export default function ParsedItemsReview({ items, industry = 'products', onSave
       )}
 
       {/* Items List */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {localItems.map((it, idx) => (
           <div key={idx} className="rounded-xl border-2 border-gray-200 bg-white p-5 hover:border-primary/50 hover:shadow-md transition-all">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="flex-1 w-full space-y-3">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                  <div className="flex-1 min-w-0">
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Name</label>
-                    <input
-                      value={it.name}
-                      onChange={(e) => updateItem(idx, { name: e.target.value })}
-                      className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                      placeholder="Item name"
-                    />
-                  </div>
-                  <div className="w-full sm:w-32">
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Price</label>
-                    <input
-                      value={it.price ?? ''}
-                      onChange={(e) => updateItem(idx, { price: e.target.value === '' ? null : Number(e.target.value) })}
-                      className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                      placeholder="0.00"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
-                  <div className="w-full sm:w-24">
-                    <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Currency</label>
-                    <input
-                      value={it.currency ?? ''}
-                      onChange={(e) => updateItem(idx, { currency: e.target.value })}
-                      className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                      placeholder="NGN"
-                    />
-                  </div>
+            <div className="flex flex-col gap-4">
+
+              {/* Row 1: Name, Price, Currency, Duration */}
+              <div className="flex flex-col sm:flex-row items-start gap-3">
+                <div className="flex-1 w-full">
+                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Name</label>
+                  <input
+                    value={it.name}
+                    onChange={(e) => updateItem(idx, { name: e.target.value })}
+                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                    placeholder="Item name"
+                  />
                 </div>
-                <div className="flex flex-wrap items-center gap-3 pt-2">
-                  {it.type && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-                      <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Type: {it.type}
-                    </span>
-                  )}
-                  {it.price == null && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-50 px-2.5 py-1 text-xs font-medium text-yellow-700">
-                      <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                      Missing price
-                    </span>
-                  )}
-                  {it.confidence !== undefined && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
-                      <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      {(it.confidence * 100).toFixed(0)}% confidence
-                    </span>
-                  )}
+                <div className="w-full sm:w-32">
+                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Price</label>
+                  <input
+                    value={it.price ?? ''}
+                    onChange={(e) => updateItem(idx, { price: e.target.value === '' ? undefined : Number(e.target.value) })}
+                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                    placeholder="0.00"
+                    type="number"
+                  />
+                </div>
+                <div className="w-full sm:w-24">
+                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Currency</label>
+                  <input
+                    value={it.currency ?? ''}
+                    onChange={(e) => updateItem(idx, { currency: e.target.value })}
+                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                    placeholder="NGN"
+                  />
+                </div>
+                <div className="w-full sm:w-40">
+                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Duration</label>
+                  <input
+                    value={it.duration ?? ''}
+                    onChange={(e) => updateItem(idx, { duration: e.target.value })}
+                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                    placeholder="e.g. 1 month"
+                  />
                 </div>
               </div>
-              <button 
-                onClick={() => removeItem(idx)} 
-                className="flex-shrink-0 rounded-lg border-2 border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:border-red-300 hover:bg-red-100 transition-all flex items-center gap-2"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                Remove
-              </button>
+
+              {/* Row 2: Negotiation Rules (Min/Max) */}
+              <div className="flex flex-wrap gap-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <div className="flex-1 min-w-[150px]">
+                  <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Min Price (Negotiation Floor)</label>
+                  <input
+                    value={it.min_price ?? ''}
+                    onChange={(e) => updateItem(idx, { min_price: e.target.value === '' ? undefined : Number(e.target.value) })}
+                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
+                    placeholder="Optional"
+                    type="number"
+                  />
+                </div>
+                <div className="flex-1 min-w-[150px]">
+                  <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Max Price (Negotiation Ceiling)</label>
+                  <input
+                    value={it.max_price ?? ''}
+                    onChange={(e) => updateItem(idx, { max_price: e.target.value === '' ? undefined : Number(e.target.value) })}
+                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
+                    placeholder="Optional"
+                    type="number"
+                  />
+                </div>
+              </div>
+
+              {/* Row 3: Description & Deliverables */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Description</label>
+                  <textarea
+                    value={it.description ?? ''}
+                    onChange={(e) => updateItem(idx, { description: e.target.value })}
+                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                    rows={3}
+                    placeholder="Item description..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Deliverables (One per line)</label>
+                  <textarea
+                    value={it.deliverables?.join('\n') ?? ''}
+                    onChange={(e) => updateItem(idx, { deliverables: e.target.value.split('\n') })}
+                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                    rows={3}
+                    placeholder="• Deliverable 1&#10;• Deliverable 2"
+                  />
+                </div>
+              </div>
+
+              {/* Actions & Metadata */}
+              <div className="flex items-center justify-between pt-2 border-t border-gray-100 mt-2">
+                <div className="flex items-center gap-2">
+                  {it.type && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{it.type}</span>}
+                  {it.category && <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">{it.category}</span>}
+                  <span className="text-xs text-gray-400">Confidence: {(it.confidence * 100).toFixed()}%</span>
+                </div>
+
+                <button
+                  onClick={() => removeItem(idx)}
+                  className="text-red-500 hover:text-red-700 text-sm font-medium px-3 py-1 hover:bg-red-50 rounded-lg transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
+
             </div>
           </div>
         ))}

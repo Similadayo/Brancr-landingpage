@@ -132,6 +132,8 @@ export interface ParsedItem {
   type?: string;         // "product" | "service" | "subscription" | "menu_item"
   category?: string;
   description?: string;  // Item features/description
+  deliverables?: string[]; // List of specific deliverables
+  duration?: string;     // Duration of service (e.g. "1 month")
   billing_period?: string; // "monthly" | "yearly" | "hourly" | "one-time"
   flags?: { [key: string]: boolean }; // e.g., {"has_price_range": true}
   confidence: number;    // 0.0 - 1.0
@@ -2221,6 +2223,9 @@ export const tenantApi = {
         pricing: {
           type: "hourly" | "fixed" | "package";
           rate?: number;
+          min_price?: number;
+          max_price?: number;
+          currency?: string;
         };
         packages?: Array<{
           name: string;
@@ -2244,6 +2249,9 @@ export const tenantApi = {
     pricing: {
       type: "hourly" | "fixed" | "package";
       rate?: number;
+      min_price?: number;
+      max_price?: number;
+      currency?: string;
     };
     packages?: Array<{
       name: string;
@@ -2264,6 +2272,9 @@ export const tenantApi = {
         pricing: {
           type: "hourly" | "fixed" | "package";
           rate?: number;
+          min_price?: number;
+          max_price?: number;
+          currency?: string;
         };
         packages?: Array<{
           name: string;
@@ -2286,6 +2297,9 @@ export const tenantApi = {
     pricing?: {
       type: "hourly" | "fixed" | "package";
       rate?: number;
+      min_price?: number;
+      max_price?: number;
+      currency?: string;
     };
     packages?: Array<{
       name: string;
