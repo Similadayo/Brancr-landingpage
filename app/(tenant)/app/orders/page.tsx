@@ -24,7 +24,7 @@ export default function OrdersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   const queryClient = useQueryClient();
-  const lastOrderIdRef = useRef<string | null>(null);
+
   const [newOrderIds, setNewOrderIds] = useState<Set<string>>(new Set());
 
   const { data: ordersData, isLoading, error } = useOrders({
@@ -47,25 +47,27 @@ export default function OrdersPage() {
   }, [queryClient]);
 
   // Detect new orders and show notifications
+  const lastCheckedTimeRef = useRef<number>(Date.now());
+
   useEffect(() => {
     if (orders.length === 0 || isLoading) return;
 
-    // Use created_at to detect new orders (since IDs are now UUIDs)
-    const sortedByTime = [...orders].sort((a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
-    const latestOrderId = sortedByTime[0]?.id;
+    // Find orders created after our last check
+    // We filter by created_at timestamp being strictly greater than our last check
+    const newOrders = orders.filter((o) => {
+      const orderTime = new Date(o.created_at).getTime();
+      // Add a small buffer (1s) to avoid race conditions with Date.now()
+      return orderTime > lastCheckedTimeRef.current;
+    });
 
-    if (lastOrderIdRef.current === null) {
-      lastOrderIdRef.current = latestOrderId || null;
-      return;
-    }
+    // Sort to handle multiple new orders (oldest first for notifications or newest? User likely wants to see them)
+    // Actually, just notifying for all is fine.
 
-    // Find orders created after our last known newest order
-    const lastKnownOrder = orders.find(o => o.id === lastOrderIdRef.current);
-    if (lastKnownOrder) {
-      const lastKnownTime = new Date(lastKnownOrder.created_at).getTime();
-      const newOrders = orders.filter((o) => new Date(o.created_at).getTime() > lastKnownTime);
+    if (newOrders.length > 0) {
+      // Update the ref to the latest timestamp found to prevent re-notification
+      const maxTime = Math.max(...newOrders.map(o => new Date(o.created_at).getTime()));
+      lastCheckedTimeRef.current = maxTime;
+
       newOrders.forEach((order) => {
         setNewOrderIds((prev) => new Set(prev).add(order.id));
         toast.success(
@@ -87,7 +89,6 @@ export default function OrdersPage() {
         );
       });
     }
-    lastOrderIdRef.current = latestOrderId || lastOrderIdRef.current;
   }, [orders, isLoading]);
 
   // Remove "new" badge after 5 minutes
