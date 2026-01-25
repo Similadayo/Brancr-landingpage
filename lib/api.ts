@@ -804,8 +804,8 @@ export const tenantApi = {
   // ==========================================
 
   // Parse products/services/menu from text
-  parseProducts: (rawInput: string) =>
-    post<{ raw_input: string; source: string; }, ParsedItem[]>('/api/tenant/products/parse', { raw_input: rawInput, source: 'paste' }),
+  parseProducts: (rawInput: string, industry?: string) =>
+    post<{ raw_input: string; source: string; industry?: string; }, ParsedItem[]>('/api/tenant/products/parse', { raw_input: rawInput, source: 'paste', industry }),
 
   // Generate caption from images/context
   generateCaption: (options: GenerateCaptionOptions) => post<{

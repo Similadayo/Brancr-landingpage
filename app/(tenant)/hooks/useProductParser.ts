@@ -6,11 +6,11 @@ export function useProductParser() {
     const [parsedItems, setParsedItems] = useState<ParsedItem[]>([]);
     const [error, setError] = useState<string | null>(null);
 
-    const parse = async (rawInput: string): Promise<ParsedItem[]> => {
+    const parse = async (rawInput: string, industry?: string): Promise<ParsedItem[]> => {
         setLoading(true);
         setError(null);
         try {
-            const res = await tenantApi.parseProducts(rawInput);
+            const res = await tenantApi.parseProducts(rawInput, industry);
             setParsedItems(res);
             return res;
         } catch (err: any) {

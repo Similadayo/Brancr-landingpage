@@ -30,7 +30,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
 
   const handleParse = async () => {
     if (!parseInput.trim()) return;
-    const items = await parser.parse(parseInput);
+    const items = await parser.parse(parseInput, 'services');
     if (items && items.length > 0) {
       const item = items[0];
       setFormData(prev => ({
