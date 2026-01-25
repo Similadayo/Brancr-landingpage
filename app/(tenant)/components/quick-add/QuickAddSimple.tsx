@@ -123,6 +123,7 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 									<input type="file" accept=".csv,.txt,.docx,.pdf,.jpg,.jpeg,.png,.webp,image/*" className="hidden" onChange={async (e) => {
 										const file = e.target.files?.[0];
 										if (!file) return;
+										setParsing(true);
 										const form = new FormData();
 										form.append('file', file);
 										form.append('industry', industry); // Wire industry for file upload too!
