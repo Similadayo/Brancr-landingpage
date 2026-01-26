@@ -353,23 +353,23 @@ export default function ServiceForm({ service }: ServiceFormProps) {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-6 dark:bg-gray-800 dark:border-gray-700">
         {/* Essentials - always visible */}
         <div>
-          <label htmlFor="service-name" className="block text-sm font-semibold text-gray-700">Service Name *</label>
+          <label htmlFor="service-name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Service Name *</label>
           <input
             id="service-name"
             type="text"
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="service-pricing-type" className="block text-sm font-semibold text-gray-700">Pricing Type *</label>
+            <label htmlFor="service-pricing-type" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Pricing Type *</label>
             <div className="mt-1">
               <Select
                 id="service-pricing-type"
@@ -386,7 +386,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
           </div>
           {formData.pricing_type === "hourly" && (
             <div>
-              <label htmlFor="service-rate" className="block text-sm font-semibold text-gray-700">Rate (NGN/hour) *</label>
+              <label htmlFor="service-rate" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Rate (NGN/hour) *</label>
               <input
                 id="service-rate"
                 type="number"
@@ -394,13 +394,13 @@ export default function ServiceForm({ service }: ServiceFormProps) {
                 step="0.01"
                 value={formData.pricing_rate}
                 onChange={(e) => setFormData({ ...formData, pricing_rate: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
               />
             </div>
           )}
           {formData.pricing_type === "fixed" && (
             <div>
-              <label htmlFor="service-amount" className="block text-sm font-semibold text-gray-700">Amount (NGN) *</label>
+              <label htmlFor="service-amount" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Amount (NGN) *</label>
               <input
                 id="service-amount"
                 type="number"
@@ -408,55 +408,55 @@ export default function ServiceForm({ service }: ServiceFormProps) {
                 step="0.01"
                 value={formData.pricing_amount}
                 onChange={(e) => setFormData({ ...formData, pricing_amount: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
               />
             </div>
           )}
         </div>
 
         {/* Optional - collapsed by default */}
-        <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4">
-          <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900">Optional</summary>
+        <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4 dark:bg-gray-800/50 dark:border-gray-700">
+          <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900 dark:text-white">Optional</summary>
 
           <div className="mt-4 space-y-4">
             <div>
-              <label htmlFor="service-description" className="block text-sm font-semibold text-gray-700">Description</label>
+              <label htmlFor="service-description" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Description</label>
               <textarea
                 id="service-description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="service-category" className="block text-sm font-semibold text-gray-700">Category</label>
+                <label htmlFor="service-category" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Category</label>
                 <input
                   id="service-category"
                   type="text"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
                 />
               </div>
 
               <div>
-                <label htmlFor="service-duration" className="block text-sm font-semibold text-gray-700">Duration</label>
+                <label htmlFor="service-duration" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Duration</label>
                 <input
                   id="service-duration"
                   type="text"
                   value={formData.duration}
                   onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
                   placeholder="1 hour, 2 weeks..."
-                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Deliverables</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">Deliverables</label>
               <div className="mb-2 flex flex-wrap gap-2">
                 {formData.deliverables.map((del) => (
                   <span
@@ -487,7 +487,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
                       input.value = '';
                     }
                   }}
-                  className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40 dark:placeholder-gray-500"
                 />
                 <button
                   type="button"
@@ -498,7 +498,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
                       input.value = '';
                     }
                   }}
-                  className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                  className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:bg-gray-600"
                 >
                   Add
                 </button>
@@ -515,17 +515,17 @@ export default function ServiceForm({ service }: ServiceFormProps) {
         </details>
 
         {/* Advanced - collapsed by default */}
-        <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4">
-          <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900">Advanced</summary>
+        <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4 dark:bg-gray-800/50 dark:border-gray-700">
+          <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900 dark:text-white">Advanced</summary>
 
           <div className="mt-4 space-y-4">
-            <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-              <h3 className="text-sm font-semibold text-gray-900">Negotiation Rules</h3>
-              <p className="mt-1 text-xs text-gray-600">Controls what the AI can negotiate for this service.</p>
+            <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 dark:bg-gray-900/50 dark:border-gray-700">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Negotiation Rules</h3>
+              <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">Controls what the AI can negotiate for this service.</p>
 
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <label htmlFor="service-negotiation-mode" className="block text-sm font-semibold text-gray-700">Negotiation</label>
+                  <label htmlFor="service-negotiation-mode" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Negotiation</label>
                   <div className="mt-1">
                     <Select
                       id="service-negotiation-mode"
@@ -551,7 +551,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
                   {formData.negotiation_mode === "range" && (
                     <>
                       <div>
-                        <label htmlFor="service-negotiation-min" className="block text-sm font-semibold text-gray-700">Min Price</label>
+                        <label htmlFor="service-negotiation-min" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Min Price</label>
                         <input
                           id="service-negotiation-min"
                           type="number"
@@ -561,14 +561,14 @@ export default function ServiceForm({ service }: ServiceFormProps) {
                           onChange={(e) => setFormData({ ...formData, negotiation_min_price: e.target.value })}
                           aria-invalid={!!fieldErrors.negotiation_min_price}
                           aria-describedby={fieldErrors.negotiation_min_price ? 'service-neg-min-error' : undefined}
-                          className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                          className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
                         />
                         {fieldErrors.negotiation_min_price && (
                           <p id="service-neg-min-error" className="mt-1 text-xs text-rose-600">{fieldErrors.negotiation_min_price}</p>
                         )}
                       </div>
                       <div>
-                        <label htmlFor="service-negotiation-max" className="block text-sm font-semibold text-gray-700">Max Price</label>
+                        <label htmlFor="service-negotiation-max" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Max Price</label>
                         <input
                           id="service-negotiation-max"
                           type="number"
@@ -578,7 +578,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
                           onChange={(e) => setFormData({ ...formData, negotiation_max_price: e.target.value })}
                           aria-invalid={!!fieldErrors.negotiation_max_price}
                           aria-describedby={fieldErrors.negotiation_max_price ? 'service-neg-max-error' : undefined}
-                          className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                          className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
                         />
                         {fieldErrors.negotiation_max_price && (
                           <p id="service-neg-max-error" className="mt-1 text-xs text-rose-600">{fieldErrors.negotiation_max_price}</p>
@@ -598,9 +598,9 @@ export default function ServiceForm({ service }: ServiceFormProps) {
             id="service-is-active"
             checked={formData.is_active}
             onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary dark:bg-gray-900 dark:border-gray-600 dark:checked:bg-primary"
           />
-          <label htmlFor="service-is-active" className="text-sm font-medium text-gray-700">
+          <label htmlFor="service-is-active" className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Service is active (visible to customers)
           </label>
         </div>
@@ -608,7 +608,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
         <div className="flex items-center justify-end gap-3 border-t border-gray-200 pt-6">
           <Link
             href="/app/services"
-            className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary"
+            className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:text-white dark:hover:border-primary"
           >
             Cancel
           </Link>
