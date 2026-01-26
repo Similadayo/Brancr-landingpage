@@ -11,7 +11,7 @@ import { getUserFriendlyErrorMessage, parseApiFieldErrors } from '@/lib/error-me
 import Link from "next/link";
 import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
-import { useDraft, useAutoSaveDraft, useDeleteDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
+import { useDraft, useAutoSaveDraft, useDeleteDraft, useDiscardDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 import { useProductParser } from "@/app/(tenant)/hooks/useProductParser";
 
 type ProductFormProps = {
@@ -54,12 +54,12 @@ export default function ProductForm({ product }: ProductFormProps) {
   };
 
   const { data: draft, isLoading: draftLoading } = useDraft(DRAFT_KEYS.PRODUCT_CREATE);
-  const deleteDraft = useDeleteDraft();
+  const { discard } = useDiscardDraft(DRAFT_KEYS.PRODUCT_CREATE);
 
   // Only auto-save if creating a new product
   const isCreateMode = !product;
 
-  const [formData, setFormData] = useState({
+  const getInitialFormData = () => ({
     name: product?.name || "",
     description: product?.description || "",
     price: product?.price !== undefined ? String(product.price) : "",
@@ -76,6 +76,8 @@ export default function ProductForm({ product }: ProductFormProps) {
     images: product?.images || [],
     variants: product?.variants || {},
   });
+
+  const [formData, setFormData] = useState(getInitialFormData());
 
   // Auto-save hook
   const { isSaving } = useAutoSaveDraft(DRAFT_KEYS.PRODUCT_CREATE, formData, isCreateMode && !draftLoading);
@@ -97,24 +99,9 @@ export default function ProductForm({ product }: ProductFormProps) {
 
   useEffect(() => {
     if (product) {
-      setFormData({
-        name: product.name || "",
-        description: product.description || "",
-        price: product.price !== undefined ? String(product.price) : "",
-        currency: product.currency || "NGN",
-        category: product.category || "",
-        negotiation_mode: product.negotiation_mode || "default",
-        negotiation_min_price: product.negotiation_min_price !== undefined ? String(product.negotiation_min_price) : "",
-        negotiation_max_price: product.negotiation_max_price !== undefined ? String(product.negotiation_max_price) : "",
-        sku: (product as any)?.sku || "",
-        stock_count: product.stock_count ?? -1,
-        availability: product.availability || "in_stock",
-        is_active: product.is_active ?? true,
-        tags: product.tags?.join(", ") || "",
-        images: product.images || [],
-        variants: product.variants || {},
-      });
+      setFormData(getInitialFormData());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
 
   useEffect(() => {
@@ -141,6 +128,14 @@ export default function ProductForm({ product }: ProductFormProps) {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.negotiation_mode, formData.negotiation_min_price, formData.negotiation_max_price]);
+
+  const handleDiscardDraft = async () => {
+    if (confirm("Are you sure you want to discard this draft? All changes will be lost.")) {
+      await discard(draft?.id);
+      setFormData(getInitialFormData());
+      toast.success("Draft discarded");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,7 +185,7 @@ export default function ProductForm({ product }: ProductFormProps) {
         await createMutation.mutateAsync(payload);
         toast.success("Product created successfully");
         // Clear draft
-        if (draft?.id) deleteDraft.mutate(draft.id);
+        await discard(draft?.id);
       }
       router.push("/app/products");
     } catch (error: any) {
@@ -255,14 +250,26 @@ export default function ProductForm({ product }: ProductFormProps) {
               </div>
             </div>
             {!product && (
-              <button
-                type="button"
-                onClick={() => setShowParseModal(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20 border border-white/20"
-              >
-                <SparklesIcon className="h-4 w-4" />
-                Parse from Text
-              </button>
+              <div className="flex items-center gap-2">
+                {draft && (
+                  <button
+                    type="button"
+                    onClick={handleDiscardDraft}
+                    className="inline-flex items-center gap-2 rounded-xl bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-500 backdrop-blur-sm transition hover:bg-red-500/20 border border-red-500/20"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                    Discard Draft
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowParseModal(true)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20 border border-white/20"
+                >
+                  <SparklesIcon className="h-4 w-4" />
+                  Parse from Text
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -459,7 +466,11 @@ export default function ProductForm({ product }: ProductFormProps) {
                   id="negotiation-mode"
                   value={formData.negotiation_mode}
                   onChange={(value) => setFormData({ ...formData, negotiation_mode: value as any })}
-                  options={[{ value: 'default', label: 'Default' }, { value: 'range', label: 'Range' }]}
+                  options={[
+                    { value: 'default', label: 'Default' },
+                    { value: 'fixed', label: 'No Negotiation (Fixed)' },
+                    { value: 'range', label: 'Range' }
+                  ]}
                   searchable={false}
                 />
 

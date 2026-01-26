@@ -10,7 +10,7 @@ import { getUserFriendlyErrorMessage, parseApiFieldErrors } from '@/lib/error-me
 import Link from "next/link";
 import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
-import { useDraft, useAutoSaveDraft, useDeleteDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
+import { useDraft, useAutoSaveDraft, useDeleteDraft, useDiscardDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 import { useProductParser } from "@/app/(tenant)/hooks/useProductParser";
 
 const DIETARY_OPTIONS = [
@@ -64,12 +64,12 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
   };
 
   const { data: draft, isLoading: draftLoading } = useDraft(DRAFT_KEYS.MENU_ITEM_CREATE);
-  const deleteDraft = useDeleteDraft();
+  const { discard } = useDiscardDraft(DRAFT_KEYS.MENU_ITEM_CREATE);
 
   // Only auto-save if creating a new item
   const isCreateMode = !item;
 
-  const [formData, setFormData] = useState({
+  const getInitialFormData = () => ({
     name: item?.name || "",
     description: item?.description || "",
     price: item?.price !== undefined ? String(item.price) : "",
@@ -85,6 +85,8 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
     is_active: item?.is_active ?? true,
     images: item?.images || [],
   });
+
+  const [formData, setFormData] = useState(getInitialFormData());
 
   // Auto-save hook
   const { isSaving } = useAutoSaveDraft(DRAFT_KEYS.MENU_ITEM_CREATE, formData, isCreateMode && !draftLoading);
@@ -105,23 +107,9 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
 
   useEffect(() => {
     if (item) {
-      setFormData({
-        name: item.name || "",
-        description: item.description || "",
-        price: item.price !== undefined ? String(item.price) : "",
-        currency: item.currency || "NGN",
-        category: item.category || "",
-        negotiation_mode: item.negotiation_mode || "default",
-        negotiation_min_price: item.negotiation_min_price !== undefined ? String(item.negotiation_min_price) : "",
-        negotiation_max_price: item.negotiation_max_price !== undefined ? String(item.negotiation_max_price) : "",
-        preparation_time: item.preparation_time !== undefined ? String(item.preparation_time) : "",
-        dietary_info: item.dietary_info || [],
-        spice_level: item.spice_level || "mild",
-        availability: item.availability || "available",
-        is_active: item.is_active ?? true,
-        images: item.images || [],
-      });
+      setFormData(getInitialFormData());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item]);
 
   useEffect(() => {
@@ -152,6 +140,14 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
         ? formData.dietary_info.filter((d) => d !== diet)
         : [...formData.dietary_info, diet],
     });
+  };
+
+  const handleDiscardDraft = async () => {
+    if (confirm("Are you sure you want to discard this draft? All changes will be lost.")) {
+      await discard(draft?.id);
+      setFormData(getInitialFormData());
+      toast.success("Draft discarded");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -201,7 +197,8 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
       } else {
         await createMutation.mutateAsync(payload);
         toast.success("Menu item created successfully");
-        if (draft?.id) deleteDraft.mutate(draft.id);
+        // Clear draft
+        await discard(draft?.id);
       }
       router.push("/app/menu-items");
     } catch (error: any) {
@@ -266,14 +263,26 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
               </div>
             </div>
             {!item && (
-              <button
-                type="button"
-                onClick={() => setShowParseModal(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20 border border-white/20"
-              >
-                <SparklesIcon className="h-4 w-4" />
-                Parse from Text
-              </button>
+              <div className="flex items-center gap-2">
+                {draft && (
+                  <button
+                    type="button"
+                    onClick={handleDiscardDraft}
+                    className="inline-flex items-center gap-2 rounded-xl bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-500 backdrop-blur-sm transition hover:bg-red-500/20 border border-red-500/20"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                    Discard Draft
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowParseModal(true)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20 border border-white/20"
+                >
+                  <SparklesIcon className="h-4 w-4" />
+                  Parse from Text
+                </button>
+              </div>
             )}
           </div>
         </div>

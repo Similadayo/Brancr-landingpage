@@ -10,7 +10,7 @@ import { getUserFriendlyErrorMessage, parseApiFieldErrors } from '@/lib/error-me
 import Link from "next/link";
 import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
-import { useDraft, useAutoSaveDraft, useDeleteDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
+import { useDraft, useAutoSaveDraft, useDiscardDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 import { useProductParser } from "@/app/(tenant)/hooks/useProductParser";
 
 type ServiceFormProps = {
@@ -56,12 +56,12 @@ export default function ServiceForm({ service }: ServiceFormProps) {
   };
 
   const { data: draft, isLoading: draftLoading } = useDraft(DRAFT_KEYS.SERVICE_CREATE);
-  const deleteDraft = useDeleteDraft();
+  const { discard } = useDiscardDraft(DRAFT_KEYS.SERVICE_CREATE);
 
   // Only auto-save if creating a new service
   const isCreateMode = !service;
 
-  const [formData, setFormData] = useState({
+  const getInitialFormData = () => ({
     name: service?.name || "",
     description: service?.description || "",
     negotiation_mode: service?.negotiation_mode || "default",
@@ -76,6 +76,8 @@ export default function ServiceForm({ service }: ServiceFormProps) {
     packages: (service?.packages || []).map((p: any) => ({ ...p, price: p?.price !== undefined ? String(p.price) : "" })),
     is_active: service?.is_active ?? true,
   });
+
+  const [formData, setFormData] = useState(getInitialFormData());
 
   // Auto-save hook
   const { isSaving } = useAutoSaveDraft(DRAFT_KEYS.SERVICE_CREATE, formData, isCreateMode && !draftLoading);
@@ -96,22 +98,9 @@ export default function ServiceForm({ service }: ServiceFormProps) {
 
   useEffect(() => {
     if (service) {
-      setFormData({
-        name: service.name || "",
-        description: service.description || "",
-        negotiation_mode: service.negotiation_mode || "default",
-        negotiation_min_price: service.negotiation_min_price !== undefined ? String(service.negotiation_min_price) : "",
-        negotiation_max_price: service.negotiation_max_price !== undefined ? String(service.negotiation_max_price) : "",
-        pricing_type: service.pricing.type || "hourly",
-        pricing_rate: service.pricing.rate !== undefined ? String(service.pricing.rate) : "",
-        pricing_amount: (service.pricing as any)?.amount !== undefined ? String((service.pricing as any)?.amount) : "",
-        duration: service.duration || "",
-        category: service.category || "",
-        deliverables: service.deliverables ? service.deliverables.split('\n') : [],
-        packages: (service.packages || []).map((p: any) => ({ ...p, price: p?.price !== undefined ? String(p.price) : "" })),
-        is_active: service.is_active ?? true,
-      });
+      setFormData(getInitialFormData());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [service]);
 
   // Client-side validation for negotiation fields
@@ -156,6 +145,14 @@ export default function ServiceForm({ service }: ServiceFormProps) {
       ...formData,
       deliverables: formData.deliverables.filter((d) => d !== deliverable),
     });
+  };
+
+  const handleDiscardDraft = async () => {
+    if (confirm("Are you sure you want to discard this draft? All changes will be lost.")) {
+      await discard(draft?.id);
+      setFormData(getInitialFormData());
+      toast.success("Draft discarded");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -212,7 +209,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
         await createMutation.mutateAsync(payload);
         toast.success("Service created successfully");
         // Clear draft
-        if (draft?.id) deleteDraft.mutate(draft.id);
+        await discard(draft?.id);
       }
       router.push("/app/services");
     } catch (error: any) {
@@ -277,14 +274,26 @@ export default function ServiceForm({ service }: ServiceFormProps) {
               </div>
             </div>
             {!service && (
-              <button
-                type="button"
-                onClick={() => setShowParseModal(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20 border border-white/20"
-              >
-                <SparklesIcon className="h-4 w-4" />
-                Parse from Text
-              </button>
+              <div className="flex items-center gap-2">
+                {draft && (
+                  <button
+                    type="button"
+                    onClick={handleDiscardDraft}
+                    className="inline-flex items-center gap-2 rounded-xl bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-500 backdrop-blur-sm transition hover:bg-red-500/20 border border-red-500/20"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                    Discard Draft
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowParseModal(true)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20 border border-white/20"
+                >
+                  <SparklesIcon className="h-4 w-4" />
+                  Parse from Text
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -541,7 +550,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
                       }}
                       options={[
                         { value: "default", label: "Use tenant default" },
-                        { value: "disabled", label: "No negotiation (fixed price)" },
+                        { value: "fixed", label: "Fixed Price (No negotiation)" },
                         { value: "range", label: "Allow negotiation within a range" },
                       ]}
                       searchable={false}

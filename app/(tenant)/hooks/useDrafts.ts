@@ -204,6 +204,21 @@ export function useDeleteDraft() {
   return { mutate };
 }
 
+export function clearLocalDraftContent(key: string) {
+  try { localStorage.removeItem(`drafts-local-content-${key}`); } catch { }
+}
+
+export function useDiscardDraft(key: string) {
+  const { mutate: deleteDraft } = useDeleteDraft();
+
+  const discard = async (id?: string | null) => {
+    if (id) await deleteDraft(id);
+    clearLocalDraftContent(key);
+  };
+
+  return { discard };
+}
+
 // Backward compatibility (deprecated)
 export default function useAutosaveDraft(opts: any) {
   const { data } = useDraft(opts.key);
