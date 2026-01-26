@@ -89,7 +89,7 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
   const [formData, setFormData] = useState(getInitialFormData());
 
   // Auto-save hook
-  const { isSaving } = useAutoSaveDraft(DRAFT_KEYS.MENU_ITEM_CREATE, formData, isCreateMode && !draftLoading);
+  const { isSaving, draftId: autoSavedDraftId } = useAutoSaveDraft(DRAFT_KEYS.MENU_ITEM_CREATE, formData, isCreateMode && !draftLoading);
 
   // Restore draft
   useEffect(() => {
@@ -196,9 +196,8 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
         toast.success("Menu item updated successfully");
       } else {
         await createMutation.mutateAsync(payload);
-        toast.success("Menu item created successfully");
         // Clear draft
-        await discard(draft?.id);
+        await discard(autoSavedDraftId || draft?.id);
       }
       router.push("/app/menu-items");
     } catch (error: any) {

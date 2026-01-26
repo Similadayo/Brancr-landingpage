@@ -80,7 +80,7 @@ export default function ProductForm({ product }: ProductFormProps) {
   const [formData, setFormData] = useState(getInitialFormData());
 
   // Auto-save hook
-  const { isSaving } = useAutoSaveDraft(DRAFT_KEYS.PRODUCT_CREATE, formData, isCreateMode && !draftLoading);
+  const { isSaving, draftId: autoSavedDraftId } = useAutoSaveDraft(DRAFT_KEYS.PRODUCT_CREATE, formData, isCreateMode && !draftLoading);
 
   // Restore draft
   useEffect(() => {
@@ -183,9 +183,8 @@ export default function ProductForm({ product }: ProductFormProps) {
         toast.success("Product updated successfully");
       } else {
         await createMutation.mutateAsync(payload);
-        toast.success("Product created successfully");
         // Clear draft
-        await discard(draft?.id);
+        await discard(autoSavedDraftId || draft?.id);
       }
       router.push("/app/products");
     } catch (error: any) {
