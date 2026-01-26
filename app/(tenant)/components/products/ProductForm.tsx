@@ -330,23 +330,23 @@ export default function ProductForm({ product }: ProductFormProps) {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-4">
+      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm space-y-6 dark:bg-gray-800 dark:border-gray-700">
         <div>
-          <label htmlFor="product-name" className="block text-sm font-semibold text-gray-700">Product Name *</label>
+          <label htmlFor="product-name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Product Name *</label>
           <input
             id="product-name"
             type="text"
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
           />
           {fieldErrors.name && <p className="mt-1 text-xs text-red-600">{fieldErrors.name}</p>}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="product-price" className="block text-sm font-semibold text-gray-700">Price</label>
+            <label htmlFor="product-price" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Price</label>
             <input
               id="product-price"
               type="number"
@@ -354,13 +354,13 @@ export default function ProductForm({ product }: ProductFormProps) {
               step="0.01"
               value={formData.price}
               onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
             />
             {fieldErrors.price && <p className="mt-1 text-xs text-red-600">{fieldErrors.price}</p>}
           </div>
 
           <div>
-            <label htmlFor="product-currency" className="block text-sm font-semibold text-gray-700">Currency</label>
+            <label htmlFor="product-currency" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Currency</label>
             <Select
               id="product-currency"
               value={formData.currency}
@@ -371,31 +371,31 @@ export default function ProductForm({ product }: ProductFormProps) {
           </div>
 
           <div>
-            <label htmlFor="product-sku" className="block text-sm font-semibold text-gray-700">SKU</label>
+            <label htmlFor="product-sku" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">SKU</label>
             <input
               id="product-sku"
               type="text"
               value={formData.sku}
               onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="product-stock" className="block text-sm font-semibold text-gray-700">Stock count</label>
+            <label htmlFor="product-stock" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Stock count</label>
             <input
               id="product-stock"
               type="number"
               value={String(formData.stock_count)}
               onChange={(e) => setFormData({ ...formData, stock_count: Number(e.target.value) })}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
             />
           </div>
 
           <div>
-            <label htmlFor="product-availability" className="block text-sm font-semibold text-gray-700">Availability</label>
+            <label htmlFor="product-availability" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Availability</label>
             <Select
               id="product-availability"
               value={formData.availability}
@@ -407,37 +407,37 @@ export default function ProductForm({ product }: ProductFormProps) {
         </div>
 
         <div>
-          <label htmlFor="product-category" className="block text-sm font-semibold text-gray-700">Category</label>
+          <label htmlFor="product-category" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Category</label>
           <input
             id="product-category"
             type="text"
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-            className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
           />
         </div>
 
         <div>
-          <label htmlFor="product-tags" className="block text-sm font-semibold text-gray-700">Tags</label>
+          <label htmlFor="product-tags" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Tags</label>
           <input
             id="product-tags"
             type="text"
             placeholder="comma-separated tags"
             value={formData.tags}
             onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-            className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
           />
         </div>
 
-        <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4">
-          <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900 flex items-center justify-between">
+        <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4 dark:bg-gray-800/50 dark:border-gray-700">
+          <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900 flex items-center justify-between dark:text-white">
             <span>Optional</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.939l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clipRule="evenodd" /></svg>
           </summary>
 
           <div className="mt-4 space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700">Images</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Images</label>
               <ImageUploader
                 images={formData.images}
                 onChange={(images) => setFormData({ ...formData, images })}
@@ -445,7 +445,7 @@ export default function ProductForm({ product }: ProductFormProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700">Variants</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Variants</label>
               <VariantBuilder
                 variants={formData.variants}
                 onChange={(variants) => setFormData({ ...formData, variants })}
@@ -453,7 +453,7 @@ export default function ProductForm({ product }: ProductFormProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700">Negotiation Rules</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Negotiation Rules</label>
               <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <Select
                   id="negotiation-mode"
@@ -470,14 +470,14 @@ export default function ProductForm({ product }: ProductFormProps) {
                       placeholder="Min price"
                       value={formData.negotiation_min_price}
                       onChange={(e) => setFormData({ ...formData, negotiation_min_price: e.target.value })}
-                      className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
                     />
                     <input
                       type="number"
                       placeholder="Max price"
                       value={formData.negotiation_max_price}
                       onChange={(e) => setFormData({ ...formData, negotiation_max_price: e.target.value })}
-                      className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
                     />
                   </>
                 )}
@@ -493,9 +493,9 @@ export default function ProductForm({ product }: ProductFormProps) {
                 type="checkbox"
                 checked={formData.is_active}
                 onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                className="h-4 w-4 rounded border-gray-200 text-primary focus:ring-primary"
+                className="h-4 w-4 rounded border-gray-200 text-primary focus:ring-primary dark:bg-gray-900 dark:border-gray-600 dark:focus:ring-offset-gray-900"
               />
-              <label htmlFor="product-active" className="text-sm font-medium text-gray-700">Active</label>
+              <label htmlFor="product-active" className="text-sm font-medium text-gray-700 dark:text-gray-300">Active</label>
             </div>
           </div>
         </details>

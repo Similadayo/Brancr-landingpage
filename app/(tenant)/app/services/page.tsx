@@ -359,9 +359,9 @@ export default function ServicesPage() {
                         </div>
                       )}
 
-                      {service.deliverables && service.deliverables.length > 0 && (
+                      {service.deliverables && (
                         <div className="mb-3 flex flex-wrap gap-1">
-                          {service.deliverables.slice(0, 3).map((del) => (
+                          {service.deliverables.split('\n').filter(Boolean).slice(0, 3).map((del) => (
                             <span
                               key={del}
                               className="rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-semibold text-purple-700"

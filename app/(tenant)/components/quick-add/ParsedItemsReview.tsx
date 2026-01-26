@@ -71,7 +71,7 @@ export default function ParsedItemsReview({ items, industry = 'products', onSave
               currency: it.currency ?? 'NGN'
             },
             duration: it.duration,
-            deliverables: it.deliverables
+            deliverables: it.deliverables?.join('\n')
           });
         } else {
           // Fallback

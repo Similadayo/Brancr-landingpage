@@ -8,12 +8,13 @@ export type Service = {
   id: string;
   name: string;
   description?: string;
-  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_mode?: "default" | "fixed" | "range";
   negotiation_min_price?: number;
   negotiation_max_price?: number;
   pricing: {
     type: "hourly" | "fixed" | "package";
     rate?: number;
+    amount?: number;
   };
   packages?: Array<{
     name: string;
@@ -22,7 +23,7 @@ export type Service = {
     description?: string;
   }>;
   duration?: string;
-  deliverables?: string[];
+  deliverables?: string;
   category?: string;
   is_active: boolean;
   created_at: string;
@@ -32,12 +33,13 @@ export type Service = {
 export type CreateServicePayload = {
   name: string;
   description?: string;
-  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_mode?: "default" | "fixed" | "range";
   negotiation_min_price?: number;
   negotiation_max_price?: number;
   pricing: {
     type: "hourly" | "fixed" | "package";
     rate?: number;
+    amount?: number;
   };
   packages?: Array<{
     name: string;
@@ -46,19 +48,21 @@ export type CreateServicePayload = {
     description?: string;
   }>;
   duration?: string;
-  deliverables?: string[];
+  deliverables?: string;
   category?: string;
+  is_active: boolean;
 };
 
 export type UpdateServicePayload = {
   name?: string;
   description?: string;
-  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_mode?: "default" | "fixed" | "range";
   negotiation_min_price?: number;
   negotiation_max_price?: number;
   pricing?: {
     type: "hourly" | "fixed" | "package";
     rate?: number;
+    amount?: number;
   };
   packages?: Array<{
     name: string;
@@ -67,7 +71,7 @@ export type UpdateServicePayload = {
     description?: string;
   }>;
   duration?: string;
-  deliverables?: string[];
+  deliverables?: string;
   category?: string;
   is_active?: boolean;
 };

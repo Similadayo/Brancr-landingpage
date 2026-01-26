@@ -2234,7 +2234,7 @@ export const tenantApi = {
           description?: string;
         }>;
         duration?: string;
-        deliverables?: string[];
+        deliverables?: string;
         category?: string;
         is_active: boolean;
         created_at: string;
@@ -2246,9 +2246,13 @@ export const tenantApi = {
   createService: (payload: {
     name: string;
     description?: string;
+    negotiation_mode?: "default" | "fixed" | "range";
+    negotiation_min_price?: number;
+    negotiation_max_price?: number;
     pricing: {
       type: "hourly" | "fixed" | "package";
       rate?: number;
+      amount?: number;
       min_price?: number;
       max_price?: number;
       currency?: string;
@@ -2260,7 +2264,7 @@ export const tenantApi = {
       description?: string;
     }>;
     duration?: string;
-    deliverables?: string[];
+    deliverables?: string;
     category?: string;
   }) =>
     post<typeof payload, {
@@ -2272,6 +2276,7 @@ export const tenantApi = {
         pricing: {
           type: "hourly" | "fixed" | "package";
           rate?: number;
+          amount?: number;
           min_price?: number;
           max_price?: number;
           currency?: string;
@@ -2283,7 +2288,7 @@ export const tenantApi = {
           description?: string;
         }>;
         duration?: string;
-        deliverables?: string[];
+        deliverables?: string;
         category?: string;
         is_active: boolean;
         created_at: string;
@@ -2294,9 +2299,13 @@ export const tenantApi = {
   updateService: (serviceId: string | number, payload: {
     name?: string;
     description?: string;
+    negotiation_mode?: "default" | "fixed" | "range";
+    negotiation_min_price?: number;
+    negotiation_max_price?: number;
     pricing?: {
       type: "hourly" | "fixed" | "package";
       rate?: number;
+      amount?: number;
       min_price?: number;
       max_price?: number;
       currency?: string;
@@ -2308,7 +2317,7 @@ export const tenantApi = {
       description?: string;
     }>;
     duration?: string;
-    deliverables?: string[];
+    deliverables?: string;
     category?: string;
     is_active?: boolean;
   }) =>
@@ -2321,6 +2330,7 @@ export const tenantApi = {
         pricing: {
           type: "hourly" | "fixed" | "package";
           rate?: number;
+          amount?: number;
         };
         packages?: Array<{
           name: string;
@@ -2329,7 +2339,7 @@ export const tenantApi = {
           description?: string;
         }>;
         duration?: string;
-        deliverables?: string[];
+        deliverables?: string;
         category?: string;
         is_active: boolean;
         created_at: string;

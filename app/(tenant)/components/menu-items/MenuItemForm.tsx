@@ -343,25 +343,25 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-6 dark:bg-gray-800 dark:border-gray-700">
         {/* Primary Fields - always visible */}
         <div className="space-y-4">
           <div>
-            <label htmlFor="menu-item-name" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Menu Item Name *</label>
+            <label htmlFor="menu-item-name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Menu Item Name *</label>
             <input
               id="menu-item-name"
               type="text"
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-600 dark:text-white"
+              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
             />
             {fieldErrors.name && <p className="mt-1 text-xs text-red-600">{fieldErrors.name}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="menu-item-price" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Price *</label>
+              <label htmlFor="menu-item-price" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Price *</label>
               <input
                 id="menu-item-price"
                 type="number"
@@ -370,12 +370,12 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
                 step="0.01"
                 value={formData.price}
                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-600 dark:text-white"
+                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
               />
               {fieldErrors.price && <p className="mt-1 text-xs text-red-600">{fieldErrors.price}</p>}
             </div>
             <div>
-              <label htmlFor="menu-item-currency" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Currency</label>
+              <label htmlFor="menu-item-currency" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Currency</label>
               <div className="mt-1">
                 <Select
                   id="menu-item-currency"
@@ -390,35 +390,35 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
         </div>
 
         {/* Optional - collapsed by default */}
-        <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4 mt-6 dark:bg-gray-900 dark:border-gray-700">
+        <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4 mt-6 dark:bg-gray-800/50 dark:border-gray-700">
           <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900 dark:text-white">Optional</summary>
 
           <div className="mt-4 space-y-4">
             <div>
-              <label htmlFor="menu-item-description" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Description</label>
+              <label htmlFor="menu-item-description" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Description</label>
               <textarea
                 id="menu-item-description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="menu-item-category" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Category</label>
+                <label htmlFor="menu-item-category" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Category</label>
                 <input
                   id="menu-item-category"
                   type="text"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   placeholder="e.g., Appetizers, Main Course"
-                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
                 />
               </div>
               <div>
-                <label htmlFor="menu-item-prep-time" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Prep Time (minutes)</label>
+                <label htmlFor="menu-item-prep-time" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Prep Time (minutes)</label>
                 <input
                   id="menu-item-prep-time"
                   type="number"
@@ -426,14 +426,14 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
                   value={formData.preparation_time}
                   onChange={(e) => setFormData({ ...formData, preparation_time: e.target.value })}
                   placeholder="e.g., 15"
-                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="menu-item-spice" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Spice Level</label>
+                <label htmlFor="menu-item-spice" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Spice Level</label>
                 <div className="mt-1">
                   <Select
                     id="menu-item-spice"
@@ -451,7 +451,7 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
                 </div>
               </div>
               <div>
-                <label htmlFor="menu-item-availability" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Availability</label>
+                <label htmlFor="menu-item-availability" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Availability</label>
                 <div className="mt-1">
                   <Select
                     id="menu-item-availability"
@@ -469,7 +469,7 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Dietary Information</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Dietary Information</label>
               <div className="flex flex-wrap gap-2">
                 {DIETARY_OPTIONS.map((diet) => (
                   <button
@@ -488,7 +488,7 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">Images</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Images</label>
               <ImageUploader
                 images={formData.images}
                 onChange={(images) => setFormData({ ...formData, images })}
@@ -514,7 +514,7 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
         <div className="flex items-center justify-end gap-3 border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
           <Link
             href="/app/menu-items"
-            className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:text-primary"
+            className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:text-white dark:hover:border-primary"
           >
             Cancel
           </Link>

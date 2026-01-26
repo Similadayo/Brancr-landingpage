@@ -72,7 +72,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
     pricing_amount: (service?.pricing as any)?.amount !== undefined ? String((service?.pricing as any)?.amount) : "",
     duration: service?.duration || "",
     category: service?.category || "",
-    deliverables: service?.deliverables || [],
+    deliverables: service?.deliverables ? service.deliverables.split('\n') : [],
     packages: (service?.packages || []).map((p: any) => ({ ...p, price: p?.price !== undefined ? String(p.price) : "" })),
     is_active: service?.is_active ?? true,
   });
@@ -107,7 +107,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
         pricing_amount: (service.pricing as any)?.amount !== undefined ? String((service.pricing as any)?.amount) : "",
         duration: service.duration || "",
         category: service.category || "",
-        deliverables: service.deliverables || [],
+        deliverables: service.deliverables ? service.deliverables.split('\n') : [],
         packages: (service.packages || []).map((p: any) => ({ ...p, price: p?.price !== undefined ? String(p.price) : "" })),
         is_active: service.is_active ?? true,
       });
@@ -201,7 +201,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
         packages: parsedPackages.length > 0 ? parsedPackages : undefined,
         duration: formData.duration || undefined,
         category: formData.category || undefined,
-        deliverables: formData.deliverables.length > 0 ? formData.deliverables : undefined,
+        deliverables: formData.deliverables.length > 0 ? formData.deliverables.join('\n') : undefined,
         is_active: formData.is_active,
       };
 
