@@ -17,7 +17,7 @@ export default function AIStatusSummary() {
     const stats = [
         {
             label: "AI Resolution Rate",
-            value: metrics?.ai_resolution_rate !== undefined ? `${metrics.ai_resolution_rate}%` : "0%",
+            value: metrics?.ai_resolution_rate !== undefined ? `${Number(metrics.ai_resolution_rate).toFixed(1)}%` : "0%",
             subtext: "conversations handled entirely by AI",
             icon: SparklesIcon,
             color: "text-purple-600 dark:text-purple-400",
@@ -35,7 +35,7 @@ export default function AIStatusSummary() {
         },
         {
             label: "Human Intervention",
-            value: metrics?.human_intervention_rate !== undefined ? `${metrics.human_intervention_rate}%` : "0%",
+            value: metrics?.human_intervention_rate !== undefined ? `${Number(metrics.human_intervention_rate).toFixed(1)}%` : "0%",
             subtext: "escalated to support",
             icon: UserGroupIcon,
             color: "text-amber-600 dark:text-amber-400",
