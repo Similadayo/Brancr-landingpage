@@ -226,7 +226,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
         toast.success("Service updated successfully");
       } else {
         const newService = await createMutation.mutateAsync(payload);
-        targetServiceId = newService.id;
+        targetServiceId = newService.service.id;
         // Clear draft
         await discard(autoSavedDraftId || draft?.id);
       }

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Modal } from '../ui/Modal';
+import { Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '../ui/Modal';
 import { Button } from '../ui/Button';
-import { Select } from '../ui/Select';
+import Select from '../ui/Select';
 
 interface Requirement {
     id: string;
@@ -82,69 +82,78 @@ export function RequirementModal({
 
     return (
         <Modal
-            isOpen={isOpen}
+            open={isOpen}
             onClose={onClose}
-            title={requirement ? 'Edit Requirement' : 'New Requirement'}
-            description="Define a piece of information you need from customers."
         >
-            <form onSubmit={handleSubmit} className="space-y-4">
-                {error && (
-                    <div className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
-                        {error}
+            <ModalHeader onClose={onClose}>
+                <ModalTitle>
+                    {requirement ? 'Edit Requirement' : 'New Requirement'}
+                </ModalTitle>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Define a piece of information you need from customers.
+                </p>
+            </ModalHeader>
+
+            <ModalBody>
+                <form id="requirement-form" onSubmit={handleSubmit} className="space-y-4 py-4">
+                    {error && (
+                        <div className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+                            {error}
+                        </div>
+                    )}
+
+                    <div>
+                        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Requirement Label <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            required
+                            value={label}
+                            onChange={(e) => setLabel(e.target.value)}
+                            placeholder="e.g. Upload Passport"
+                            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-dark-border dark:bg-dark-surface dark:text-white"
+                        />
                     </div>
-                )}
 
-                <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Requirement Label <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                        type="text"
-                        required
-                        value={label}
-                        onChange={(e) => setLabel(e.target.value)}
-                        placeholder="e.g. Upload Passport"
-                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-dark-border dark:bg-dark-surface dark:text-white"
-                    />
-                </div>
+                    <div>
+                        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Description / Help Text
+                        </label>
+                        <textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Explain what is needed..."
+                            rows={3}
+                            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-dark-border dark:bg-dark-surface dark:text-white"
+                        />
+                    </div>
 
-                <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Description / Help Text
-                    </label>
-                    <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Explain what is needed..."
-                        rows={3}
-                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-dark-border dark:bg-dark-surface dark:text-white"
-                    />
-                </div>
+                    <div>
+                        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Data Type <span className="text-red-500">*</span>
+                        </label>
+                        <Select
+                            value={dataType}
+                            onChange={setDataType}
+                            options={[
+                                { value: 'text', label: 'Text (Short Answer)' },
+                                { value: 'file', label: 'File Upload' },
+                                { value: 'date', label: 'Date Selection' },
+                            ]}
+                        />
+                    </div>
+                </form>
+            </ModalBody>
 
-                <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Data Type <span className="text-red-500">*</span>
-                    </label>
-                    <Select
-                        value={dataType}
-                        onChange={setDataType}
-                        options={[
-                            { value: 'text', label: 'Text (Short Answer)' },
-                            { value: 'file', label: 'File Upload' },
-                            { value: 'date', label: 'Date Selection' },
-                        ]}
-                    />
-                </div>
-
-                <div className="flex justify-end gap-3 pt-4">
-                    <Button type="button" variant="ghost" onClick={onClose}>
-                        Cancel
-                    </Button>
-                    <Button type="submit" isLoading={isLoading}>
-                        {requirement ? 'Save Changes' : 'Create Requirement'}
-                    </Button>
-                </div>
-            </form>
+            <ModalFooter>
+                <Button type="button" variant="ghost" onClick={onClose}>
+                    Cancel
+                </Button>
+                <Button type="submit" form="requirement-form" isLoading={isLoading}>
+                    {requirement ? 'Save Changes' : 'Create Requirement'}
+                </Button>
+            </ModalFooter>
         </Modal>
     );
 }
