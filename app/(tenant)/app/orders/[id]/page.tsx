@@ -16,6 +16,7 @@ import Select from "@/app/(tenant)/components/ui/Select";
 import { toast } from "react-hot-toast";
 import { useState, useMemo, useEffect } from "react";
 import { formatDate } from '@/lib/date';
+import { FulfillmentStatus } from "./FulfillmentStatus";
 
 // NOTE: This page consumes `GET /api/tenant/orders/{id}` and maps fields exactly as returned by the API.
 // See `docs/order-details.md` for exact endpoint names, field mappings, and debugging steps.
@@ -218,6 +219,9 @@ export default function OrderDetailPage() {
                     <span className="text-sm font-medium text-gray-900 dark:text-gray-200">{formatDate(order.created_at)}</span>
                   </div>
                 </div>
+
+                {/* Fulfillment Status */}
+                <FulfillmentStatus orderId={orderId} />
               </div>
 
               {/* Customer Info */}

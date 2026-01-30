@@ -12,6 +12,7 @@ import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
 import { useDraft, useAutoSaveDraft, useDiscardDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 import { useProductParser } from "@/app/(tenant)/hooks/useProductParser";
+import { RequirementSelector } from "../requirements/RequirementSelector";
 
 type ServiceFormProps = {
   service?: Service | null;
@@ -60,6 +61,22 @@ export default function ServiceForm({ service }: ServiceFormProps) {
 
   // Only auto-save if creating a new service
   const isCreateMode = !service;
+
+  // Requirements Handling
+  const [selectedReqIds, setSelectedReqIds] = useState<string[]>([]);
+  useEffect(() => {
+    if (service?.id) {
+      fetch(`/api/tenant/items/${service.id}/requirements`)
+        .then((res) => res.json())
+        .then((data) => {
+          const ids = data.item_requirements?.map((ir: any) => ir.requirement_id) || [];
+          setSelectedReqIds(ids);
+        })
+        .catch((err) => console.error('Failed to load item requirements', err));
+    } else {
+      setSelectedReqIds([]);
+    }
+  }, [service?.id]);
 
   const getInitialFormData = () => ({
     name: service?.name || "",
@@ -202,14 +219,27 @@ export default function ServiceForm({ service }: ServiceFormProps) {
         is_active: formData.is_active,
       };
 
+      let targetServiceId = service?.id;
+
       if (service) {
         await updateMutation.mutateAsync({ serviceId: service.id, payload });
         toast.success("Service updated successfully");
       } else {
-        await createMutation.mutateAsync(payload);
+        const newService = await createMutation.mutateAsync(payload);
+        targetServiceId = newService.id;
         // Clear draft
         await discard(autoSavedDraftId || draft?.id);
       }
+
+      // Save Requirements
+      if (targetServiceId) {
+        await fetch(`/api/tenant/items/${targetServiceId}/requirements`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ requirement_ids: selectedReqIds }),
+        });
+      }
+
       router.push("/app/services");
     } catch (error: any) {
       console.error("Form submission error:", error);
@@ -521,6 +551,20 @@ export default function ServiceForm({ service }: ServiceFormProps) {
             )}
           </div>
         </details>
+
+        {/* Fulfillment Requirements */}
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:bg-gray-800 dark:border-gray-700">
+          <div className="mb-4">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">Customer Requirements</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Select what information customers must provide after purchasing this service.
+            </p>
+          </div>
+          <RequirementSelector
+            selectedIds={selectedReqIds}
+            onChange={setSelectedReqIds}
+          />
+        </div>
 
         {/* Advanced - collapsed by default */}
         <details className="group rounded-xl border border-gray-100 bg-gray-50 p-4 dark:bg-gray-800/50 dark:border-gray-700">
