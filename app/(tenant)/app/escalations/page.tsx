@@ -277,7 +277,7 @@ export default function EscalationsPage() {
               <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Failed to load escalations</p>
               <p className="mt-2 text-sm text-gray-600 dark:text-white">{error.message}</p>
             </div>
-          ) : filteredEscalations.length === 0 ? (
+          {filteredEscalations.length === 0 ? (
             <div className="card p-12 text-center sm:p-16">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                 <AlertIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
@@ -290,8 +290,17 @@ export default function EscalationsPage() {
               </p>
             </div>
           ) : (
-            <>
-              <div className="space-y-4">
+            <div className="card overflow-hidden p-0">
+              <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-600 dark:bg-gray-700/50 sm:px-6 sm:py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <p className="text-xs font-semibold text-gray-900 dark:text-white sm:text-sm">Escalations List</p>
+                    <span className="badge badge-gray text-[10px] sm:text-xs">{filteredEscalations.length}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="divide-y divide-gray-100 dark:divide-gray-700">
                 {paginatedEscalations.map((escalation) => (
                   <EscalationCard key={escalation.id} escalation={escalation} />
                 ))}
@@ -299,7 +308,7 @@ export default function EscalationsPage() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="mt-6">
+                <div className="p-4 border-t border-gray-100 dark:border-gray-700">
                   <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}
@@ -309,12 +318,11 @@ export default function EscalationsPage() {
                   />
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>
     </div>
-
   );
 }
 
@@ -375,7 +383,7 @@ function EscalationCard({ escalation }: { escalation: Escalation }) {
   return (
     <Link
       href={`/app/escalations/${escalation.id}`}
-      className={`group relative block rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-md hover:translate-y-[-2px] dark:border-gray-700 ${priorityColors[escalation.priority] ?? priorityColors.normal}`}
+      className={`group relative block px-4 py-4 transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/30 sm:px-6 ${priorityColors[escalation.priority] ?? priorityColors.normal}`}
     >
       <div className="p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start">

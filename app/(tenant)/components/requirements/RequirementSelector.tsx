@@ -196,17 +196,34 @@ export function RequirementSelector({ selectedIds, onChange }: RequirementSelect
                     disabled={isApplyingTemplate}
                 />
             ) : (
-                <form onSubmit={createCustomRequirement} className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
-                    <h4 className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">Create Custom Requirement</h4>
-                    <div className="space-y-3">
+                <form onSubmit={createCustomRequirement} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Create Custom Requirement</h4>
+                        <button
+                            type="button"
+                            onClick={() => setIsCreating(false)}
+                            className="text-gray-400 hover:text-gray-500"
+                        >
+                            <XIcon className="h-4 w-4" />
+                        </button>
+                    </div>
+                    <div className="space-y-4">
                         <div>
-                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">Question / Label</label>
-                            <input name="label" required placeholder="e.g. What is your shoe size?" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Question / Label</label>
+                            <input
+                                name="label"
+                                required
+                                placeholder="e.g. What is your shoe size?"
+                                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white py-2"
+                            />
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">Data Type</label>
-                                <select name="data_type" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Data Type</label>
+                                <select
+                                    name="data_type"
+                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white py-2"
+                                >
                                     <option value="text">Text Answer</option>
                                     <option value="number">Number</option>
                                     <option value="date">Date</option>
@@ -215,58 +232,99 @@ export function RequirementSelector({ selectedIds, onChange }: RequirementSelect
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">Description (Optional)</label>
-                                <input name="description" placeholder="Help text for customer..." className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description (Optional)</label>
+                                <input
+                                    name="description"
+                                    placeholder="Help text for customer..."
+                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white py-2"
+                                />
                             </div>
                         </div>
-                        <div className="flex justify-end gap-2 pt-2">
-                            <button type="button" onClick={() => setIsCreating(false)} className="px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300">Cancel</button>
-                            <button type="submit" className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary/90">Create & Select</button>
+                        <div className="flex justify-end gap-3 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setIsCreating(false)}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-colors"
+                            >
+                                Create & Select
+                            </button>
                         </div>
                     </div>
                 </form>
             )}
 
             {selectedIds.length === 0 && !isCreating ? (
-                <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-600 dark:text-gray-400">
-                    No requirements selected. Use &quot;Quick Apply&quot; above to add some.
+                <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center dark:border-gray-600">
+                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 mb-3">
+                        <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                    </div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">No requirements yet</p>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        Select a template above or create a custom requirement.
+                    </p>
                 </div>
             ) : (
-                <div className="space-y-2">
-                    {visibleRequirements.map((req) => {
-                        return (
+                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div className="border-b border-gray-100 bg-gray-50/50 px-4 py-3 dark:border-gray-700/50 dark:bg-gray-800/50">
+                        <div className="flex items-center justify-between">
+                            <h5 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Selected Requirements</h5>
+                            <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                                {visibleRequirements.length} Active
+                            </span>
+                        </div>
+                    </div>
+                    <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                        {visibleRequirements.map((req) => (
                             <div
                                 key={req.id}
-                                className="group flex items-start gap-3 rounded-lg border border-primary bg-primary/5 p-3 transition-all dark:bg-primary/10"
+                                className="group flex items-start gap-4 p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
                             >
                                 <div
                                     onClick={() => toggleReq(req.id)}
-                                    className="mt-0.5 flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded border border-primary bg-primary text-white hover:opacity-80"
-                                    title="Click to remove"
+                                    className="mt-0.5 flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded border border-primary bg-primary text-white transition-opacity hover:opacity-90"
+                                    title="Selected (Click to remove)"
                                 >
                                     <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                         <polyline points="20 6 9 17 4 12" />
                                     </svg>
                                 </div>
-                                <div className="flex-1">
-                                    <div className="text-sm font-medium text-primary">
-                                        {req.label}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                            {req.label}
+                                        </p>
+                                        <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide
+                                            ${req.data_type === 'file' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
+                                                req.data_type === 'date' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
+                                                    'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}>
+                                            {req.data_type}
+                                        </span>
                                     </div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
-                                        {req.description || 'No description'} • <span className="uppercase text-[10px] tracking-wider font-semibold opacity-70 bg-white/50 dark:bg-gray-700 px-1.5 py-0.5 rounded">{req.data_type}</span>
-                                    </div>
+                                    {req.description && (
+                                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
+                                            {req.description}
+                                        </p>
+                                    )}
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() => toggleReq(req.id)}
-                                    className="text-gray-400 hover:text-red-500 transition-colors"
+                                    className="text-gray-400 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
                                     title="Remove requirement"
                                 >
                                     <XIcon className="h-4 w-4" />
                                 </button>
                             </div>
-                        );
-                    })}
+                        ))}
+                    </div>
                 </div>
             )}
         </div>
