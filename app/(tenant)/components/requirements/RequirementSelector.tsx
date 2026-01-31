@@ -130,10 +130,16 @@ export function RequirementSelector({ selectedIds, onChange }: RequirementSelect
                     defaultValue=""
                 >
                     <option value="" disabled>Select a template...</option>
-                    {REQUIREMENT_TEMPLATES.map(t => (
-                        <option key={t.id} value={t.id}>
-                            {t.name} ({t.requirements.length} items)
-                        </option>
+
+                    {/* Unique Groups */}
+                    {Array.from(new Set(REQUIREMENT_TEMPLATES.map(t => t.group))).map(group => (
+                        <optgroup key={group} label={group}>
+                            {REQUIREMENT_TEMPLATES.filter(t => t.group === group).map(t => (
+                                <option key={t.id} value={t.id}>
+                                    {t.name}
+                                </option>
+                            ))}
+                        </optgroup>
                     ))}
                 </select>
                 {isApplyingTemplate && <span className="text-xs text-primary animate-pulse">Applying...</span>}
