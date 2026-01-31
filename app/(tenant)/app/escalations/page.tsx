@@ -277,7 +277,7 @@ export default function EscalationsPage() {
               <p className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Failed to load escalations</p>
               <p className="mt-2 text-sm text-gray-600 dark:text-white">{error.message}</p>
             </div>
-          {filteredEscalations.length === 0 ? (
+          ) : filteredEscalations.length === 0 ? (
             <div className="card p-12 text-center sm:p-16">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                 <AlertIcon className="h-8 w-8 text-gray-400 dark:text-gray-400" />
