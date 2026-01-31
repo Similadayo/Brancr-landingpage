@@ -12,6 +12,7 @@ import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
 import { useDraft, useAutoSaveDraft, useDeleteDraft, useDiscardDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 import { useProductParser } from "@/app/(tenant)/hooks/useProductParser";
+import { RequirementSelector } from "../requirements/RequirementSelector";
 
 const DIETARY_OPTIONS = [
   'Vegetarian',
@@ -87,6 +88,22 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
+
+  // Requirements Handling
+  const [selectedReqIds, setSelectedReqIds] = useState<string[]>([]);
+  useEffect(() => {
+    if (item?.id) {
+      fetch(`/api/tenant/items/${item.id}/requirements`)
+        .then((res) => res.json())
+        .then((data) => {
+          const ids = data.item_requirements?.map((ir: any) => ir.requirement_id) || [];
+          setSelectedReqIds(ids);
+        })
+        .catch((err) => console.error('Failed to load item requirements', err));
+    } else {
+      setSelectedReqIds([]);
+    }
+  }, [item?.id]);
 
   // Auto-save hook
   const { isSaving, draftId: autoSavedDraftId } = useAutoSaveDraft(DRAFT_KEYS.MENU_ITEM_CREATE, formData, isCreateMode && !draftLoading);
@@ -191,14 +208,27 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
         images: formData.images.length > 0 ? formData.images : undefined,
       };
 
+      let targetItemId = item?.id;
+
       if (item) {
         await updateMutation.mutateAsync({ menuItemId: item.id, payload });
         toast.success("Menu item updated successfully");
       } else {
-        await createMutation.mutateAsync(payload);
+        const newItem = await createMutation.mutateAsync(payload);
+        targetItemId = newItem.menu_item.id;
         // Clear draft
         await discard(autoSavedDraftId || draft?.id);
       }
+
+      // Save Requirements
+      if (targetItemId) {
+        await fetch(`/api/tenant/items/${targetItemId}/requirements`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ requirement_ids: selectedReqIds }),
+        });
+      }
+
       router.push("/app/menu-items");
     } catch (error: any) {
       console.error("Form submission error:", error);
@@ -500,6 +530,17 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
               <ImageUploader
                 images={formData.images}
                 onChange={(images) => setFormData({ ...formData, images })}
+              />
+            </div>
+
+            <div className="border-t border-gray-100 pt-6 dark:border-gray-700">
+              <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Customer Requirements</h3>
+              <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">
+                Information you need from the customer after they pay for this item.
+              </p>
+              <RequirementSelector
+                selectedIds={selectedReqIds}
+                onChange={setSelectedReqIds}
               />
             </div>
           </div>

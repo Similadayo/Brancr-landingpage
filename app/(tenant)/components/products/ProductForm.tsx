@@ -13,6 +13,7 @@ import Select from "../ui/Select";
 import ConfirmModal from '@/app/components/ConfirmModal';
 import { useDraft, useAutoSaveDraft, useDeleteDraft, useDiscardDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 import { useProductParser } from "@/app/(tenant)/hooks/useProductParser";
+import { RequirementSelector } from "../requirements/RequirementSelector";
 
 type ProductFormProps = {
   product?: Product | null;
@@ -78,6 +79,22 @@ export default function ProductForm({ product }: ProductFormProps) {
   });
 
   const [formData, setFormData] = useState(getInitialFormData());
+
+  // Requirements Handling
+  const [selectedReqIds, setSelectedReqIds] = useState<string[]>([]);
+  useEffect(() => {
+    if (product?.id) {
+      fetch(`/api/tenant/items/${product.id}/requirements`)
+        .then((res) => res.json())
+        .then((data) => {
+          const ids = data.item_requirements?.map((ir: any) => ir.requirement_id) || [];
+          setSelectedReqIds(ids);
+        })
+        .catch((err) => console.error('Failed to load item requirements', err));
+    } else {
+      setSelectedReqIds([]);
+    }
+  }, [product?.id]);
 
   // Auto-save hook
   const { isSaving, draftId: autoSavedDraftId } = useAutoSaveDraft(DRAFT_KEYS.PRODUCT_CREATE, formData, isCreateMode && !draftLoading);
@@ -178,14 +195,27 @@ export default function ProductForm({ product }: ProductFormProps) {
         variants: Object.keys(formData.variants).length > 0 ? formData.variants : undefined,
       };
 
+      let targetProductId = product?.id;
+
       if (product) {
         await updateMutation.mutateAsync({ productId: product.id, payload });
         toast.success("Product updated successfully");
       } else {
-        await createMutation.mutateAsync(payload);
+        const newProduct = await createMutation.mutateAsync(payload);
+        targetProductId = newProduct.product.id;
         // Clear draft
         await discard(autoSavedDraftId || draft?.id);
       }
+
+      // Save Requirements
+      if (targetProductId) {
+        await fetch(`/api/tenant/items/${targetProductId}/requirements`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ requirement_ids: selectedReqIds }),
+        });
+      }
+
       router.push("/app/products");
     } catch (error: any) {
       console.error("Form submission error:", error);
@@ -506,6 +536,17 @@ export default function ProductForm({ product }: ProductFormProps) {
                 className="h-4 w-4 rounded border-gray-200 text-primary focus:ring-primary dark:bg-gray-900 dark:border-gray-600 dark:focus:ring-offset-gray-900"
               />
               <label htmlFor="product-active" className="text-sm font-medium text-gray-700 dark:text-gray-300">Active</label>
+            </div>
+
+            <div className="border-t border-gray-100 pt-6 dark:border-gray-700">
+              <h3 className="mb-4 text-sm font-semibold text-gray-900 dark:text-white">Customer Requirements</h3>
+              <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">
+                Information you need from the customer after they pay for this product.
+              </p>
+              <RequirementSelector
+                selectedIds={selectedReqIds}
+                onChange={setSelectedReqIds}
+              />
             </div>
           </div>
         </details>
