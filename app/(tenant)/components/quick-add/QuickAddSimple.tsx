@@ -34,6 +34,7 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 			} else {
 				const res = await fetch(`/api/tenant/${industry}/parse`, {
 					method: 'POST',
+					credentials: 'include',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ raw_input: text, source: 'paste', industry }),
 				});
@@ -134,7 +135,7 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 												const res = await tenantApi.parseMenuFile(form);
 												setParsed(res.items || []);
 											} else {
-												const res = await fetch(`/api/tenant/${industry}/parse/file`, { method: 'POST', body: form });
+												const res = await fetch(`/api/tenant/${industry}/parse/file`, { method: 'POST', credentials: 'include', body: form });
 												if (res.status === 202) {
 													const body = await res.json();
 													const jobId = body?.job_id;
@@ -147,7 +148,7 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 														const maxAttempts = 30;
 														// eslint-disable-next-line no-constant-condition
 														while (true) {
-															const jobRes = await fetch(`/api/tenant/${industry}/parse/jobs/${jobId}`);
+															const jobRes = await fetch(`/api/tenant/${industry}/parse/jobs/${jobId}`, { credentials: 'include' });
 															if (!jobRes.ok) {
 																toast.error('Failed to check job status');
 																setJobStatus('error');

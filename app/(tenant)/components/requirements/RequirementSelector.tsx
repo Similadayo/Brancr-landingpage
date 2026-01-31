@@ -22,7 +22,7 @@ export function RequirementSelector({ selectedIds, onChange }: RequirementSelect
     useEffect(() => {
         async function fetchReqs() {
             try {
-                const res = await fetch('/api/tenant/requirements');
+                const res = await fetch('/api/tenant/requirements', { credentials: 'include' });
                 if (res.ok) {
                     const data = await res.json();
                     setRequirements(data.requirements || []);

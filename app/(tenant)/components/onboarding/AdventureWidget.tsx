@@ -33,7 +33,7 @@ export function AdventureWidget() {
         queryKey: ['onboarding', 'checklist'],
         queryFn: async () => {
             try {
-                const res = await fetch('/api/tenant/onboarding/checklist');
+                const res = await fetch('/api/tenant/onboarding/checklist', { credentials: 'include' });
                 if (!res.ok) {
                     // Handle 404 gracefully if endpoint not ready
                     if (res.status === 404) return null;

@@ -84,7 +84,7 @@ export default function ProductForm({ product }: ProductFormProps) {
   const [selectedReqIds, setSelectedReqIds] = useState<string[]>([]);
   useEffect(() => {
     if (product?.id) {
-      fetch(`/api/tenant/items/${product.id}/requirements`)
+      fetch(`/api/tenant/items/${product.id}/requirements`, { credentials: 'include' })
         .then((res) => res.json())
         .then((data) => {
           const ids = data.item_requirements?.map((ir: any) => ir.requirement_id) || [];
@@ -211,6 +211,7 @@ export default function ProductForm({ product }: ProductFormProps) {
       if (targetProductId) {
         await fetch(`/api/tenant/items/${targetProductId}/requirements`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ requirement_ids: selectedReqIds }),
         });

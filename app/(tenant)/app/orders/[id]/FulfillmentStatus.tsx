@@ -22,7 +22,7 @@ export function FulfillmentStatus({ orderId }: { orderId: string }) {
     useEffect(() => {
         async function fetchData() {
             try {
-                const res = await fetch(`/api/tenant/orders/${orderId}/requirements`);
+                const res = await fetch(`/api/tenant/orders/${orderId}/requirements`, { credentials: 'include' });
                 if (res.ok) {
                     const json = await res.json();
                     setData(json.requirements_status || []);

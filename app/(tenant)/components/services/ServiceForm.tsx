@@ -66,7 +66,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
   const [selectedReqIds, setSelectedReqIds] = useState<string[]>([]);
   useEffect(() => {
     if (service?.id) {
-      fetch(`/api/tenant/items/${service.id}/requirements`)
+      fetch(`/api/tenant/items/${service.id}/requirements`, { credentials: 'include' })
         .then((res) => res.json())
         .then((data) => {
           const ids = data.item_requirements?.map((ir: any) => ir.requirement_id) || [];
@@ -235,6 +235,7 @@ export default function ServiceForm({ service }: ServiceFormProps) {
       if (targetServiceId) {
         await fetch(`/api/tenant/items/${targetServiceId}/requirements`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ requirement_ids: selectedReqIds }),
         });

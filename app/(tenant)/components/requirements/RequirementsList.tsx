@@ -24,7 +24,7 @@ export function RequirementsList() {
 
     const fetchRequirements = useCallback(async () => {
         try {
-            const res = await fetch('/api/tenant/requirements');
+            const res = await fetch('/api/tenant/requirements', { credentials: 'include' });
             if (res.ok) {
                 const data = await res.json();
                 setRequirements(data.requirements || []);
@@ -44,7 +44,7 @@ export function RequirementsList() {
         if (!confirm('Are you sure you want to delete this requirement?')) return;
 
         try {
-            await fetch(`/api/tenant/requirements/${id}`, { method: 'DELETE' });
+            await fetch(`/api/tenant/requirements/${id}`, { method: 'DELETE', credentials: 'include' });
             fetchRequirements();
         } catch (error) {
             console.error('Failed to delete', error);

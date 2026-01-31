@@ -46,6 +46,7 @@ export function CatalogSetupStep({
             setParsing(true);
             const res = await fetch(`/api/tenant/${type}/parse`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text, source: 'paste' }),
             });
@@ -176,7 +177,7 @@ export function CatalogSetupStep({
                         form.append('file', file);
                         try {
                             setParsing(true);
-                            const res = await fetch(`/api/tenant/${type}/parse/file`, { method: 'POST', body: form });
+                            const res = await fetch(`/api/tenant/${type}/parse/file`, { method: 'POST', credentials: 'include', body: form });
 
                             // Handle async processing (202 Accepted)
                             if (res.status === 202) {
@@ -193,7 +194,7 @@ export function CatalogSetupStep({
 
                                     while (true) {
                                         await new Promise(r => setTimeout(r, 1000));
-                                        const jobRes = await fetch(`/api/tenant/${type}/parse/jobs/${jId}`);
+                                        const jobRes = await fetch(`/api/tenant/${type}/parse/jobs/${jId}`, { credentials: 'include' });
                                         if (!jobRes.ok) break;
                                         const jobData = await jobRes.json();
                                         setJobStatus(jobData.status);

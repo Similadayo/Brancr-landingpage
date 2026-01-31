@@ -93,7 +93,7 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
   const [selectedReqIds, setSelectedReqIds] = useState<string[]>([]);
   useEffect(() => {
     if (item?.id) {
-      fetch(`/api/tenant/items/${item.id}/requirements`)
+      fetch(`/api/tenant/items/${item.id}/requirements`, { credentials: 'include' })
         .then((res) => res.json())
         .then((data) => {
           const ids = data.item_requirements?.map((ir: any) => ir.requirement_id) || [];
@@ -224,6 +224,7 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
       if (targetItemId) {
         await fetch(`/api/tenant/items/${targetItemId}/requirements`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ requirement_ids: selectedReqIds }),
         });
