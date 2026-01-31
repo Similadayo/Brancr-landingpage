@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { LoadingState } from '../ui/LoadingState';
 import { REQUIREMENT_TEMPLATES, RequirementTemplate } from './RequirementTemplates';
 import { toast } from 'react-hot-toast';
+import Select, { SelectOption } from '../ui/Select';
+import { XIcon } from '../icons';
 
 interface Requirement {
     id: string;
@@ -111,77 +113,78 @@ export function RequirementSelector({ selectedIds, onChange }: RequirementSelect
         }
     };
 
+    // Prepare options for the Select component with pseudo-headers
+    const templateOptions = useMemo(() => {
+        const options: SelectOption[] = [];
+        const groups = Array.from(new Set(REQUIREMENT_TEMPLATES.map(t => t.group)));
+
+        groups.forEach(group => {
+            // Header
+            options.push({ label: group.toUpperCase(), value: `header_${group}`, disabled: true });
+            // Items
+            REQUIREMENT_TEMPLATES.filter(t => t.group === group).forEach(t => {
+                options.push({
+                    label: t.name,
+                    value: t.id,
+                    description: t.description
+                });
+            });
+        });
+        return options;
+    }, []);
+
+    const visibleRequirements = requirements.filter(req => selectedIds.includes(req.id));
+
     if (isLoading) return <LoadingState />;
 
     return (
         <div className="space-y-4">
             {/* Template Selector */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 bg-gray-50 p-3 rounded-lg dark:bg-gray-800/50">
-                <div className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-                    Quick Apply:
-                </div>
-                <select
-                    className="flex-1 rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-primary focus:ring-primary dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-                    onChange={(e) => {
-                        applyTemplate(e.target.value);
-                        e.target.value = ""; // Reset selector
-                    }}
-                    disabled={isApplyingTemplate}
-                    defaultValue=""
-                >
-                    <option value="" disabled>Select a template...</option>
+            <Select
+                options={templateOptions}
+                value=""
+                onChange={(val) => applyTemplate(val)}
+                placeholder={isApplyingTemplate ? "Applying..." : "Quick Apply: Select a template..."}
+                disabled={isApplyingTemplate}
+            />
 
-                    {/* Unique Groups */}
-                    {Array.from(new Set(REQUIREMENT_TEMPLATES.map(t => t.group))).map(group => (
-                        <optgroup key={group} label={group}>
-                            {REQUIREMENT_TEMPLATES.filter(t => t.group === group).map(t => (
-                                <option key={t.id} value={t.id}>
-                                    {t.name}
-                                </option>
-                            ))}
-                        </optgroup>
-                    ))}
-                </select>
-                {isApplyingTemplate && <span className="text-xs text-primary animate-pulse">Applying...</span>}
-            </div>
-
-            {requirements.length === 0 ? (
+            {selectedIds.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-600 dark:text-gray-400">
-                    No requirements defined yet. Use a template above or create one in Settings.
+                    No requirements selected. Use "Quick Apply" above to add some.
                 </div>
             ) : (
                 <div className="space-y-2">
-                    {requirements.map((req) => {
-                        const isSelected = selectedIds.includes(req.id);
+                    {visibleRequirements.map((req) => {
                         return (
                             <div
                                 key={req.id}
-                                onClick={() => toggleReq(req.id)}
-                                className={`group flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-all ${isSelected
-                                    ? 'border-primary bg-primary/5 dark:bg-primary/10'
-                                    : 'border-gray-200 bg-white hover:border-primary/30 hover:shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:hover:border-primary/30'
-                                    }`}
+                                className="group flex items-start gap-3 rounded-lg border border-primary bg-primary/5 p-3 transition-all dark:bg-primary/10"
                             >
                                 <div
-                                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${isSelected
-                                        ? 'border-primary bg-primary text-white'
-                                        : 'border-gray-300 bg-white group-hover:border-primary/50 dark:border-gray-600 dark:bg-gray-800'
-                                        }`}
+                                    onClick={() => toggleReq(req.id)}
+                                    className="mt-0.5 flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded border border-primary bg-primary text-white hover:opacity-80"
+                                    title="Click to remove"
                                 >
-                                    {isSelected && (
-                                        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                    )}
+                                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
                                 </div>
                                 <div className="flex-1">
-                                    <div className={`text-sm font-medium ${isSelected ? 'text-primary' : 'text-gray-900 dark:text-white'}`}>
+                                    <div className="text-sm font-medium text-primary">
                                         {req.label}
                                     </div>
                                     <div className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
-                                        {req.description || 'No description'} • <span className="uppercase text-[10px] tracking-wider font-semibold opacity-70 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">{req.data_type}</span>
+                                        {req.description || 'No description'} • <span className="uppercase text-[10px] tracking-wider font-semibold opacity-70 bg-white/50 dark:bg-gray-700 px-1.5 py-0.5 rounded">{req.data_type}</span>
                                     </div>
                                 </div>
+                                <button
+                                    type="button"
+                                    onClick={() => toggleReq(req.id)}
+                                    className="text-gray-400 hover:text-red-500 transition-colors"
+                                    title="Remove requirement"
+                                >
+                                    <XIcon className="h-4 w-4" />
+                                </button>
                             </div>
                         );
                     })}
