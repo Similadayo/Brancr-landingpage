@@ -161,6 +161,18 @@ export const REQUIREMENT_TEMPLATES: RequirementTemplate[] = [
             { label: 'A-Level / Diploma Result', description: 'For Direct Entry candidates', data_type: 'file' },
         ]
     },
+    {
+        id: 'edu_ielts',
+        name: 'Education: IELTS Registration',
+        group: 'Education',
+        description: 'International English Language Testing System',
+        requirements: [
+            { label: 'International Passport', description: 'Valid Passport (Must be valid for 6 months)', data_type: 'file' },
+            { label: 'Test Module', description: 'Academic or General Training?', data_type: 'choice', options: JSON.stringify(['Academic', 'General Training']) },
+            { label: 'Test Type', description: 'Paper-based or Computer-delivered?', data_type: 'choice', options: JSON.stringify(['Paper-based', 'Computer-delivered']) },
+            { label: 'Disability / Special Needs', description: 'Do you have any special needs?', data_type: 'choice', options: JSON.stringify(['No', 'Yes']) },
+        ]
+    },
 
     // --- DIGITAL MARKETING ---
     {
