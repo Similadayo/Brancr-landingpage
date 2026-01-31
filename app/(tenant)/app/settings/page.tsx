@@ -31,7 +31,7 @@ import {
   LinkIcon,
   DocumentTextIcon,
 } from "../../components/icons";
-import { RequirementsList } from "../../components/requirements/RequirementsList";
+
 import PersonaSummary from './persona/PersonaSummary';
 import { IndustrySelector } from "../../components/IndustrySelector";
 import { useTenantIndustry } from "../../hooks/useIndustry";
@@ -39,12 +39,12 @@ import { WhatsAppProfile } from "../../components/WhatsAppProfile";
 import { useIntegrations } from "../../hooks/useIntegrations";
 import TelegramConnectButton from "../../components/TelegramConnectButton";
 
-type TabKey = "profile" | "industry" | "notifications" | "team" | "billing" | "whatsapp" | "integrations" | "ai_behavior" | "security" | "requirements";
+type TabKey = "profile" | "industry" | "notifications" | "team" | "billing" | "whatsapp" | "integrations" | "ai_behavior" | "security";
 
 const TABS: Array<{ key: TabKey; label: string; icon: React.ReactNode }> = [
   { key: "profile", label: "Business Profile", icon: <UserIcon className="w-4 h-4" /> },
   { key: "industry", label: "Industry", icon: <BuildingOfficeIcon className="w-4 h-4" /> },
-  { key: "requirements", label: "Requirements", icon: <DocumentTextIcon className="w-4 h-4" /> },
+
   { key: "notifications", label: "Notifications", icon: <BellIcon className="w-4 h-4" /> },
   { key: "integrations", label: "Integrations", icon: <LinkIcon className="w-4 h-4" /> },
   { key: "ai_behavior", label: "AI Behavior", icon: <SparklesIcon className="w-4 h-4" /> },
@@ -543,8 +543,7 @@ export default function SettingsPage() {
             </div>
           </div>
         );
-      case "requirements":
-        return <RequirementsList />;
+
       case "billing":
         return (
           <div className="grid gap-6 lg:grid-cols-2">

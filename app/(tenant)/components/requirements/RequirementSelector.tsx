@@ -112,10 +112,51 @@ export function RequirementSelector({ selectedIds, onChange }: RequirementSelect
             setIsApplyingTemplate(false);
         }
     };
+    const createCustomRequirement = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsApplyingTemplate(true);
+        try {
+            const formData = new FormData(e.target as HTMLFormElement);
+            const newReqData = {
+                label: formData.get('label'),
+                data_type: formData.get('data_type'),
+                description: formData.get('description'),
+                is_required: true // Default to true as per plan
+            };
+
+            const res = await fetch('/api/tenant/requirements', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(newReqData)
+            });
+
+            if (res.ok) {
+                const newReq = await res.json();
+                setRequirements(prev => [newReq, ...prev]);
+                toggleReq(newReq.id); // Auto-select
+                setIsCreating(false);
+                toast.success("Requirement created");
+            } else {
+                toast.error("Failed to create");
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("Error creating requirement");
+        } finally {
+            setIsApplyingTemplate(false);
+        }
+    };
+
+    const [isCreating, setIsCreating] = useState(false);
 
     // Prepare options for the Select component with pseudo-headers
     const templateOptions = useMemo(() => {
         const options: SelectOption[] = [];
+
+        // Custom Create Option
+        options.push({ label: "+ Create Custom Requirement", value: "create_new", description: "Define your own requirement field" });
+
         const groups = Array.from(new Set(REQUIREMENT_TEMPLATES.map(t => t.group)));
 
         groups.forEach(group => {
@@ -140,15 +181,53 @@ export function RequirementSelector({ selectedIds, onChange }: RequirementSelect
     return (
         <div className="space-y-4">
             {/* Template Selector */}
-            <Select
-                options={templateOptions}
-                value=""
-                onChange={(val) => applyTemplate(val)}
-                placeholder={isApplyingTemplate ? "Applying..." : "Quick Apply: Select a template..."}
-                disabled={isApplyingTemplate}
-            />
+            {!isCreating ? (
+                <Select
+                    options={templateOptions}
+                    value=""
+                    onChange={(val) => {
+                        if (val === 'create_new') {
+                            setIsCreating(true);
+                        } else {
+                            applyTemplate(val);
+                        }
+                    }}
+                    placeholder={isApplyingTemplate ? "Applying..." : "Quick Apply: Select a template..."}
+                    disabled={isApplyingTemplate}
+                />
+            ) : (
+                <form onSubmit={createCustomRequirement} className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
+                    <h4 className="mb-3 text-sm font-semibold text-gray-900 dark:text-white">Create Custom Requirement</h4>
+                    <div className="space-y-3">
+                        <div>
+                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">Question / Label</label>
+                            <input name="label" required placeholder="e.g. What is your shoe size?" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">Data Type</label>
+                                <select name="data_type" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <option value="text">Text Answer</option>
+                                    <option value="number">Number</option>
+                                    <option value="date">Date</option>
+                                    <option value="file">File Upload</option>
+                                    <option value="url">URL / Link</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">Description (Optional)</label>
+                                <input name="description" placeholder="Help text for customer..." className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-2 pt-2">
+                            <button type="button" onClick={() => setIsCreating(false)} className="px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 dark:text-gray-300">Cancel</button>
+                            <button type="submit" className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary/90">Create & Select</button>
+                        </div>
+                    </div>
+                </form>
+            )}
 
-            {selectedIds.length === 0 ? (
+            {selectedIds.length === 0 && !isCreating ? (
                 <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-600 dark:text-gray-400">
                     No requirements selected. Use &quot;Quick Apply&quot; above to add some.
                 </div>
