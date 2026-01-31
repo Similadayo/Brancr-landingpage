@@ -7,16 +7,16 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
     try {
         const cookieStore = cookies();
-        const token = cookieStore.get('token');
+        const sessionCookie = cookieStore.get('brancr_tenant_session');
 
-        if (!token) {
+        if (!sessionCookie) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "https://api.brancr.com";
         const response = await fetch(`${baseUrl}/api/tenant/requirements`, {
             headers: {
-                'Authorization': `Bearer ${token.value}`,
+                'Authorization': `Bearer ${sessionCookie.value}`,
                 'Content-Type': 'application/json',
             },
             cache: 'no-store'
@@ -44,9 +44,9 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const cookieStore = cookies();
-        const token = cookieStore.get('token');
+        const sessionCookie = cookieStore.get('brancr_tenant_session');
 
-        if (!token) {
+        if (!sessionCookie) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
         const response = await fetch(`${baseUrl}/api/tenant/requirements`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token.value}`,
+                'Authorization': `Bearer ${sessionCookie.value}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(body),

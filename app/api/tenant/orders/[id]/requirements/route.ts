@@ -1,9 +1,13 @@
+
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(
+    _request: Request,
+    { params }: { params: { id: string } }
+) {
     try {
         const cookieStore = cookies();
         const sessionCookie = cookieStore.get('brancr_tenant_session');
@@ -13,7 +17,7 @@ export async function GET() {
         }
 
         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "https://api.brancr.com";
-        const response = await fetch(`${baseUrl}/api/tenant/onboarding/checklist`, {
+        const response = await fetch(`${baseUrl}/api/tenant/orders/${params.id}/requirements`, {
             headers: {
                 'Authorization': `Bearer ${sessionCookie.value}`,
                 'Content-Type': 'application/json',
@@ -22,9 +26,8 @@ export async function GET() {
         });
 
         if (!response.ok) {
-            // Forward the error status from upstream
             return NextResponse.json(
-                { error: 'Failed to fetch checklist' },
+                { error: 'Failed to fetch order requirements' },
                 { status: response.status }
             );
         }
@@ -33,7 +36,7 @@ export async function GET() {
         return NextResponse.json(data);
 
     } catch (error) {
-        console.error('Checklist proxy error:', error);
+        console.error('Order requirements proxy error:', error);
         return NextResponse.json(
             { error: 'Internal Server Error' },
             { status: 500 }
