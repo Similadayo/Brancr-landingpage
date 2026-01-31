@@ -150,7 +150,7 @@ export function RequirementSelector({ selectedIds, onChange }: RequirementSelect
 
             {selectedIds.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-gray-300 p-4 text-center text-sm text-gray-500 dark:border-gray-600 dark:text-gray-400">
-                    No requirements selected. Use "Quick Apply" above to add some.
+                    No requirements selected. Use &quot;Quick Apply&quot; above to add some.
                 </div>
             ) : (
                 <div className="space-y-2">
