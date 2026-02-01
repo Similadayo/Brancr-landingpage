@@ -11,8 +11,46 @@ interface RequirementStatus {
     description: string;
     is_required: boolean;
     value?: string;
+    media_url?: string;
+    stored_url?: string;
     submitted_at?: string;
     status: 'pending' | 'submitted';
+}
+
+function normalizeURL(url: string): string {
+    const trimmed = url.trim();
+    if (trimmed.startsWith('https:/') && !trimmed.startsWith('https://')) {
+        return trimmed.replace(/^https:\/\//, 'https://').replace(/^https:\//, 'https://');
+    }
+    if (trimmed.startsWith('http:/') && !trimmed.startsWith('http://')) {
+        return trimmed.replace(/^http:\/\//, 'http://').replace(/^http:\//, 'http://');
+    }
+    return trimmed;
+}
+
+function getAttachmentURL(req: RequirementStatus): string | null {
+    if (req.stored_url) return normalizeURL(req.stored_url);
+    if (req.media_url) return normalizeURL(req.media_url);
+
+    const raw = (req.value || '').trim();
+    if (!raw) return null;
+
+    if (raw.startsWith('{') && raw.endsWith('}')) {
+        try {
+            const meta = JSON.parse(raw) as Record<string, unknown>;
+            const stored = typeof meta.media_stored_url === 'string' ? meta.media_stored_url : '';
+            const media = typeof meta.media_url === 'string' ? meta.media_url : '';
+            if (stored) return normalizeURL(stored);
+            if (media) return normalizeURL(media);
+        } catch {
+        }
+    }
+
+    if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('http:/') || raw.startsWith('https:/')) {
+        return normalizeURL(raw);
+    }
+
+    return null;
 }
 
 export function FulfillmentStatus({ orderId }: { orderId: string }) {
@@ -88,10 +126,22 @@ export function FulfillmentStatus({ orderId }: { orderId: string }) {
                             {req.status === 'submitted' ? (
                                 <div className="mt-2 rounded-lg bg-white p-2.5 text-sm text-gray-800 shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-800 dark:text-gray-200 dark:ring-gray-700">
                                     {req.data_type === 'file' ? (
-                                        <a href={req.value} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">
-                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
-                                            View Attachment
-                                        </a>
+                                        (() => {
+                                            const url = getAttachmentURL(req);
+                                            if (!url) {
+                                                return (
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                                                        Attachment unavailable
+                                                    </div>
+                                                );
+                                            }
+                                            return (
+                                                <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">
+                                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                                                    View Attachment
+                                                </a>
+                                            );
+                                        })()
                                     ) : (
                                         <div className="whitespace-pre-wrap font-medium">{req.value}</div>
                                     )}
