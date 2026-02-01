@@ -33,6 +33,7 @@ import {
   CreditCardIcon,
   BellIcon,
   BookOpenIcon,
+  UsersIcon,
 } from "./icons";
 import { CommandPalette } from "./CommandPalette";
 import { NotificationsBell } from "./NotificationsBell";
@@ -58,6 +59,7 @@ const getCoreNavItems = (badges?: { inbox?: number; escalations?: number; alerts
   { label: "Bulk Upload", href: "/app/bulk-uploads", icon: <ClipboardIcon className="w-5 h-5" /> },
   { label: "Payments", href: "/app/payments", icon: <CreditCardIcon className="w-5 h-5" /> },
   { label: "Orders", href: "/app/orders", icon: <PackageIcon className="w-5 h-5" /> },
+  { label: "Customers", href: "/app/customers", icon: <UsersIcon className="w-5 h-5" /> },
   { label: "Calendar", href: "/app/calendar", icon: <CalendarIcon className="w-5 h-5" /> },
 ];
 
