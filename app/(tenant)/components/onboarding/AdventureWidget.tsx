@@ -54,13 +54,32 @@ export function AdventureWidget() {
     const getActionUrl = (item: ChecklistItem) => {
         // Map known IDs to correct internal routes if API returns bad ones
         const id = item.id.toLowerCase();
+        const url = item.action_url?.toLowerCase() || '';
 
-        if (id.includes('product')) return '/app/products/new';
-        if (id.includes('service')) return '/app/services/new';
-        if (id.includes('post') || id.includes('campaign')) return '/app/posts/new';
-        if (id.includes('upgrade') || id.includes('bill') || id.includes('plan')) return '/app/settings/billing';
-        if (id.includes('telegram')) return '/app/integrations';
-        if (id.includes('social')) return '/app/integrations';
+        // Fix Product Link: catch 'product' ID or '/products/create' URL
+        if (id.includes('product') || url.includes('products/create')) {
+            return '/app/products/new';
+        }
+
+        // Fix Service Link
+        if (id.includes('service') || url.includes('services/create')) {
+            return '/app/services/new';
+        }
+
+        // Fix Post/Campaign Link
+        if (id.includes('post') || id.includes('campaign') || url.includes('campaigns/create')) {
+            return '/app/posts/new';
+        }
+
+        // Fix Billing/Upgrade Link
+        if (id.includes('upgrade') || id.includes('bill') || id.includes('plan') || url.includes('billing')) {
+            return '/app/settings/billing';
+        }
+
+        // Fix Integrations
+        if (id.includes('telegram') || id.includes('social')) {
+            return '/app/integrations';
+        }
 
         return item.action_url;
     };
