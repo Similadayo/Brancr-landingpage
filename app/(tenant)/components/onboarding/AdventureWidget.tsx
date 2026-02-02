@@ -53,15 +53,16 @@ export function AdventureWidget() {
     // Helper to fix specific links if needed
     const getActionUrl = (item: ChecklistItem) => {
         // Map known IDs to correct internal routes if API returns bad ones
-        switch (item.id) {
-            case 'telegram': return '/app/integrations';
-            case 'service': return '/app/services/new';
-            case 'product': return '/app/products/new';
-            case 'social': return '/app/integrations';
-            case 'post': return '/app/posts/new';
-            case 'upgrade': return '/app/settings/billing';
-            default: return item.action_url;
-        }
+        const id = item.id.toLowerCase();
+
+        if (id.includes('product')) return '/app/products/new';
+        if (id.includes('service')) return '/app/services/new';
+        if (id.includes('post') || id.includes('campaign')) return '/app/posts/new';
+        if (id.includes('upgrade') || id.includes('bill') || id.includes('plan')) return '/app/settings/billing';
+        if (id.includes('telegram')) return '/app/integrations';
+        if (id.includes('social')) return '/app/integrations';
+
+        return item.action_url;
     };
 
     const formattedProgress = data.progress.toFixed(1); // 1 decimal place
