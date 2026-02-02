@@ -118,7 +118,7 @@ export default function EscalationsPage() {
       <div className="flex-1 px-3 py-6 sm:px-6 sm:py-8">
         <div className="mx-auto max-w-7xl space-y-6">
           {/* Modern Hero Section */}
-          <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-warning-600 via-warning-600/95 to-warning-700/90 p-6 shadow-xl dark:border-gray-600 dark:from-warning-600 dark:via-warning-600/90 dark:to-warning-700/80 sm:p-8 md:p-10">
+          <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-warning-600 via-warning-600/95 to-warning-700/90 p-4 shadow-xl dark:border-gray-600 dark:from-warning-600 dark:via-warning-600/90 dark:to-warning-700/80 sm:p-8 md:p-10">
             <div className="absolute inset-0 opacity-10 dark:opacity-20">
               <div className="absolute inset-0 dark:hidden" style={{
                 backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
@@ -133,7 +133,7 @@ export default function EscalationsPage() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:mb-3">
                 <div className="flex items-center gap-3">
                   <AlertIcon className="h-6 w-6 text-white sm:h-7 sm:w-7" />
-                  <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">Escalations</h1>
+                  <h1 className="text-xl font-bold text-white sm:text-3xl md:text-4xl">Escalations</h1>
                 </div>
                 {pendingCount > 0 && (
                   <div className="inline-flex items-center gap-2 rounded-xl border-2 border-white/40 bg-white/25 backdrop-blur-sm px-3 py-2 sm:px-4 sm:py-2.5">
@@ -142,7 +142,7 @@ export default function EscalationsPage() {
                   </div>
                 )}
               </div>
-              <p className="text-sm text-white sm:text-base md:text-lg max-w-2xl">
+              <p className="text-xs text-white sm:text-base md:text-lg max-w-2xl">
                 Review and respond to customer escalations that require your attention
               </p>
             </div>
@@ -172,10 +172,10 @@ export default function EscalationsPage() {
                   <p className="mt-2 text-2xl font-bold text-success-600 dark:text-success-300 sm:text-3xl">{stats.resolved}</p>
                 </div>
               </div>
-              <div className="stat-card group col-span-2 lg:col-span-1">
+              <div className="stat-card group">
                 <div className="absolute right-0 top-0 h-16 w-16 sm:h-20 sm:w-20 -translate-y-3 translate-x-3 sm:-translate-y-4 sm:translate-x-4 rounded-full bg-gradient-to-br from-accent-400/20 to-accent-500/20 blur-2xl transition-transform group-hover:scale-150" />
                 <div className="relative">
-                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Avg Response</p>
+                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">Avg</p>
                   <p className="mt-2 text-lg font-bold text-gray-900 dark:text-gray-100 sm:text-xl lg:text-2xl">{stats.avgResponseTime}</p>
                 </div>
               </div>
@@ -199,15 +199,15 @@ export default function EscalationsPage() {
 
               {/* Filters */}
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <div className="flex items-center gap-3">
-                  <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-400" />
-                  <div className="flex-1 sm:flex-none sm:min-w-[140px]">
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
+                  <FunnelIcon className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-400 hidden sm:block" />
+                  <div className="sm:w-[140px]">
                     <Select
                       value={priorityFilter}
                       onChange={(value) => setPriorityFilter(value || 'all')}
                       searchable={false}
                       options={[
-                        { value: 'all', label: 'All Priorities' },
+                        { value: 'all', label: 'Priority' },
                         { value: 'critical', label: 'Critical' },
                         { value: 'urgent', label: 'Urgent' },
                         { value: 'high', label: 'High' },
@@ -216,13 +216,13 @@ export default function EscalationsPage() {
                       ]}
                     />
                   </div>
-                  <div className="flex-1 sm:flex-none sm:min-w-[140px]">
+                  <div className="sm:w-[140px]">
                     <Select
                       value={platformFilter}
                       onChange={(value) => setPlatformFilter(value || 'all')}
                       searchable={false}
                       options={[
-                        { value: 'all', label: 'All Platforms' },
+                        { value: 'all', label: 'Platform' },
                         { value: 'instagram', label: 'Instagram' },
                         { value: 'facebook', label: 'Facebook' },
                         { value: 'whatsapp', label: 'WhatsApp' },
@@ -231,14 +231,14 @@ export default function EscalationsPage() {
                       ]}
                     />
                   </div>
-                  <div className="flex-1 sm:flex-none sm:min-w-[140px]">
+                  <div className="col-span-2 sm:col-span-1 sm:w-[140px]">
                     <Select
                       value={sortBy}
                       onChange={(value) => setSortBy((value || 'newest') as 'newest' | 'priority')}
                       searchable={false}
                       options={[
-                        { value: 'newest', label: 'Newest First' },
-                        { value: 'priority', label: 'By Priority' },
+                        { value: 'newest', label: 'Newest' },
+                        { value: 'priority', label: 'Priority' },
                       ]}
                     />
                   </div>

@@ -55,9 +55,11 @@ export function AdventureWidget() {
         // Map known IDs to correct internal routes if API returns bad ones
         switch (item.id) {
             case 'telegram': return '/app/integrations';
-            case 'service': return '/app/services'; // List view usually better than new page
+            case 'service': return '/app/services/new';
+            case 'product': return '/app/products/new';
             case 'social': return '/app/integrations';
-            case 'post': return '/app/campaigns'; // Campaign/Post list
+            case 'post': return '/app/posts/new';
+            case 'upgrade': return '/app/settings/billing';
             default: return item.action_url;
         }
     };
@@ -108,14 +110,14 @@ export function AdventureWidget() {
                                     <div
                                         key={item.id}
                                         className={`p-3 rounded-xl border transition-all ${item.complete
-                                                ? 'bg-gray-100/50 border-transparent opacity-70 dark:bg-dark-elevated/30'
-                                                : 'bg-white border-gray-200 shadow-sm hover:border-primary/30 dark:bg-dark-surface dark:border-dark-border'
+                                            ? 'bg-gray-100/50 border-transparent opacity-70 dark:bg-dark-elevated/30'
+                                            : 'bg-white border-gray-200 shadow-sm hover:border-primary/30 dark:bg-dark-surface dark:border-dark-border'
                                             }`}
                                     >
                                         <div className="flex items-start gap-3">
                                             <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center border ${item.complete
-                                                    ? 'bg-green-500 border-green-500 text-white'
-                                                    : 'border-gray-300 dark:border-gray-600'
+                                                ? 'bg-green-500 border-green-500 text-white'
+                                                : 'border-gray-300 dark:border-gray-600'
                                                 }`}>
                                                 {item.complete && <CheckCircleIcon className="w-3.5 h-3.5" />}
                                             </div>
