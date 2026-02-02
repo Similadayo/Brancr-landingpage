@@ -139,68 +139,68 @@ export default function ParsedItemsReview({ items, industry = 'products', onSave
       {/* Items List */}
       <div className="space-y-4">
         {localItems.map((it, idx) => (
-          <div key={idx} className="rounded-xl border-2 border-gray-200 bg-white p-5 hover:border-primary/50 hover:shadow-md transition-all">
+          <div key={idx} className="rounded-xl border-2 border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-700 p-5 hover:border-primary/50 hover:shadow-md transition-all">
             <div className="flex flex-col gap-4">
 
               {/* Row 1: Name, Price, Currency, Duration */}
               <div className="flex flex-col sm:flex-row items-start gap-3">
                 <div className="flex-1 w-full">
-                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Name</label>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Name</label>
                   <input
                     value={it.name}
                     onChange={(e) => updateItem(idx, { name: e.target.value })}
-                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 px-3 py-2 text-sm font-medium text-gray-900 dark:text-white focus:border-primary focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
                     placeholder="Item name"
                   />
                 </div>
                 <div className="w-full sm:w-32">
-                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Price</label>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Price</label>
                   <input
                     value={it.price ?? ''}
                     onChange={(e) => updateItem(idx, { price: e.target.value === '' ? undefined : Number(e.target.value) })}
-                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 px-3 py-2 text-sm font-medium text-gray-900 dark:text-white focus:border-primary focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
                     placeholder="0.00"
                     type="number"
                   />
                 </div>
                 <div className="w-full sm:w-24">
-                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Currency</label>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Currency</label>
                   <input
                     value={it.currency ?? ''}
                     onChange={(e) => updateItem(idx, { currency: e.target.value })}
-                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 px-3 py-2 text-sm font-medium text-gray-900 dark:text-white focus:border-primary focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
                     placeholder="NGN"
                   />
                 </div>
                 <div className="w-full sm:w-40">
-                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Duration</label>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Duration</label>
                   <input
                     value={it.duration ?? ''}
                     onChange={(e) => updateItem(idx, { duration: e.target.value })}
-                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 px-3 py-2 text-sm font-medium text-gray-900 dark:text-white focus:border-primary focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
                     placeholder="e.g. 1 month"
                   />
                 </div>
               </div>
 
               {/* Row 2: Negotiation Rules (Min/Max) */}
-              <div className="flex flex-wrap gap-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
+              <div className="flex flex-wrap gap-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
                 <div className="flex-1 min-w-[150px]">
-                  <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Min Price (Negotiation Floor)</label>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">Min Price (Negotiation Floor)</label>
                   <input
                     value={it.min_price ?? ''}
                     onChange={(e) => updateItem(idx, { min_price: e.target.value === '' ? undefined : Number(e.target.value) })}
-                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
+                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-sm dark:text-white focus:border-primary focus:outline-none"
                     placeholder="Optional"
                     type="number"
                   />
                 </div>
                 <div className="flex-1 min-w-[150px]">
-                  <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Max Price (Negotiation Ceiling)</label>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">Max Price (Negotiation Ceiling)</label>
                   <input
                     value={it.max_price ?? ''}
                     onChange={(e) => updateItem(idx, { max_price: e.target.value === '' ? undefined : Number(e.target.value) })}
-                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus:border-primary focus:outline-none"
+                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-sm dark:text-white focus:border-primary focus:outline-none"
                     placeholder="Optional"
                     type="number"
                   />
@@ -210,21 +210,21 @@ export default function ParsedItemsReview({ items, industry = 'products', onSave
               {/* Row 3: Description & Deliverables */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Description</label>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Description</label>
                   <textarea
                     value={it.description ?? ''}
                     onChange={(e) => updateItem(idx, { description: e.target.value })}
-                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 px-3 py-2 text-sm font-medium text-gray-900 dark:text-white focus:border-primary focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
                     rows={3}
                     placeholder="Item description..."
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wide">Deliverables (One per line)</label>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Deliverables (One per line)</label>
                   <textarea
                     value={it.deliverables?.join('\n') ?? ''}
                     onChange={(e) => updateItem(idx, { deliverables: e.target.value.split('\n') })}
-                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
+                    className="w-full rounded-lg border-2 border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 px-3 py-2 text-sm font-medium text-gray-900 dark:text-white focus:border-primary focus:bg-white dark:focus:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
                     rows={3}
                     placeholder="• Deliverable 1&#10;• Deliverable 2"
                   />
