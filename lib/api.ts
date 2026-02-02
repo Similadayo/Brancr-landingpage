@@ -807,6 +807,9 @@ export const tenantApi = {
   parseProducts: (rawInput: string, industry?: string) =>
     post<{ raw_input: string; source: string; industry?: string; }, ParsedItem[]>('/api/tenant/products/parse', { raw_input: rawInput, source: 'paste', industry }),
 
+  parseProductsFile: (formData: FormData) =>
+    post<FormData, ParsedItem[]>('/api/tenant/products/parse/file', formData),
+
   // Generate caption from images/context
   generateCaption: (options: GenerateCaptionOptions) => post<{
     image_urls?: string[];

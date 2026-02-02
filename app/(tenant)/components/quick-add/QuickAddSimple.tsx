@@ -28,20 +28,9 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 		if (!text.trim()) return toast.error('Paste some text to parse');
 		setParsing(true);
 		try {
-			if (industry === 'menu') {
-				const res = await tenantApi.parseMenuText({ text, default_currency: 'NGN' });
-				setParsed(res.items || []);
-			} else {
-				const res = await fetch(`/api/tenant/${industry}/parse`, {
-					method: 'POST',
-					credentials: 'include',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ raw_input: text, source: 'paste', industry }),
-				});
-				if (!res.ok) throw new Error('Parse failed');
-				const data = await res.json();
-				setParsed(Array.isArray(data) ? data : []);
-			}
+			// Use the robust Go backend parser for all industries
+			const items = await tenantApi.parseProducts(text, industry);
+			setParsed(items || []);
 		} catch (e: any) {
 			console.error('Parse error:', e);
 			const msg = e?.body?.errors?.[0] || 'Failed to parse input';
@@ -130,58 +119,71 @@ export default function QuickAddSimple({ initialIndustry }: { initialIndustry?: 
 										form.append('industry', industry); // Wire industry for file upload too!
 
 										try {
-											if (industry === 'menu') {
-												form.append('default_currency', 'NGN');
-												const res = await tenantApi.parseMenuFile(form);
-												setParsed(res.items || []);
-											} else {
-												const res = await fetch(`/api/tenant/${industry}/parse/file`, { method: 'POST', credentials: 'include', body: form });
-												if (res.status === 202) {
-													const body = await res.json();
-													const jobId = body?.job_id;
-													if (jobId) {
-														setJobId(jobId);
-														setJobStatus('pending');
-														// poll job status
-														let attempt = 0;
-														let delay = 200; // start shorter for responsiveness
-														const maxAttempts = 30;
-														// eslint-disable-next-line no-constant-condition
-														while (true) {
-															const jobRes = await fetch(`/api/tenant/${industry}/parse/jobs/${jobId}`, { credentials: 'include' });
-															if (!jobRes.ok) {
-																toast.error('Failed to check job status');
-																setJobStatus('error');
-																break;
-															}
-															const jobData = await jobRes.json();
-															setJobStatus(jobData.status);
-															if (jobData.status === 'done') {
-																setParsed(Array.isArray(jobData.result) ? jobData.result : []);
-																break;
-															}
-															if (jobData.status === 'failed') {
-																toast.error('File parse failed');
-																break;
-															}
-															attempt += 1;
-															if (attempt >= maxAttempts) {
-																toast.error('Parsing timed out');
-																setJobStatus('timeout');
-																break;
-															}
-															// exponential backoff
-															await new Promise((r) => setTimeout(r, delay + Math.floor(Math.random() * 200)));
-															delay = Math.min(8000, delay * 2);
-														}
-														setJobId(null);
-														setJobStatus(null);
+											// Use Go backend for file parsing (supports all industries + OCR/DOCX)
+											if (industry !== 'products') {
+												// Create a new FormData to ensure 'industry' is correct if needed, though the endpoint is generic
+												// actually the Go endpoint /tenant/products/parse/file is generic but we might want to pass industry context if supported
+												// For now, the Go handler doesn't read 'industry' from form, but it's safe to send.
+											}
+
+											const res = await tenantApi.parseProductsFile(form);
+
+											// Start polling if we got a 202 Accepted (async job)
+											// The API client automatically parses JSON, so 'res' might be the items array OR the job response
+											// We need to check if it's an array or a job object. 
+											// However, our api.ts 'post' helper casts response to TResponse. 
+											// Let's assume for now it returns ParsedItem[] directly OR we need to handle the 202 case manually if api.ts doesn't.
+											// Scanning api.ts, it throws on error, returns JSON on success.
+											// Go backend returns 202 for large files. api.ts treats 2xx as success.
+
+											const anyRes = res as any;
+											if (anyRes.status === 'accepted' && anyRes.job_id) {
+												const jobId = anyRes.job_id;
+												setJobId(jobId);
+												setJobStatus('pending');
+
+												// Poll job status
+												let attempt = 0;
+												let delay = 500;
+												const maxAttempts = 60;
+
+												while (true) {
+													// We need a way to check job status. 
+													// We likely need to add checkParseJob to api.ts or use raw fetch here.
+													// For now, let's use raw fetch as checkParseJob isn't in api.ts yet.
+													const jobRes = await fetch(`/api/tenant/products/parse/jobs/${jobId}`);
+													if (!jobRes.ok) {
+														toast.error('Failed to check job status');
+														setJobStatus('error');
+														break;
 													}
-												} else {
-													if (!res.ok) throw new Error('Upload failed');
-													const data = await res.json();
-													setParsed(Array.isArray(data) ? data : []);
+													const jobData = await jobRes.json();
+													setJobStatus(jobData.status);
+
+													if (jobData.status === 'done') {
+														setParsed(Array.isArray(jobData.result) ? jobData.result : []);
+														break;
+													}
+													if (jobData.status === 'failed') {
+														toast.error('File parse failed');
+														break;
+													}
+
+													attempt++;
+													if (attempt >= maxAttempts) {
+														toast.error('Parsing timed out');
+														setJobStatus('timeout');
+														break;
+													}
+
+													await new Promise(r => setTimeout(r, delay));
+													delay = Math.min(5000, delay * 1.5);
 												}
+												setJobId(null);
+												setJobStatus(null);
+											} else {
+												// Direct result
+												setParsed(Array.isArray(res) ? res : []);
 											}
 										} catch (err) {
 											console.error(err);
