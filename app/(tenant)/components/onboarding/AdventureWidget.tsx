@@ -26,7 +26,7 @@ type ChecklistData = {
 import TelegramConnectButton from './../TelegramConnectButton';
 
 export function AdventureWidget() {
-    const [minimized, setMinimized] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
     const router = useRouter();
 
     const { data, isLoading } = useQuery({
@@ -35,7 +35,6 @@ export function AdventureWidget() {
             try {
                 const res = await fetch('/api/tenant/onboarding/checklist', { credentials: 'include' });
                 if (!res.ok) {
-                    // Handle 404 gracefully if endpoint not ready
                     if (res.status === 404) return null;
                     throw new Error('Failed to fetch checklist');
                 }
@@ -44,8 +43,6 @@ export function AdventureWidget() {
                 return null;
             }
         },
-        // Don't refetch too often
-        // Check for updates frequently for a responsive feel
         staleTime: 5000,
         refetchOnMount: 'always',
     });
@@ -53,113 +50,132 @@ export function AdventureWidget() {
     if (isLoading || !data) return null;
     if (data.progress >= 100) return null;
 
+    // Helper to fix specific links if needed
+    const getActionUrl = (item: ChecklistItem) => {
+        // Map known IDs to correct internal routes if API returns bad ones
+        switch (item.id) {
+            case 'telegram': return '/app/integrations';
+            case 'service': return '/app/services'; // List view usually better than new page
+            case 'social': return '/app/integrations';
+            case 'post': return '/app/campaigns'; // Campaign/Post list
+            default: return item.action_url;
+        }
+    };
+
+    const formattedProgress = data.progress.toFixed(1); // 1 decimal place
+
     return (
-        <AnimatePresence>
-            {!minimized ? (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    className="bg-white dark:bg-dark-surface rounded-2xl border border-gray-100 dark:border-dark-border shadow-lg overflow-hidden mb-8"
-                >
-                    {/* Header */}
-                    <div className="p-5 border-b border-gray-100 dark:border-dark-border flex items-center justify-between bg-gradient-to-r from-gray-50 to-white dark:from-dark-elevated dark:to-dark-surface">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-primary/10 p-2 rounded-xl text-xl">🗺️</div>
-                            <div>
-                                <h3 className="font-bold text-gray-900 dark:text-white text-lg">Your Adventure Checklist</h3>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">Complete these quests to level up your business!</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <div className="text-right">
-                                <span className="text-2xl font-bold text-primary">{data.progress}%</span>
-                                <p className="text-[10px] text-gray-400 uppercase font-tracking-wider font-semibold">Ready</p>
-                            </div>
-                            <button
-                                onClick={() => setMinimized(true)}
-                                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                                aria-label="Minimize widget"
-                            >
-                                <ChevronDownIcon className="w-5 h-5 text-gray-400" />
-                            </button>
-                        </div>
-                    </div>
+        <>
+            {/* Backdrop for mobile focus */}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsOpen(false)}
+                        className="fixed inset-0 bg-black/20 backdrop-blur-[1px] z-40 md:hidden"
+                    />
+                )}
+            </AnimatePresence>
 
-                    {/* List */}
-                    <div className="divide-y divide-gray-50 dark:divide-dark-border">
-                        {data.checklist.map((item: ChecklistItem) => (
-                            <div
-                                key={item.id}
-                                className={`p-4 flex items-center justify-between group transition-colors ${item.complete ? 'bg-gray-50/50 dark:bg-dark-bg/30' : 'hover:bg-gray-50 dark:hover:bg-dark-elevated/50'
-                                    }`}
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className={`
-                    w-6 h-6 rounded-full flex items-center justify-center border transition-all
-                    ${item.complete
-                                            ? 'bg-green-500 border-green-500 text-white'
-                                            : 'border-gray-300 dark:border-gray-600 text-transparent group-hover:border-primary/50'
-                                        }
-                  `}>
-                                        <CheckCircleIcon className="w-4 h-4" />
-                                    </div>
-                                    <div className={item.complete ? 'opacity-50 line-through grayscale' : ''}>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-base">{item.icon}</span>
-                                            <span className="font-medium text-gray-900 dark:text-white text-sm">{item.title}</span>
-                                        </div>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 ml-6">{item.description}</p>
-                                    </div>
-                                </div>
-
+            <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
+                <AnimatePresence>
+                    {isOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20, transformOrigin: "bottom right" }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="bg-white dark:bg-dark-surface rounded-2xl border border-gray-200 dark:border-dark-border shadow-2xl w-[320px] sm:w-[380px] overflow-hidden flex flex-col max-h-[70vh]"
+                        >
+                            {/* Header */}
+                            <div className="p-4 bg-gradient-to-r from-primary to-purple-600 text-white flex items-center justify-between shrink-0">
                                 <div className="flex items-center gap-3">
-                                    {!item.complete && (
-                                        <>
-                                            {item.id === 'telegram_connected' ? (
-                                                <TelegramConnectButton variant="inline" />
-                                            ) : (
-                                                <button
-                                                    onClick={() => router.push(item.action_url)}
-                                                    className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-dark-elevated hover:bg-gray-200 dark:hover:bg-gray-700 text-xs font-semibold text-gray-600 dark:text-gray-300 transition-colors"
-                                                >
-                                                    Start Quest
-                                                </button>
-                                            )}
-                                        </>
-                                    )}
-                                    {item.xp > 0 && (
-                                        <span className={`
-                      text-xs font-bold px-2 py-1 rounded-full
-                      ${item.complete
-                                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                                : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                                            }
-                    `}>
-                                            +{item.xp} XP
-                                        </span>
-                                    )}
+                                    <div className="bg-white/20 p-2 rounded-lg text-lg backdrop-blur-sm">🗺️</div>
+                                    <div>
+                                        <h3 className="font-bold text-white text-base">Quest Log</h3>
+                                        <p className="text-xs text-white/80">Level Up Your Business</p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-xl font-bold">{formattedProgress}%</span>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                </motion.div>
-            ) : (
+
+                            {/* Scrollable List */}
+                            <div className="overflow-y-auto p-2 space-y-1 bg-gray-50 dark:bg-dark-bg/50">
+                                {data.checklist.map((item: ChecklistItem) => (
+                                    <div
+                                        key={item.id}
+                                        className={`p-3 rounded-xl border transition-all ${item.complete
+                                                ? 'bg-gray-100/50 border-transparent opacity-70 dark:bg-dark-elevated/30'
+                                                : 'bg-white border-gray-200 shadow-sm hover:border-primary/30 dark:bg-dark-surface dark:border-dark-border'
+                                            }`}
+                                    >
+                                        <div className="flex items-start gap-3">
+                                            <div className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center border ${item.complete
+                                                    ? 'bg-green-500 border-green-500 text-white'
+                                                    : 'border-gray-300 dark:border-gray-600'
+                                                }`}>
+                                                {item.complete && <CheckCircleIcon className="w-3.5 h-3.5" />}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex justify-between items-start gap-2">
+                                                    <p className={`text-sm font-semibold ${item.complete ? 'text-gray-500 line-through' : 'text-gray-900 dark:text-gray-100'}`}>
+                                                        {item.title}
+                                                    </p>
+                                                    {item.xp > 0 && !item.complete && (
+                                                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400 whitespace-nowrap">
+                                                            {item.xp} XP
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-snug">
+                                                    {item.description}
+                                                </p>
+
+                                                {!item.complete && (
+                                                    <div className="mt-2.5 flex justify-end">
+                                                        {item.id === 'telegram_connected' ? (
+                                                            <TelegramConnectButton variant="inline" />
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => {
+                                                                    setIsOpen(false);
+                                                                    router.push(getActionUrl(item));
+                                                                }}
+                                                                className="text-xs font-semibold bg-primary/10 text-primary px-3 py-1.5 rounded-lg hover:bg-primary/20 transition-colors"
+                                                            >
+                                                                Start Quest
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Floating Button */}
                 <motion.button
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    onClick={() => setMinimized(false)}
-                    className="bg-white dark:bg-dark-surface rounded-full shadow-lg border border-gray-100 dark:border-dark-border p-3 flex items-center gap-3 hover:scale-105 transition-transform mb-8"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="relative bg-gradient-to-br from-primary to-purple-600 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center border-4 border-white dark:border-dark-bg z-50 overflow-hidden"
                 >
-                    <div className="bg-gradient-to-br from-primary to-purple-500 text-white w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-inner">
-                        🗺️
-                    </div>
-                    <div className="text-left pr-4">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Adventure Progress</p>
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">{data.progress}% Complete</p>
+                    {/* Progress Ring Background could go here, but simple icon is cleaner */}
+                    <span className="text-2xl pt-1">🗺️</span>
+
+                    {/* Badge */}
+                    <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-sm border border-white dark:border-dark-bg">
+                        {Math.floor(data.progress)}%
                     </div>
                 </motion.button>
-            )}
-        </AnimatePresence>
+            </div>
+        </>
     );
 }

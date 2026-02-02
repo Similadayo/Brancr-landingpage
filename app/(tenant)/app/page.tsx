@@ -35,7 +35,7 @@ import {
   SparklesIcon,
 } from "../components/icons";
 import { OrderCard, PaymentCard } from "../components/cards";
-import { NotificationsPanel } from "../components/dashboard/NotificationsPanel";
+// NotificationsPanel removed
 import { AdventureWidget } from "../components/onboarding/AdventureWidget";
 import AIStatusSummary from "../components/dashboard/AIStatusSummary";
 
@@ -275,28 +275,7 @@ export default function TenantOverviewPage() {
 
           {/* Critical Alerts Banner */}
           {(stats.pendingEscalations > 0 || stats.unreadMessages > 0) && (
-            <NotificationsPanel
-              unreadMessages={stats.unreadMessages}
-              pendingEscalations={stats.pendingEscalations}
-              recentConversations={conversations
-                .filter((c) => (c.unread_count || 0) > 0)
-                .slice(0, 3)
-                .map((c) => ({
-                  id: c.id.toString(),
-                  customer_name: c.customer_name || 'Unknown',
-                  platform: c.platform || 'unknown',
-                  unread_count: c.unread_count || 0,
-                  last_message_at: c.last_message_at || c.created_at,
-                }))}
-              recentEscalations={escalations.slice(0, 3).map((e) => ({
-                id: e.id,
-                customerName: e.customerName || 'Unknown',
-                platform: e.platform || 'unknown',
-                message: e.message || '',
-                priority: e.priority || 'normal',
-                createdAt: e.createdAt,
-              }))}
-            />
+            {/* Critical Alerts Banner Removed - Notifications now handled in Inbox/Navbar directly */ }
           )}
 
           {/* Key Metrics Grid - Enhanced Modern Cards */}

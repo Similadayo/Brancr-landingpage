@@ -555,7 +555,7 @@ export function WhatsAppProfile() {
         <ModalHeader onClose={() => setShowPreview(false)}>
           <ModalTitle>Preview Profile Sync</ModalTitle>
         </ModalHeader>
-        <ModalBody>
+        <ModalBody className="max-h-[70vh] overflow-y-auto">
           {previewLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin dark:border-dark-accent-primary" />
@@ -575,8 +575,8 @@ export function WhatsAppProfile() {
                 </div>
               </div>
 
-              {/* Fields Table */}
-              <div className="border border-gray-200 dark:border-dark-border rounded-lg overflow-hidden">
+              {/* Fields Table - Mobile Stack / Desktop Table */}
+              <div className="border border-gray-200 dark:border-dark-border rounded-lg overflow-hidden hidden md:block">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-gray-50 dark:bg-dark-elevated">
@@ -591,12 +591,12 @@ export function WhatsAppProfile() {
                       {previewData.preview.fields.map((field, idx) => (
                         <tr key={idx} className="border-t border-gray-200 dark:border-dark-border">
                           <td className="p-3 text-sm font-medium text-gray-900 dark:text-dark-text-primary">{field.name}</td>
-                          <td className="p-3 text-sm text-gray-700 dark:text-dark-text-secondary">
+                          <td className="p-3 text-sm text-gray-700 dark:text-dark-text-secondary max-w-[200px] truncate" title={field.brancr_value}>
                             {field.brancr_value || (
                               <span className="text-gray-400 dark:text-dark-text-secondary italic">Not set</span>
                             )}
                           </td>
-                          <td className="p-3 text-sm text-gray-700 dark:text-dark-text-secondary">
+                          <td className="p-3 text-sm text-gray-700 dark:text-dark-text-secondary max-w-[200px] truncate" title={field.whatsapp_value}>
                             {field.whatsapp_value ? (
                               <span className="text-gray-600 dark:text-dark-text-secondary">{field.whatsapp_value}</span>
                             ) : (
@@ -619,6 +619,36 @@ export function WhatsAppProfile() {
                     </tbody>
                   </table>
                 </div>
+              </div>
+
+              {/* Mobile Stack View */}
+              <div className="space-y-3 md:hidden">
+                {previewData.preview.fields.map((field, idx) => (
+                  <div key={idx} className="p-4 rounded-lg border border-gray-200 dark:border-dark-border bg-gray-50/50 dark:bg-dark-elevated/30">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-semibold text-sm text-gray-900 dark:text-white">{field.name}</span>
+                      {field.will_change ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 uppercase">Update</span>
+                      ) : (
+                        <span className="text-green-500 text-xs">Matching</span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-xs">
+                      <div>
+                        <p className="text-gray-500 uppercase font-bold text-[10px]">Brancr</p>
+                        <p className="mt-1 font-medium text-gray-800 dark:text-gray-200 break-words">
+                          {field.brancr_value || <span className="italic text-gray-400">Not set</span>}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 uppercase font-bold text-[10px]">WhatsApp</p>
+                        <p className="mt-1 font-medium text-gray-600 dark:text-gray-400 break-words">
+                          {field.whatsapp_value || <span className="italic text-gray-400">Not set</span>}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
 
               {!hasChanges && (

@@ -114,8 +114,8 @@ export default function EscalationsPage() {
   }, [priorityFilter, platformFilter, sortBy, searchQuery]);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 top-[80px] lg:left-[276px] flex flex-col bg-gray-50 dark:bg-dark-bg">
-      <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-6 sm:py-8">
+    <div className="flex flex-col bg-gray-50 dark:bg-dark-bg min-h-screen pb-20 lg:pl-[276px] pt-[80px]">
+      <div className="flex-1 px-3 py-6 sm:px-6 sm:py-8">
         <div className="mx-auto max-w-7xl space-y-6">
           {/* Modern Hero Section */}
           <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-warning-600 via-warning-600/95 to-warning-700/90 p-6 shadow-xl dark:border-gray-600 dark:from-warning-600 dark:via-warning-600/90 dark:to-warning-700/80 sm:p-8 md:p-10">
