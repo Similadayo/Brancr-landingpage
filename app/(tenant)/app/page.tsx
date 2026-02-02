@@ -274,9 +274,7 @@ export default function TenantOverviewPage() {
           <AdventureWidget />
 
           {/* Critical Alerts Banner */}
-          {(stats.pendingEscalations > 0 || stats.unreadMessages > 0) && (
-            {/* Critical Alerts Banner Removed - Notifications now handled in Inbox/Navbar directly */ }
-          )}
+
 
           {/* Key Metrics Grid - Enhanced Modern Cards */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
