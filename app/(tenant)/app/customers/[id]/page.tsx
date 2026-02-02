@@ -140,61 +140,82 @@ export default function CustomerProfilePage() {
                 <p className="text-sm text-gray-600 dark:text-gray-300">No requirement submissions yet.</p>
               )}
 
-              {submissions.slice(0, 50).map((s) => (
-                <div key={s.id} className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">{s.requirement_label}</p>
-                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        {s.requirement_data_type} • {new Date(s.created_at).toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="shrink-0 text-xs text-gray-500 dark:text-gray-400">
-                      {ordersById.get(s.order_id)?.order_number ? `Order: ${ordersById.get(s.order_id)?.order_number}` : null}
-                    </div>
-                  </div>
-                  <div className="mt-3 rounded-lg bg-gray-50 p-3 text-sm text-gray-800 dark:bg-gray-900 dark:text-gray-100">
-                    {s.requirement_data_type === "file" ? (
-                      (() => {
-                        try {
-                          // Attempt to parse JSON value
-                          const val = s.value?.trim() || "";
-                          if (val.startsWith("{") && val.endsWith("}")) {
-                            const meta = JSON.parse(val);
-                            const url = meta.media_stored_url || meta.media_url;
-                            const caption = meta.caption || meta.filename || "View Attachment";
+              {(() => {
+                const grouped: Record<string, typeof submissions> = {};
+                for (const s of submissions) {
+                  const date = new Date(s.created_at).toLocaleDateString(undefined, {
+                    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+                  });
+                  if (!grouped[date]) grouped[date] = [];
+                  grouped[date].push(s);
+                }
 
-                            if (url) {
-                              return (
-                                <div className="space-y-2">
-                                  {meta.caption && <p className="mb-1 text-xs text-gray-600 dark:text-gray-400">{meta.caption}</p>}
-                                  <a
-                                    href={url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="inline-flex items-center gap-2 text-primary hover:underline"
-                                  >
-                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                    </svg>
-                                    View File ({meta.media_type || "Attachment"})
-                                  </a>
-                                </div>
-                              );
-                            }
-                          }
-                          // Fallback to raw text if not JSON or no URL
-                          return s.value || "-";
-                        } catch (e) {
-                          return s.value || "-";
-                        }
-                      })()
-                    ) : (
-                      <div className="whitespace-pre-wrap">{s.value || "-"}</div>
-                    )}
+                return Object.entries(grouped).map(([date, items]) => (
+                  <div key={date} className="mb-6 last:mb-0">
+                    <h3 className="mb-3 ml-1 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{date}</h3>
+                    <div className="space-y-3">
+                      {items.map((s) => (
+                        <div key={s.id} className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-gray-900 dark:text-white">{s.requirement_label}</p>
+                              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                {s.requirement_data_type} • {new Date(s.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            </div>
+                            <div className="shrink-0 text-xs text-gray-500 dark:text-gray-400">
+                              {ordersById.get(s.order_id)?.order_number ? (
+                                <Link href={`/app/orders/${s.order_id}`} className="hover:text-primary hover:underline">
+                                  Order: {ordersById.get(s.order_id)?.order_number}
+                                </Link>
+                              ) : null}
+                            </div>
+                          </div>
+                          <div className="mt-3 rounded-lg bg-gray-50 p-3 text-sm text-gray-800 dark:bg-gray-900 dark:text-gray-100">
+                            {s.requirement_data_type === "file" ? (
+                              (() => {
+                                try {
+                                  // Attempt to parse JSON value
+                                  const val = s.value?.trim() || "";
+                                  if (val.startsWith("{") && val.endsWith("}")) {
+                                    const meta = JSON.parse(val);
+                                    const url = meta.media_stored_url || meta.media_url;
+
+                                    if (url) {
+                                      return (
+                                        <div className="space-y-2">
+                                          {meta.caption && <p className="mb-1 text-xs text-gray-600 dark:text-gray-400">{meta.caption}</p>}
+                                          <a
+                                            href={url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center gap-2 text-primary hover:underline"
+                                            onClick={(e) => e.stopPropagation()}
+                                          >
+                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                            </svg>
+                                            View File ({meta.media_type || "Attachment"})
+                                          </a>
+                                        </div>
+                                      );
+                                    }
+                                  }
+                                  return s.value || "-";
+                                } catch (e) {
+                                  return s.value || "-";
+                                }
+                              })()
+                            ) : (
+                              <div className="whitespace-pre-wrap">{s.value || "-"}</div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ));
+              })()}
             </div>
           </div>
         </div>
