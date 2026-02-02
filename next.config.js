@@ -13,6 +13,14 @@ const nextConfig = {
   },
   // Compress responses
   compress: true,
+  async rewrites() {
+    return [
+      {
+        source: '/api/tenant/:path*',
+        destination: 'https://api.brancr.com/api/tenant/:path*',
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig;
