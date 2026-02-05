@@ -21,5 +21,25 @@ export function useProductParser() {
         }
     };
 
-    return { loading, error, parsedItems, parse, setParsedItems };
+    const parseFile = async (file: File, industry?: string): Promise<ParsedItem[]> => {
+        setLoading(true);
+        setError(null);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            if (industry) {
+                formData.append('industry', industry);
+            }
+            const res = await tenantApi.parseProductsFile(formData);
+            setParsedItems(res);
+            return res;
+        } catch (err: any) {
+            setError(err.message || 'Failed to parse file');
+            return [];
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return { loading, error, parsedItems, parse, parseFile, setParsedItems };
 }

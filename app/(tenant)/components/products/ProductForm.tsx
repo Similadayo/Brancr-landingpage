@@ -29,28 +29,74 @@ export default function ProductForm({ product }: ProductFormProps) {
   const parser = useProductParser();
   const [showParseModal, setShowParseModal] = useState(false);
   const [parseInput, setParseInput] = useState("");
+  const [parseMode, setParseMode] = useState<"text" | "file">("text");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
 
   const handleParse = async () => {
-    if (!parseInput.trim()) return;
-    const items = await parser.parse(parseInput);
-    if (items && items.length > 0) {
-      const item = items[0]; // Take the first parsed item
-      setFormData(prev => ({
-        ...prev,
-        name: item.name || prev.name,
-        description: item.description || prev.description,
-        price: item.price !== undefined ? String(item.price) : prev.price,
-        currency: item.currency || prev.currency,
-        category: item.category || prev.category,
-        negotiation_mode: (item.min_price !== undefined && item.max_price !== undefined) ? 'range' : 'default',
-        negotiation_min_price: item.min_price !== undefined ? String(item.min_price) : prev.negotiation_min_price,
-        negotiation_max_price: item.max_price !== undefined ? String(item.max_price) : prev.negotiation_max_price,
-      }));
-      setShowParseModal(false);
-      setParseInput("");
-      toast.success("Details extracted!");
+    if (parseMode === "text") {
+      if (!parseInput.trim()) return;
+      const items = await parser.parse(parseInput);
+      if (items && items.length > 0) {
+        const item = items[0]; // Take the first parsed item
+        setFormData(prev => ({
+          ...prev,
+          name: item.name || prev.name,
+          description: item.description || prev.description,
+          price: item.price !== undefined ? String(item.price) : prev.price,
+          currency: item.currency || prev.currency,
+          category: item.category || prev.category,
+          negotiation_mode: (item.min_price !== undefined && item.max_price !== undefined) ? 'range' : 'default',
+          negotiation_min_price: item.min_price !== undefined ? String(item.min_price) : prev.negotiation_min_price,
+          negotiation_max_price: item.max_price !== undefined ? String(item.max_price) : prev.negotiation_max_price,
+        }));
+        setShowParseModal(false);
+        setParseInput("");
+        toast.success("Details extracted!");
+      } else {
+        toast.error("Could not extract product details.");
+      }
     } else {
-      toast.error("Could not extract product details.");
+      // File mode
+      if (!selectedFile) return;
+      const items = await parser.parseFile(selectedFile, "products");
+      if (items && items.length > 0) {
+        const item = items[0];
+        setFormData(prev => ({
+          ...prev,
+          name: item.name || prev.name,
+          description: item.description || prev.description,
+          price: item.price !== undefined ? String(item.price) : prev.price,
+          currency: item.currency || prev.currency,
+          category: item.category || prev.category,
+          negotiation_mode: (item.min_price !== undefined && item.max_price !== undefined) ? 'range' : 'default',
+          negotiation_min_price: item.min_price !== undefined ? String(item.min_price) : prev.negotiation_min_price,
+          negotiation_max_price: item.max_price !== undefined ? String(item.max_price) : prev.negotiation_max_price,
+        }));
+        setShowParseModal(false);
+        setSelectedFile(null);
+        setFilePreview(null);
+        toast.success("Details extracted from image!");
+      } else {
+        toast.error("Could not extract details from file.");
+      }
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      // Create preview for images
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFilePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setFilePreview(null);
+      }
     }
   };
 
@@ -317,15 +363,69 @@ export default function ProductForm({ product }: ProductFormProps) {
                 <XIcon className="h-5 w-5" />
               </button>
             </div>
-            <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
-              Paste your product details (e.g. from WhatsApp or a document) and AI will extract the structured data for you.
-            </p>
-            <textarea
-              value={parseInput}
-              onChange={(e) => setParseInput(e.target.value)}
-              placeholder="e.g. iPhone 15 Pro Max 256GB - ₦1,500,000. Brand new in box."
-              className="w-full h-32 rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm focus:border-primary focus:ring-primary dark:bg-gray-900 dark:border-gray-700 dark:text-white resize-none"
-            />
+
+            {/* Tab Switcher */}
+            <div className="mb-4 flex gap-2 border-b border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => setParseMode("text")}
+                className={`pb-2 px-4 text-sm font-medium transition ${parseMode === "text" ? "border-b-2 border-primary text-primary" : "text-gray-500 hover:text-gray-700 dark:text-gray-400"}`}
+              >
+                Paste Text
+              </button>
+              <button
+                onClick={() => setParseMode("file")}
+                className={`pb-2 px-4 text-sm font-medium transition ${parseMode === "file" ? "border-b-2 border-primary text-primary" : "text-gray-500 hover:text-gray-700 dark:text-gray-400"}`}
+              >
+                Upload Image
+              </button>
+            </div>
+
+            {parseMode === "text" ? (
+              <>
+                <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
+                  Paste your product details and AI will extract the structured data for you.
+                </p>
+                <textarea
+                  value={parseInput}
+                  onChange={(e) => setParseInput(e.target.value)}
+                  placeholder="e.g. iPhone 15 Pro Max 256GB - ₦1,500,000. Brand new in box."
+                  className="w-full h-32 rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm focus:border-primary focus:ring-primary dark:bg-gray-900 dark:border-gray-700 dark:text-white resize-none"
+                />
+              </>
+            ) : (
+              <>
+                <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
+                  Upload an image of your product catalog and AI will extract the details.
+                </p>
+
+                <div className="mb-4">
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 dark:bg-gray-900 dark:border-gray-600 dark:hover:bg-gray-800">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <svg className="w-8 h-8 mb-2 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {selectedFile ? selectedFile.name : "Click to upload (JPG, PNG, WEBP)"}
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
+                      onChange={handleFileSelect}
+                    />
+                  </label>
+                </div>
+
+                {/* Image Preview */}
+                {filePreview && (
+                  <div className="mb-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                    <img src={filePreview} alt="Preview" className="w-full h-48 object-cover" />
+                  </div>
+                )}
+              </>
+            )}
+
             <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={() => setShowParseModal(false)}
@@ -335,7 +435,7 @@ export default function ProductForm({ product }: ProductFormProps) {
               </button>
               <button
                 onClick={handleParse}
-                disabled={parser.loading || !parseInput.trim()}
+                disabled={parser.loading || (parseMode === "text" ? !parseInput.trim() : !selectedFile)}
                 className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2"
               >
                 {parser.loading ? 'Parsing...' : 'Extract Data'}
