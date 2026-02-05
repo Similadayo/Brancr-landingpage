@@ -22,8 +22,6 @@ export default function AIStatusSummary() {
             icon: SparklesIcon,
             color: "text-purple-600 dark:text-purple-400",
             bg: "bg-purple-50 dark:bg-purple-900/20",
-            trend: "+2.5%", // Mock trend for visually appealing UI
-            trendUp: true,
         },
         {
             label: "Active Conversations",
@@ -40,8 +38,6 @@ export default function AIStatusSummary() {
             icon: UserGroupIcon,
             color: "text-amber-600 dark:text-amber-400",
             bg: "bg-amber-50 dark:bg-amber-900/20",
-            trend: "-1.2%",
-            trendUp: false, // Good that it's down
         },
         {
             label: "Orders Influenced",
@@ -50,8 +46,6 @@ export default function AIStatusSummary() {
             icon: PackageIcon,
             color: "text-emerald-600 dark:text-emerald-400",
             bg: "bg-emerald-50 dark:bg-emerald-900/20",
-            trend: "+5",
-            trendUp: true,
         },
     ];
 
@@ -108,20 +102,6 @@ export default function AIStatusSummary() {
                             <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${stat.bg} ${stat.color}`}>
                                 <stat.icon className="h-5 w-5" />
                             </div>
-                            {stat.trend && (
-                                <span className={`flex items-center text-xs font-medium ${stat.trendUp ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                    {stat.trend}
-                                    {stat.trendUp ? (
-                                        <svg className="ml-1 h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                                        </svg>
-                                    ) : (
-                                        <svg className="ml-1 h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
-                                        </svg>
-                                    )}
-                                </span>
-                            )}
                         </div>
 
                         <div className="relative">
