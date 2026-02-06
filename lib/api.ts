@@ -138,6 +138,7 @@ export interface ParsedItem {
   variants?: Record<string, string[]>; // e.g. {"color": ["red", "blue"]}
   flags?: { [key: string]: boolean }; // e.g., {"has_price_range": true}
   confidence: number;    // 0.0 - 1.0
+  requirement_ids?: string[]; // IDs of requirements to attach (e.g. logistics)
 }
 
 export interface GenerateCaptionResponse {
