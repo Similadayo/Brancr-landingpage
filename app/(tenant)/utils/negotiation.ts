@@ -1,4 +1,4 @@
-export type NegotiationMode = 'default' | 'disabled' | 'range' | 'fixed';
+export type NegotiationMode = 'default' | 'disabled' | 'range' | 'fixed' | 'fixed_price';
 
 export type NegotiationRule = {
   negotiation_mode?: NegotiationMode;
@@ -40,7 +40,7 @@ export function formatNegotiationRule(item: NegotiationRule, tenantDefault?: Neg
     return `Negotiation: Default (No negotiation)`;
   }
 
-  if (mode === 'disabled' || mode === 'fixed') return 'Negotiation: No negotiation';
+  if (mode === 'disabled' || mode === 'fixed' || mode === 'fixed_price') return 'Negotiation: No negotiation';
 
   const min = item.negotiation_min_price;
   const max = item.negotiation_max_price;
@@ -56,7 +56,7 @@ export function formatNegotiationBrief(item: NegotiationRule, tenantDefault?: Ne
   const resolved = mode === 'default' ? resolveNegotiationRule(item, tenantDefault) : item;
   const resolvedMode = (resolved.negotiation_mode ?? 'fixed') as NegotiationMode;
 
-  if (resolvedMode === 'disabled' || resolvedMode === 'fixed') return 'No negotiation';
+  if (resolvedMode === 'disabled' || resolvedMode === 'fixed' || resolvedMode === 'fixed_price') return 'No negotiation';
 
   const min = resolved.negotiation_min_price;
   const max = resolved.negotiation_max_price;

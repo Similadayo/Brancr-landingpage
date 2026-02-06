@@ -22,6 +22,7 @@ export type Product = {
   images?: string[];
   created_at: string;
   updated_at: string;
+  requirement_ids?: string[];
 };
 
 export type CreateProductPayload = {
@@ -37,6 +38,7 @@ export type CreateProductPayload = {
   variants?: Record<string, string[]>;
   tags?: string[];
   images?: string[];
+  requirement_ids?: string[];
 };
 
 export type UpdateProductPayload = {
@@ -54,6 +56,7 @@ export type UpdateProductPayload = {
   variants?: Record<string, string[]>;
   tags?: string[];
   images?: string[];
+  requirement_ids?: string[];
 };
 
 export function useProducts(filters?: { category?: string; search?: string; limit?: number }) {

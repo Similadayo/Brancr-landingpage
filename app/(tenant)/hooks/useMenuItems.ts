@@ -11,7 +11,7 @@ export type MenuItem = {
   price: number;
   currency: string;
   category?: string;
-  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_mode?: "default" | "range" | "fixed_price";
   negotiation_min_price?: number;
   negotiation_max_price?: number;
   preparation_time?: number;
@@ -22,6 +22,7 @@ export type MenuItem = {
   images?: string[];
   created_at: string;
   updated_at: string;
+  requirement_ids?: string[];
 };
 
 export type CreateMenuItemPayload = {
@@ -30,13 +31,14 @@ export type CreateMenuItemPayload = {
   price: number;
   currency?: string;
   category?: string;
-  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_mode?: "default" | "range" | "fixed_price";
   negotiation_min_price?: number;
   negotiation_max_price?: number;
   preparation_time?: number;
   dietary_info?: string[];
   spice_level?: "mild" | "medium" | "hot" | "very_hot";
   images?: string[];
+  requirement_ids?: string[];
 };
 
 export type UpdateMenuItemPayload = {
@@ -45,7 +47,7 @@ export type UpdateMenuItemPayload = {
   price?: number;
   currency?: string;
   category?: string;
-  negotiation_mode?: "default" | "disabled" | "range";
+  negotiation_mode?: "default" | "range" | "fixed_price";
   negotiation_min_price?: number;
   negotiation_max_price?: number;
   preparation_time?: number;
@@ -54,6 +56,7 @@ export type UpdateMenuItemPayload = {
   availability?: "available" | "unavailable" | "limited";
   is_active?: boolean;
   images?: string[];
+  requirement_ids?: string[];
 };
 
 export function useMenuItems(filters?: { category?: string; search?: string; limit?: number }) {

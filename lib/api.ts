@@ -2028,6 +2028,10 @@ export const tenantApi = {
     variants?: Record<string, string[]>;
     tags?: string[];
     images?: string[];
+    negotiation_mode?: 'default' | 'range' | 'fixed_price' | 'disabled' | 'fixed';
+    negotiation_min_price?: number;
+    negotiation_max_price?: number;
+    requirement_ids?: string[];
   }) =>
     post<typeof payload, {
       success: boolean;
@@ -2122,6 +2126,10 @@ export const tenantApi = {
     dietary_info?: string[];
     spice_level?: "mild" | "medium" | "hot" | "very_hot";
     images?: string[];
+    negotiation_mode?: 'default' | 'range' | 'fixed_price' | 'disabled' | 'fixed';
+    negotiation_min_price?: number;
+    negotiation_max_price?: number;
+    requirement_ids?: string[];
   }) =>
     post<typeof payload, {
       success: boolean;
