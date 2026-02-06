@@ -14,6 +14,7 @@ import ConfirmModal from '@/app/components/ConfirmModal';
 import { useDraft, useAutoSaveDraft, useDeleteDraft, useDiscardDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 import { useProductParser } from "@/app/(tenant)/hooks/useProductParser";
 import { RequirementSelector } from "../requirements/RequirementSelector";
+import { REQUIREMENT_TEMPLATES } from "../requirements/RequirementTemplates";
 
 type ProductFormProps = {
   product?: Product | null;
@@ -46,9 +47,10 @@ export default function ProductForm({ product }: ProductFormProps) {
           price: item.price !== undefined ? String(item.price) : prev.price,
           currency: item.currency || prev.currency,
           category: item.category || prev.category,
-          negotiation_mode: (item.min_price !== undefined && item.max_price !== undefined) ? 'range' : 'default',
-          negotiation_min_price: item.min_price !== undefined ? String(item.min_price) : prev.negotiation_min_price,
-          negotiation_max_price: item.max_price !== undefined ? String(item.max_price) : prev.negotiation_max_price,
+          negotiation_mode: (item.min_price != null && item.max_price != null) ? 'range' : 'default',
+          negotiation_min_price: item.min_price != null ? String(item.min_price) : prev.negotiation_min_price,
+          negotiation_max_price: item.max_price != null ? String(item.max_price) : prev.negotiation_max_price,
+          variants: item.variants || prev.variants,
         }));
         setShowParseModal(false);
         setParseInput("");
@@ -69,9 +71,9 @@ export default function ProductForm({ product }: ProductFormProps) {
           price: item.price !== undefined ? String(item.price) : prev.price,
           currency: item.currency || prev.currency,
           category: item.category || prev.category,
-          negotiation_mode: (item.min_price !== undefined && item.max_price !== undefined) ? 'range' : 'default',
-          negotiation_min_price: item.min_price !== undefined ? String(item.min_price) : prev.negotiation_min_price,
-          negotiation_max_price: item.max_price !== undefined ? String(item.max_price) : prev.negotiation_max_price,
+          negotiation_mode: (item.min_price != null && item.max_price != null) ? 'range' : 'default',
+          negotiation_min_price: item.min_price != null ? String(item.min_price) : prev.negotiation_min_price,
+          negotiation_max_price: item.max_price != null ? String(item.max_price) : prev.negotiation_max_price,
           variants: item.variants || prev.variants,
         }));
         setShowParseModal(false);
@@ -148,19 +150,63 @@ export default function ProductForm({ product }: ProductFormProps) {
   useEffect(() => {
     if (!product?.id && !hasInitializedDefaults.current) {
       hasInitializedDefaults.current = true;
-      fetch('/api/tenant/requirements', { credentials: 'include' })
-        .then(res => res.json())
-        .then((data: { requirements: any[] }) => {
-          const logistics = data.requirements?.find(r =>
+      const initRequirements = async () => {
+        try {
+          // Fetch existing
+          const res = await fetch('/api/tenant/requirements', { credentials: 'include' });
+          if (!res.ok) return;
+          const data = await res.json();
+          const existingReqs: any[] = data.requirements || [];
+
+          // Check if we have logistics (fuzzy match)
+          const logistics = existingReqs.find(r =>
             r.label.toLowerCase().includes('logistic') ||
             r.label.toLowerCase().includes('delivery') ||
             r.label.toLowerCase().includes('shipping')
           );
+
           if (logistics) {
             setSelectedReqIds([logistics.id]);
+          } else {
+            // Create from Template: delivery_essentials
+            const template = REQUIREMENT_TEMPLATES.find(t => t.id === 'delivery_essentials');
+            if (template) {
+              const newIds: string[] = [];
+              for (const reqDef of template.requirements) {
+                // Find existing match strictly
+                let match = existingReqs.find(r =>
+                  r.label.toLowerCase() === reqDef.label.toLowerCase() &&
+                  r.data_type === reqDef.data_type
+                );
+
+                if (match) {
+                  newIds.push(match.id);
+                } else {
+                  // Create it
+                  const createRes = await fetch('/api/tenant/requirements', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(reqDef)
+                  });
+
+                  if (createRes.ok) {
+                    const newReq = await createRes.json();
+                    newIds.push(newReq.id);
+                  }
+                }
+              }
+              if (newIds.length > 0) {
+                setSelectedReqIds(newIds);
+              }
+            }
           }
-        })
-        .catch(err => console.error('Failed to auto-select requirements', err));
+        } catch (err) {
+          console.error('Failed to auto-select requirements', err);
+        }
+      };
+
+      initRequirements();
     }
   }, [product?.id]);
 
