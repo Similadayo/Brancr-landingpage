@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useCreateProduct, useUpdateProduct, useDeleteProduct, type Product } from "../../hooks/useProducts";
 import { TrashIcon, ArrowLeftIcon, SparklesIcon, XIcon } from "../icons";
@@ -72,6 +72,7 @@ export default function ProductForm({ product }: ProductFormProps) {
           negotiation_mode: (item.min_price !== undefined && item.max_price !== undefined) ? 'range' : 'default',
           negotiation_min_price: item.min_price !== undefined ? String(item.min_price) : prev.negotiation_min_price,
           negotiation_max_price: item.max_price !== undefined ? String(item.max_price) : prev.negotiation_max_price,
+          variants: item.variants || prev.variants,
         }));
         setShowParseModal(false);
         setSelectedFile(null);
@@ -139,6 +140,27 @@ export default function ProductForm({ product }: ProductFormProps) {
         .catch((err) => console.error('Failed to load item requirements', err));
     } else {
       setSelectedReqIds([]);
+    }
+  }, [product?.id]);
+
+  // Logistics Default Requirement
+  const hasInitializedDefaults = useRef(false);
+  useEffect(() => {
+    if (!product?.id && !hasInitializedDefaults.current) {
+      hasInitializedDefaults.current = true;
+      fetch('/api/tenant/requirements', { credentials: 'include' })
+        .then(res => res.json())
+        .then((data: { requirements: any[] }) => {
+          const logistics = data.requirements?.find(r =>
+            r.label.toLowerCase().includes('logistic') ||
+            r.label.toLowerCase().includes('delivery') ||
+            r.label.toLowerCase().includes('shipping')
+          );
+          if (logistics) {
+            setSelectedReqIds([logistics.id]);
+          }
+        })
+        .catch(err => console.error('Failed to auto-select requirements', err));
     }
   }, [product?.id]);
 
@@ -521,14 +543,37 @@ export default function ProductForm({ product }: ProductFormProps) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
+
             <label htmlFor="product-stock" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Stock count</label>
-            <input
-              id="product-stock"
-              type="number"
-              value={String(formData.stock_count)}
-              onChange={(e) => setFormData({ ...formData, stock_count: Number(e.target.value) })}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
-            />
+            <div className="mt-1 space-y-3">
+              <div className="flex items-center gap-2">
+                <input
+                  id="stock-unlimited"
+                  type="checkbox"
+                  checked={formData.stock_count === -1}
+                  onChange={(e) => setFormData({ ...formData, stock_count: e.target.checked ? -1 : 0 })}
+                  className="h-4 w-4 rounded border-gray-200 text-primary focus:ring-primary dark:bg-gray-900 dark:border-gray-600 dark:focus:ring-offset-gray-900"
+                />
+                <label htmlFor="stock-unlimited" className="text-sm font-medium text-gray-700 dark:text-gray-300">Unlimited Stock</label>
+              </div>
+              {formData.stock_count !== -1 && (
+                <div className="relative">
+                  <input
+                    id="product-stock"
+                    type="number"
+                    min="0"
+                    value={formData.stock_count}
+                    onChange={(e) => setFormData({ ...formData, stock_count: Number(e.target.value) })}
+                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
+                    placeholder="Enter quantity..."
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-1 gap-1">
+                    <button type="button" onClick={() => setFormData(p => ({ ...p, stock_count: p.stock_count > 0 ? p.stock_count - 1 : 0 }))} className="p-1 px-2 hover:bg-gray-100 rounded text-gray-500">-</button>
+                    <button type="button" onClick={() => setFormData(p => ({ ...p, stock_count: p.stock_count + 1 }))} className="p-1 px-2 hover:bg-gray-100 rounded text-gray-500">+</button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div>

@@ -135,6 +135,7 @@ export interface ParsedItem {
   deliverables?: string[]; // List of specific deliverables
   duration?: string;     // Duration of service (e.g. "1 month")
   billing_period?: string; // "monthly" | "yearly" | "hourly" | "one-time"
+  variants?: Record<string, string[]>; // e.g. {"color": ["red", "blue"]}
   flags?: { [key: string]: boolean }; // e.g., {"has_price_range": true}
   confidence: number;    // 0.0 - 1.0
 }

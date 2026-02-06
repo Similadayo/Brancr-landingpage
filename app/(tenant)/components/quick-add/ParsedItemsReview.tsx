@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { tenantApi, ParsedItem } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import ConfirmModal from '@/app/components/ConfirmModal';
+import VariantBuilder from '../shared/VariantBuilder';
 
 export default function ParsedItemsReview({ items, industry = 'products', onSaved }: { items: ParsedItem[]; industry?: string; onSaved?: () => void }) {
   const [localItems, setLocalItems] = useState<ParsedItem[]>(items);
@@ -55,7 +56,7 @@ export default function ParsedItemsReview({ items, industry = 'products', onSave
         };
 
         if (industry === 'products') {
-          await tenantApi.createProduct({ ...commonFields });
+          await tenantApi.createProduct({ ...commonFields, variants: it.variants });
         } else if (industry === 'menu') {
           await tenantApi.createMenuItem({ ...commonFields, description: it.description ?? '' });
         } else if (industry === 'services') {
@@ -246,6 +247,16 @@ export default function ParsedItemsReview({ items, industry = 'products', onSave
                   Remove
                 </button>
               </div>
+
+              {/* Row 4: Variants (only for products) */}
+              {industry === 'products' && (
+                <div className="pt-4 border-t border-gray-100 mt-2">
+                  <VariantBuilder
+                    variants={it.variants || {}}
+                    onChange={(v: Record<string, string[]>) => updateItem(idx, { variants: v })}
+                  />
+                </div>
+              )}
 
             </div>
           </div>
