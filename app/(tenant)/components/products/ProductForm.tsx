@@ -40,7 +40,6 @@ export default function ProductForm({ product }: ProductFormProps) {
       const items = await parser.parse(parseInput);
       if (items && items.length > 0) {
         const item = items[0]; // Take the first parsed item
-        alert(`Parsed! min_price: ${item.min_price}, max_price: ${item.max_price}`);
         console.log('[DEBUG] Parsed item from text:', item);
         console.log('[DEBUG] min_price:', item.min_price, 'max_price:', item.max_price);
         setFormData(prev => ({

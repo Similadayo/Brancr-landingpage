@@ -1,10 +1,9 @@
-'use client';
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { tenantApi, ParsedItem } from '@/lib/api';
 import { toast } from 'react-hot-toast';
 import ConfirmModal from '@/app/components/ConfirmModal';
 import VariantBuilder from '../shared/VariantBuilder';
+import { REQUIREMENT_TEMPLATES } from '../requirements/RequirementTemplates';
 
 export default function ParsedItemsReview({ items, industry = 'products', onSaved }: { items: ParsedItem[]; industry?: string; onSaved?: () => void }) {
   const [localItems, setLocalItems] = useState<ParsedItem[]>(items);
@@ -21,6 +20,69 @@ export default function ParsedItemsReview({ items, industry = 'products', onSave
   const removeItem = (index: number) => {
     setLocalItems((prev) => prev.filter((_, i) => i !== index));
   };
+
+  // Auto-fetch and attach logistics requirements to items
+  useEffect(() => {
+    const initRequirements = async () => {
+      try {
+        const res = await fetch('/api/tenant/requirements', { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const existingReqs: any[] = data.requirements || [];
+
+        // Find logistics requirement
+        let logisticsIds: string[] = [];
+        const logistics = existingReqs.find(r =>
+          r.label.toLowerCase().includes('logistic') ||
+          r.label.toLowerCase().includes('delivery') ||
+          r.label.toLowerCase().includes('shipping')
+        );
+
+        if (logistics) {
+          logisticsIds = [logistics.id];
+        } else {
+          // Create from template if doesn't exist
+          const template = REQUIREMENT_TEMPLATES.find(t => t.id === 'delivery_essentials');
+          if (template) {
+            for (const reqDef of template.requirements.slice(0, 2)) { // Just first 2 for quick add
+              let match = existingReqs.find(r =>
+                r.label.toLowerCase() === reqDef.label.toLowerCase() &&
+                r.data_type === reqDef.data_type
+              );
+
+              if (match) {
+                logisticsIds.push(match.id);
+              } else {
+                const createRes = await fetch('/api/tenant/requirements', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  credentials: 'include',
+                  body: JSON.stringify(reqDef)
+                });
+
+                if (createRes.ok) {
+                  const newReq = await createRes.json();
+                  logisticsIds.push(newReq.id);
+                }
+              }
+            }
+          }
+        }
+
+        // Attach to all items that don't have requirements
+        if (logisticsIds.length > 0) {
+          setLocalItems(prev => prev.map(item => ({
+            ...item,
+            requirement_ids: item.requirement_ids || logisticsIds
+          })));
+        }
+      } catch (err) {
+        console.error('Failed to auto-attach requirements', err);
+      }
+    };
+
+    initRequirements();
+  }, []); // Run once on mount
 
   const saveAsDraft = async () => {
     try {
@@ -56,9 +118,23 @@ export default function ParsedItemsReview({ items, industry = 'products', onSave
         };
 
         if (industry === 'products') {
-          await tenantApi.createProduct({ ...commonFields, variants: it.variants });
+          await tenantApi.createProduct({
+            ...commonFields,
+            variants: it.variants,
+            negotiation_mode: (it.min_price != null && it.max_price != null) ? 'range' : 'default',
+            negotiation_min_price: it.min_price,
+            negotiation_max_price: it.max_price,
+            requirement_ids: it.requirement_ids || []
+          });
         } else if (industry === 'menu') {
-          await tenantApi.createMenuItem({ ...commonFields, description: it.description ?? '' });
+          await tenantApi.createMenuItem({
+            ...commonFields,
+            description: it.description ?? '',
+            negotiation_mode: (it.min_price != null && it.max_price != null) ? 'range' : 'default',
+            negotiation_min_price: it.min_price,
+            negotiation_max_price: it.max_price,
+            requirement_ids: it.requirement_ids || []
+          });
         } else if (industry === 'services') {
           // Services often need more details
           await tenantApi.createService({
