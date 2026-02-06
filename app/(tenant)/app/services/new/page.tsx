@@ -7,7 +7,7 @@ import QuickAddSimple from "../../../components/quick-add/QuickAddSimple";
 type TabMode = 'manual' | 'quick';
 
 export default function NewServicePage() {
-  const [mode, setMode] = useState<TabMode>('manual');
+  const [mode, setMode] = useState<TabMode>('quick');
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -17,8 +17,8 @@ export default function NewServicePage() {
           type="button"
           onClick={() => setMode('manual')}
           className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all ${mode === 'manual'
-              ? 'bg-white text-primary shadow-sm dark:bg-gray-700 dark:text-white'
-              : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+            ? 'bg-white text-primary shadow-sm dark:bg-gray-700 dark:text-white'
+            : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
             }`}
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,8 +30,8 @@ export default function NewServicePage() {
           type="button"
           onClick={() => setMode('quick')}
           className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all ${mode === 'quick'
-              ? 'bg-white text-primary shadow-sm dark:bg-gray-700 dark:text-white'
-              : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+            ? 'bg-white text-primary shadow-sm dark:bg-gray-700 dark:text-white'
+            : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
             }`}
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
