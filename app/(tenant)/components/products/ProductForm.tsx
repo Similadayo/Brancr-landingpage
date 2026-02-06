@@ -40,6 +40,8 @@ export default function ProductForm({ product }: ProductFormProps) {
       const items = await parser.parse(parseInput);
       if (items && items.length > 0) {
         const item = items[0]; // Take the first parsed item
+        console.log('[DEBUG] Parsed item from text:', item);
+        console.log('[DEBUG] min_price:', item.min_price, 'max_price:', item.max_price);
         setFormData(prev => ({
           ...prev,
           name: item.name || prev.name,
@@ -151,9 +153,11 @@ export default function ProductForm({ product }: ProductFormProps) {
     if (!product?.id && !hasInitializedDefaults.current) {
       hasInitializedDefaults.current = true;
       const initRequirements = async () => {
+        console.log('[DEBUG] Initializing requirements...');
         try {
           // Fetch existing
           const res = await fetch('/api/tenant/requirements', { credentials: 'include' });
+          console.log('[DEBUG] Requirements fetch response:', res.status);
           if (!res.ok) return;
           const data = await res.json();
           const existingReqs: any[] = data.requirements || [];
@@ -166,10 +170,13 @@ export default function ProductForm({ product }: ProductFormProps) {
           );
 
           if (logistics) {
+            console.log('[DEBUG] Found existing logistics requirement:', logistics);
             setSelectedReqIds([logistics.id]);
           } else {
+            console.log('[DEBUG] No logistics requirement found, creating from template...');
             // Create from Template: delivery_essentials
             const template = REQUIREMENT_TEMPLATES.find(t => t.id === 'delivery_essentials');
+            console.log('[DEBUG] Template found:', template);
             if (template) {
               const newIds: string[] = [];
               for (const reqDef of template.requirements) {
@@ -197,12 +204,13 @@ export default function ProductForm({ product }: ProductFormProps) {
                 }
               }
               if (newIds.length > 0) {
+                console.log('[DEBUG] Created requirements, selecting IDs:', newIds);
                 setSelectedReqIds(newIds);
               }
             }
           }
         } catch (err) {
-          console.error('Failed to auto-select requirements', err);
+          console.error('[DEBUG] Failed to auto-select requirements', err);
         }
       };
 
