@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useCreateMenuItem, useUpdateMenuItem, useDeleteMenuItem, type MenuItem } from "../../hooks/useMenuItems";
 import { TrashIcon, ArrowLeftIcon, SparklesIcon, XIcon } from "../icons";
@@ -13,6 +13,7 @@ import ConfirmModal from '@/app/components/ConfirmModal';
 import { useDraft, useAutoSaveDraft, useDeleteDraft, useDiscardDraft, parseDraftContent, DRAFT_KEYS } from "@/app/(tenant)/hooks/useDrafts";
 import { useProductParser } from "@/app/(tenant)/hooks/useProductParser";
 import { RequirementSelector } from "../requirements/RequirementSelector";
+import { REQUIREMENT_TEMPLATES } from "../requirements/RequirementTemplates";
 
 const DIETARY_OPTIONS = [
   'Vegetarian',
@@ -91,6 +92,17 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
 
   // Requirements Handling
   const [selectedReqIds, setSelectedReqIds] = useState<string[]>([]);
+  const defaultRequirementsSet = useRef(false);
+
+  useEffect(() => {
+    // Reset default check when item changes
+    if (item?.id) {
+      defaultRequirementsSet.current = true; // Don't override existing items
+    } else {
+      defaultRequirementsSet.current = false;
+    }
+  }, [item?.id]);
+
   useEffect(() => {
     if (item?.id) {
       fetch(`/api/tenant/items/${item.id}/requirements`, { credentials: 'include' })
@@ -101,7 +113,68 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
         })
         .catch((err) => console.error('Failed to load item requirements', err));
     } else {
-      setSelectedReqIds([]);
+      // Logic for new items: Auto-select Logistics/Delivery requirement
+      if (!defaultRequirementsSet.current && selectedReqIds.length === 0) {
+        defaultRequirementsSet.current = true;
+
+        const setupDefaultRequirement = async () => {
+          try {
+            const response = await fetch('/api/tenant/requirements', { credentials: 'include' });
+            const data = await response.json();
+            const requirements = data.requirements || [];
+
+            // Look for existing "Logistics" or "Delivery" requirement
+            const existing = requirements.find((r: any) =>
+              r.label.toLowerCase().includes('logistics') ||
+              r.label.toLowerCase().includes('delivery info') ||
+              r.label.toLowerCase() === 'delivery essentials'
+            );
+
+            if (existing) {
+              setSelectedReqIds([existing.id]);
+            } else {
+              // Create default from template
+              const template = REQUIREMENT_TEMPLATES.find(t => t.id === 'delivery_essentials');
+              if (template) {
+                const newIds: string[] = [];
+                for (const reqDef of template.requirements) {
+                  // Find existing match strictly
+                  const match = requirements.find((r: any) =>
+                    r.label.toLowerCase() === reqDef.label.toLowerCase() &&
+                    r.data_type === reqDef.data_type
+                  );
+
+                  if (match) {
+                    newIds.push(match.id);
+                  } else {
+                    // Create it
+                    const createRes = await fetch('/api/tenant/requirements', {
+                      method: 'POST',
+                      credentials: 'include',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(reqDef)
+                    });
+
+                    if (createRes.ok) {
+                      const newReqData = await createRes.json();
+                      if (newReqData?.id) {
+                        newIds.push(newReqData.id);
+                      }
+                    }
+                  }
+                }
+                if (newIds.length > 0) {
+                  setSelectedReqIds(newIds);
+                }
+              }
+            }
+          } catch (err) {
+            console.error('Failed to setup default requirement', err);
+          }
+        };
+
+        void setupDefaultRequirement();
+      }
     }
   }, [item?.id]);
 

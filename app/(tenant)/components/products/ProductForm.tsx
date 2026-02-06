@@ -164,9 +164,9 @@ export default function ProductForm({ product }: ProductFormProps) {
 
           // Check if we have logistics (fuzzy match)
           const logistics = existingReqs.find(r =>
-            r.label.toLowerCase().includes('logistic') ||
-            r.label.toLowerCase().includes('delivery') ||
-            r.label.toLowerCase().includes('shipping')
+            r.label.toLowerCase().includes('logistics') ||
+            r.label.toLowerCase().includes('delivery info') ||
+            r.label.toLowerCase() === 'delivery essentials'
           );
 
           if (logistics) {
