@@ -426,29 +426,41 @@ export default function ServiceForm({ service }: ServiceFormProps) {
           {formData.pricing_type === "hourly" && (
             <div>
               <label htmlFor="service-rate" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Rate (NGN/hour) *</label>
-              <input
-                id="service-rate"
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.pricing_rate}
-                onChange={(e) => setFormData({ ...formData, pricing_rate: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-dark-text-secondary">₦</span>
+                <input
+                  id="service-rate"
+                  type="text"
+                  inputMode="decimal"
+                  value={formData.pricing_rate}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9.]/g, '');
+                    if ((val.match(/\./g) || []).length > 1) return;
+                    setFormData({ ...formData, pricing_rate: val });
+                  }}
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white pl-7 pr-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
+                />
+              </div>
             </div>
           )}
           {formData.pricing_type === "fixed" && (
             <div>
               <label htmlFor="service-amount" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Amount (NGN) *</label>
-              <input
-                id="service-amount"
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.pricing_amount}
-                onChange={(e) => setFormData({ ...formData, pricing_amount: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-dark-text-secondary">₦</span>
+                <input
+                  id="service-amount"
+                  type="text"
+                  inputMode="decimal"
+                  value={formData.pricing_amount}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9.]/g, '');
+                    if ((val.match(/\./g) || []).length > 1) return;
+                    setFormData({ ...formData, pricing_amount: val });
+                  }}
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white pl-7 pr-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
+                />
+              </div>
             </div>
           )}
         </div>
@@ -605,34 +617,46 @@ export default function ServiceForm({ service }: ServiceFormProps) {
                     <>
                       <div>
                         <label htmlFor="service-negotiation-min" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Min Price</label>
-                        <input
-                          id="service-negotiation-min"
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={formData.negotiation_min_price}
-                          onChange={(e) => setFormData({ ...formData, negotiation_min_price: e.target.value })}
-                          aria-invalid={!!fieldErrors.negotiation_min_price}
-                          aria-describedby={fieldErrors.negotiation_min_price ? 'service-neg-min-error' : undefined}
-                          className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
-                        />
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-dark-text-secondary">₦</span>
+                          <input
+                            id="service-negotiation-min"
+                            type="text"
+                            inputMode="decimal"
+                            value={formData.negotiation_min_price}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/[^0-9.]/g, '');
+                              if ((val.match(/\./g) || []).length > 1) return;
+                              setFormData({ ...formData, negotiation_min_price: val });
+                            }}
+                            aria-invalid={!!fieldErrors.negotiation_min_price}
+                            aria-describedby={fieldErrors.negotiation_min_price ? 'service-neg-min-error' : undefined}
+                            className="mt-1 w-full rounded-lg border border-gray-200 bg-white pl-7 pr-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
+                          />
+                        </div>
                         {fieldErrors.negotiation_min_price && (
                           <p id="service-neg-min-error" className="mt-1 text-xs text-rose-600">{fieldErrors.negotiation_min_price}</p>
                         )}
                       </div>
                       <div>
                         <label htmlFor="service-negotiation-max" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Max Price</label>
-                        <input
-                          id="service-negotiation-max"
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={formData.negotiation_max_price}
-                          onChange={(e) => setFormData({ ...formData, negotiation_max_price: e.target.value })}
-                          aria-invalid={!!fieldErrors.negotiation_max_price}
-                          aria-describedby={fieldErrors.negotiation_max_price ? 'service-neg-max-error' : undefined}
-                          className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
-                        />
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-dark-text-secondary">₦</span>
+                          <input
+                            id="service-negotiation-max"
+                            type="text"
+                            inputMode="decimal"
+                            value={formData.negotiation_max_price}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/[^0-9.]/g, '');
+                              if ((val.match(/\./g) || []).length > 1) return;
+                              setFormData({ ...formData, negotiation_max_price: val });
+                            }}
+                            aria-invalid={!!fieldErrors.negotiation_max_price}
+                            aria-describedby={fieldErrors.negotiation_max_price ? 'service-neg-max-error' : undefined}
+                            className="mt-1 w-full rounded-lg border border-gray-200 bg-white pl-7 pr-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
+                          />
+                        </div>
                         {fieldErrors.negotiation_max_price && (
                           <p id="service-neg-max-error" className="mt-1 text-xs text-rose-600">{fieldErrors.negotiation_max_price}</p>
                         )}

@@ -565,15 +565,21 @@ export default function ProductForm({ product }: ProductFormProps) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label htmlFor="product-price" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Price</label>
-            <input
-              id="product-price"
-              type="number"
-              min="0"
-              step="0.01"
-              value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
-            />
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-dark-text-secondary">₦</span>
+              <input
+                id="product-price"
+                type="text"
+                inputMode="decimal"
+                value={formData.price}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9.]/g, '');
+                  if ((val.match(/\./g) || []).length > 1) return;
+                  setFormData({ ...formData, price: val });
+                }}
+                className="mt-1 w-full rounded-lg border border-gray-200 bg-white pl-7 pr-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
+              />
+            </div>
             {fieldErrors.price && <p className="mt-1 text-xs text-red-600">{fieldErrors.price}</p>}
           </div>
 
@@ -619,10 +625,13 @@ export default function ProductForm({ product }: ProductFormProps) {
                 <div className="relative">
                   <input
                     id="product-stock"
-                    type="number"
-                    min="0"
+                    type="text"
+                    inputMode="numeric"
                     value={formData.stock_count}
-                    onChange={(e) => setFormData({ ...formData, stock_count: Number(e.target.value) })}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^0-9]/g, '');
+                      setFormData({ ...formData, stock_count: Number(val) });
+                    }}
                     className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
                     placeholder="Enter quantity..."
                   />
@@ -710,20 +719,36 @@ export default function ProductForm({ product }: ProductFormProps) {
 
                 {formData.negotiation_mode === 'range' && (
                   <>
-                    <input
-                      type="number"
-                      placeholder="Min price"
-                      value={formData.negotiation_min_price}
-                      onChange={(e) => setFormData({ ...formData, negotiation_min_price: e.target.value })}
-                      className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Max price"
-                      value={formData.negotiation_max_price}
-                      onChange={(e) => setFormData({ ...formData, negotiation_max_price: e.target.value })}
-                      className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-dark-text-secondary">₦</span>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        placeholder="Min price"
+                        value={formData.negotiation_min_price}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9.]/g, '');
+                          if ((val.match(/\./g) || []).length > 1) return;
+                          setFormData({ ...formData, negotiation_min_price: val });
+                        }}
+                        className="mt-1 w-full rounded-lg border border-gray-200 bg-white pl-7 pr-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
+                      />
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-dark-text-secondary">₦</span>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        placeholder="Max price"
+                        value={formData.negotiation_max_price}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9.]/g, '');
+                          if ((val.match(/\./g) || []).length > 1) return;
+                          setFormData({ ...formData, negotiation_max_price: val });
+                        }}
+                        className="mt-1 w-full rounded-lg border border-gray-200 bg-white pl-7 pr-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
+                      />
+                    </div>
                   </>
                 )}
                 {(fieldErrors.negotiation_min_price || fieldErrors.negotiation_max_price) && (

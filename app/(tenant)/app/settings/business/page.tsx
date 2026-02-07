@@ -278,14 +278,21 @@ export default function BusinessSettingsPage() {
                               className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
                             />
                           </div>
-                          <div className="w-32 space-y-1">
-                            <input
-                              type="number"
-                              value={area.price}
-                              onChange={(e) => updateDeliveryArea(index, 'price', parseInt(e.target.value) || 0)}
-                              placeholder="Price"
-                              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
-                            />
+                          <div className="w-36 space-y-1">
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-dark-text-secondary">₦</span>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                value={area.price || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value.replace(/[^0-9]/g, '');
+                                  updateDeliveryArea(index, 'price', parseInt(val) || 0);
+                                }}
+                                placeholder="0"
+                                className="w-full rounded-lg border border-gray-200 pl-7 pr-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
+                              />
+                            </div>
                           </div>
                           <button
                             onClick={() => removeDeliveryArea(index)}

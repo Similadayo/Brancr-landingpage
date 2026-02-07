@@ -474,16 +474,21 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="menu-item-price" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Price *</label>
-              <input
-                id="menu-item-price"
-                type="number"
-                required
-                min="0"
-                step="0.01"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-dark-text-secondary">₦</span>
+                <input
+                  id="menu-item-price"
+                  type="text"
+                  inputMode="decimal"
+                  value={formData.price}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9.]/g, '');
+                    if ((val.match(/\./g) || []).length > 1) return;
+                    setFormData({ ...formData, price: val });
+                  }}
+                  className="mt-1 w-full rounded-lg border border-gray-200 bg-white pl-7 pr-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
+                />
+              </div>
               {fieldErrors.price && <p className="mt-1 text-xs text-red-600">{fieldErrors.price}</p>}
             </div>
             <div>
@@ -533,10 +538,13 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
                 <label htmlFor="menu-item-prep-time" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Prep Time (minutes)</label>
                 <input
                   id="menu-item-prep-time"
-                  type="number"
-                  min="0"
+                  type="text"
+                  inputMode="numeric"
                   value={formData.preparation_time}
-                  onChange={(e) => setFormData({ ...formData, preparation_time: e.target.value })}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9]/g, '');
+                    setFormData({ ...formData, preparation_time: val });
+                  }}
                   placeholder="e.g., 15"
                   className="mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-primary/40"
                 />
