@@ -133,36 +133,45 @@ export default function ProductForm({ product }: ProductFormProps) {
 
   // Requirements Handling
   const [selectedReqIds, setSelectedReqIds] = useState<string[]>([]);
-  useEffect(() => {
-    if (product?.id) {
-      fetch(`/api/tenant/items/${product.id}/requirements`, { credentials: 'include' })
-        .then((res) => res.json())
-        .then((data) => {
-          const ids = data.item_requirements?.map((ir: any) => ir.requirement_id) || [];
-          setSelectedReqIds(ids);
-        })
-        .catch((err) => console.error('Failed to load item requirements', err));
-    } else {
-      setSelectedReqIds([]);
-    }
-  }, [product?.id]);
-
-  // Logistics Default Requirement
   const hasInitializedDefaults = useRef(false);
+
   useEffect(() => {
-    if (!product?.id && !hasInitializedDefaults.current) {
-      hasInitializedDefaults.current = true;
-      const initRequirements = async () => {
-        console.log('[DEBUG] Initializing requirements...');
+    // Reset defaults check on id change
+    hasInitializedDefaults.current = false;
+
+    const loadRequirements = async () => {
+      let currentIds: string[] = [];
+
+      // 1. If valid ID, try to fetch existing requirements
+      if (product?.id) {
         try {
-          // Fetch existing
+          const res = await fetch(`/api/tenant/items/${product.id}/requirements`, { credentials: 'include' });
+          const data = await res.json();
+          currentIds = data.item_requirements?.map((ir: any) => ir.requirement_id) || [];
+        } catch (err) {
+          console.error('Failed to load item requirements', err);
+        }
+      }
+
+      // 2. If we found existing requirements, set them and stop.
+      if (currentIds.length > 0) {
+        setSelectedReqIds(currentIds);
+        return;
+      }
+
+      // 3. If NO requirements (New Item OR Existing Empty), apply Default Template
+      // Only run this once per item view to prevent loops if user clears it
+      if (!hasInitializedDefaults.current) {
+        hasInitializedDefaults.current = true;
+        console.log('[DEBUG] Applying default requirements (Delivery Essentials)...');
+
+        try {
           const res = await fetch('/api/tenant/requirements', { credentials: 'include' });
-          console.log('[DEBUG] Requirements fetch response:', res.status);
           if (!res.ok) return;
           const data = await res.json();
           const existingReqs: any[] = data.requirements || [];
 
-          // Check if we have logistics (fuzzy match)
+          // Fuzzy match existing
           const logistics = existingReqs.find(r =>
             r.label.toLowerCase().includes('logistics') ||
             r.label.toLowerCase().includes('delivery info') ||
@@ -170,18 +179,14 @@ export default function ProductForm({ product }: ProductFormProps) {
           );
 
           if (logistics) {
-            console.log('[DEBUG] Found existing logistics requirement:', logistics);
             setSelectedReqIds([logistics.id]);
           } else {
-            console.log('[DEBUG] No logistics requirement found, creating from template...');
-            // Create from Template: delivery_essentials
+            // Create from Template
             const template = REQUIREMENT_TEMPLATES.find(t => t.id === 'delivery_essentials');
-            console.log('[DEBUG] Template found:', template);
             if (template) {
               const newIds: string[] = [];
               for (const reqDef of template.requirements) {
-                // Find existing match strictly
-                let match = existingReqs.find(r =>
+                const match = existingReqs.find(r =>
                   r.label.toLowerCase() === reqDef.label.toLowerCase() &&
                   r.data_type === reqDef.data_type
                 );
@@ -189,33 +194,33 @@ export default function ProductForm({ product }: ProductFormProps) {
                 if (match) {
                   newIds.push(match.id);
                 } else {
-                  // Create it
                   const createRes = await fetch('/api/tenant/requirements', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
                     body: JSON.stringify(reqDef)
                   });
-
                   if (createRes.ok) {
                     const newReq = await createRes.json();
-                    newIds.push(newReq.id);
+                    // Handle both unwrapped and wrapped responses just in case
+                    const id = newReq.id || newReq.requirement?.id;
+                    if (id) newIds.push(id);
                   }
                 }
               }
-              if (newIds.length > 0) {
-                console.log('[DEBUG] Created requirements, selecting IDs:', newIds);
-                setSelectedReqIds(newIds);
-              }
+              if (newIds.length > 0) setSelectedReqIds(newIds);
             }
           }
         } catch (err) {
-          console.error('[DEBUG] Failed to auto-select requirements', err);
+          console.error('Failed to setup default requirement', err);
         }
-      };
+      } else {
+        // If we already checked defaults and it's empty, keep it empty
+        setSelectedReqIds([]);
+      }
+    };
 
-      initRequirements();
-    }
+    loadRequirements();
   }, [product?.id]);
 
   // Auto-save hook

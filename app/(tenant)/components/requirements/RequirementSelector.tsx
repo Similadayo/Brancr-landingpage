@@ -176,6 +176,29 @@ export function RequirementSelector({ selectedIds, onChange }: RequirementSelect
 
     const visibleRequirements = requirements.filter(req => selectedIds.includes(req.id));
 
+    // Determine if current selection matches a template
+    const matchedTemplateId = useMemo(() => {
+        if (selectedIds.length === 0) return "";
+
+        for (const template of REQUIREMENT_TEMPLATES) {
+            // Check if all template requirements are present in selectedIds
+            // We need to match by label+type because IDs differ
+            let allFound = true;
+            for (const reqDef of template.requirements) {
+                const match = requirements.find(r =>
+                    r.label.toLowerCase() === reqDef.label.toLowerCase() &&
+                    r.data_type === reqDef.data_type
+                );
+                if (!match || !selectedIds.includes(match.id)) {
+                    allFound = false;
+                    break;
+                }
+            }
+            if (allFound) return template.id;
+        }
+        return "";
+    }, [selectedIds, requirements]);
+
     if (isLoading) return <LoadingState />;
 
     return (
@@ -184,7 +207,7 @@ export function RequirementSelector({ selectedIds, onChange }: RequirementSelect
             {!isCreating ? (
                 <Select
                     options={templateOptions}
-                    value=""
+                    value={matchedTemplateId}
                     onChange={(val) => {
                         if (val === 'create_new') {
                             setIsCreating(true);

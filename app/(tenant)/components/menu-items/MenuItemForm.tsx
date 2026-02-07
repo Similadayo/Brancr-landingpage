@@ -95,87 +95,87 @@ export default function MenuItemForm({ item }: MenuItemFormProps) {
   const defaultRequirementsSet = useRef(false);
 
   useEffect(() => {
-    // Reset default check when item changes
-    if (item?.id) {
-      defaultRequirementsSet.current = true; // Don't override existing items
-    } else {
-      defaultRequirementsSet.current = false;
-    }
-  }, [item?.id]);
+    // Reset defaults check on id change
+    defaultRequirementsSet.current = false;
 
-  useEffect(() => {
-    if (item?.id) {
-      fetch(`/api/tenant/items/${item.id}/requirements`, { credentials: 'include' })
-        .then((res) => res.json())
-        .then((data) => {
-          const ids = data.item_requirements?.map((ir: any) => ir.requirement_id) || [];
-          setSelectedReqIds(ids);
-        })
-        .catch((err) => console.error('Failed to load item requirements', err));
-    } else {
-      // Logic for new items: Auto-select Logistics/Delivery requirement
-      if (!defaultRequirementsSet.current && selectedReqIds.length === 0) {
+    const loadRequirements = async () => {
+      let currentIds: string[] = [];
+
+      // 1. If valid ID, try to fetch existing requirements
+      if (item?.id) {
+        try {
+          const res = await fetch(`/api/tenant/items/${item.id}/requirements`, { credentials: 'include' });
+          const data = await res.json();
+          currentIds = data.item_requirements?.map((ir: any) => ir.requirement_id) || [];
+        } catch (err) {
+          console.error('Failed to load item requirements', err);
+        }
+      }
+
+      // 2. If we found existing requirements, set them and stop.
+      if (currentIds.length > 0) {
+        setSelectedReqIds(currentIds);
+        return;
+      }
+
+      // 3. If NO requirements (New Item OR Existing Empty), apply Default Template
+      if (!defaultRequirementsSet.current) {
         defaultRequirementsSet.current = true;
 
-        const setupDefaultRequirement = async () => {
-          try {
-            const response = await fetch('/api/tenant/requirements', { credentials: 'include' });
-            const data = await response.json();
-            const requirements = data.requirements || [];
+        try {
+          const res = await fetch('/api/tenant/requirements', { credentials: 'include' });
+          const data = await res.json();
+          const requirements = data.requirements || [];
 
-            // Look for existing "Logistics" or "Delivery" requirement
-            const existing = requirements.find((r: any) =>
-              r.label.toLowerCase().includes('logistics') ||
-              r.label.toLowerCase().includes('delivery info') ||
-              r.label.toLowerCase() === 'delivery essentials'
-            );
+          // Look for existing "Logistics" or "Delivery" requirement
+          const existing = requirements.find((r: any) =>
+            r.label.toLowerCase().includes('logistics') ||
+            r.label.toLowerCase().includes('delivery info') ||
+            r.label.toLowerCase() === 'delivery essentials'
+          );
 
-            if (existing) {
-              setSelectedReqIds([existing.id]);
-            } else {
-              // Create default from template
-              const template = REQUIREMENT_TEMPLATES.find(t => t.id === 'delivery_essentials');
-              if (template) {
-                const newIds: string[] = [];
-                for (const reqDef of template.requirements) {
-                  // Find existing match strictly
-                  const match = requirements.find((r: any) =>
-                    r.label.toLowerCase() === reqDef.label.toLowerCase() &&
-                    r.data_type === reqDef.data_type
-                  );
+          if (existing) {
+            setSelectedReqIds([existing.id]);
+          } else {
+            // Create default from template
+            const template = REQUIREMENT_TEMPLATES.find(t => t.id === 'delivery_essentials');
+            if (template) {
+              const newIds: string[] = [];
+              for (const reqDef of template.requirements) {
+                const match = requirements.find((r: any) =>
+                  r.label.toLowerCase() === reqDef.label.toLowerCase() &&
+                  r.data_type === reqDef.data_type
+                );
 
-                  if (match) {
-                    newIds.push(match.id);
-                  } else {
-                    // Create it
-                    const createRes = await fetch('/api/tenant/requirements', {
-                      method: 'POST',
-                      credentials: 'include',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(reqDef)
-                    });
+                if (match) {
+                  newIds.push(match.id);
+                } else {
+                  const createRes = await fetch('/api/tenant/requirements', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reqDef)
+                  });
 
-                    if (createRes.ok) {
-                      const newReqData = await createRes.json();
-                      if (newReqData?.id) {
-                        newIds.push(newReqData.id);
-                      }
-                    }
+                  if (createRes.ok) {
+                    const newReqData = await createRes.json();
+                    const id = newReqData.id || newReqData.requirement?.id;
+                    if (id) newIds.push(id);
                   }
                 }
-                if (newIds.length > 0) {
-                  setSelectedReqIds(newIds);
-                }
               }
+              if (newIds.length > 0) setSelectedReqIds(newIds);
             }
-          } catch (err) {
-            console.error('Failed to setup default requirement', err);
           }
-        };
-
-        void setupDefaultRequirement();
+        } catch (err) {
+          console.error('Failed to setup default requirement', err);
+        }
+      } else {
+        setSelectedReqIds([]);
       }
-    }
+    };
+
+    loadRequirements();
   }, [item?.id]);
 
   // Auto-save hook
