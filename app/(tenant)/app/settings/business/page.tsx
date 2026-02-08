@@ -271,7 +271,7 @@ export default function BusinessSettingsPage() {
                       />
                     </div>
                     <p className="mt-1.5 text-xs text-gray-500 dark:text-dark-text-secondary">
-                      This fee applies when customer's address doesn't match any delivery area below
+                      This fee applies when the customer&apos;s address doesn&apos;t match any delivery area below
                     </p>
                   </div>
                 </section>
