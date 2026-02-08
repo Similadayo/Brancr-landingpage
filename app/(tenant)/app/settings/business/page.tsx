@@ -249,6 +249,31 @@ export default function BusinessSettingsPage() {
                       ))}
                     </div>
                   </div>
+
+                  {/* Default Delivery Fee */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 dark:text-dark-text-primary mb-2">
+                      Default Delivery Fee
+                      <span className="ml-1 font-normal text-gray-500">(for areas not listed below)</span>
+                    </label>
+                    <div className="relative w-48">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-dark-text-secondary">₦</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={form.delivery_config.default_delivery_fee || ''}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9]/g, '');
+                          handleDeliveryConfigChange('default_delivery_fee', parseInt(val) || 0);
+                        }}
+                        placeholder="0"
+                        className="w-full rounded-xl border border-gray-200 pl-7 pr-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
+                      />
+                    </div>
+                    <p className="mt-1.5 text-xs text-gray-500 dark:text-dark-text-secondary">
+                      This fee applies when customer's address doesn't match any delivery area below
+                    </p>
+                  </div>
                 </section>
 
                 <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-dark-border dark:bg-dark-surface space-y-5">

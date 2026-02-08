@@ -58,6 +58,7 @@ export interface DeliveryConfig {
   pickup_enabled: boolean;
   payment_methods: string[]; // e.g., ["bank_transfer", "pod", "card"]
   delivery_areas: DeliveryArea[];
+  default_delivery_fee?: number; // Fallback fee when address doesn't match any area
 }
 
 export interface BusinessProfile {
@@ -1582,6 +1583,13 @@ export const tenantApi = {
       "/api/tenant/settings/persona",
       payload
     ),
+
+  // Nigerian location data for delivery area configuration
+  getNigerianStates: () =>
+    get<{ states: string[] }>("/api/tenant/locations/nigeria/states"),
+
+  getNigerianLGAs: (state: string) =>
+    get<{ state: string; lgas: string[] }>(`/api/tenant/locations/nigeria/lgas?state=${encodeURIComponent(state)}`),
 
   // Drafts API (autosave/restore)
   createDraft: (payload: { key: string; content: unknown; metadata?: unknown; owner_id?: number }) =>
