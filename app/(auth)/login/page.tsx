@@ -6,14 +6,17 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <AuthCard
-          title="Welcome back"
-          description="Sign in to access your Brancr tenant dashboard, manage conversations and automation."
-        >
-          <div className="flex min-h-[200px] items-center justify-center text-sm text-gray-500">
-            Preparing sign-in form…
+        <div className="w-full animate-pulse space-y-8">
+          <div className="space-y-2">
+            <div className="h-8 w-48 rounded bg-gray-200 dark:bg-gray-700"></div>
+            <div className="h-4 w-64 rounded bg-gray-200 dark:bg-gray-700"></div>
           </div>
-        </AuthCard>
+          <div className="h-12 w-full rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+          <div className="space-y-4">
+            <div className="h-12 w-full rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+            <div className="h-12 w-full rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+          </div>
+        </div>
       }
     >
       <LoginForm />
