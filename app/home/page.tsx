@@ -1,43 +1,45 @@
 import Header from "../components/Header";
 import Hero from "../components/Hero";
 import Features from "../components/Features";
-import Escalation from "../components/Escalation";
 import HowItWorks from "../components/HowItWorks";
+import TechSpecs from "../components/TechSpecs";
+import LiveDemo from "../components/LiveDemo";
 import Feedback from "../components/Feedback";
+import FAQ from "../components/FAQ";
 import EarlyAccess from "../components/EarlyAccess";
 import CTA from "../components/CTA";
-import FAQ from "../components/FAQ";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Brancr Platform Overview",
+  title: "Brancr – Your AI Sales Employee",
   description:
-    "Explore Brancr’s AI-powered automation platform for social messaging, campaigns, analytics, and integrations built for African SMEs.",
+    "Automate your sales with Brancr. Takes orders, negotiates prices, and manages social media 24/7.",
   openGraph: {
-    title: "Brancr – AI Automation Platform",
+    title: "Brancr – AI Sales Employee",
     description:
-      "Discover how Brancr helps teams manage omnichannel conversations, campaigns, and analytics for social platforms like WhatsApp, Instagram, and Facebook.",
-    url: "https://brancr.com/home",
+      "Automate your sales with Brancr. Takes orders, negotiates prices, and manages social media 24/7.",
+    url: "https://brancr.com",
+    images: ["/og-image.png"],
   },
 };
 
 export default function ProductHome() {
   return (
-    <main className="min-h-screen bg-neutral-bg dark:bg-dark-bg">
+    <main className="min-h-screen bg-dark-bg selection:bg-accent-500/30">
       <Header />
       <Hero />
+      <TechSpecs />
       <Features />
-      <Escalation />
       <HowItWorks />
       <Feedback />
+      <LiveDemo />
+      <FAQ />
       <EarlyAccess />
       <CTA />
-      <FAQ />
       <Contact />
       <Footer />
     </main>
   );
 }
-

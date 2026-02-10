@@ -6,8 +6,20 @@ function jsonResponse(body: unknown, status = 200) {
   return NextResponse.json(body, { status });
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const adminKey = process.env.WAITLIST_ADMIN_KEY;
+    if (adminKey) {
+      const providedKey =
+        request.nextUrl.searchParams.get("key") ||
+        request.headers.get("x-admin-key") ||
+        "";
+
+      if (providedKey !== adminKey) {
+        return jsonResponse({ error: "Unauthorized" }, 401);
+      }
+    }
+
     const entries = await getWaitlistEntries();
     return jsonResponse({ entries });
   } catch (error) {
@@ -47,4 +59,3 @@ export async function POST(request: NextRequest) {
     return jsonResponse({ error: "Internal server error" }, 500);
   }
 }
-

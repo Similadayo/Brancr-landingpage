@@ -91,14 +91,14 @@ const config: Config = {
         },
         // Dark Mode Color System
         dark: {
-          bg: "#121212",           // Dark Background (Primary)
-          surface: "#1E1E1E",      // Surface / Card
-          elevated: "#242526",     // Elevated Surface
+          bg: "#0B0A16",           // Deep Space Dark - Darker than before
+          surface: "#151425",      // Slightly lighter surface
+          elevated: "#1E1C38",     // Elevated Surface
           text: {
             primary: "#E0E0E0",    // Text Primary
-            secondary: "#B0B0B0",  // Text Secondary
+            secondary: "#94A3B8",  // Text Secondary (Slate-400)
           },
-          border: "#333333",       // Border / Divider
+          border: "#2D2B52",       // Border / Divider
           accent: {
             primary: "#4BA3FF",    // Primary Accent
             success: "#43B047",    // Success
@@ -110,6 +110,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        mono: ["var(--font-jetbrains-mono)", "monospace"], // Added mono for AI feel
       },
       boxShadow: {
         'soft': '0 2px 8px 0 rgba(0, 0, 0, 0.04)',
@@ -117,6 +118,8 @@ const config: Config = {
         'large': '0 8px 32px 0 rgba(0, 0, 0, 0.12)',
         'glow': '0 0 20px rgba(99, 91, 255, 0.15)',
         'glow-lg': '0 0 40px rgba(99, 91, 255, 0.25)',
+        'neon': '0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(139, 92, 246, 0.3)', // New neon glow
+        'neon-cyan': '0 0 10px rgba(6, 182, 212, 0.5), 0 0 20px rgba(6, 182, 212, 0.3)', // Cyan neon
       },
       borderRadius: {
         'xl': '0.75rem',
@@ -128,6 +131,9 @@ const config: Config = {
         'slide-up': 'slideUp 0.3s ease-out',
         'slide-down': 'slideDown 0.3s ease-out',
         'scale-in': 'scaleIn 0.2s ease-out',
+        'float': 'float 6s ease-in-out infinite',
+        'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'cursor-blink': 'cursorBlink 1s step-start infinite',
       },
       keyframes: {
         fadeIn: {
@@ -146,13 +152,27 @@ const config: Config = {
           '0%': { transform: 'scale(0.95)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' },
         },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-20px)' },
+        },
+        pulseGlow: {
+          '0%, 100%': { opacity: '1', boxShadow: '0 0 20px rgba(99, 91, 255, 0.5)' },
+          '50%': { opacity: '0.5', boxShadow: '0 0 10px rgba(99, 91, 255, 0.2)' },
+        },
+        cursorBlink: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0' },
+        },
       },
       backdropBlur: {
         xs: '2px',
+      },
+      backgroundImage: {
+        'grid-pattern': "linear-gradient(to right, #1f2937 1px, transparent 1px), linear-gradient(to bottom, #1f2937 1px, transparent 1px)",
       },
     },
   },
   plugins: [],
 };
 export default config;
-

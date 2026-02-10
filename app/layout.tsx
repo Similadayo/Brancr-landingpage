@@ -9,33 +9,19 @@ import { ErrorBoundary } from "@/lib/error-boundary";
 
 export const metadata: Metadata = {
   title: {
-    default: "Brancr – AI Marketing Assistant for African SMEs | Automate Social Media",
+    default: "Brancr – AI Sales Employee for African Business | Automate WhatsApp & IG",
     template: "%s | Brancr",
   },
-  description: "Brancr is an AI-powered marketing assistant that helps African SMEs automate social media replies, create content, and manage customer chats from one simple chat interface. Join the waitlist for 50% off early access.",
+  description: "Brancr is your AI sales employee. It automates customer chats, negotiates prices, takes orders, and schedules content—24/7. Join the waitlist for early access.",
   keywords: [
-    "AI marketing assistant for SMEs",
-    "automate social media responses",
-    "AI marketing tool Africa",
-    "AI assistant for small business",
-    "AI customer engagement Africa",
-    "AI marketing chatbot",
-    "automate social media marketing",
-    "AI content scheduler",
-    "simple AI marketing workflow",
-    "AI marketing feedback Africa",
-    "pilot SME AI marketing",
-    "small business automation",
-    "AI beta program Africa",
-    "early access AI marketing tool",
-    "SME automation software",
-    "social media automation Nigeria",
-    "AI marketing Ghana",
+    "AI sales agent Africa",
     "automate WhatsApp business",
-    "AI Instagram management",
-    "Facebook marketing automation",
-    "TikTok content creation AI",
-    "social media management Africa",
+    "Instagram sales bot",
+    "AI customer service Nigeria",
+    "conversational commerce",
+    "social commerce automation",
+    "AI content scheduler",
+    "Brancr AI",
   ],
   authors: [{ name: "Brancr" }],
   creator: "Brancr",
@@ -65,21 +51,21 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://brancr.com",
     siteName: "Brancr",
-    title: "Brancr – AI Marketing Assistant for African SMEs",
-    description: "Automate your social media replies, content creation, and customer engagement with Brancr. Join the waitlist today for 50% off early access.",
+    title: "Brancr – Your AI Sales Employee",
+    description: "Takes orders, negotiates prices, and closes deals in your DMs 24/7. Stop leaving money on the table.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Brancr - AI Marketing Assistant for African SMEs",
+        alt: "Brancr - AI Sales Employee",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Brancr – AI Marketing Assistant for African SMEs",
-    description: "Automate your social media replies, content creation, and customer engagement with Brancr. Join the waitlist today for 50% off early access.",
+    title: "Brancr – Your AI Sales Employee",
+    description: "Takes orders, negotiates prices, and closes deals in your DMs 24/7. Stop leaving money on the table.",
     images: ["/og-image.png"],
     creator: "@brancr",
   },
@@ -116,7 +102,8 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased bg-white dark:bg-dark-bg overflow-x-hidden max-w-full">
+      {/* Updated background color to match config */}
+      <body className="antialiased bg-white dark:bg-[#0B0A16] text-gray-900 dark:text-gray-100 overflow-x-hidden w-full selection:bg-accent-500/30 selection:text-accent-200">
         <ErrorBoundary>
           <Providers>
             <GoogleAnalytics />
@@ -128,4 +115,3 @@ export default function RootLayout({
     </html>
   );
 }
-
