@@ -334,7 +334,7 @@ export default function SignupPage() {
         variants={itemVariants}
         className="mt-8 text-center text-xs text-gray-500 dark:text-gray-400"
       >
-        By creating an account you agree to Brancr's{" "}
+        By creating an account you agree to Brancr&apos;s{" "}
         <a href="/terms" className="font-medium text-primary hover:text-primary/80 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
           Terms of Service
         </a>{" "}
