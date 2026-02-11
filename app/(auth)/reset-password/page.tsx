@@ -26,7 +26,7 @@ function ResetPasswordContent() {
                 <div className="text-center py-8">
                     <p className="text-red-600 dark:text-red-400">This password reset link is invalid or has expired.</p>
                     <button
-                        onClick={() => router.push("/auth/forgot-password")}
+                        onClick={() => router.push("/forgot-password")}
                         className="mt-4 text-primary hover:underline dark:text-primary-400"
                     >
                         Request a new one
@@ -65,7 +65,7 @@ function ResetPasswordContent() {
                 new_password: passwords.password
             });
             toast.success("Password reset successfully!");
-            router.push("/auth/login");
+            router.push("/login");
         } catch (err) {
             if (err instanceof ApiError) {
                 // Handle weak password errors from backend

@@ -21,7 +21,7 @@ export default function LoginForm() {
   function handleGoogleLogin() {
     const redirect = encodeURIComponent('/app/onboarding');
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.brancr.com';
-    window.location.href = `${apiBaseUrl}/api/google/start?redirect=${redirect}`;
+    window.location.href = `${apiBaseUrl}/api/auth/google/start?redirect=${redirect}`;
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -33,7 +33,7 @@ export default function LoginForm() {
       const response = await authApi.login({ email: email.trim(), password });
 
       if (response.email_verified === false) {
-        router.push(`/auth/verify-email-sent?email=${encodeURIComponent(email)}`);
+        router.push(`/verify-email-sent?email=${encodeURIComponent(email)}`);
         return;
       }
 

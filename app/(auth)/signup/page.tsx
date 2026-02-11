@@ -25,7 +25,7 @@ export default function SignupPage() {
   function handleGoogleSignup() {
     const redirect = encodeURIComponent('/app/onboarding');
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.brancr.com';
-    window.location.href = `${apiBaseUrl}/api/google/start?redirect=${redirect}`;
+    window.location.href = `${apiBaseUrl}/api/auth/google/start?redirect=${redirect}`;
   }
 
   function updateField(field: keyof typeof formValues, value: string) {
